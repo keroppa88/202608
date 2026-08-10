@@ -1,0 +1,33 @@
+name: 日経・米国株記事取得
+
+# 日本時間の朝に、前日（米国時間）の大引け記事を取得する。
+#
+# 米国市場は月〜金に取引され、その大引け記事は翌朝 JST 5時台に初出、
+# 5時台〜7時の間に最終版になる（SPEC §4B）。最終版を確実に取るため 08:00 JST に起動する。
+#
+# JST 08:00 = UTC 23:00（前日）。曜日が1日戻るため、
+# 「JST 火〜土」は UTC では「月〜金」になる。
+on:
+  schedule:
+    - cron: "0 23 * * 1-5" # UTC 月〜金 23:00 = JST 火〜土 08:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-push
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_nikkei_us.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "米国株大引け $(date -u +%Y-%m-%d)"

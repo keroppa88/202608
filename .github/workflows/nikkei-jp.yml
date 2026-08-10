@@ -1,0 +1,27 @@
+name: 日経・東証大引け記事取得
+
+# 実行スケジュールは未定（SPEC §11-5）。当面は手動実行のみ。
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "..."
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-push
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_nikkei_jp.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "東証大引け $(date -u +%Y-%m-%d)"
