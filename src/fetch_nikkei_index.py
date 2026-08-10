@@ -28,7 +28,6 @@ from common import now_jst, report, repo_root, save_raw
 from page_text import browser_session
 
 # 取得対象。key はファイル名に使う。
-# 日経VI は idx が未確定のため、まず index_list を取得してコードを確認する。
 TARGETS = {
     "nk225_summary": (
         "日経平均 サマリー（四本値・時刻・寄与度など）",
@@ -41,6 +40,10 @@ TARGETS = {
     "nkscd_profile": (
         "日経半導体株指数 プロフィル",
         "https://indexes.nikkei.co.jp/nkave/index/profile?idx=nkscd",
+    ),
+    "nk225vi_profile": (
+        "日経VI（日経平均ボラティリティー・インデックス） プロフィル",
+        "https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225vi",
     ),
     "index_list": (
         "指数一覧（カバードコール・内需50・外需50 などの大引け値）",
