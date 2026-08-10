@@ -1,0 +1,31 @@
+name: JPX・株価指数取得
+
+# 数値は JavaScript で描画されるため、ブラウザで開いて表示テキストを取る。
+# robots.txt は `Disallow:`（空）で全パスが許可されている。
+#
+# 東証の大引け後に取得する。JST 18:00 = UTC 09:00（同日）。曜日はずれない。
+on:
+  schedule:
+    - cron: "0 9 * * 1-5" # UTC 月〜金 09:00 = JST 月〜金 18:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
+      - name: 取得
+        run: python3 src/fetch_jpx_index.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "JPX指数 $(date -u +%Y-%m-%d)"
