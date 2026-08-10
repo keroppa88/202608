@@ -39,6 +39,15 @@ ETF,アークETF,ARKK,yahoo,USD,
 為替,英ポンド/円,GBPJPY=X,yahoo,JPY,
 為替,豪ドル/円,AUDJPY=X,yahoo,JPY,
 為替,中国元/円,CNYJPY=X,yahoo,JPY,
+為替,スイスフラン/円,CHFJPY=X,yahoo,JPY,
+為替,韓国ウォン/円,KRWJPY=X,yahoo,JPY,
+為替,台湾ドル/円,TWDJPY=X,yahoo,JPY,
+為替,香港ドル/円,HKDJPY=X,yahoo,JPY,
+為替,インドルピー/円,INRJPY=X,yahoo,JPY,
+為替,トルコリラ/円,TRYJPY=X,yahoo,JPY,
+為替,ブラジルレアル/円,BRLJPY=X,yahoo,JPY,
+為替,メキシコペソ/円,MXNJPY=X,yahoo,JPY,
+為替,南アフリカランド/円,ZARJPY=X,yahoo,JPY,
 個別株,アップル,AAPL,yahoo,USD,
 個別株,マイクロソフト,MSFT,yahoo,USD,
 個別株,アルファベット,GOOGL,yahoo,USD,
@@ -76,3 +85,6 @@ ETF,アークETF,ARKK,yahoo,USD,
 個別株,BNPパリバ,BNP.PA,yahoo,EUR,
 個別株,LVMH,MC.PA,yahoo,EUR,現地上場を採用。ADRはLVMUY
 個別株,ASML,ASML.AS,yahoo,EUR,現地上場を採用。米国上場のASMLはADRではなくNY登録株
+暗号資産,ビットコイン,BTC-USD,yahoo,USD,24時間市場。UTC日付の前日分が確定足として入る
+暗号資産,イーサリアム,ETH-USD,yahoo,USD,24時間市場。UTC日付の前日分が確定足として入る
+暗号資産,リップル,XRP-USD,yahoo,USD,24時間市場。UTC日付の前日分が確定足として入る
