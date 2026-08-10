@@ -75,4 +75,4 @@ ETF,アークETF,ARKK,yahoo,USD,
 個別株,HSBC,HSBA.L,yahoo,GBp,現地上場を採用。ADRはHSBC。ペンス建て（ポンドではない）
 個別株,BNPパリバ,BNP.PA,yahoo,EUR,
 個別株,LVMH,MC.PA,yahoo,EUR,現地上場を採用。ADRはLVMUY
-個別株,ASML,ASML.AS,yahoo,EUR,現地上場を採用。ADRはASML
+個別株,ASML,ASML.AS,yahoo,EUR,現地上場を採用。米国上場のASMLはADRではなくNY登録株
