@@ -1,17 +1,18 @@
 name: 相場データ取得
 
-# 実行スケジュールは未定（SPEC §11-5）。当面は手動実行のみ。
+# 全市場の「直近の確定した足」を1日1回まとめて取る。
+# JST 朝の時点では、米国・欧州・アジアいずれも前営業日の引けが確定している。
+#
+# JST 08:30 = UTC 23:30（前日）。曜日が1日戻るため、
+# 「JST 火〜土」は UTC では「月〜金」になる。
+# 米国株記事（08:00 JST）と 30分ずらして同時起動を避けている。
 on:
+  schedule:
+    - cron: "30 23 * * 1-5" # UTC 月〜金 23:30 = JST 火〜土 08:30
   workflow_dispatch:
-  # schedule:
-  #   - cron: "..."
 
 permissions:
   contents: write
-
-concurrency:
-  group: data-push
-  cancel-in-progress: false
 
 jobs:
   fetch:

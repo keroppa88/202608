@@ -1,17 +1,14 @@
 name: 日経・東証大引け記事取得
 
-# 実行スケジュールは未定（SPEC §11-5）。当面は手動実行のみ。
+# 平日の大引け後に掲載される記事を取得する（掲載実測 15:48 JST）。
+# JST 17:00 = UTC 08:00（同日）。曜日はずれない。
 on:
+  schedule:
+    - cron: "0 8 * * 1-5" # UTC 月〜金 08:00 = JST 月〜金 17:00
   workflow_dispatch:
-  # schedule:
-  #   - cron: "..."
 
 permissions:
   contents: write
-
-concurrency:
-  group: data-push
-  cancel-in-progress: false
 
 jobs:
   fetch:
