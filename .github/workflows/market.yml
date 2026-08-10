@@ -1,6 +1,7 @@
-name: 相場データ取得
+name: 相場データ取得（海外）
 
-# 海外指数・為替・個別株など、全市場の「直近の確定した足」を1日1回まとめて取る。
+# 海外指数・為替・暗号資産・海外個別株の「直近の確定した足」を1日1回まとめて取る。
+# 日本株は市場の開く時間が違うので、夕方の枠（japan-stocks.yml）で取る。
 # JST 朝7時の時点では、米国・欧州・アジアいずれも前営業日の引けが確定している。
 #
 # JST 07:00 = UTC 22:00（前日）。曜日が1日戻るため、
@@ -21,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 取得
-        run: python3 src/fetch_market.py
+        run: python3 src/fetch_market.py --exclude 日本株
 
       - name: コミット
         if: always()

@@ -1,0 +1,24 @@
+name: 相場データ取得（日本株）
+
+# 東証の大引け後に取得する。朝7時の枠だと東証が開く前で、前営業日の足しか取れない。
+# JST 18:00 = UTC 09:00（同日）。曜日はずれない。
+on:
+  schedule:
+    - cron: "0 9 * * 1-5" # UTC 月〜金 09:00 = JST 月〜金 18:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_market.py --category 日本株
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "日本株 $(date -u +%Y-%m-%d)"
