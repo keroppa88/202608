@@ -1,0 +1,28 @@
+name: 日経・指数ページ取得（手動）
+
+# indexes.nikkei.co.jp は Cloudflare のボット判定があり、ブラウザでないと開けない。
+# データセンターIP（このランナー）から通過できるかがまだ不明なため、
+# 当面は手動実行のみ。通ることを確認してから schedule を入れる。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
+      - name: 取得
+        run: python3 src/fetch_nikkei_index.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "日経指数ページ $(date -u +%Y-%m-%d)"

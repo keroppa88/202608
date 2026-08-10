@@ -40,48 +40,70 @@ def text_from_html(source):
     return "\n".join(ln for ln in lines if ln)
 
 
-def capture(url, *, timeout_ms=60000, settle_ms=3000, challenge_ms=45000):
-    """ヘッドレスブラウザでページを開き、表示テキストを丸ごと返す。
+def _read_page(page, url, timeout_ms, settle_ms, challenge_ms):
+    page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+
+    if CHALLENGE.search(page.title() or ""):
+        # ボット判定の画面は自動で解けて元ページへ遷移する。消えるまで待つ
+        page.wait_for_function(
+            "() => !/just a moment|attention required/i.test(document.title)",
+            timeout=challenge_ms,
+        )
+
+    try:
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass
+    page.wait_for_timeout(settle_ms)
+
+    if CHALLENGE.search(page.title() or ""):
+        raise RuntimeError("ボット判定を通過できなかった")
+
+    # 画面に見えている文字を全部。範囲の絞り込みはしない
+    text = page.inner_text("body")
+    if not text.strip():
+        raise RuntimeError("表示テキストが空")
+    return text
+
+
+def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000):
+    """ブラウザを1回だけ立ち上げ、複数ページを続けて読むための文脈を返す。
+
+    使い方:
+        with browser_session() as read:
+            text = read(url)
 
     playwright が必要:
         pip install playwright && playwright install chromium
     """
+    from contextlib import contextmanager
+
     from playwright.sync_api import sync_playwright
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        # 実ブラウザに近い状態にする。言語・タイムゾーン・画面サイズも見られている
-        context = browser.new_context(
-            locale="ja-JP",
-            timezone_id="Asia/Tokyo",
-            viewport={"width": 1280, "height": 900},
-            user_agent=UA,
-        )
-        page = context.new_page()
-        try:
-            page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
-
-            if CHALLENGE.search(page.title() or ""):
-                # ボット判定の画面は自動で解けて元ページへ遷移する。消えるまで待つ
-                page.wait_for_function(
-                    "() => !/just a moment|attention required/i.test(document.title)",
-                    timeout=challenge_ms,
-                )
-
+    @contextmanager
+    def session():
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            # 実ブラウザに近い状態にする。言語・タイムゾーン・画面サイズも見られている
+            context = browser.new_context(
+                locale="ja-JP",
+                timezone_id="Asia/Tokyo",
+                viewport={"width": 1280, "height": 900},
+                user_agent=UA,
+            )
+            page = context.new_page()
             try:
-                page.wait_for_load_state("networkidle", timeout=15000)
-            except Exception:
-                pass
-            page.wait_for_timeout(settle_ms)
+                yield lambda url: _read_page(
+                    page, url, timeout_ms, settle_ms, challenge_ms
+                )
+            finally:
+                context.close()
+                browser.close()
 
-            if CHALLENGE.search(page.title() or ""):
-                raise RuntimeError("ボット判定を通過できなかった")
+    return session()
 
-            # 画面に見えている文字を全部。範囲の絞り込みはしない
-            text = page.inner_text("body")
-            if not text.strip():
-                raise RuntimeError("表示テキストが空")
-            return text
-        finally:
-            context.close()
-            browser.close()
+
+def capture(url, **kw):
+    """ヘッドレスブラウザでページを開き、表示テキストを丸ごと返す。"""
+    with browser_session(**kw) as read:
+        return read(url)
