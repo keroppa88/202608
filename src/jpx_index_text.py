@@ -15,6 +15,19 @@ import re
 # 見出し行・区切り行。データではない
 SKIP_LINES = ("指数名", "先頭に戻る")
 
+# 蓄積しない指数。生テキストには全て残るが、CSV には入れない。
+# レバレッジ・インバース系と為替ヘッジ系が対象（原指数から機械的に導けるため）
+EXCLUDE_KEYWORDS = (
+    "レバレッジ",
+    "インバース",
+    "ダブルインバース",
+    "ベア",
+    "ブル",
+    "為替ヘッジ",
+    "ドルヘッジ",
+    "ユーロヘッジ",
+)
+
 # 値のない欄。ハイフン1〜2個で表される
 EMPTY = ("--", "-", "")
 
@@ -64,12 +77,13 @@ def _num(text):
 def parse(text):
     """指数ごとの値を返す。名前のない行は数を数えて別に返す。
 
-    戻り値: (rows, skipped, broken)
-        rows    … [{name, close, change, change_pct, open, high, low}]
-        skipped … 名前や現在値が読めなかった行数
-        broken  … 四本値が不整合で除いた [(指数名, 乖離率)]
+    戻り値: (rows, skipped, broken, excluded)
+        rows     … [{name, close, change, change_pct, open, high, low}]
+        skipped  … 名前や現在値が読めなかった行数
+        broken   … 四本値が不整合で除いた [(指数名, 乖離率)]
+        excluded … 蓄積対象外として除いた指数名
     """
-    rows, seen, skipped, broken = [], set(), 0, []
+    rows, seen, skipped, broken, excluded = [], set(), 0, [], []
 
     for line in text.split("\n"):
         if not line.strip() or line.strip().startswith(SKIP_LINES):
@@ -92,6 +106,10 @@ def parse(text):
         if name in seen:
             continue  # 同じ指数が複数の節に載っている。最初の1件を採る
         seen.add(name)
+
+        if any(k in name for k in EXCLUDE_KEYWORDS):
+            excluded.append(name)
+            continue
 
         def cell(i):
             return _num(cells[i]) if i < len(cells) else None
@@ -117,4 +135,4 @@ def parse(text):
 
     if not rows:
         raise ExtractError("指数の行が1件も取れない")
-    return rows, skipped, broken
+    return rows, skipped, broken, excluded

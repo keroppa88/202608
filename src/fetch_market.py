@@ -4,9 +4,14 @@ symbols.csv を読み、1銘柄=1リクエストで取得する。
 生レスポンスは data/raw/YYYY-MM-DD/ に無加工で保存し、
 そこから四本値を抽出して data/overseas.csv に追記する。
 
+取得する範囲は分類で絞れる。市場の開いている時間が違うため、
+日本株は夕方、それ以外は朝の枠で動かしている（SPEC §8）。
+
 使い方:
-    python3 src/fetch_market.py            全銘柄
-    python3 src/fetch_market.py TSLA ^GSPC 指定銘柄のみ
+    python3 src/fetch_market.py                     全銘柄
+    python3 src/fetch_market.py TSLA ^GSPC          指定銘柄のみ
+    python3 src/fetch_market.py --category 日本株    その分類だけ
+    python3 src/fetch_market.py --exclude 日本株     その分類を除く
 """
 
 import csv
@@ -269,11 +274,27 @@ def merge_rows(path, new_rows):
             w.writerow({k: rows[key].get(k, "") for k in HEADER})
 
 
+def _option(argv, name):
+    """--name 値 を取り出す。複数回指定できる。"""
+    out = []
+    for i, a in enumerate(argv):
+        if a == name and i + 1 < len(argv):
+            out.append(argv[i + 1])
+    return out
+
+
 def main(argv):
     root = repo_root()
-    wanted = set(argv[1:])
+    only = _option(argv, "--category")
+    skip = _option(argv, "--exclude")
+    consumed = {"--category", "--exclude", *only, *skip}
+    wanted = {a for a in argv[1:] if a not in consumed}
 
     symbols = load_symbols(os.path.join(root, "symbols.csv"))
+    if only:
+        symbols = [s for s in symbols if s.get("category") in only]
+    if skip:
+        symbols = [s for s in symbols if s.get("category") not in skip]
     if wanted:
         symbols = [s for s in symbols if s["symbol"] in wanted]
         missing = wanted - {s["symbol"] for s in symbols}

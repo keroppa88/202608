@@ -40,6 +40,11 @@ HEADER = [
 ]
 
 
+# 取得できた指数がこれを下回ったら、ページが描画し切れていないとみなす。
+# 初回はまだ比較対象がないので、この下限だけで見る
+MIN_INDICES = 50
+
+
 def last_recorded(path):
     """直近に記録した取引日と、その日の {指数名: 終値} を返す。"""
     if not os.path.exists(path):
@@ -96,25 +101,33 @@ def main(argv):
           f"-> {os.path.relpath(path, root)}")
 
     try:
-        rows, skipped, broken = J.parse(text)
+        rows, skipped, broken, excluded = J.parse(text)
     except Exception as e:
         return report([], [("抽出", str(e).splitlines()[0])], "JPX指数取得")
 
     print(f"抽出: {len(rows)}指数"
-          + (f" / 名前や値が出ていない {skipped}行を除外" if skipped else "")
-          + (f" / 四本値が不整合な {len(broken)}指数を除外" if broken else ""))
+          + (f" / 蓄積対象外 {len(excluded)}指数" if excluded else "")
+          + (f" / 名前や値が読めない {skipped}行" if skipped else "")
+          + (f" / 四本値が不整合な {len(broken)}指数" if broken else ""))
+    if excluded:
+        print(f"     対象外: {'、'.join(excluded)}")
     for name, rate in broken:
         print(f"     ※ 不整合 {name} 乖離 {rate * 100:.3f}%")
 
-    # 書き込む前に検査する。中途半端な結果を残さないため
-    if skipped > len(rows) * 0.2:
-        return report(
-            [], [("抽出", f"除外が多すぎる（{skipped}行 / 取得 {len(rows)}指数）。"
-                          "描画待ちが足りていない可能性")], "JPX指数取得"
-        )
-
     csv_path = os.path.join(root, "data", "jpx_index.csv")
     prev_date, prev_close = last_recorded(csv_path)
+
+    # 書き込む前に検査する。中途半端な結果を残さないため。
+    # ワークフローの commit は if: always() なので、書いてしまうと失敗時もコミットされる。
+    #
+    # 描画不足は「取れた指数の数」で見る。前回の8割を下回ったら疑う。
+    # 除外行の割合では見ない。名前のない行は常に1割ほどあり、基準にならないため
+    floor = max(MIN_INDICES, int(len(prev_close) * 0.8))
+    if len(rows) < floor:
+        return report(
+            [], [("抽出", f"取得できた指数が少ない（{len(rows)}指数 / 下限 {floor}）。"
+                          "描画待ちが足りていない可能性")], "JPX指数取得"
+        )
 
     # 取引日はページに出ていればそれを使う。無ければ実行日を仮に置く
     page_date = J.find_date(text)
