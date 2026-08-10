@@ -24,6 +24,11 @@ from common import ExtractError, JST, fetch, now_jst, report, repo_root, save_ra
 # 週末・連休を跨ぐため余裕を持たせる（SPEC §9 の RTSI.ME 事例）。
 STALE_DAYS = 7
 
+# 四本値の整合性（安値 <= 始値/終値 <= 高値）が崩れたときに許す幅。
+# 配信側の集計のずれで 0.05% 程度は日常的に起きるため、それは通す。
+# これを超えるものは配信側の異常を疑い、エラーとして記録する。
+OHLC_TOLERANCE = 0.001  # 0.1%
+
 REQUEST_INTERVAL = 0.3
 
 # 全銘柄・全日付を1ファイルに追記する（data/overseas.csv）。
@@ -196,6 +201,43 @@ def load_symbols(path):
         return [r for r in csv.DictReader(f) if r.get("symbol")]
 
 
+def inconsistency(bar):
+    """安値 <= 始値/終値 <= 高値 の崩れ幅を相対値で返す。整合していれば 0。
+
+    高値が終値より安い、といった足は物理的にありえず、
+    値幅やローソク足の計算を壊す。値は書き換えない。
+    配信元にない数字を作らないため（SPEC §2.1）。
+    """
+    o, h, l, c = (bar[k] for k in ("open", "high", "low", "close"))
+    gap = max(l - min(o, c), max(o, c) - h, 0)
+    return gap / l if gap and l else 0.0
+
+
+def drop_inconsistent(bars, label):
+    """不整合な足を除いて返す。最新の足が壊れていた場合だけ例外にする。
+
+    過去の足は毎回取り込み直すので、そこで例外にすると同じ異常を何日も
+    通知し続けることになる（§2.4 の通知が形骸化する）。除いて記録に留める。
+    最新の足はその日に届いたばかりの異常なので、気づけるようエラーにする。
+    """
+    good = []
+    for i, bar in enumerate(bars):
+        rate = inconsistency(bar)
+        if rate <= OHLC_TOLERANCE:
+            good.append(bar)
+            continue
+        detail = (
+            f"{bar['trade_date']} 乖離 {rate * 100:.3f}% "
+            f"(O={bar['open']} H={bar['high']} L={bar['low']} C={bar['close']})"
+        )
+        if i == 0:
+            raise ExtractError(f"最新の足が不整合 {detail}")
+        print(f"     ※ {label}: 不整合な足を除外 {detail}")
+    if not good:
+        raise ExtractError("整合する足が1本もない")
+    return good
+
+
 def check_freshness(trade_date, today):
     """古すぎる足を弾く。値が返ること自体は正常性の証拠にならない（SPEC §2.4）。"""
     d = datetime.strptime(trade_date, "%Y-%m-%d").date()
@@ -262,6 +304,7 @@ def main(argv):
             bars = do_extract(raw)
             # 鮮度は最新の足で見る。過去分は古くて当然なので対象外
             check_freshness(bars[0]["trade_date"], today)
+            bars = drop_inconsistent(bars, label)
 
             for bar in bars:
                 rows.append(
