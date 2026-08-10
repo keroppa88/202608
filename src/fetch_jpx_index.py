@@ -40,6 +40,17 @@ HEADER = [
 ]
 
 
+def last_recorded(path):
+    """直近に記録した取引日と、その日の {指数名: 終値} を返す。"""
+    if not os.path.exists(path):
+        return None, {}
+    rows = list(csv.DictReader(open(path, encoding="utf-8", newline="")))
+    if not rows:
+        return None, {}
+    latest = max(r["trade_date"] for r in rows)
+    return latest, {r["name"]: r["close"] for r in rows if r["trade_date"] == latest}
+
+
 def merge(path, rows):
     """(trade_date, name) をキーに追記する。再実行しても二重にならない。"""
     existing = {}
@@ -85,16 +96,46 @@ def main(argv):
           f"-> {os.path.relpath(path, root)}")
 
     try:
-        rows, skipped = J.parse(text)
+        rows, skipped, broken = J.parse(text)
     except Exception as e:
         return report([], [("抽出", str(e).splitlines()[0])], "JPX指数取得")
 
-    # ページは「現在値」を出しており、大引け後に取れば当日の終値にあたる。
-    # 日付はページ側に出ないため、実行日（JST）を取引日として扱う。
-    trade_date = started.strftime("%Y-%m-%d")
+    print(f"抽出: {len(rows)}指数"
+          + (f" / 名前や値が出ていない {skipped}行を除外" if skipped else "")
+          + (f" / 四本値が不整合な {len(broken)}指数を除外" if broken else ""))
+    for name, rate in broken:
+        print(f"     ※ 不整合 {name} 乖離 {rate * 100:.3f}%")
+
+    # 書き込む前に検査する。中途半端な結果を残さないため
+    if skipped > len(rows) * 0.2:
+        return report(
+            [], [("抽出", f"除外が多すぎる（{skipped}行 / 取得 {len(rows)}指数）。"
+                          "描画待ちが足りていない可能性")], "JPX指数取得"
+        )
+
+    csv_path = os.path.join(root, "data", "jpx_index.csv")
+    prev_date, prev_close = last_recorded(csv_path)
+
+    # 取引日はページに出ていればそれを使う。無ければ実行日を仮に置く
+    page_date = J.find_date(text)
+    trade_date = (page_date or started.date()).strftime("%Y-%m-%d")
+    if page_date:
+        print(f"取引日: {trade_date}（ページの表記から）")
+    else:
+        print(f"取引日: {trade_date}（ページに日付が無いため実行日）")
+
+    # 休場日はページが前営業日の値を出し続ける。実行日で記録すると
+    # 存在しない日の足を全指数ぶん作ってしまうので、前回と同じ内容なら書かない。
+    # 祝日カレンダーを持たずに済ませるため、値そのもので判定する（§4A の重複判定と同じ考え方）
+    if prev_close and trade_date != prev_date:
+        same = sum(1 for r in rows if str(r["close"]) == prev_close.get(r["name"]))
+        if same == len(rows):
+            print(f"全{len(rows)}指数が {prev_date} と同値。休場日とみなして記録しない")
+            return report([r["name"] for r in rows], [], "JPX指数取得")
+
     stamp = started.isoformat(timespec="seconds")
     merge(
-        os.path.join(root, "data", "jpx_index.csv"),
+        csv_path,
         [
             {
                 "trade_date": trade_date,
@@ -110,13 +151,8 @@ def main(argv):
             for r in rows
         ],
     )
-
-    print(f"抽出: {len(rows)}指数" + (f" / 名前や値が出ていない {skipped}行を除外" if skipped else ""))
-    # 除外が多いときは描画待ちが足りていない可能性がある
-    errors = []
-    if skipped > len(rows) * 0.2:
-        errors.append(("抽出", f"除外が多すぎる（{skipped}行 / 取得 {len(rows)}指数）"))
-    return report([r["name"] for r in rows], errors, "JPX指数取得")
+    print(f"記録: {trade_date} に {len(rows)}指数")
+    return report([r["name"] for r in rows], [], "JPX指数取得")
 
 
 if __name__ == "__main__":
