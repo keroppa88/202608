@@ -2,7 +2,7 @@
 
 symbols.csv を読み、1銘柄=1リクエストで取得する。
 生レスポンスは data/raw/YYYY-MM-DD/ に無加工で保存し、
-そこから四本値を抽出して data/YYYY-MM.csv に追記する。
+そこから四本値を抽出して data/overseas.csv に追記する。
 
 使い方:
     python3 src/fetch_market.py            全銘柄
@@ -26,13 +26,14 @@ STALE_DAYS = 7
 
 REQUEST_INTERVAL = 0.3
 
-CSV_HEADER = [
-    "fetched_at",
+# 全銘柄・全日付を1ファイルに追記する（data/overseas.csv）。
+# 1行 = 1銘柄の1日。銘柄が増減しても列が変わらないこの形にする。
+HEADER = [
+    "trade_date",
     "category",
     "name",
     "symbol",
     "source",
-    "trade_date",
     "open",
     "high",
     "low",
@@ -40,6 +41,7 @@ CSV_HEADER = [
     "volume",
     "currency",
     "exchange",
+    "fetched_at",
 ]
 
 
@@ -52,9 +54,11 @@ def safe_name(symbol):
 # Yahoo Finance
 # --------------------------------------------------------------------------
 
+# range=1mo を使う。5d だと S&P500 セクター指数などは足が1本しか返らず、
+# その1本が進行中セッションだと確定足が1本も得られない（実測）。
 YAHOO_URL = (
     "https://query1.finance.yahoo.com/v8/finance/chart/{}"
-    "?interval=1d&range=5d"
+    "?interval=1d&range=1mo"
 )
 
 
@@ -62,8 +66,35 @@ def fetch_yahoo(symbol):
     return fetch(YAHOO_URL.format(urllib.parse.quote(symbol, safe="")))
 
 
+def _local_date(stamp, gmtoffset):
+    """取引所ローカルの日付。日付の比較は必ず取引所時間で行う。"""
+    return datetime.fromtimestamp(stamp + gmtoffset, timezone.utc).date()
+
+
+def _in_progress(meta, stamp, now_ts):
+    """stamp の足が「まだ終わっていないセッション」のものなら True。
+
+    取引時間中に叩くと、Yahoo は進行中セッションの足も四本値が埋まった状態で返す。
+    その close はその瞬間の値であって終値ではないため、確定足にしてはいけない。
+
+    判定は「そのセッションの終了時刻を過ぎたか」で行う。
+    バーのタイムスタンプは銘柄によってセッション開始時刻だったり
+    最終約定時刻だったりして揃わないため、時刻の一致では判定できない。
+    """
+    end = ((meta.get("currentTradingPeriod") or {}).get("regular") or {}).get("end")
+    if not end or now_ts >= end:
+        return False  # そのセッションは終了済み。休場日は次回セッションを指すので日付が一致しない
+    offset = meta.get("gmtoffset") or 0
+    return _local_date(stamp, offset) == _local_date(end, offset)
+
+
 def extract_yahoo(raw):
-    """直近の四本値が揃った足を返す。当日足が未確定なことがあるため遡って探す。"""
+    """確定した四本値を**すべて**返す（新しい順）。
+
+    レスポンスには1か月分の足が入っているので、毎回まとめて取り込む。
+    取得を1日飛ばしても次の実行で自動的に埋まり、休場日はそもそも足が無いので
+    「更新なし」と「取り逃し」を区別する必要がなくなる。
+    """
     doc = json.loads(raw)
     result = (doc.get("chart") or {}).get("result")
     if not result:
@@ -76,27 +107,34 @@ def extract_yahoo(raw):
     if not stamps:
         raise ExtractError("時系列なし（配信停止の疑い）")
 
+    now_ts = int(datetime.now(timezone.utc).timestamp())
+    offset = meta.get("gmtoffset") or 0
     q = (r.get("indicators") or {}).get("quote", [{}])[0]
+
+    bars = []
     for i in range(len(stamps) - 1, -1, -1):
-        bar = [q.get(k, [None] * len(stamps))[i] for k in ("open", "high", "low", "close")]
-        if all(isinstance(v, (int, float)) for v in bar):
-            vol = (q.get("volume") or [None] * len(stamps))[i]
-            return {
-                # 指数は取引所のローカル日付で扱いたいので JST 変換はしない
-                "trade_date": datetime.fromtimestamp(
-                    stamps[i], timezone.utc
-                ).strftime("%Y-%m-%d"),
-                "open": bar[0],
-                "high": bar[1],
-                "low": bar[2],
-                "close": bar[3],
+        if _in_progress(meta, stamps[i], now_ts):
+            continue
+        ohlc = [q.get(k, [None] * len(stamps))[i] for k in ("open", "high", "low", "close")]
+        if not all(isinstance(v, (int, float)) for v in ohlc):
+            continue
+        bars.append(
+            {
+                # 日付は取引所ローカル。UTC に直すと市場ごとに1日ずれる
+                "trade_date": _local_date(stamps[i], offset).strftime("%Y-%m-%d"),
+                "open": ohlc[0],
+                "high": ohlc[1],
+                "low": ohlc[2],
+                "close": ohlc[3],
                 # 指数の出来高は 0 / None が正常。異常値として弾かない
-                "volume": vol,
+                "volume": (q.get("volume") or [None] * len(stamps))[i],
                 "currency": meta.get("currency") or "",
                 "exchange": meta.get("exchangeName") or "",
-                "long_name": meta.get("longName") or meta.get("shortName") or "",
             }
-    raise ExtractError("四本値が全て欠損")
+        )
+    if not bars:
+        raise ExtractError("確定した四本値が1本もない")
+    return bars
 
 
 # --------------------------------------------------------------------------
@@ -115,6 +153,7 @@ def fetch_moex(symbol):
 
 
 def extract_moex(raw):
+    """確定した四本値をすべて返す（新しい順）。history は完了済みセッションのみを含む。"""
     doc = json.loads(raw)
     hist = doc.get("history") or {}
     cols, rows = hist.get("columns") or [], hist.get("data") or []
@@ -122,10 +161,13 @@ def extract_moex(raw):
         raise ExtractError("history が空")
 
     idx = {c: i for i, c in enumerate(cols)}
+    bars = []
     for row in reversed(rows):
         vals = {k: row[idx[k]] for k in ("OPEN", "HIGH", "LOW", "CLOSE") if k in idx}
-        if len(vals) == 4 and all(isinstance(v, (int, float)) for v in vals.values()):
-            return {
+        if len(vals) != 4 or not all(isinstance(v, (int, float)) for v in vals.values()):
+            continue
+        bars.append(
+            {
                 "trade_date": row[idx["TRADEDATE"]],
                 "open": vals["OPEN"],
                 "high": vals["HIGH"],
@@ -134,9 +176,11 @@ def extract_moex(raw):
                 "volume": row[idx["VOLUME"]] if "VOLUME" in idx else None,
                 "currency": row[idx["CURRENCYID"]] if "CURRENCYID" in idx else "",
                 "exchange": "MOEX",
-                "long_name": row[idx["NAME"]] if "NAME" in idx else "",
             }
-    raise ExtractError("四本値が揃った行がない")
+        )
+    if not bars:
+        raise ExtractError("四本値が揃った行がない")
+    return bars
 
 
 SOURCES = {
@@ -162,37 +206,25 @@ def check_freshness(trade_date, today):
         raise ExtractError(f"未来の日付（{trade_date}）")
 
 
-def merge_rows(csv_path, new_rows):
-    """(symbol, trade_date) をキーに追記する。再実行しても二重にならない。"""
-    existing, order = {}, []
-    if os.path.exists(csv_path):
-        with open(csv_path, encoding="utf-8", newline="") as f:
-            for row in csv.DictReader(f):
-                key = (row["symbol"], row["trade_date"])
-                if key not in existing:
-                    order.append(key)
-                existing[key] = row
+def merge_rows(path, new_rows):
+    """(trade_date, symbol) をキーに1ファイルへ追記する。
 
-    for row in new_rows:
-        key = (row["symbol"], row["trade_date"])
-        if key not in existing:
-            order.append(key)
-        existing[key] = row
+    同じ日を再取得しても二重にならず、後から過去分を足しても順序が崩れない。
+    """
+    rows = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                rows[(r["trade_date"], r["symbol"])] = r
+    for r in new_rows:
+        rows[(r["trade_date"], r["symbol"])] = r
 
-    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-    with open(csv_path, "w", encoding="utf-8", newline="\n") as f:
-        w = csv.DictWriter(f, fieldnames=CSV_HEADER)
-        w.writeheader()
-        for key in order:
-            w.writerow(existing[key])
-
-
-def write_latest(path, rows):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
-        w = csv.DictWriter(f, fieldnames=CSV_HEADER)
+        w = csv.DictWriter(f, fieldnames=HEADER)
         w.writeheader()
-        w.writerows(rows)
+        for key in sorted(rows):
+            w.writerow({k: rows[key].get(k, "") for k in HEADER})
 
 
 def main(argv):
@@ -227,27 +259,33 @@ def main(argv):
             # 抽出前に必ず保存する。抽出が失敗しても生データは残す
             save_raw(os.path.join(raw_dir, f"{source}_{safe_name(symbol)}.{ext}"), raw)
 
-            bar = do_extract(raw)
-            check_freshness(bar["trade_date"], today)
+            bars = do_extract(raw)
+            # 鮮度は最新の足で見る。過去分は古くて当然なので対象外
+            check_freshness(bars[0]["trade_date"], today)
 
-            rows.append(
-                {
-                    "fetched_at": started.isoformat(timespec="seconds"),
-                    "category": sym.get("category", ""),
-                    "name": sym.get("name", ""),
-                    "symbol": symbol,
-                    "source": source,
-                    "trade_date": bar["trade_date"],
-                    "open": bar["open"],
-                    "high": bar["high"],
-                    "low": bar["low"],
-                    "close": bar["close"],
-                    "volume": "" if bar["volume"] is None else bar["volume"],
-                    "currency": bar["currency"],
-                    "exchange": bar["exchange"],
-                }
+            for bar in bars:
+                rows.append(
+                    {
+                        "trade_date": bar["trade_date"],
+                        "category": sym.get("category", ""),
+                        "name": sym.get("name", ""),
+                        "symbol": symbol,
+                        "source": source,
+                        "open": bar["open"],
+                        "high": bar["high"],
+                        "low": bar["low"],
+                        "close": bar["close"],
+                        # 出来高が取れない銘柄は空欄。0 とは区別する
+                        "volume": "" if bar["volume"] is None else bar["volume"],
+                        "currency": bar["currency"],
+                        "exchange": bar["exchange"],
+                        "fetched_at": started.isoformat(timespec="seconds"),
+                    }
+                )
+            print(
+                f"[{i:3}/{len(symbols)}] OK   {label:<34} "
+                f"{bars[0]['trade_date']} {bars[0]['close']}  ({len(bars)}本)"
             )
-            print(f"[{i:3}/{len(symbols)}] OK   {label:<34} {bar['trade_date']} {bar['close']}")
         except Exception as e:
             errors.append((label, str(e)))
             print(f"[{i:3}/{len(symbols)}] FAIL {label:<34} {e}")
@@ -255,10 +293,9 @@ def main(argv):
         time.sleep(REQUEST_INTERVAL)
 
     if rows:
-        merge_rows(os.path.join(root, "data", f"{started.strftime('%Y-%m')}.csv"), rows)
-        write_latest(os.path.join(root, "data", "latest.csv"), rows)
+        merge_rows(os.path.join(root, "data", "overseas.csv"), rows)
 
-    return report([r["symbol"] for r in rows], errors, "相場データ取得")
+    return report(sorted({r["symbol"] for r in rows}), errors, "相場データ取得")
 
 
 if __name__ == "__main__":
