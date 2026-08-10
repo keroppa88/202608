@@ -1,0 +1,24 @@
+name: 日経・東証大引け記事取得
+
+# 平日の大引け後に掲載される記事を取得する（掲載実測 15:48 JST）。
+# JST 18:00 = UTC 09:00（同日）。曜日はずれない。
+on:
+  schedule:
+    - cron: "0 9 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_nikkei_jp.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "東証大引け $(date -u +%Y-%m-%d)"

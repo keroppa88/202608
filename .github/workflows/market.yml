@@ -1,0 +1,28 @@
+name: 相場データ取得
+
+# 海外指数・為替・個別株など、全市場の「直近の確定した足」を1日1回まとめて取る。
+# JST 朝7時の時点では、米国・欧州・アジアいずれも前営業日の引けが確定している。
+#
+# JST 07:00 = UTC 22:00（前日）。曜日が1日戻るため、
+# 「JST 火〜土」は UTC では「月〜金」になる。
+# 月曜朝は新しい確定足がないため対象外。
+on:
+  schedule:
+    - cron: "0 22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_market.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "相場データ $(date -u +%Y-%m-%d)"
