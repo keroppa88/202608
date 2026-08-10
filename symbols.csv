@@ -1,0 +1,78 @@
+category,name,symbol,source,currency,note
+海外指数,S&P500,^GSPC,yahoo,USD,
+海外指数,ラッセル2000,^RUT,yahoo,USD,
+海外指数,ドイツDAX,^GDAXI,yahoo,EUR,
+海外指数,英国FTSE100,^FTSE,yahoo,GBP,
+海外指数,仏CAC40,^FCHI,yahoo,EUR,
+海外指数,ユーロ・ストックス50,^STOXX50E,yahoo,EUR,
+海外指数,イタリア40,FTSEMIB.MI,yahoo,EUR,
+海外指数,イスタンブール100,XU100.IS,yahoo,TRY,
+海外指数,深セン成分指数,399001.SZ,yahoo,CNY,深セン総合は399106.SZ
+海外指数,香港ハンセン,^HSI,yahoo,HKD,
+海外指数,タイSET,^SET.BK,yahoo,THB,
+海外指数,インドSENSEX30,^BSESN,yahoo,INR,
+海外指数,韓国総合株価指数,^KS11,yahoo,KRW,
+海外指数,台湾加権,^TWII,yahoo,TWD,
+海外指数,SOX,^SOX,yahoo,USD,フィラデルフィア半導体指数
+海外指数,ロシアRTS,RTSI,moex,USD,MOEX ISS API。履歴遡及可
+セクター,S&P500 生活必需品,^SP500-30,yahoo,USD,
+セクター,S&P500 エネルギー,^GSPE,yahoo,USD,^SP500-10は存在しない
+セクター,S&P500 金融,^SP500-40,yahoo,USD,
+セクター,S&P500 ヘルスケア,^SP500-35,yahoo,USD,
+セクター,S&P500 資本財,^SP500-20,yahoo,USD,
+セクター,S&P500 IT,^SP500-45,yahoo,USD,
+セクター,S&P500 素材,^SP500-15,yahoo,USD,
+セクター,S&P500 不動産,^SP500-60,yahoo,USD,
+セクター,S&P500 電気通信,^SP500-50,yahoo,USD,
+セクター,S&P500 公益,^SP500-55,yahoo,USD,
+セクター,S&P500 一般消費財・サービス,^SP500-25,yahoo,USD,
+REIT,米国REIT 総合,^REI,yahoo,USD,Dow Jones Equity All REIT
+REIT,米国REIT オフィス・物流,^DJUSIO,yahoo,USD,DJ US Industrial & Office REITs
+REIT,米国REIT 商業,^DJUSRL,yahoo,USD,DJ US Retail REITs
+REIT,米国REIT 住宅,^DJUSRN,yahoo,USD,DJ US Residential REITs
+REIT,米国REIT ホテル,^DJUSHL,yahoo,USD,DJ US Hotel & Lodging REITs
+商品,金,GC=F,yahoo,USD,COMEX先物。限月交代で不連続
+商品,工業用金属指数,^SPGSIN,yahoo,USD,S&P GSCI Industrial Metals
+ETF,アークETF,ARKK,yahoo,USD,
+為替,米ドル/円,USDJPY=X,yahoo,JPY,
+為替,ユーロ/円,EURJPY=X,yahoo,JPY,
+為替,英ポンド/円,GBPJPY=X,yahoo,JPY,
+為替,豪ドル/円,AUDJPY=X,yahoo,JPY,
+為替,中国元/円,CNYJPY=X,yahoo,JPY,
+個別株,アップル,AAPL,yahoo,USD,
+個別株,マイクロソフト,MSFT,yahoo,USD,
+個別株,アルファベット,GOOGL,yahoo,USD,
+個別株,アマゾン,AMZN,yahoo,USD,
+個別株,メタ,META,yahoo,USD,
+個別株,エヌビディア,NVDA,yahoo,USD,
+個別株,テスラ,TSLA,yahoo,USD,
+個別株,パランティア,PLTR,yahoo,USD,
+個別株,マイクロン,MU,yahoo,USD,
+個別株,オラクル,ORCL,yahoo,USD,
+個別株,AMD,AMD,yahoo,USD,
+個別株,インテル,INTC,yahoo,USD,
+個別株,アーム,ARM,yahoo,USD,
+個別株,ブロードコム,AVGO,yahoo,USD,
+個別株,クアルコム,QCOM,yahoo,USD,
+個別株,サンディスク,SNDK,yahoo,USD,旧親会社WDCとは別銘柄
+個別株,バークシャー・ハサウェイ,BRK-B,yahoo,USD,B株
+個別株,JPモルガン,JPM,yahoo,USD,
+個別株,ゴールドマン・サックス,GS,yahoo,USD,
+個別株,ウォルマート,WMT,yahoo,USD,
+個別株,マクドナルド,MCD,yahoo,USD,
+個別株,サムスン電子,005930.KS,yahoo,KRW,
+個別株,SKハイニクス,000660.KS,yahoo,KRW,
+個別株,NAURA,002371.SZ,yahoo,CNY,北方華創
+個別株,SMIC,0981.HK,yahoo,HKD,A株は688981.SS
+個別株,シャオミ,1810.HK,yahoo,HKD,
+個別株,テンセント,0700.HK,yahoo,HKD,ADRはTCEHY。未確定事項1
+個別株,BYD,1211.HK,yahoo,HKD,A株は002594.SZ
+個別株,アリババ,9988.HK,yahoo,HKD,ADRはBABA。未確定事項1
+個別株,TSMC,2330.TW,yahoo,TWD,ADRはTSM。未確定事項1
+個別株,SAP,SAP.DE,yahoo,EUR,ADRはSAP。未確定事項1
+個別株,フォルクスワーゲン,VOW3.DE,yahoo,EUR,優先株。普通株はVOW.DE
+個別株,BASF,BAS.DE,yahoo,EUR,
+個別株,HSBC,HSBA.L,yahoo,GBp,ペンス建て。ポンドではない
+個別株,BNPパリバ,BNP.PA,yahoo,EUR,
+個別株,LVMH,MC.PA,yahoo,EUR,ADRはLVMUY。未確定事項1
+個別株,ASML,ASML.AS,yahoo,EUR,ADRはASML。未確定事項1
