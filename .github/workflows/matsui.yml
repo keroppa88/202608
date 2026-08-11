@@ -22,4 +22,4 @@ jobs:
           playwright install --with-deps chromium
 
       - name: 表示テキストを確認
-        run: python3 src/fetch_matsui.py --dump
+        run: python3 src/fetch_matsui.py --probe
