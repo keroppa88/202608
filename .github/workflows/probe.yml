@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "見たいページのURL（空白区切りで複数可）。既定はCNNのFear&GreedとCNBCのセクター一覧"
+        description: "見たいページのURL（空白区切りで複数可）。既定はSMBC日興の金利ページ"
         required: false
         type: string
-        default: "https://edition.cnn.com/markets/fear-and-greed https://www.cnbc.com/markets/sectors/"
+        default: "https://www.smbcnikko.co.jp/market/interest/"
       wait:
         description: "この語が画面に出るまで待つ（値が後から流し込まれるページ用）"
         required: false
