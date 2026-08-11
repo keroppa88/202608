@@ -10,7 +10,9 @@ https://www.smbcnikko.co.jp/market/interest/
 
 **終値のみで四本値は無い。** 金利は日々の値だけを記録する。
 
-数値は素のHTMLに入っていない。ブラウザで開き、値が入るまで待つ（SPEC §2.2）。
+ブラウザで開いて画面の文字を丸ごと取る（SPEC §2.2）。
+描画を待つだけで、語や正規表現で待ち合わせることはしない。
+取れたかどうかは項目数で判断する。
 
     data/raw/YYYY-MM-DD/rates.txt   表示テキスト
     data/rates.csv                  利回り・政策金利
@@ -29,9 +31,9 @@ from page_text import capture
 
 URL = "https://www.smbcnikko.co.jp/market/interest/"
 
-# 項目名は最初から出ていて値だけが後から入る。
-# 「日本国債10年」の少し後ろに利回りらしき数字が出るまで待つ
-WAIT = r"日本国債10年[\s\S]{0,80}?\d+\.\d+%"
+# 描画を待つ時間。条件で待ち合わせると、当たらなかったときに
+# 画面に何が出ていたのか分からないまま落ちる
+SETTLE_MS = 15000
 
 HEADER = [
     "trade_date",
@@ -46,24 +48,17 @@ HEADER = [
 
 KEYS = ["trade_date", "group", "name"]
 
-# 失敗したときに画面の該当箇所を出す行数
-DUMP_LINES = 60
-
 # 節ごとの下限。これを下回ったらページの作りが変わったと疑う（実測 24 / 1 / 4）
 MIN_ROWS = {"国債利回り": 18, "国債先物": 1, "政策金利": 3}
 
 
 def dump(text):
-    """失敗したときに、画面に何が出ていたのかを出す。
+    """失敗したときに、画面に出ていた文字を丸ごと出す。
 
-    値が入る前のページなのか、そもそも別の画面なのかは、
-    実際の文字を見ないと分からない。
+    どこが表かをこちらで決めつけると、見当違いの場所を切り出して
+    何も分からずに終わる。全部出す。
     """
-    lines = [ln for ln in text.split("\n") if ln.strip()]
-    start = next((i for i, ln in enumerate(lines) if "国債" in ln), 0)
-    print(f"--- 画面に出ていた文字（全{len(lines)}行、{start}行目から）---")
-    for ln in lines[start : start + DUMP_LINES]:
-        print(f"  {ln}")
+    print(f"--- 画面に出ていた文字（全部）---\n{text}\n--- ここまで ---")
 
 
 def merge(path, rows):
@@ -89,15 +84,9 @@ def main(argv):
     started = now_jst()
 
     try:
-        text = capture(URL, wait_regex=WAIT)
-    except Exception:
-        # 待ち切れなくても、そのときの画面を持ち帰って項目数で判断する。
-        # 待ちで即死すると、何が出ていたのか分からないまま終わってしまう
-        print("値が出るのを待ち切れなかった。そのときの画面で判断する")
-        try:
-            text = capture(URL, settle_ms=10000)
-        except Exception as e:
-            return report([], [("取得", str(e).splitlines()[0])], "金利")
+        text = capture(URL, settle_ms=SETTLE_MS)
+    except Exception as e:
+        return report([], [("取得", str(e).splitlines()[0])], "金利")
 
     save_raw(
         os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), "rates.txt"),
