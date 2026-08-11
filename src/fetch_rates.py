@@ -1,21 +1,21 @@
-"""国債利回り・国債先物・政策金利を取得して1つのファイルに追記する（SPEC §4H）。
+"""国債利回りと政策金利を取得して1つのファイルに追記する（SPEC §4H）。
 
-https://www.smbcnikko.co.jp/market/interest/
+    国債利回り  https://jp.tradingeconomics.com/bonds
+                各国の10年債。36か国を採る（rates_text.COUNTRIES）
 
-このページ1本にまとめてある。ここに無いものは取らない。
-
-    国債利回り（終値）    24本   日米欧亜アフリカ中南米
-    国債先物（15分遅れ）   1本   日本 長期国債先物
-    政策金利              4本   日本2・米国・ユーロ
+    政策金利    https://www.rakuten-sec.co.jp/web/market/data/list.html
+                4件のみ。日本 無担保コール翌日物 / 日本 公定歩合 /
+                アメリカ フェデラルファンド金利 / ユーロ 市場調整金利
 
 **終値のみで四本値は無い。** 金利は日々の値だけを記録する。
 
-ブラウザで開いて画面の文字を丸ごと取る（SPEC §2.2）。
-描画を待つだけで、語や正規表現で待ち合わせることはしない。
-取れたかどうかは項目数で判断する。
+どちらもブラウザで開いて画面の文字を丸ごと取り、そのまま保存してから抽出する
+（CLAUDE.md）。語や形で待ち合わせることはしない。取れたかどうかは項目数で
+判断する。片方が取れなくても、取れた方は保存して記録する。
 
-    data/raw/YYYY-MM-DD/rates.txt   表示テキスト
-    data/rates.csv                  利回り・政策金利
+    data/raw/YYYY-MM-DD/rates_bonds.txt    国債利回りの画面
+    data/raw/YYYY-MM-DD/rates_policy.txt   政策金利の画面
+    data/rates.csv                         利回り・政策金利
 
 使い方:
     python3 src/fetch_rates.py
@@ -27,9 +27,10 @@ import sys
 
 import rates_text as R
 from common import now_jst, report, repo_root, save_raw
-from page_text import capture
+from page_text import browser_session
 
-URL = "https://www.smbcnikko.co.jp/market/interest/"
+BONDS_URL = "https://jp.tradingeconomics.com/bonds"
+POLICY_URL = "https://www.rakuten-sec.co.jp/web/market/data/list.html"
 
 HEADER = [
     "trade_date",
@@ -44,17 +45,17 @@ HEADER = [
 
 KEYS = ["trade_date", "group", "name"]
 
-# 節ごとの下限。これを下回ったらページの作りが変わったと疑う（実測 24 / 1 / 4）
-MIN_ROWS = {"国債利回り": 18, "国債先物": 1, "政策金利": 3}
+# 節ごとの下限。これを下回ったらページの作りが変わったと疑う（実測 36 / 4）
+MIN_ROWS = {"国債利回り": 25, "政策金利": 3}
 
 
-def dump(text):
+def dump(label, text):
     """失敗したときに、画面に出ていた文字を丸ごと出す。
 
     どこが表かをこちらで決めつけると、見当違いの場所を切り出して
     何も分からずに終わる。全部出す。
     """
-    print(f"--- 画面に出ていた文字（全部）---\n{text}\n--- ここまで ---")
+    print(f"--- {label}: 画面に出ていた文字（全部）---\n{text}\n--- ここまで ---")
 
 
 def merge(path, rows):
@@ -78,37 +79,43 @@ def merge(path, rows):
 def main(argv):
     root = repo_root()
     started = now_jst()
+    raw_dir = os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"))
 
-    try:
-        text = capture(URL)
-    except Exception as e:
-        return report([], [("取得", str(e).splitlines()[0])], "金利")
+    rows, errors = [], []
 
-    save_raw(
-        os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), "rates.txt"),
-        text,
-    )
-
-    try:
-        rows = R.parse(text, today=started.date())
-    except Exception as e:
-        dump(text)
-        return report([], [("抽出", str(e).splitlines()[0])], "金利")
-
-    counts = {}
-    for r in rows:
-        counts[r["group"]] = counts.get(r["group"], 0) + 1
-    print(f"{len(rows)}項目  " + " / ".join(f"{k} {v}" for k, v in counts.items()))
-
-    # 書き込む前に検査する。ワークフローの commit は if: always()
-    short = [
-        f"{g}が少ない（{counts.get(g, 0)} / 下限 {n}）"
-        for g, n in MIN_ROWS.items()
-        if counts.get(g, 0) < n
+    # 2ページを同じブラウザで続けて開く。片方が駄目でももう片方は取る
+    sources = [
+        ("国債利回り", BONDS_URL, "rates_bonds.txt", R.parse_bonds),
+        ("政策金利", POLICY_URL, "rates_policy.txt", R.parse_policy),
     ]
-    if short:
-        dump(text)
-        return report([], [("抽出", "、".join(short))], "金利")
+
+    with browser_session() as read:
+        for label, url, name, parse in sources:
+            try:
+                text = read(url)
+            except Exception as e:
+                errors.append((label, str(e).splitlines()[0]))
+                continue
+
+            # 何より先に、取れた全部を保存する
+            save_raw(os.path.join(raw_dir, name), text)
+
+            try:
+                got = parse(text, today=started.date())
+            except Exception as e:
+                dump(label, text)
+                errors.append((label, str(e).splitlines()[0]))
+                continue
+
+            print(f"{label}: {len(got)}項目")
+            if len(got) < MIN_ROWS[label]:
+                dump(label, text)
+                errors.append((label, f"項目が少ない（{len(got)} / 下限 {MIN_ROWS[label]}）"))
+                continue
+            rows += got
+
+    if not rows:
+        return report([], errors or [("取得", "1件も取れなかった")], "金利")
 
     stamp = started.isoformat(timespec="seconds")
     merge(
@@ -130,7 +137,7 @@ def main(argv):
     # 項目ごとに取引日が違う。ページに出ている日付をそのまま使うので、
     # 休場で日付が変わらなければ同じ行を上書きするだけになる
     print(f"記録: {len(rows)}項目")
-    return report([r["name"] for r in rows], [], "金利")
+    return report([r["name"] for r in rows], errors, "金利")
 
 
 if __name__ == "__main__":

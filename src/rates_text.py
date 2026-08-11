@@ -1,146 +1,190 @@
-"""SMBC日興の金利ページの表示テキストから利回りと政策金利を取り出す（SPEC §4H）。
+"""金利のページの表示テキストから、利回りと政策金利を抜き出す（SPEC §4H）。
 
-https://www.smbcnikko.co.jp/market/interest/
+入力は「画面に見えている文字」だけ。HTMLは見ない（CLAUDE.md）。
 
-入力は「画面に見えている文字を丸ごと写したテキスト」だけ。
-タグ・クラス名・属性は参照しない（SPEC §2.2）。
+    国債利回り  https://jp.tradingeconomics.com/bonds
+                各国の10年債。地域ごとに同じ国が繰り返し出るので重複は除く
 
-3つの節があり、どれも「名前 → 日付 → …」の並びになっている。
+    政策金利    https://www.rakuten-sec.co.jp/web/market/data/list.html
+                4件のみ（日本 無担保コール翌日物 / 日本 公定歩合 /
+                アメリカ フェデラルファンド金利 / ユーロ 市場調整金利）
 
-    国債利回り（終値）
-    日本国債10年
-    08/10 （終値）      ← 日付。年は出ない
-    利回り
-    2.805%
-    前日比
-    (+0.010)
-
-    国債先物（15分遅れ）
-    日本 長期国債先物
-    08/10 15:02 （15分遅れ）
-    価格
-    126.90円
-    前日比
-    (-0.08)
-
-    政策金利
-    日本 無担保ｺｰﾙ翌日物
-    08/11
-    1.00%
-
-**日付は項目ごとに違う**（市場によって最終取引日がずれる）。
-その項目の日付をそのまま取引日とする。
-
-政策金利の節には「日足 週足 月足」「表示」といった操作用の行が混ざるが、
-日付の行の直前だけを名前として拾うので巻き込まれない。
+どちらもタブ区切りの1行として画面に出ている。
 """
 
 import re
 from datetime import date
 
-SECTIONS = {
-    "国債利回り（終値）": "国債利回り",
-    "国債先物（15分遅れ）": "国債先物",
-    "政策金利": "政策金利",
-}
+# 2026-08-11 のような日付。当日更新中の行は "03:22" と時刻だけになる
+ISO_DATE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
+CLOCK = re.compile(r"^\d{1,2}:\d{2}$")
 
-# 「08/10 （終値）」「08/10 15:02 （15分遅れ）」「08/11」
-DATED = re.compile(r"^(\d{1,2})/(\d{1,2})(?:\s+\d{1,2}:\d{2})?(?:\s*（.+?）)?$")
+# 2026/08/10 のような日付（楽天）
+SLASH_DATE = re.compile(r"^(\d{4})/(\d{1,2})/(\d{1,2})")
 
-# 「2.805%」「126.90円」「8.47%」
-VALUE = re.compile(r"^(-?[\d,]+\.?\d*)\s*(%|円)?$")
+NUMBER = re.compile(r"^[+-]?[\d,]+\.?\d*$")
 
-# 「(+0.010)」「(-0.08)」
-CHANGE = re.compile(r"^[（(]([+\-±]?[\d,]+\.?\d*)[）)]$")
+# tradingeconomics から取る国。ここに無い国は取らない（画面の表記のまま）
+COUNTRIES = (
+    "米国",
+    "イギリス",
+    "日本",
+    "オーストラリア",
+    "ドイツ",
+    "ブラジル",
+    "ロシア",
+    "インド",
+    "カナダ",
+    "イタリア",
+    "フランス",
+    "南アフリカ",
+    "中国",
+    "スイス",
+    "メキシコ",
+    "オランダ",
+    "ニュージーランド",
+    "ポルトガル",
+    "韓国",
+    "スペイン",
+    "ギリシャ",
+    "トルコ",
+    "台湾",
+    "タイ",
+    "ベトナム",
+    "香港",
+    "インドネシア",
+    "マレーシア",
+    "パキスタン",
+    "フィリピン",
+    "ケニア",
+    "ナイジェリア",
+    "イスラエル",
+    "シンガポール",
+    "ノルウェー",
+    "フィンランド",
+)
 
-# 値の前に置かれる見出し。飛ばす
-LABELS = ("利回り", "価格", "前日比")
+# 楽天から取る政策金利。ここに無いものは取らない
+POLICY_RATES = (
+    "日本 無担保コール翌日物",
+    "日本 公定歩合",
+    "アメリカ フェデラルファンド金利",
+    "ユーロ 市場調整金利",
+)
 
 
 class ExtractError(Exception):
     pass
 
 
-def _num(text):
-    text = text.strip().replace(",", "").lstrip("±")
-    try:
-        return float(text)
-    except ValueError:
+def _cells(line):
+    """タブ区切りの1行を、前後の空白を落として並べ直す。空の欄は捨てる。"""
+    return [c.strip() for c in line.split("\t") if c.strip()]
+
+
+def _number(text):
+    if not NUMBER.match(text):
         return None
+    return float(text.replace(",", ""))
 
 
-def _maybe_date(year, month, day):
-    try:
-        return date(year, month, day)
-    except ValueError:
-        return None
+def parse_bonds(text, today=None):
+    """tradingeconomics の画面から各国の10年債利回りを抜く。
 
+    1行はこうなっている（先頭に空欄が付く）:
 
-def _resolve(month, day, today):
-    """ページに年が出ないので実行日から補う。実行日より先なら前年。"""
-    current = _maybe_date(today.year, month, day)
-    if current and current <= today:
-        return current
-    previous = _maybe_date(today.year - 1, month, day)
-    if previous:
-        return previous
-    raise ExtractError(f"日付を解釈できない（{month}/{day} / 実行日 {today}）")
+        \t米国\t4.6910\t 0.0220\t0.07%\t0.07%\t0.52%\t0.40%\t2026-08-11
 
-
-def parse(text, today=None):
-    """[{trade_date, group, name, value, unit, change, updated}] を返す。"""
+    地域の節ごとに同じ国が繰り返し出るので、最初に出たものだけを採る。
+    """
     today = today or date.today()
-    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+    rows, seen = [], set()
 
-    rows = []
-    group = None
-    for i, line in enumerate(lines):
-        if line in SECTIONS:
-            group = SECTIONS[line]
-            continue
-        if group is None:
+    for line in text.split("\n"):
+        c = _cells(line)
+        if len(c) != 8:
             continue
 
-        m = DATED.match(line)
-        if not m or i == 0:
-            continue
-        name = lines[i - 1]
-        if name in SECTIONS or name in LABELS:
-            continue
+        name, value, change = c[0], _number(c[1]), _number(c[2])
+        stamp = c[7]
 
-        # 日付の後ろから、見出しを飛ばしつつ値と前日比を拾う
-        value = unit = None
-        change = None
-        for follow in lines[i + 1 : i + 6]:
-            if follow in LABELS:
-                continue
-            if value is None:
-                v = VALUE.match(follow)
-                if not v:
-                    break
-                value, unit = _num(v.group(1)), v.group(2) or ""
-                continue
-            c = CHANGE.match(follow)
-            if c:
-                change = _num(c.group(1))
-            break
-
+        # 「ヨーロッパ 価格 前日比 …」のような見出し行を外す
         if value is None:
             continue
 
+        m = ISO_DATE.match(stamp)
+        if m:
+            trade_date = date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        elif CLOCK.match(stamp):
+            # 当日ザラ場の更新。日付が出ていないので取得日を使う
+            trade_date = today
+        else:
+            continue
+
+        if name not in COUNTRIES or name in seen:
+            continue
+        seen.add(name)
+
         rows.append(
             {
-                "trade_date": _resolve(int(m.group(1)), int(m.group(2)), today),
-                "group": group,
-                "name": name,
+                "trade_date": trade_date.isoformat(),
+                "group": "国債利回り",
+                "name": f"{name} 10年国債",
                 "value": value,
-                "unit": unit,
+                "unit": "%",
                 "change": change,
-                # 「08/10 15:02 （15分遅れ）」のような但し書きをそのまま残す
-                "updated": line,
+                "updated": stamp,
             }
         )
 
-    if not rows:
-        raise ExtractError("金利の行が1件も取れない")
+    return rows
+
+
+def parse_policy(text, today=None):
+    """楽天証券の画面から政策金利を4件だけ抜く。
+
+    1行はこうなっている:
+
+        日本 無担保コール翌日物\t0.977\t2026/08/10
+
+    値や日付が "--" の日がある。値が無ければ記録しない。
+    """
+    today = today or date.today()
+    rows, seen = [], set()
+
+    for line in text.split("\n"):
+        c = _cells(line)
+        if len(c) < 2:
+            continue
+
+        name = c[0]
+        if name not in POLICY_RATES or name in seen:
+            continue
+
+        value = _number(c[1])
+        if value is None:
+            # "--" の日。値が無いものは書かない
+            continue
+
+        stamp = c[2] if len(c) > 2 else ""
+        m = SLASH_DATE.match(stamp)
+        if m:
+            trade_date = date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        else:
+            # 日付が出ていない項目がある（FF金利など）。取得日を使う
+            trade_date = today
+
+        seen.add(name)
+        rows.append(
+            {
+                "trade_date": trade_date.isoformat(),
+                "group": "政策金利",
+                "name": name,
+                "value": value,
+                "unit": "%",
+                "change": None,
+                "updated": stamp,
+            }
+        )
+
     return rows
