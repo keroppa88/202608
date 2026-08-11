@@ -46,8 +46,24 @@ HEADER = [
 
 KEYS = ["trade_date", "group", "name"]
 
+# 失敗したときに画面の該当箇所を出す行数
+DUMP_LINES = 60
+
 # 節ごとの下限。これを下回ったらページの作りが変わったと疑う（実測 24 / 1 / 4）
 MIN_ROWS = {"国債利回り": 18, "国債先物": 1, "政策金利": 3}
+
+
+def dump(text):
+    """失敗したときに、画面に何が出ていたのかを出す。
+
+    値が入る前のページなのか、そもそも別の画面なのかは、
+    実際の文字を見ないと分からない。
+    """
+    lines = [ln for ln in text.split("\n") if ln.strip()]
+    start = next((i for i, ln in enumerate(lines) if "国債" in ln), 0)
+    print(f"--- 画面に出ていた文字（全{len(lines)}行、{start}行目から）---")
+    for ln in lines[start : start + DUMP_LINES]:
+        print(f"  {ln}")
 
 
 def merge(path, rows):
@@ -91,6 +107,7 @@ def main(argv):
     try:
         rows = R.parse(text, today=started.date())
     except Exception as e:
+        dump(text)
         return report([], [("抽出", str(e).splitlines()[0])], "金利")
 
     counts = {}
@@ -105,6 +122,7 @@ def main(argv):
         if counts.get(g, 0) < n
     ]
     if short:
+        dump(text)
         return report([], [("抽出", "、".join(short))], "金利")
 
     stamp = started.isoformat(timespec="seconds")
