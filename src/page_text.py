@@ -40,13 +40,22 @@ def text_from_html(source):
     return "\n".join(ln for ln in lines if ln)
 
 
-def _read_page(page, url, timeout_ms, settle_ms, challenge_ms):
+def _read_page(page, url, timeout_ms, settle_ms, challenge_ms, wait_text=None):
     page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
 
     if CHALLENGE.search(page.title() or ""):
         # ボット判定の画面は自動で解けて元ページへ遷移する。消えるまで待つ
         page.wait_for_function(
             "() => !/just a moment|attention required/i.test(document.title)",
+            timeout=challenge_ms,
+        )
+
+    if wait_text:
+        # 中身が後から流し込まれるページ。決め打ちの秒数で待つと、
+        # 遅れた日は空のまま持ち帰ってしまう。語が出るまで待つ
+        page.wait_for_function(
+            "m => document.body.innerText.includes(m)",
+            arg=wait_text,
             timeout=challenge_ms,
         )
 
@@ -66,8 +75,10 @@ def _read_page(page, url, timeout_ms, settle_ms, challenge_ms):
     return text
 
 
-def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000):
+def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000, wait_text=None):
     """ブラウザを1回だけ立ち上げ、複数ページを続けて読むための文脈を返す。
+
+    wait_text … その語が画面に出るまで待つ。中身が後から流し込まれるページ用
 
     使い方:
         with browser_session() as read:
@@ -94,7 +105,7 @@ def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000):
             page = context.new_page()
             try:
                 yield lambda url: _read_page(
-                    page, url, timeout_ms, settle_ms, challenge_ms
+                    page, url, timeout_ms, settle_ms, challenge_ms, wait_text
                 )
             finally:
                 context.close()

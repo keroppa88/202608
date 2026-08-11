@@ -1,14 +1,16 @@
-"""松井証券の「投資指標(松井証券店内)」を取得して追記する（SPEC §4G）。
+"""松井証券の「投資指標(松井証券店内)」を取得して1つのファイルに追記する（SPEC §4G）。
 
 https://www.matsui.co.jp/market/stock/netstock-info/
 
-取引動向・市場別株式売買代金・信用残・評価損益率など、松井証券店内の数値。
-ログインなしで見えるのは**前営業日更新分**なので、ページ冒頭に出る日付
+市場別株式売買代金・先導株比率・信用残速報・新規/返済申込速報・先物指標を、
+松井証券の店内データとして取る。
+
+ログインなしで見えるのは**前営業日更新分**。ページに出ている日付
 （例「8/7(金)」）の数値として記録する。
 
-数値は静的HTMLに入っていない。素のHTMLでは表の場所が空で、代わりに
-「情報が正しく表示できません」と出る。中身は Rtoaster（js.rtoaster.jp）が
-後から流し込む。**ヘッドレスブラウザで開き、流し込まれるまで待つ**。
+数値は素のHTMLに入っていない。中身は Rtoaster が後から流し込むので、
+**ヘッドレスブラウザで開き、表が埋まるまで待つ**。決め打ちの秒数で待つと、
+配信が遅れた日に空のページを持ち帰ってしまう（SPEC §2.4）。
 表示テキストに直してから抽出する（SPEC §2.2）。
 
     data/raw/YYYY-MM-DD/matsui.txt   表示テキスト
@@ -16,109 +18,112 @@ https://www.matsui.co.jp/market/stock/netstock-info/
 
 使い方:
     python3 src/fetch_matsui.py
-    python3 src/fetch_matsui.py --probe   出方を調べる（何も書き込まない）
 """
 
+import csv
 import os
 import sys
 
-from common import now_jst, repo_root, save_raw
-from page_text import UA
+import matsui_text as M
+from common import now_jst, report, repo_root, save_raw
+from page_text import capture
 
 URL = "https://www.matsui.co.jp/market/stock/netstock-info/"
 
-# 数値が入った証拠になる語。これが出るまで待つ
-MARKER = "取引動向"
+# 表が埋まった証拠になる語。これが出るまで待つ
+MARKER = "取引動向(松井証券店内)"
 
-# 表が空のときに出る文言
-FALLBACK = "情報が正しく表示できません"
+HEADER = [
+    "trade_date",
+    "group",
+    "section",
+    "item",
+    "column",
+    "value",
+    "unit",
+    "note",
+    "fetched_at",
+]
 
-WAIT_MS = 40000
+KEYS = ["trade_date", "group", "section", "item", "column"]
 
-
-def read(*, channel=None, log=None):
-    """ページを開き、表が埋まるまで待って表示テキストを返す。"""
-    from playwright.sync_api import sync_playwright
-
-    with sync_playwright() as p:
-        kw = {"headless": True}
-        if channel:
-            kw["channel"] = channel
-        browser = p.chromium.launch(**kw)
-        context = browser.new_context(
-            locale="ja-JP",
-            timezone_id="Asia/Tokyo",
-            viewport={"width": 1280, "height": 900},
-            user_agent=UA,
-        )
-        page = context.new_page()
-        if log is not None:
-            page.on(
-                "response",
-                lambda r: log.append((r.status, r.url))
-                if "rtoaster" in r.url
-                else None,
-            )
-            page.on(
-                "requestfailed",
-                lambda r: log.append(("失敗 " + (r.failure or "?"), r.url))
-                if "rtoaster" in r.url
-                else None,
-            )
-        try:
-            page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-            try:
-                page.wait_for_function(
-                    "m => document.body.innerText.includes(m)",
-                    arg=MARKER,
-                    timeout=WAIT_MS,
-                )
-            except Exception:
-                pass  # 出なくても、そのときの見た目を持ち帰って調べる
-            return page.inner_text("body")
-        finally:
-            context.close()
-            browser.close()
+# 取れた項目がこれを下回ったら、ページの作りが変わったと疑う（実測30項目）
+MIN_ROWS = 25
 
 
-def probe():
-    """ヘッドレスシェルと通常のChromiumで出方を比べる。"""
-    for channel in (None, "chromium"):
-        log = []
-        label = channel or "headless shell"
-        try:
-            text = read(channel=channel, log=log)
-        except Exception as e:
-            print(f"[{label}] 起動できない: {str(e).splitlines()[0]}")
-            continue
+def merge(path, rows):
+    """同じ項目は上書きし、並べ直して書き戻す。再実行しても二重にならない。"""
+    existing = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                existing[tuple(r[k] for k in KEYS)] = r
+    for r in rows:
+        existing[tuple(str(r[k]) for k in KEYS)] = r
 
-        print(f"\n===== {label} =====")
-        print(f"  {MARKER} が出た: {MARKER in text}")
-        print(f"  代替文が残っている: {FALLBACK in text}")
-        print(f"  rtoaster への通信 {len(log)}件")
-        for status, url in log[:20]:
-            print(f"    {status}  {url[:140]}")
-        if MARKER in text:
-            print("----- 表示テキスト -----")
-            print(text)
-            return 0
-    return 1
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        w = csv.DictWriter(f, fieldnames=HEADER)
+        w.writeheader()
+        for key in sorted(existing):
+            w.writerow({k: existing[key].get(k, "") for k in HEADER})
 
 
 def main(argv):
     root = repo_root()
     started = now_jst()
 
-    if "--probe" in argv:
-        return probe()
+    try:
+        text = capture(URL, wait_text=MARKER)
+    except Exception as e:
+        return report([], [("取得", str(e).splitlines()[0])], "松井証券・投資指標")
 
-    text = read()
     save_raw(
         os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), "matsui.txt"),
         text,
     )
-    print("抽出は未実装")
-    return 1
+
+    try:
+        rows = M.parse(text, today=started.date())
+    except Exception as e:
+        return report([], [("抽出", str(e).splitlines()[0])], "松井証券・投資指標")
+
+    trade_date = rows[0]["trade_date"]
+    print(f"取引日 {trade_date} / {len(rows)}項目")
+    for g in dict.fromkeys(r["group"] for r in rows):
+        print(f"  {g}: {sum(1 for r in rows if r['group'] == g)}項目")
+
+    # 書き込む前に検査する。ワークフローの commit は if: always() のため、
+    # 書いてしまうと失敗した実行でもコミットされる
+    if len(rows) < MIN_ROWS:
+        return report(
+            [],
+            [("抽出", f"項目が少ない（{len(rows)} / 下限 {MIN_ROWS}）。ページの作りが変わった可能性")],
+            "松井証券・投資指標",
+        )
+
+    stamp = started.isoformat(timespec="seconds")
+    merge(
+        os.path.join(root, "data", "matsui.csv"),
+        [
+            {
+                "trade_date": r["trade_date"],
+                "group": r["group"],
+                "section": r["section"],
+                "item": r["item"],
+                "column": r["column"],
+                "value": "" if r["value"] is None else r["value"],
+                "unit": r["unit"],
+                "note": r["note"],
+                "fetched_at": stamp,
+            }
+            for r in rows
+        ],
+    )
+    # ページの日付が変わらない限り同じ行を上書きするだけなので、
+    # 休場日に架空の値が増えることはない
+    print(f"記録: {trade_date} に {len(rows)}項目")
+    return report([r["item"] for r in rows], [], "松井証券・投資指標")
 
 
 if __name__ == "__main__":
