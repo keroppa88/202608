@@ -15,17 +15,6 @@ category,name,symbol,source,currency,note
 海外指数,台湾加権,^TWII,yahoo,TWD,
 海外指数,SOX,^SOX,yahoo,USD,フィラデルフィア半導体指数
 海外指数,ロシアRTS,RTSI,moex,USD,MOEX ISS API。履歴遡及可
-セクター,S&P500 生活必需品,^SP500-30,yahoo,USD,
-セクター,S&P500 エネルギー,^GSPE,yahoo,USD,^SP500-10は存在しない
-セクター,S&P500 金融,^SP500-40,yahoo,USD,
-セクター,S&P500 ヘルスケア,^SP500-35,yahoo,USD,
-セクター,S&P500 資本財,^SP500-20,yahoo,USD,
-セクター,S&P500 IT,^SP500-45,yahoo,USD,
-セクター,S&P500 素材,^SP500-15,yahoo,USD,
-セクター,S&P500 不動産,^SP500-60,yahoo,USD,
-セクター,S&P500 電気通信,^SP500-50,yahoo,USD,
-セクター,S&P500 公益,^SP500-55,yahoo,USD,
-セクター,S&P500 一般消費財・サービス,^SP500-25,yahoo,USD,
 REIT,米国REIT 総合,^REI,yahoo,USD,Dow Jones Equity All REIT。履歴なし。配信は当日値1本のみで遡れない
 REIT,米国REIT オフィス・物流,^DJUSIO,yahoo,USD,DJ US Industrial & Office REITs。履歴なし。配信は当日値1本のみで遡れない
 REIT,米国REIT 商業,^DJUSRL,yahoo,USD,DJ US Retail REITs。履歴なし。配信は当日値1本のみで遡れない

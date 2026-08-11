@@ -35,6 +35,14 @@ jobs:
         if: always()
         run: python3 src/fetch_nikkei_us.py
 
+      - name: セクター指数（CNBC）
+        if: always()
+        run: python3 src/fetch_cnbc_sectors.py
+
+      - name: Fear & Greed（CNN）
+        if: always()
+        run: python3 src/fetch_fear_greed.py
+
       - name: 書き込まれた中身
         if: always()
         run: |
