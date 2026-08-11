@@ -57,10 +57,9 @@ def _read_page(page, url, timeout_ms, settle_ms, challenge_ms, wait_text=None, w
         pass
     page.wait_for_timeout(settle_ms)
 
-    if CHALLENGE.search(page.title() or ""):
-        raise RuntimeError("ボット判定を通過できなかった")
-
-    # 画面に見えている文字を全部。範囲の絞り込みはしない
+    # 画面に見えている文字を全部。範囲の絞り込みはしない。
+    # ボット判定の画面だったとしても、そのまま返して保存させる。
+    # ここで例外にすると何が出ていたのか残らない。判断は抽出側の件数で行う
     text = page.inner_text("body")
     if not text.strip():
         raise RuntimeError("表示テキストが空")
