@@ -1,0 +1,26 @@
+name: 日経・国内株式指標取得
+
+# 時価総額・PER・PBR・配当利回り・売買代金・騰落銘柄数などを取る。
+# 数値は静的HTMLに入っているのでブラウザは要らない。
+#
+# 東証の大引け後に取得する。JST 18:00 = UTC 09:00（同日）。曜日はずれない。
+on:
+  schedule:
+    - cron: "0 9 * * 1-5" # UTC 月〜金 09:00 = JST 月〜金 18:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_nikkei_kabu.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "国内株式指標 $(date -u +%Y-%m-%d)"

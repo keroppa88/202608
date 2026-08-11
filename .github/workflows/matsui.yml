@@ -1,0 +1,25 @@
+name: 松井証券・投資指標取得
+
+# 数値は素のHTMLに入っておらず、別システムから後で差し込まれる。
+# ブラウザで開いて描画を待つ必要がある。
+#
+# ログインなしで見えるのは前営業日更新分。朝の枠で取る。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
+      - name: 表示テキストを確認
+        run: python3 src/fetch_matsui.py --dump
