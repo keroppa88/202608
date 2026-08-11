@@ -1,36 +1,60 @@
-"""金利ページの表示テキストから利回りと政策金利を取り出す（SPEC §4H）。
+"""SMBC日興の金利ページの表示テキストから利回りと政策金利を取り出す（SPEC §4H）。
+
+https://www.smbcnikko.co.jp/market/interest/
 
 入力は「画面に見えている文字を丸ごと写したテキスト」だけ。
 タグ・クラス名・属性は参照しない（SPEC §2.2）。
 
-3つのページを扱う。どれも表がタブ区切りの1行になっている。
+3つの節があり、どれも「名前 → 日付 → …」の並びになっている。
 
-SBI（日本・米国の国債）
-    債券 → 現在値・年利回り → 前日比 → 前日比率 → 更新日時
-    日本国債10年 → 2.822 → +0.012 → --％ → 26/08/11 02:25
+    国債利回り（終値）
+    日本国債10年
+    08/10 （終値）      ← 日付。年は出ない
+    利回り
+    2.805%
+    前日比
+    (+0.010)
 
-楽天（その他の国の国債）
-    指標 → 年利回り → 前日比 → 更新日時
-    イギリス10年国債 → 5.041 → +0.052 → 08/11 18:59
+    国債先物（15分遅れ）
+    日本 長期国債先物
+    08/10 15:02 （15分遅れ）
+    価格
+    126.90円
+    前日比
+    (-0.08)
 
-楽天（政策金利）
-    指標 → 政策金利 → 更新日時
-    日本 無担保コール翌日物 → 0.977 → 2026/08/10
+    政策金利
+    日本 無担保ｺｰﾙ翌日物
+    08/11
+    1.00%
 
-値は終値のみで四本値は無い。更新日時は配信元の文字をそのまま持つ。
-書式がページごとに違ううえ（年の有無・時差表記）、日本国債と米国債で
-時間帯も違うため、日付として解釈し直さない。
+**日付は項目ごとに違う**（市場によって最終取引日がずれる）。
+その項目の日付をそのまま取引日とする。
+
+政策金利の節には「日足 週足 月足」「表示」といった操作用の行が混ざるが、
+日付の行の直前だけを名前として拾うので巻き込まれない。
 """
 
 import re
+from datetime import date
 
-# 見出し行の先頭。ここから下がデータ
-HEADERS = ("債券", "指標")
+SECTIONS = {
+    "国債利回り（終値）": "国債利回り",
+    "国債先物（15分遅れ）": "国債先物",
+    "政策金利": "政策金利",
+}
 
-# 値なし
-EMPTY = ("--", "-", "―", "")
+# 「08/10 （終値）」「08/10 15:02 （15分遅れ）」「08/11」
+DATED = re.compile(r"^(\d{1,2})/(\d{1,2})(?:\s+\d{1,2}:\d{2})?(?:\s*（.+?）)?$")
 
-NUMBER = re.compile(r"^[+\-±]?[\d,]+\.?\d*$")
+# 「2.805%」「126.90円」「8.47%」
+VALUE = re.compile(r"^(-?[\d,]+\.?\d*)\s*(%|円)?$")
+
+# 「(+0.010)」「(-0.08)」
+CHANGE = re.compile(r"^[（(]([+\-±]?[\d,]+\.?\d*)[）)]$")
+
+# 値の前に置かれる見出し。飛ばす
+LABELS = ("利回り", "価格", "前日比")
 
 
 class ExtractError(Exception):
@@ -38,79 +62,85 @@ class ExtractError(Exception):
 
 
 def _num(text):
-    text = text.strip().replace(",", "").replace("％", "").replace("%", "")
-    if text in EMPTY:
+    text = text.strip().replace(",", "").lstrip("±")
+    try:
+        return float(text)
+    except ValueError:
         return None
-    text = text.lstrip("±")
-    return float(text) if NUMBER.match(text) else None
 
 
-def _rows(text, columns):
-    """見出し行を見つけ、その下のタブ行を列数ぶん読む。"""
-    out = []
-    seen_header = False
-    for line in text.split("\n"):
-        cells = [c.strip() for c in line.split("\t")]
-        if len(cells) < 2:
+def _maybe_date(year, month, day):
+    try:
+        return date(year, month, day)
+    except ValueError:
+        return None
+
+
+def _resolve(month, day, today):
+    """ページに年が出ないので実行日から補う。実行日より先なら前年。"""
+    current = _maybe_date(today.year, month, day)
+    if current and current <= today:
+        return current
+    previous = _maybe_date(today.year - 1, month, day)
+    if previous:
+        return previous
+    raise ExtractError(f"日付を解釈できない（{month}/{day} / 実行日 {today}）")
+
+
+def parse(text, today=None):
+    """[{trade_date, group, name, value, unit, change, updated}] を返す。"""
+    today = today or date.today()
+    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+
+    rows = []
+    group = None
+    for i, line in enumerate(lines):
+        if line in SECTIONS:
+            group = SECTIONS[line]
             continue
-        if not seen_header:
-            if cells[0] in HEADERS and len(cells) >= len(columns) + 1:
-                seen_header = True
+        if group is None:
             continue
-        name = cells[0]
-        if not name or name in EMPTY or " " == name:
-            break  # 表の終わり（提供元の注記など）
-        if len(cells) < len(columns) + 1:
+
+        m = DATED.match(line)
+        if not m or i == 0:
+            continue
+        name = lines[i - 1]
+        if name in SECTIONS or name in LABELS:
+            continue
+
+        # 日付の後ろから、見出しを飛ばしつつ値と前日比を拾う
+        value = unit = None
+        change = None
+        for follow in lines[i + 1 : i + 6]:
+            if follow in LABELS:
+                continue
+            if value is None:
+                v = VALUE.match(follow)
+                if not v:
+                    break
+                value, unit = _num(v.group(1)), v.group(2) or ""
+                continue
+            c = CHANGE.match(follow)
+            if c:
+                change = _num(c.group(1))
             break
-        out.append((name, cells[1 : len(columns) + 1]))
-    if not out:
-        raise ExtractError("表の行が1件も取れない")
-    return out
 
+        if value is None:
+            continue
 
-def bonds_sbi(text):
-    """SBIの債券表。[{name, value, change, change_pct, updated}]"""
-    rows = []
-    for name, v in _rows(text, ["値", "前日比", "前日比率", "更新日時"]):
         rows.append(
             {
+                "trade_date": _resolve(int(m.group(1)), int(m.group(2)), today),
+                "group": group,
                 "name": name,
-                "value": _num(v[0]),
-                "change": _num(v[1]),
-                "change_pct": _num(v[2]),
-                "updated": v[3],
+                "value": value,
+                "unit": unit,
+                "change": change,
+                # 「08/10 15:02 （15分遅れ）」のような但し書きをそのまま残す
+                "updated": line,
             }
         )
-    return rows
 
-
-def bonds_rakuten(text):
-    """楽天の債券表。[{name, value, change, updated}]"""
-    rows = []
-    for name, v in _rows(text, ["年利回り", "前日比", "更新日時"]):
-        rows.append(
-            {
-                "name": name,
-                "value": _num(v[0]),
-                "change": _num(v[1]),
-                "change_pct": None,
-                "updated": v[2],
-            }
-        )
-    return rows
-
-
-def policy_rates(text):
-    """楽天の政策金利表。[{name, value, updated}]"""
-    rows = []
-    for name, v in _rows(text, ["政策金利", "更新日時"]):
-        rows.append(
-            {
-                "name": re.sub(r"[\s　]+", " ", name),
-                "value": _num(v[0]),
-                "change": None,
-                "change_pct": None,
-                "updated": v[1] if v[1] not in EMPTY else "",
-            }
-        )
+    if not rows:
+        raise ExtractError("金利の行が1件も取れない")
     return rows

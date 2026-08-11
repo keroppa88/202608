@@ -8,10 +8,9 @@ https://www.matsui.co.jp/market/stock/netstock-info/
 ログインなしで見えるのは**前営業日更新分**。ページに出ている日付
 （例「8/7(金)」）の数値として記録する。
 
-数値は素のHTMLに入っていない。中身は Rtoaster が後から流し込むので、
-**ヘッドレスブラウザで開き、表が埋まるまで待つ**。決め打ちの秒数で待つと、
-配信が遅れた日に空のページを持ち帰ってしまう（SPEC §2.4）。
-表示テキストに直してから抽出する（SPEC §2.2）。
+数値は後から流し込まれる（Rtoaster）ので、**ブラウザで開いて画面の文字を
+丸ごと取る**（CLAUDE.md / SPEC §2.2）。語や形で待ち合わせることはしない。
+取れた全文をそのまま保存し、項目数が下限を下回ったら失敗とする（SPEC §2.4）。
 
     data/raw/YYYY-MM-DD/matsui.txt   表示テキスト
     data/matsui.csv                  指標
@@ -29,9 +28,6 @@ from common import now_jst, report, repo_root, save_raw
 from page_text import capture
 
 URL = "https://www.matsui.co.jp/market/stock/netstock-info/"
-
-# 表が埋まった証拠になる語。これが出るまで待つ
-MARKER = "取引動向(松井証券店内)"
 
 HEADER = [
     "trade_date",
@@ -74,7 +70,7 @@ def main(argv):
     started = now_jst()
 
     try:
-        text = capture(URL, wait_text=MARKER)
+        text = capture(URL)
     except Exception as e:
         return report([], [("取得", str(e).splitlines()[0])], "松井証券・投資指標")
 

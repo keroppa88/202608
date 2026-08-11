@@ -1,40 +1,42 @@
 """日経の記事を取得して月別テキストに追記する共通処理（SPEC §4A / §4B）。
 
-ページは「画面に見えている文字」として丸ごと保存し、抽出はそのテキストだけを
-入力に行う。タグ・クラス名・属性は一切見ない（SPEC §2.2）。
+一覧ページを開いて画面の文字を丸ごと保存する。その画面に出ている見出しの中から
+対象を選び、**その文字をクリック**して記事へ移る。移った先も丸ごと保存し、
+抽出は保存したテキストだけを入力に行う。
 
-記事の選択は「一番上」ではなく、掲載日時と題名・本文の内容で判定する。
+HTML は読まない。リンク先も抜かない（CLAUDE.md）。記事の URL はブラウザの
+アドレス欄に出ているものを使う。
 """
 
 import os
-import re
-import time
 
 import nikkei_text
 from common import ExtractError, now_jst, save_raw
-from page_text import browser_session
-
-ARTICLE_URL = "https://www.nikkei.com/article/{}/"
-ARTICLE_ID_RE = re.compile(r"/article/(DGXZQ[A-Z0-9]+)")
-
-REQUEST_INTERVAL = 0.5
 
 RECORD_SEP = "=" * 80
 BODY_SEP = "-" * 80
 
+# 見出し行の末尾に付く掲載時刻。例:「東証大引け ○○ （8/10 15:52）」
+TIME_SUFFIX = "（"
 
-def article_ids(hrefs):
-    """検索ページのリンク先から記事IDを出現順（新しい順）に返す。重複は除く。
 
-    リンク先は画面に表示されない情報なので、ここだけは別に取る。
-    人がリンクをクリックするのに相当する部分で、記事の中身の解釈ではない。
-    """
-    seen, ids = set(), []
-    for m in ARTICLE_ID_RE.finditer("\n".join(hrefs)):
-        if m.group(1) not in seen:
-            seen.add(m.group(1))
-            ids.append(m.group(1))
-    return ids
+def headline_candidates(text, is_target):
+    """画面の文字から、対象になりそうな見出し行を出現順に返す。重複は除く。"""
+    seen, out = set(), []
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line or line in seen:
+            continue
+        if is_target(line):
+            seen.add(line)
+            out.append(line)
+    return out
+
+
+def clickable(line):
+    """クリックの手掛かりにする文字。掲載時刻の括弧は画面上で別要素のことがある。"""
+    head = line.split(TIME_SUFFIX)[0].strip()
+    return head or line
 
 
 def target_path(root, prefix, published):
@@ -68,60 +70,81 @@ def append_record(path, article, url, fetched_at):
         f.write(record)
 
 
-def collect(*, label, search_url, raw_prefix, out_prefix, matches, max_candidates, root):
+def collect(*, label, list_urls, raw_prefix, out_prefix, looks_like, matches, max_candidates, root):
     """記事を1本選んで追記する。戻り値は終了コード。
 
-    matches(headline, article) -> bool で対象記事かを判定する。
-    候補を上から順に見て、最初に一致したものを採用する。
+    list_urls   … 見出しが画面に出る一覧ページ。上から順に見る
+    looks_like(line) -> bool   画面の1行が対象の見出しに見えるか
+    matches(headline, article) -> bool   記事を開いた上での最終判定
     """
+    from page_text import browser_session
+
     started = now_jst()
     raw_dir = os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"))
 
     selected = None
-    # 検索ページと記事を同じブラウザで続けて読む
+    seen_urls = set()
+    tried = 0
+
     with browser_session() as read:
-        search_text, hrefs = read(search_url, links=True)
-        save_raw(os.path.join(raw_dir, f"{raw_prefix}_search.txt"), search_text)
-
-        ids = article_ids(hrefs)
-        if not ids:
-            print(f"{label}: 検索結果に記事がない")
-            return 1
-        print(f"{label}: 候補 {len(ids)}件")
-
-        for article_id in ids[:max_candidates]:
-            url = ARTICLE_URL.format(article_id)
-
-            # 見たままのテキストを丸ごと保存してから、そのテキストだけで抽出する
-            text = read(url)
-            save_raw(os.path.join(raw_dir, f"{raw_prefix}_{article_id}.txt"), text)
-
-            try:
-                article = nikkei_text.parse(text)
-            except nikkei_text.ExtractError as e:
-                raise ExtractError(f"{article_id}: {e}") from e
-
-            hit = matches(article["headline"], article)
-            print(
-                f"  [{'採用' if hit else '対象外'}] "
-                f"{article['published']:%Y-%m-%d %H:%M}  {article['headline'][:46]}"
-            )
-            if hit:
-                selected = (article_id, url, article)
+        for list_url in list_urls:
+            if selected:
                 break
-            time.sleep(REQUEST_INTERVAL)
+            slug = list_url.rstrip("/").rsplit("/", 1)[-1] or "list"
+
+            # 一覧ページも丸ごと保存する。見出しが出ていなければ、この全文が理由になる
+            list_text = read(list_url)
+            save_raw(os.path.join(raw_dir, f"{raw_prefix}_{slug}.txt"), list_text)
+
+            heads = headline_candidates(list_text, looks_like)
+            print(f"{label}: {list_url} → 候補 {len(heads)}件")
+
+            for line in heads[:max_candidates]:
+                if tried >= max_candidates:
+                    break
+                tried += 1
+                try:
+                    text, url = read.click(clickable(line))
+                except Exception as e:
+                    print(f"  [開けない] {line[:46]} … {str(e).splitlines()[0]}")
+                    read(list_url)
+                    continue
+
+                if url in seen_urls:
+                    read(list_url)
+                    continue
+                seen_urls.add(url)
+
+                name = url.rstrip("/").rsplit("/", 1)[-1][:60] or f"n{tried}"
+                save_raw(os.path.join(raw_dir, f"{raw_prefix}_{name}.txt"), text)
+
+                try:
+                    article = nikkei_text.parse(text)
+                except nikkei_text.ExtractError as e:
+                    raise ExtractError(f"{url}: {e}") from e
+
+                hit = matches(article["headline"], article)
+                print(
+                    f"  [{'採用' if hit else '対象外'}] "
+                    f"{article['published']:%Y-%m-%d %H:%M}  {article['headline'][:46]}"
+                )
+                if hit:
+                    selected = (url, article)
+                    break
+                # 一覧に戻って次の見出しを見る
+                read(list_url)
 
     if not selected:
         # 該当なしを黙って正常終了させない（別の記事を拾うより失敗させる）
-        print(f"{label}: 対象記事が見つからない（候補 {min(len(ids), max_candidates)}件を確認）")
+        print(f"{label}: 対象記事が見つからない（{tried}件を確認）")
         return 1
 
-    article_id, url, article = selected
+    url, article = selected
     path = target_path(root, out_prefix, article["published"])
 
     if already_recorded(path, url):
         # 祝日・再実行・cron の重複起動はここで吸収する。失敗ではない
-        print(f"{label}: 記録済みのためスキップ（{article_id}）")
+        print(f"{label}: 記録済みのためスキップ")
         return 0
 
     append_record(path, article, url, started)

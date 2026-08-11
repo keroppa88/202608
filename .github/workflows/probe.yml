@@ -7,14 +7,15 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "見たいページのURL（空白区切りで複数可）。既定はCNNのFear&GreedとCNBCのセクター一覧"
+        description: "見たいページのURL（空白区切りで複数可）"
         required: false
         type: string
-        default: "https://edition.cnn.com/markets/fear-and-greed https://www.cnbc.com/markets/sectors/"
-      wait:
-        description: "この語が画面に出るまで待つ（値が後から流し込まれるページ用）"
+        default: "https://jp.investing.com/rates-bonds/world-government-bonds"
+      settle:
+        description: "描画を待つ秒数。情報が多いページは長めに（既定30秒）"
         required: false
         type: string
+        default: "30"
 
 permissions:
   contents: read
@@ -33,10 +34,8 @@ jobs:
       - name: 表示テキストを見る
         env:
           URL: ${{ inputs.url }}
-          WAIT: ${{ inputs.wait }}
+          SETTLE: ${{ inputs.settle }}
         run: |
           # URLに ? や * が入るのでグロブを切る。空白での分割だけを使う
           set -f
-          args=()
-          [ -n "$WAIT" ] && args+=(--wait "$WAIT")   # 待つ語には空白が入りうる
-          python3 src/probe_page.py $URL "${args[@]}"
+          python3 src/probe_page.py $URL --settle "${SETTLE:-30}"

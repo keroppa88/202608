@@ -29,9 +29,6 @@ from page_text import capture
 
 URL = "https://www.cnbc.com/markets/sectors/"
 
-# 表が出た証拠になる語
-MARKER = "PREVIOUS CLOSE"
-
 # 米東部標準時。夏時間でも「その日の取引日」は変わらないので固定でよい
 ET = timezone(timedelta(hours=-5))
 
@@ -48,7 +45,7 @@ def main(argv):
     trade_date = started.astimezone(ET).date().isoformat()
 
     try:
-        text = capture(URL, wait_text=MARKER)
+        text = capture(URL)
     except Exception as e:
         return report([], [("取得", str(e).splitlines()[0])], "CNBC・セクター指数")
 
