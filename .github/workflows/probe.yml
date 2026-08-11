@@ -1,0 +1,42 @@
+name: ページ確認（開発用）
+
+# 新しい取得先を検討するときに、そのページの表示テキストを見るためのもの。
+# 定期実行はしない。何も書き込まない。
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "見たいページのURL（空白区切りで複数可）"
+        required: true
+        type: string
+      wait:
+        description: "この語が画面に出るまで待つ（JSで後から数値が入るページ用）"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
+      - name: 表示テキストを見る
+        env:
+          URL: ${{ inputs.url }}
+          WAIT: ${{ inputs.wait }}
+        run: |
+          # URLに ? や * が入るのでグロブを切る。空白での分割だけを使う
+          set -f
+          if [ -n "$WAIT" ]; then
+            python3 src/probe_page.py $URL --wait "$WAIT"
+          else
+            python3 src/probe_page.py $URL
+          fi

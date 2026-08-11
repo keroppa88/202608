@@ -26,13 +26,13 @@ category,name,symbol,source,currency,note
 セクター,S&P500 電気通信,^SP500-50,yahoo,USD,
 セクター,S&P500 公益,^SP500-55,yahoo,USD,
 セクター,S&P500 一般消費財・サービス,^SP500-25,yahoo,USD,
-REIT,米国REIT 総合,^REI,yahoo,USD,Dow Jones Equity All REIT
-REIT,米国REIT オフィス・物流,^DJUSIO,yahoo,USD,DJ US Industrial & Office REITs
-REIT,米国REIT 商業,^DJUSRL,yahoo,USD,DJ US Retail REITs
-REIT,米国REIT 住宅,^DJUSRN,yahoo,USD,DJ US Residential REITs
-REIT,米国REIT ホテル,^DJUSHL,yahoo,USD,DJ US Hotel & Lodging REITs
+REIT,米国REIT 総合,^REI,yahoo,USD,Dow Jones Equity All REIT。履歴なし。配信は当日値1本のみで遡れない
+REIT,米国REIT オフィス・物流,^DJUSIO,yahoo,USD,DJ US Industrial & Office REITs。履歴なし。配信は当日値1本のみで遡れない
+REIT,米国REIT 商業,^DJUSRL,yahoo,USD,DJ US Retail REITs。履歴なし。配信は当日値1本のみで遡れない
+REIT,米国REIT 住宅,^DJUSRN,yahoo,USD,DJ US Residential REITs。履歴なし。配信は当日値1本のみで遡れない
+REIT,米国REIT ホテル,^DJUSHL,yahoo,USD,DJ US Hotel & Lodging REITs。履歴なし。配信は当日値1本のみで遡れない
 商品,金,GC=F,yahoo,USD,COMEX先物。限月交代で不連続
-商品,工業用金属指数,^SPGSIN,yahoo,USD,S&P GSCI Industrial Metals
+商品,工業用金属指数,^SPGSIN,yahoo,USD,S&P GSCI Industrial Metals。履歴なし。配信は当日値1本のみで遡れない
 ETF,アークETF,ARKK,yahoo,USD,
 為替,米ドル/円,USDJPY=X,yahoo,JPY,
 為替,ユーロ/円,EURJPY=X,yahoo,JPY,
@@ -112,3 +112,33 @@ ETF,アークETF,ARKK,yahoo,USD,
 日本株,フジクラ,5803.T,yahoo,JPY,
 日本株,古河電気工業,5801.T,yahoo,JPY,
 日本株,日立製作所,6501.T,yahoo,JPY,
+金利,米13週Tビル,^IRX,yahoo,USD,利回り。値の単位は%。配信元が通貨をUSDと返すのでその通り記録する
+金利,米5年債利回り,^FVX,yahoo,USD,利回り。値の単位は%
+金利,米10年債利回り,^TNX,yahoo,USD,利回り。値の単位は%
+金利,米30年債利回り,^TYX,yahoo,USD,利回り。値の単位は%
+先物,CME日経225先物,NKD=F,yahoo,USD,日経平均の水準を表示する。CMEの1日の四本値で大阪の日中/夜間の区分ではない。円建てのNIY=Fは清算値だけで四本値が無いため採らない
+ボラティリティ,VIX指数,^VIX,yahoo,USD,恐怖指数。値に単位は無い
+海外指数,NYダウ,^DJI,yahoo,USD,
+海外指数,ナスダック総合,^IXIC,yahoo,USD,
+海外指数,ナスダック100,^NDX,yahoo,USD,
+海外指数,インドNifty50,^NSEI,yahoo,INR,SENSEX30(^BSESN)とは別の指数
+海外指数,インドネシア総合,^JKSE,yahoo,IDR,
+海外指数,ブラジルボベスパ,^BVSP,yahoo,BRL,
+海外指数,メキシコIPC,^MXX,yahoo,MXN,
+海外指数,スイスSMI,^SSMI,yahoo,CHF,
+海外指数,上海総合,000001.SS,yahoo,CNY,深セン成分指数(399001.SZ)とは別の指数
+海外指数,ハンセン中国企業,^HSCE,yahoo,HKD,H株指数。香港ハンセン(^HSI)とは別の指数
+商品,WTI原油,CL=F,yahoo,USD,NYMEX先物。限月交代で不連続
+商品,ブレント原油,BZ=F,yahoo,USD,ICE先物。限月交代で不連続
+商品,天然ガス,NG=F,yahoo,USD,NYMEX先物。限月交代で不連続
+商品,銀,SI=F,yahoo,USD,COMEX先物。限月交代で不連続
+商品,銅,HG=F,yahoo,USD,COMEX先物。限月交代で不連続
+商品,プラチナ,PL=F,yahoo,USD,NYMEX先物。限月交代で不連続
+商品,パラジウム,PA=F,yahoo,USD,NYMEX先物。限月交代で不連続
+商品,とうもろこし,ZC=F,yahoo,USX,CBOT先物。米セント建て(USX)。限月交代で不連続
+商品,小麦,ZW=F,yahoo,USX,CBOT先物。米セント建て(USX)。限月交代で不連続
+商品,大豆,ZS=F,yahoo,USX,CBOT先物。米セント建て(USX)。限月交代で不連続
+商品,コーヒー,KC=F,yahoo,USX,ICE先物。米セント建て(USX)。限月交代で不連続
+商品,砂糖,SB=F,yahoo,USX,ICE先物。米セント建て(USX)。限月交代で不連続
+商品,綿,CT=F,yahoo,USX,ICE先物。米セント建て(USX)。限月交代で不連続
+通貨指数,ドル指数,DX-Y.NYB,yahoo,USD,ICEドル指数。主要6通貨に対するドルの強さ
