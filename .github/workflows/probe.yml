@@ -12,10 +12,10 @@ on:
         type: string
         default: "https://www.rakuten-sec.co.jp/web/market/data/list.html https://jp.investing.com/rates-bonds/china-10-year-bond-yield https://jp.investing.com/rates-bonds/south-korea-10-year-bond-yield"
       settle:
-        description: "描画を待つ秒数。情報が多いページは長めに（既定30秒）"
+        description: "描画を待つ秒数（既定15秒）"
         required: false
         type: string
-        default: "30"
+        default: "15"
 
 permissions:
   contents: read
@@ -38,4 +38,4 @@ jobs:
         run: |
           # URLに ? や * が入るのでグロブを切る。空白での分割だけを使う
           set -f
-          python3 src/probe_page.py $URL --settle "${SETTLE:-30}"
+          python3 src/probe_page.py $URL --settle "${SETTLE:-15}"
