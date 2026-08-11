@@ -65,6 +65,14 @@ def _split_value(text):
     return float(text[: len(text) - len(unit)].strip().replace(",", "")), unit
 
 
+def _maybe_date(year, month, day):
+    """存在しない日付なら None。31日のない月などを踏まないため。"""
+    try:
+        return date(year, month, day)
+    except ValueError:
+        return None
+
+
 def find_date(text, today=None):
     """見出しの「（10日）」と市場名を返す。年月は実行日から補う。"""
     today = today or date.today()
@@ -73,12 +81,18 @@ def find_date(text, today=None):
         raise ExtractError("見出し「国内の株式指標・…（◯日）」が見つからない")
 
     market, day = m.group(1), int(m.group(2))
-    d = date(today.year, today.month, day)
-    if d > today:  # 月をまたいだ直後は前月の日付になる
-        d = date(today.year, today.month - 1, day) if today.month > 1 else date(
-            today.year - 1, 12, day
-        )
-    return d, market
+
+    # まず当月。実行日より後になる、または当月に存在しない日なら前月とみなす
+    # （9月1日に「31日」と出ていれば 8月31日。9月31日を作ろうとすると落ちる）
+    current = _maybe_date(today.year, today.month, day)
+    if current and current <= today:
+        return current, market
+
+    year, month = (today.year, today.month - 1) if today.month > 1 else (today.year - 1, 12)
+    previous = _maybe_date(year, month, day)
+    if previous:
+        return previous, market
+    raise ExtractError(f"見出しの日付を解釈できない（{day}日 / 実行日 {today}）")
 
 
 def parse(text, today=None):
