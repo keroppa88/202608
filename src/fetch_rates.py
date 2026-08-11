@@ -1,16 +1,19 @@
-"""国債利回りと政策金利を取得して1つのファイルに追記する（SPEC §4H）。
+"""国債利回り・国債先物・政策金利を取得して1つのファイルに追記する（SPEC §4H）。
 
-    SBI     日本・米国の国債（＋独・豪の10年、長期国債先物）
-    楽天     その他の国の10年国債
-    楽天     各国の政策金利
+https://www.smbcnikko.co.jp/market/interest/
 
-いずれも数値が素のHTMLに入っていない。ブラウザで開き、値が入るまで待つ。
-表示テキストに直してから抽出する（SPEC §2.2）。
+このページ1本にまとめてある。ここに無いものは取らない。
+
+    国債利回り（終値）    24本   日米欧亜アフリカ中南米
+    国債先物（15分遅れ）   1本   日本 長期国債先物
+    政策金利              4本   日本2・米国・ユーロ
 
 **終値のみで四本値は無い。** 金利は日々の値だけを記録する。
 
-    data/raw/YYYY-MM-DD/rates_*.txt   表示テキスト
-    data/rates.csv                    利回り・政策金利
+数値は素のHTMLに入っていない。ブラウザで開き、値が入るまで待つ（SPEC §2.2）。
+
+    data/raw/YYYY-MM-DD/rates.txt   表示テキスト
+    data/rates.csv                  利回り・政策金利
 
 使い方:
     python3 src/fetch_rates.py
@@ -22,73 +25,33 @@ import sys
 
 import rates_text as R
 from common import now_jst, report, repo_root, save_raw
-from page_text import browser_session
+from page_text import capture
 
-SBI_BOND = (
-    "https://www.sbisec.co.jp/ETGate/?OutSide=on&getFlg=on"
-    "&_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20"
-    "&_ActionID=DefaultAID&_DataStoreID=DSWPLETmgR001Control"
-    "&burl=iris_index&cat1=market&cat2=index&dir=tl1-idx%7Ctl2-bond&file=index.html"
-)
-RAKUTEN_BOND = "https://www.rakuten-sec.co.jp/web/market/data/bond_top.html"
-RAKUTEN_RATE = "https://www.rakuten-sec.co.jp/web/market/data/interest_top.html"
+URL = "https://www.smbcnikko.co.jp/market/interest/"
 
-# 楽天の債券表のうち、SBI と重なるもの。日本と米国は SBI を採る。
-# ドイツも SBI の「独国債10年」と同じ（実測 3.201 と 3.200）
-RAKUTEN_SKIP = ("日本", "米国", "ドイツ")
-
-SOURCES = (
-    {
-        "key": "sbi_bond",
-        "label": "SBI・債券",
-        "url": SBI_BOND,
-        "group": "国債",
-        "source": "sbi",
-        # 項目名ごと後から入るので語で待てる
-        "wait": {"wait_text": "日本国債10年"},
-        "parse": R.bonds_sbi,
-        "min_rows": 12,
-    },
-    {
-        "key": "rakuten_bond",
-        "label": "楽天・債券",
-        "url": RAKUTEN_BOND,
-        "group": "国債",
-        "source": "rakuten",
-        # 項目名は素のHTMLにもある。値が入るまで待つ
-        "wait": {"wait_regex": r"日本国債10年\s*[\d]"},
-        "parse": R.bonds_rakuten,
-        "min_rows": 10,
-    },
-    {
-        "key": "rakuten_rate",
-        "label": "楽天・政策金利",
-        "url": RAKUTEN_RATE,
-        "group": "政策金利",
-        "source": "rakuten",
-        "wait": {"wait_regex": r"無担保コール翌日物\s*[\d]"},
-        "parse": R.policy_rates,
-        "min_rows": 12,
-    },
-)
+# 項目名は最初から出ていて値だけが後から入る。
+# 「日本国債10年」の少し後ろに利回りらしき数字が出るまで待つ
+WAIT = r"日本国債10年[\s\S]{0,80}?\d+\.\d+%"
 
 HEADER = [
     "trade_date",
     "group",
     "name",
     "value",
+    "unit",
     "change",
-    "change_pct",
-    "source",
     "updated",
     "fetched_at",
 ]
 
 KEYS = ["trade_date", "group", "name"]
 
+# 節ごとの下限。これを下回ったらページの作りが変わったと疑う（実測 24 / 1 / 4）
+MIN_ROWS = {"国債利回り": 18, "国債先物": 1, "政策金利": 3}
+
 
 def merge(path, rows):
-    """同じ項目は上書きし、並べ直して書き戻す。再実行しても二重にならない。"""
+    """同じ取引日・項目は上書きし、並べ直して書き戻す。再実行しても二重にならない。"""
     existing = {}
     if os.path.exists(path):
         with open(path, encoding="utf-8", newline="") as f:
@@ -108,69 +71,57 @@ def merge(path, rows):
 def main(argv):
     root = repo_root()
     started = now_jst()
+
+    try:
+        text = capture(URL, wait_regex=WAIT)
+    except Exception as e:
+        return report([], [("取得", str(e).splitlines()[0])], "金利")
+
+    save_raw(
+        os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), "rates.txt"),
+        text,
+    )
+
+    try:
+        rows = R.parse(text, today=started.date())
+    except Exception as e:
+        return report([], [("抽出", str(e).splitlines()[0])], "金利")
+
+    counts = {}
+    for r in rows:
+        counts[r["group"]] = counts.get(r["group"], 0) + 1
+    print(f"{len(rows)}項目  " + " / ".join(f"{k} {v}" for k, v in counts.items()))
+
+    # 書き込む前に検査する。ワークフローの commit は if: always()
+    short = [
+        f"{g}が少ない（{counts.get(g, 0)} / 下限 {n}）"
+        for g, n in MIN_ROWS.items()
+        if counts.get(g, 0) < n
+    ]
+    if short:
+        return report([], [("抽出", "、".join(short))], "金利")
+
     stamp = started.isoformat(timespec="seconds")
-    day = started.strftime("%Y-%m-%d")
-    trade_date = started.date().isoformat()
-
-    collected, errors = [], []
-
-    for spec in SOURCES:
-        try:
-            # ページごとに待ち方が違うのでブラウザは都度立ち上げる
-            with browser_session(**spec["wait"]) as read:
-                text = read(spec["url"])
-        except Exception as e:
-            errors.append(("取得", f"{spec['label']}: {str(e).splitlines()[0]}"))
-            continue
-
-        save_raw(
-            os.path.join(root, "data", "raw", day, f"rates_{spec['key']}.txt"), text
-        )
-
-        try:
-            rows = spec["parse"](text)
-        except Exception as e:
-            errors.append(("抽出", f"{spec['label']}: {str(e).splitlines()[0]}"))
-            continue
-
-        if spec["source"] == "rakuten" and spec["group"] == "国債":
-            rows = [r for r in rows if not r["name"].startswith(RAKUTEN_SKIP)]
-
-        # 値が1つも入っていなければ、待ち切れずに空の表を持ち帰っている
-        filled = sum(1 for r in rows if r["value"] is not None)
-        print(f"{spec['label']}: {len(rows)}項目（値あり {filled}）")
-        if len(rows) < spec["min_rows"] or filled == 0:
-            errors.append(
-                (
-                    "抽出",
-                    f"{spec['label']}: 項目が足りない"
-                    f"（{len(rows)} / 下限 {spec['min_rows']}、値あり {filled}）",
-                )
-            )
-            continue
-
-        for r in rows:
-            collected.append(
-                {
-                    "trade_date": trade_date,
-                    "group": spec["group"],
-                    "name": r["name"],
-                    "value": "" if r["value"] is None else r["value"],
-                    "change": "" if r["change"] is None else r["change"],
-                    "change_pct": "" if r["change_pct"] is None else r["change_pct"],
-                    "source": spec["source"],
-                    "updated": r["updated"],
-                    "fetched_at": stamp,
-                }
-            )
-
-    # 1つでも失敗していたら書き込まない。ワークフローの commit は if: always()
-    if errors:
-        return report([], errors, "国債利回り・政策金利")
-
-    merge(os.path.join(root, "data", "rates.csv"), collected)
-    print(f"記録: {trade_date} に {len(collected)}項目")
-    return report([r["name"] for r in collected], [], "国債利回り・政策金利")
+    merge(
+        os.path.join(root, "data", "rates.csv"),
+        [
+            {
+                "trade_date": r["trade_date"],
+                "group": r["group"],
+                "name": r["name"],
+                "value": r["value"],
+                "unit": r["unit"],
+                "change": "" if r["change"] is None else r["change"],
+                "updated": r["updated"],
+                "fetched_at": stamp,
+            }
+            for r in rows
+        ],
+    )
+    # 項目ごとに取引日が違う。ページに出ている日付をそのまま使うので、
+    # 休場で日付が変わらなければ同じ行を上書きするだけになる
+    print(f"記録: {len(rows)}項目")
+    return report([r["name"] for r in rows], [], "金利")
 
 
 if __name__ == "__main__":

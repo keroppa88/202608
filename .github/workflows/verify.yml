@@ -43,6 +43,10 @@ jobs:
         if: always()
         run: python3 src/fetch_fear_greed.py
 
+      - name: 金利（SMBC日興）
+        if: always()
+        run: python3 src/fetch_rates.py
+
       - name: 書き込まれた中身
         if: always()
         run: |
