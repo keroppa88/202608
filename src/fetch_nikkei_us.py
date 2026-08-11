@@ -30,7 +30,7 @@ SEARCH_URL = (
 )
 
 # 1営業日あたり3本なので、10件見れば直近3営業日分をカバーできる
-MAX_CANDIDATES = 10
+MAX_CANDIDATES = 25
 
 # 大引け記事の題名に必ず入る値幅。例: 「ダウ反発し151ドル高」「ダウ反落し464ドル安」
 CLOSING_HEADLINE = re.compile(r"\d+\s*ドル[高安]")

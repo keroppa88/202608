@@ -17,7 +17,7 @@ SEARCH_URL = (
     "&volume=2"
 )
 
-MAX_CANDIDATES = 2
+MAX_CANDIDATES = 25
 
 
 def matches(headline, article):
