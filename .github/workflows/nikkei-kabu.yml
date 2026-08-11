@@ -1,7 +1,7 @@
 name: 日経・国内株式指標取得
 
 # 時価総額・PER・PBR・配当利回り・売買代金・騰落銘柄数などを取る。
-# 数値は静的HTMLに入っているのでブラウザは要らない。
+# ブラウザで開いて画面の文字を丸ごと取る。
 #
 # 東証の大引け後に取得する。JST 18:00 = UTC 09:00（同日）。曜日はずれない。
 on:
@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
 
       - name: 取得
         run: python3 src/fetch_nikkei_kabu.py

@@ -4,8 +4,8 @@ https://www.nikkei.com/marketdata/ranking-jp/trading-value/  売買代金
 https://www.nikkei.com/marketdata/ranking-jp/access/          株価検索数
 
 どちらも1ページに30件（全200件）が載る。指定は「1〜30位」なので
-ページ送りはしない。数値は静的HTMLに入っているのでブラウザは要らない。
-表示テキストに直してから抽出する（SPEC §2.2）。
+ページ送りはしない。ブラウザで開いて画面の文字を丸ごと取り、
+そのテキストだけで抽出する（SPEC §2.2）。
 
     data/raw/YYYY-MM-DD/nikkei_rank_trading_value.txt  表示テキスト
     data/raw/YYYY-MM-DD/nikkei_rank_access.txt
@@ -21,8 +21,8 @@ import os
 import sys
 
 import nikkei_rank_text as R
-from common import fetch, now_jst, report, repo_root, save_raw
-from page_text import text_from_html
+from common import now_jst, report, repo_root, save_raw
+from page_text import browser_session
 
 # 1ページぶんの件数。これを下回ったらページの作りが変わったと疑う
 LIMIT = 30
@@ -68,14 +68,13 @@ def merge(path, header, rows):
             w.writerow({k: existing[key].get(k, "") for k in header})
 
 
-def collect(spec, root, started):
+def collect(spec, root, started, read):
     """1つのランキングを取って書き戻す。戻り値は (成功した件数, エラー) 。"""
     try:
-        html = fetch(spec["url"]).decode("utf-8", "replace")
+        text = read(spec["url"])
     except Exception as e:
         return 0, ("取得", f"{spec['label']}: {str(e).splitlines()[0]}")
 
-    text = text_from_html(html)
     save_raw(
         os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), spec["raw"]),
         text,
@@ -116,12 +115,14 @@ def main(argv):
     started = now_jst()
 
     ok, errors = [], []
-    for spec in RANKINGS:
-        count, error = collect(spec, root, started)
-        if error:
-            errors.append(error)
-        else:
-            ok.extend([spec["label"]] * count)
+    # 2ページを同じブラウザで続けて読む
+    with browser_session() as read:
+        for spec in RANKINGS:
+            count, error = collect(spec, root, started, read)
+            if error:
+                errors.append(error)
+            else:
+                ok.extend([spec["label"]] * count)
     return report(ok, errors, "日経・日本株ランキング")
 
 

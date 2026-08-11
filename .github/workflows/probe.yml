@@ -1,16 +1,18 @@
 name: ページ確認（開発用）
 
 # 新しい取得先を検討するときに、そのページの表示テキストを見るためのもの。
+# ブラウザで開いて画面の文字を丸ごと取る（全コピペ）。
 # 定期実行はしない。何も書き込まない。
 on:
   workflow_dispatch:
     inputs:
       url:
-        description: "見たいページのURL（空白区切りで複数可）"
-        required: true
+        description: "見たいページのURL（空白区切りで複数可）。既定はCNNのFear&GreedとCNBCのセクター一覧"
+        required: false
         type: string
+        default: "https://edition.cnn.com/markets/fear-and-greed https://www.cnbc.com/markets/sectors/"
       wait:
-        description: "この語が画面に出るまで待つ（JSで後から数値が入るページ用）"
+        description: "この語が画面に出るまで待つ（値が後から流し込まれるページ用）"
         required: false
         type: string
 
@@ -35,8 +37,6 @@ jobs:
         run: |
           # URLに ? や * が入るのでグロブを切る。空白での分割だけを使う
           set -f
-          if [ -n "$WAIT" ]; then
-            python3 src/probe_page.py $URL --wait "$WAIT"
-          else
-            python3 src/probe_page.py $URL
-          fi
+          args=()
+          [ -n "$WAIT" ] && args+=(--wait "$WAIT")   # 待つ語には空白が入りうる
+          python3 src/probe_page.py $URL "${args[@]}"

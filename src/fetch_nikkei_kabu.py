@@ -5,8 +5,7 @@ https://www.nikkei.com/markets/kabu/japanidx/
 時価総額・株式数・PBR・PER・株式益回り・配当利回り・売買高・売買代金・
 騰落銘柄数などを、プライム／スタンダード／グロースの市場別に取る。
 
-数値は静的HTMLに入っているのでブラウザは要らない。
-表示テキストに直してから抽出する（SPEC §2.2）。
+ブラウザで開いて画面の文字を丸ごと取り、そのテキストだけで抽出する（SPEC §2.2）。
 
     data/raw/YYYY-MM-DD/nikkei_kabu.txt   表示テキスト
     data/nikkei_kabu.csv                  指標
@@ -20,8 +19,8 @@ import os
 import sys
 
 import nikkei_kabu_text as K
-from common import fetch, now_jst, report, repo_root, save_raw
-from page_text import text_from_html
+from common import now_jst, report, repo_root, save_raw
+from page_text import capture
 
 URL = "https://www.nikkei.com/markets/kabu/japanidx/"
 
@@ -65,11 +64,10 @@ def main(argv):
     started = now_jst()
 
     try:
-        html = fetch(URL).decode("utf-8", "replace")
+        text = capture(URL)
     except Exception as e:
         return report([], [("取得", str(e).splitlines()[0])], "日経・国内株式指標")
 
-    text = text_from_html(html)
     save_raw(
         os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), "nikkei_kabu.txt"),
         text,

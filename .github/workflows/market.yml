@@ -21,8 +21,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
       - name: 取得
         run: python3 src/fetch_market.py --exclude 日本株
+
+      # 同じ data/overseas.csv を書くので、必ずこの順で同じジョブの中で走らせる
+      - name: セクター指数（CNBC）
+        if: always()
+        run: python3 src/fetch_cnbc_sectors.py
 
       - name: コミット
         if: always()

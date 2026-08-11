@@ -11,8 +11,8 @@ import re
 import time
 
 import nikkei_text
-from common import ExtractError, fetch, now_jst, save_raw
-from page_text import text_from_html
+from common import ExtractError, now_jst, save_raw
+from page_text import browser_session
 
 ARTICLE_URL = "https://www.nikkei.com/article/{}/"
 ARTICLE_ID_RE = re.compile(r"/article/(DGXZQ[A-Z0-9]+)")
@@ -23,14 +23,14 @@ RECORD_SEP = "=" * 80
 BODY_SEP = "-" * 80
 
 
-def article_ids(search_html):
-    """検索ページから記事IDを出現順（新しい順）に返す。重複は除く。
+def article_ids(hrefs):
+    """検索ページのリンク先から記事IDを出現順（新しい順）に返す。重複は除く。
 
-    リンク先は画面に表示されない情報なので、ここだけは HTML から拾う。
+    リンク先は画面に表示されない情報なので、ここだけは別に取る。
     人がリンクをクリックするのに相当する部分で、記事の中身の解釈ではない。
     """
     seen, ids = set(), []
-    for m in ARTICLE_ID_RE.finditer(search_html):
+    for m in ARTICLE_ID_RE.finditer("\n".join(hrefs)):
         if m.group(1) not in seen:
             seen.add(m.group(1))
             ids.append(m.group(1))
@@ -77,40 +77,39 @@ def collect(*, label, search_url, raw_prefix, out_prefix, matches, max_candidate
     started = now_jst()
     raw_dir = os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"))
 
-    search_html = fetch(search_url).decode("utf-8", "replace")
-    save_raw(
-        os.path.join(raw_dir, f"{raw_prefix}_search.txt"), text_from_html(search_html)
-    )
-
-    ids = article_ids(search_html)
-    if not ids:
-        print(f"{label}: 検索結果に記事がない")
-        return 1
-    print(f"{label}: 候補 {len(ids)}件")
-
     selected = None
-    for article_id in ids[:max_candidates]:
-        url = ARTICLE_URL.format(article_id)
-        page = fetch(url).decode("utf-8", "replace")
+    # 検索ページと記事を同じブラウザで続けて読む
+    with browser_session() as read:
+        search_text, hrefs = read(search_url, links=True)
+        save_raw(os.path.join(raw_dir, f"{raw_prefix}_search.txt"), search_text)
 
-        # 見たままのテキストを丸ごと保存してから、そのテキストだけで抽出する
-        text = text_from_html(page)
-        save_raw(os.path.join(raw_dir, f"{raw_prefix}_{article_id}.txt"), text)
+        ids = article_ids(hrefs)
+        if not ids:
+            print(f"{label}: 検索結果に記事がない")
+            return 1
+        print(f"{label}: 候補 {len(ids)}件")
 
-        try:
-            article = nikkei_text.parse(text)
-        except nikkei_text.ExtractError as e:
-            raise ExtractError(f"{article_id}: {e}") from e
+        for article_id in ids[:max_candidates]:
+            url = ARTICLE_URL.format(article_id)
 
-        hit = matches(article["headline"], article)
-        print(
-            f"  [{'採用' if hit else '対象外'}] "
-            f"{article['published']:%Y-%m-%d %H:%M}  {article['headline'][:46]}"
-        )
-        if hit:
-            selected = (article_id, url, article)
-            break
-        time.sleep(REQUEST_INTERVAL)
+            # 見たままのテキストを丸ごと保存してから、そのテキストだけで抽出する
+            text = read(url)
+            save_raw(os.path.join(raw_dir, f"{raw_prefix}_{article_id}.txt"), text)
+
+            try:
+                article = nikkei_text.parse(text)
+            except nikkei_text.ExtractError as e:
+                raise ExtractError(f"{article_id}: {e}") from e
+
+            hit = matches(article["headline"], article)
+            print(
+                f"  [{'採用' if hit else '対象外'}] "
+                f"{article['published']:%Y-%m-%d %H:%M}  {article['headline'][:46]}"
+            )
+            if hit:
+                selected = (article_id, url, article)
+                break
+            time.sleep(REQUEST_INTERVAL)
 
     if not selected:
         # 該当なしを黙って正常終了させない（別の記事を拾うより失敗させる）

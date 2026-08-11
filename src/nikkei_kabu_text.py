@@ -98,7 +98,8 @@ def find_date(text, today=None):
 def parse(text, today=None):
     """[{trade_date, market, section, item, column, value, unit}] を返す。"""
     trade_date, market = find_date(text, today)
-    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+    # ブラウザで取ると表のセルがタブ区切りの1行になる。1セル1行に開く
+    lines = [c.strip() for ln in text.split("\n") for c in ln.split("\t") if c.strip()]
 
     try:
         start = next(i for i, ln in enumerate(lines) if HEADING.search(ln))

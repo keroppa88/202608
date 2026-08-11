@@ -1,0 +1,31 @@
+name: Fear & Greed 取得
+
+# CNN の Fear & Greed Index。年月日と数値だけを記録する。
+# ブラウザで開いて画面の文字を丸ごと取る。
+#
+# 米国の引け後に取る。JST 07:00 = UTC 22:00（前日）。曜日の指定が1日ずれる。
+on:
+  schedule:
+    - cron: "0 22 * * 1-5" # UTC 月〜金 22:00 = JST 火〜土 07:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
+      - name: 取得
+        run: python3 src/fetch_fear_greed.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "Fear & Greed $(date -u +%Y-%m-%d)"

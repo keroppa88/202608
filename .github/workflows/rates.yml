@@ -1,0 +1,31 @@
+name: 国債利回り・政策金利取得
+
+# 数値が素のHTMLに入っておらず、後から流し込まれる。
+# ブラウザで開き、値が入るまで待つ必要がある。
+#
+# 米国の引け後に取る。JST 07:00 = UTC 22:00（前日）。曜日の指定が1日ずれる。
+on:
+  schedule:
+    - cron: "0 22 * * 1-5" # UTC 月〜金 22:00 = JST 火〜土 07:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
+      - name: 取得
+        run: python3 src/fetch_rates.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "金利 $(date -u +%Y-%m-%d)"

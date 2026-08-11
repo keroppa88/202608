@@ -16,6 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: ブラウザを用意
+        run: |
+          pip install --quiet playwright
+          playwright install --with-deps chromium
+
       - name: 取得
         run: python3 src/fetch_nikkei_jp.py
 
