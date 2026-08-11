@@ -3,17 +3,16 @@
 人が画面を全選択してコピーしたものと同じテキストを得る。
 HTML のタグ・クラス名・属性は一切見ないため、サイト改修の影響を受けない。
 
-取得手段は2つ。
+取得はブラウザで行う。
 
-    capture(url)        ヘッドレスブラウザで開いて表示テキストを取る。
-                        JavaScript 描画やボット判定のあるページはこちら。
-    text_from_html(s)   取得済みHTMLを表示テキストに変換する。
-                        中身が静的HTMLに入っているページ用。ブラウザが要らない。
+    capture(url)        ヘッドレスブラウザで開いて表示テキストを取る
+    browser_session()   同じブラウザで複数ページを続けて読む
 
-どちらも戻り値は同じ「見たままのテキスト」なので、抽出側は区別しなくてよい。
+HTML を自前でテキストに直す方法は採らない。サイト側の対策で弾かれるうえ、
+数値が後から流し込まれるページでは中身が入っていない。
+人がブラウザで見て全選択してコピーするのと同じことをする。
 """
 
-import html as _html
 import re
 
 UA = (
@@ -21,26 +20,10 @@ UA = (
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 )
 
-# ブラウザで表示されない要素。テキスト化の前に落とす
-_INVISIBLE = re.compile(
-    r"(?is)<(script|style|noscript|template|head)[^>]*>.*?</\1>"
-)
-# 改行として扱うタグの終わり
-_BREAKS = re.compile(r"(?is)<br\s*/?>|</(p|div|li|tr|h[1-6]|section|article|td|th)>")
-
 CHALLENGE = re.compile(r"just a moment|attention required|アクセスできません", re.I)
 
 
-def text_from_html(source):
-    """HTML を「見たままのテキスト」に変換する。"""
-    t = _INVISIBLE.sub(" ", source)
-    t = _BREAKS.sub("\n", t)
-    t = _html.unescape(re.sub(r"<[^>]+>", " ", t))
-    lines = [re.sub(r"[ \t　]+", " ", ln).strip() for ln in t.split("\n")]
-    return "\n".join(ln for ln in lines if ln)
-
-
-def _read_page(page, url, timeout_ms, settle_ms, challenge_ms, wait_text=None, wait_regex=None):
+def _read_page(page, url, timeout_ms, settle_ms, challenge_ms, wait_text=None, wait_regex=None, links=False):
     page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
 
     if CHALLENGE.search(page.title() or ""):
@@ -81,7 +64,13 @@ def _read_page(page, url, timeout_ms, settle_ms, challenge_ms, wait_text=None, w
     text = page.inner_text("body")
     if not text.strip():
         raise RuntimeError("表示テキストが空")
-    return text
+    if not links:
+        return text
+
+    # リンク先は画面に表示されない情報。人がリンクをクリックするのに相当する
+    # ものとして、ここだけは別に取る（SPEC §2.2 の例外）
+    hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => e.href)")
+    return text, hrefs
 
 
 def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000, wait_text=None, wait_regex=None):
@@ -93,6 +82,7 @@ def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000, wai
     使い方:
         with browser_session() as read:
             text = read(url)
+            text, hrefs = read(url, links=True)   # リンク先も要るとき
 
     playwright が必要:
         pip install playwright && playwright install chromium
@@ -114,8 +104,9 @@ def browser_session(*, timeout_ms=60000, settle_ms=3000, challenge_ms=45000, wai
             )
             page = context.new_page()
             try:
-                yield lambda url: _read_page(
-                    page, url, timeout_ms, settle_ms, challenge_ms, wait_text, wait_regex
+                yield lambda url, links=False: _read_page(
+                    page, url, timeout_ms, settle_ms, challenge_ms,
+                    wait_text, wait_regex, links,
                 )
             finally:
                 context.close()

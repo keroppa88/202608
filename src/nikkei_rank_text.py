@@ -70,7 +70,8 @@ def parse(text, columns, limit=None):
     戻り値: [{rank, code, name, market, <columns...>}]
     """
     trade_date = find_date(text)
-    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+    # ブラウザで取ると表のセルがタブ区切りの1行になる。1セル1行に開く
+    lines = [c.strip() for ln in text.split("\n") for c in ln.split("\t") if c.strip()]
 
     rows = []
     i = 0
