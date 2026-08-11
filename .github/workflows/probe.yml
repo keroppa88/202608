@@ -33,6 +33,8 @@ jobs:
           URL: ${{ inputs.url }}
           WAIT: ${{ inputs.wait }}
         run: |
+          # URLに ? や * が入るのでグロブを切る。空白での分割だけを使う
+          set -f
           if [ -n "$WAIT" ]; then
             python3 src/probe_page.py $URL --wait "$WAIT"
           else
