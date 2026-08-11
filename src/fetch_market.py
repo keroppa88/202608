@@ -2,7 +2,7 @@
 
 symbols.csv を読み、1銘柄=1リクエストで取得する。
 生レスポンスは data/raw/YYYY-MM-DD/ に無加工で保存し、
-そこから四本値を抽出して data/overseas.csv に追記する。
+そこから四本値を抽出して data/overseas_YYYY.csv に追記する（SPEC §6）。
 
 取得する範囲は分類で絞れる。市場の開いている時間が違うため、
 日本株は夕方、それ以外は朝の枠で動かしている（SPEC §8）。
@@ -23,6 +23,7 @@ import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 
+import market_store
 from common import ExtractError, JST, fetch, now_jst, report, repo_root, save_raw
 
 # 取引所タイムスタンプがこれより古ければ配信停止を疑う。
@@ -36,23 +37,8 @@ OHLC_TOLERANCE = 0.001  # 0.1%
 
 REQUEST_INTERVAL = 0.3
 
-# 全銘柄・全日付を1ファイルに追記する（data/overseas.csv）。
-# 1行 = 1銘柄の1日。銘柄が増減しても列が変わらないこの形にする。
-HEADER = [
-    "trade_date",
-    "category",
-    "name",
-    "symbol",
-    "source",
-    "open",
-    "high",
-    "low",
-    "close",
-    "volume",
-    "currency",
-    "exchange",
-    "fetched_at",
-]
+# 列と置き場所は market_store が持つ（年ごとにファイルを分ける）
+HEADER = market_store.HEADER
 
 
 def safe_name(symbol):
@@ -253,27 +239,6 @@ def check_freshness(trade_date, today):
         raise ExtractError(f"未来の日付（{trade_date}）")
 
 
-def merge_rows(path, new_rows):
-    """(trade_date, symbol) をキーに1ファイルへ追記する。
-
-    同じ日を再取得しても二重にならず、後から過去分を足しても順序が崩れない。
-    """
-    rows = {}
-    if os.path.exists(path):
-        with open(path, encoding="utf-8", newline="") as f:
-            for r in csv.DictReader(f):
-                rows[(r["trade_date"], r["symbol"])] = r
-    for r in new_rows:
-        rows[(r["trade_date"], r["symbol"])] = r
-
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        w = csv.DictWriter(f, fieldnames=HEADER)
-        w.writeheader()
-        for key in sorted(rows):
-            w.writerow({k: rows[key].get(k, "") for k in HEADER})
-
-
 def _option(argv, name):
     """--name 値 を取り出す。複数回指定できる。"""
     out = []
@@ -357,7 +322,7 @@ def main(argv):
         time.sleep(REQUEST_INTERVAL)
 
     if rows:
-        merge_rows(os.path.join(root, "data", "overseas.csv"), rows)
+        market_store.merge(root, rows)
 
     return report(sorted({r["symbol"] for r in rows}), errors, "相場データ取得")
 

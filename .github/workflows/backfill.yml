@@ -1,0 +1,37 @@
+name: 過去分の取り込み（手動）
+
+# 1999年以降の相場データをまとめて取り込む。定期実行はしない。
+# 銘柄を足したときや、取り込み直したいときに手で回す。
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "この日以降を取り込む"
+        required: false
+        type: string
+        default: "1999-01-01"
+      symbols:
+        description: "銘柄を絞る（空白区切り。空なら全銘柄）"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取り込み
+        env:
+          FROM: ${{ inputs.from }}
+          SYMBOLS: ${{ inputs.symbols }}
+        run: |
+          set -f
+          python3 src/backfill_market.py --from "$FROM" $SYMBOLS
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "過去分の取り込み $(date -u +%Y-%m-%d)"

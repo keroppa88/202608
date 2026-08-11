@@ -9,7 +9,7 @@ CNBC は同じ指数の値を1ページにまとめて出しており、値も�
 始値は出ない。高値・安値・終値が取れる。
 
     data/raw/YYYY-MM-DD/cnbc_sectors.txt   表示テキスト
-    data/overseas.csv                      相場データ（相場取得と同じファイル）
+    data/overseas_YYYY.csv                 相場データ（相場取得と同じ置き場所）
 
 **相場取得と同じファイルを書くので、必ず同じジョブの中で順に走らせる。**
 別ジョブで同時に走らせると書き込みがぶつかる。
@@ -18,12 +18,12 @@ CNBC は同じ指数の値を1ページにまとめて出しており、値も�
     python3 src/fetch_cnbc_sectors.py
 """
 
-import csv
 import os
 import sys
 from datetime import timedelta, timezone
 
 import cnbc_text as C
+import market_store
 from common import now_jst, report, repo_root, save_raw
 from page_text import capture
 
@@ -37,42 +37,6 @@ ET = timezone(timedelta(hours=-5))
 
 CATEGORY = "セクター"
 MIN_ROWS = 9
-
-HEADER = [
-    "trade_date",
-    "category",
-    "name",
-    "symbol",
-    "source",
-    "open",
-    "high",
-    "low",
-    "close",
-    "volume",
-    "currency",
-    "exchange",
-    "fetched_at",
-]
-
-KEYS = ["trade_date", "symbol"]
-
-
-def merge(path, rows):
-    """同じ取引日・シンボルは上書きする。相場取得と同じ持ち方。"""
-    existing = {}
-    if os.path.exists(path):
-        with open(path, encoding="utf-8", newline="") as f:
-            for r in csv.DictReader(f):
-                existing[tuple(r[k] for k in KEYS)] = r
-    for r in rows:
-        existing[tuple(str(r[k]) for k in KEYS)] = r
-
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        w = csv.DictWriter(f, fieldnames=HEADER)
-        w.writeheader()
-        for key in sorted(existing):
-            w.writerow({k: existing[key].get(k, "") for k in HEADER})
 
 
 def main(argv):
@@ -111,8 +75,8 @@ def main(argv):
         )
 
     stamp = started.isoformat(timespec="seconds")
-    merge(
-        os.path.join(root, "data", "overseas.csv"),
+    market_store.merge(
+        root,
         [
             {
                 "trade_date": trade_date,
