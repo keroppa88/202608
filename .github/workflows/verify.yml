@@ -43,7 +43,7 @@ jobs:
         if: always()
         run: python3 src/fetch_fear_greed.py
 
-      - name: 金利（SMBC日興）
+      - name: 金利（tradingeconomics・楽天証券）
         if: always()
         run: python3 src/fetch_rates.py
 
