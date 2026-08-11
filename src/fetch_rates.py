@@ -74,8 +74,14 @@ def main(argv):
 
     try:
         text = capture(URL, wait_regex=WAIT)
-    except Exception as e:
-        return report([], [("取得", str(e).splitlines()[0])], "金利")
+    except Exception:
+        # 待ち切れなくても、そのときの画面を持ち帰って項目数で判断する。
+        # 待ちで即死すると、何が出ていたのか分からないまま終わってしまう
+        print("値が出るのを待ち切れなかった。そのときの画面で判断する")
+        try:
+            text = capture(URL, settle_ms=10000)
+        except Exception as e:
+            return report([], [("取得", str(e).splitlines()[0])], "金利")
 
     save_raw(
         os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"), "rates.txt"),
