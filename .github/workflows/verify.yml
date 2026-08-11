@@ -48,3 +48,12 @@ jobs:
         run: |
           git status --short
           git --no-pager diff --stat
+
+      # 失敗したときに中身を見るため。抽出が直ったら消す
+      - name: ランキングの生テキスト（先頭80行）
+        if: always()
+        run: |
+          for f in data/raw/*/nikkei_rank_*.txt; do
+            echo "===== $f ====="
+            head -80 "$f" | cat -A | sed 's/\$$//'
+          done
