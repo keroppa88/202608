@@ -10,7 +10,7 @@ on:
         description: "見たいページのURL（空白区切りで複数可）"
         required: false
         type: string
-        default: "https://www.rakuten-sec.co.jp/web/market/data/list.html https://jp.investing.com/rates-bonds/china-10-year-bond-yield https://jp.investing.com/rates-bonds/south-korea-10-year-bond-yield"
+        default: "https://jp.tradingeconomics.com/bonds"
       settle:
         description: "描画を待つ秒数（既定15秒）"
         required: false
