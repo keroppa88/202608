@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "見たいページのURL（空白区切りで複数可）。既定はS&P500セクターのページ2本"
+        description: "見たいページのURL（空白区切りで複数可）。既定はS&P500セクター一覧"
         required: false
         type: string
-        default: "https://www.spglobal.com/spdji/jp/index-family/equity/us-equity/sp-sectors/ https://www.spglobal.com/spdji/jp/indices/equity/sp-500-information-technology-sector/"
+        default: "https://www.spglobal.com/spdji/jp/index-family/equity/us-equity/sp-sectors/#indices"
       wait:
         description: "この語が画面に出るまで待つ（JSで後から数値が入るページ用）"
         required: false
