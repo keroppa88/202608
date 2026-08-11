@@ -22,9 +22,6 @@ from page_text import capture
 
 URL = "https://edition.cnn.com/markets/fear-and-greed"
 
-# 値が出た証拠になる語。これが出るまで待つ
-MARKER = "Previous close"
-
 HEADER = ["trade_date", "value", "fetched_at"]
 
 
@@ -50,7 +47,7 @@ def main(argv):
     started = now_jst()
 
     try:
-        text = capture(URL, wait_text=MARKER)
+        text = capture(URL)
     except Exception as e:
         return report([], [("取得", str(e).splitlines()[0])], "CNN・Fear & Greed")
 

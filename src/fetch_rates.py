@@ -31,10 +31,6 @@ from page_text import capture
 
 URL = "https://www.smbcnikko.co.jp/market/interest/"
 
-# 描画を待つ時間。条件で待ち合わせると、当たらなかったときに
-# 画面に何が出ていたのか分からないまま落ちる
-SETTLE_MS = 15000
-
 HEADER = [
     "trade_date",
     "group",
@@ -84,7 +80,7 @@ def main(argv):
     started = now_jst()
 
     try:
-        text = capture(URL, settle_ms=SETTLE_MS)
+        text = capture(URL)
     except Exception as e:
         return report([], [("取得", str(e).splitlines()[0])], "金利")
 
