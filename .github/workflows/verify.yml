@@ -48,17 +48,3 @@ jobs:
         run: |
           git status --short
           git --no-pager diff --stat
-
-      # 失敗したときに中身を見るため。抽出が直ったら消す
-      - name: ランキングの生テキスト（表の周辺）
-        if: always()
-        run: |
-          python3 - <<'EOF'
-          import glob
-          for path in sorted(glob.glob("data/raw/*/nikkei_rank_*.txt")):
-              lines = open(path, encoding="utf-8").read().split("\n")
-              i = next((k for k, l in enumerate(lines) if "更新" in l), 0)
-              print(f"\n===== {path}  （{len(lines)}行、{i}行目に「更新」）=====")
-              for k, l in enumerate(lines[i:i + 60], i):
-                  print(f"{k:5}: {l.replace(chr(9), ' ⇥ ')}")
-          EOF
