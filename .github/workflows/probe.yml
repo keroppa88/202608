@@ -6,9 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "見たいページのURL（空白区切りで複数可）"
-        required: true
+        description: "見たいページのURL（空白区切りで複数可）。既定は金利・国債のページ3本"
+        required: false
         type: string
+        default: "https://www.sbisec.co.jp/ETGate/?OutSide=on&getFlg=on&_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_ActionID=DefaultAID&_DataStoreID=DSWPLETmgR001Control&burl=iris_index&cat1=market&cat2=index&dir=tl1-idx%7Ctl2-bond&file=index.html https://www.rakuten-sec.co.jp/web/market/data/bond_top.html https://www.rakuten-sec.co.jp/web/market/data/interest_top.html"
       wait:
         description: "この語が画面に出るまで待つ（JSで後から数値が入るページ用）"
         required: false
