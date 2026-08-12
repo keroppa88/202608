@@ -663,13 +663,15 @@ function drawChart() {
   const L = 92, R = 16, T = 12, B = 32;                 // 余白（目盛の文字ぶん）
   const iw = W - L - R, ih = H - T - B;
 
-  // 押されている移動平均を先に出す。上下の幅はこれも入れて決める
+  // 押されている移動平均を出す
   const shown = MA_LINES.filter((m) => settings.ma[m.n]).map((m) => ({
     ...m, line: movingAverage(all, days[0], m.n)
   }));
 
+  // 上下の幅は、押しているかに関わらず 200MA を入れて決める。
+  // 押すたびに縮尺が動くと、線の傾きが目で比べられなくなる
   const vals = days.map((d) => Number(map.get(d)));
-  shown.forEach((m) => m.line.forEach((v) => vals.push(v)));
+  movingAverage(all, days[0], 200).forEach((v) => vals.push(v));
   const sc = scaleOf(Math.min(...vals), Math.max(...vals));
 
   const x = (i) => L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
