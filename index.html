@@ -301,15 +301,43 @@ function decide() {
   if (b.disabled) return;               // チャートはまだ作らない
   if (b.dataset.go === "sheet") openSheet();
 }
+// 表を矢印で動かす幅。1回押すとこれだけ寄る
+const STEP_X = 120;   // 列1つぶんくらい
+const STEP_Y = 60;    // 行3つぶんくらい
+
 document.addEventListener("keydown", (e) => {
   if (!titleEl.classList.contains("hidden")) {
+    // タイトル画面。↑↓ で選び Enter で決める
     if (e.key === "ArrowDown") { cursor = (cursor + 1) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "Enter")     { decide(); e.preventDefault(); }
-  } else if (e.key === "Escape") {
+    return;
+  }
+
+  if (e.key === "Escape") {
     if (!chartEl.classList.contains("hidden")) closeChart();
     else backToTitle();
+    return;
   }
+
+  // チャートを出している間は表を動かさない
+  if (!chartEl.classList.contains("hidden")) return;
+
+  // 表画面。矢印で上下左右へ寄せる
+  const move = {
+    ArrowLeft:  [-STEP_X, 0],
+    ArrowRight: [STEP_X, 0],
+    ArrowUp:    [0, -STEP_Y],
+    ArrowDown:  [0, STEP_Y],
+    PageUp:     [0, -gridEl.clientHeight],
+    PageDown:   [0, gridEl.clientHeight],
+    Home:       [-gridEl.scrollWidth, 0],
+    End:        [gridEl.scrollWidth, 0]
+  }[e.key];
+  if (!move) return;
+
+  gridEl.scrollBy(move[0], move[1]);
+  e.preventDefault();          // 画面ごと動くのを止める
 });
 items.forEach((b, i) => {
   b.addEventListener("mouseenter", () => { cursor = i; drawCursor(); });
