@@ -27,7 +27,7 @@ jobs:
           playwright install --with-deps chromium
 
       - name: 取得
-        run: python3 src/fetch_market.py --exclude 日本株
+        run: python3 src/fetch_market.py --exclude 日本株 --exclude 日本指数
 
       # 同じ data/overseas.csv を書くので、必ずこの順で同じジョブの中で走らせる
       - name: セクター指数（CNBC）
