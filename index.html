@@ -84,6 +84,22 @@
   .bar .note { padding: 6px 14px; color: var(--dim); border-right: 0; }
 
   .grid { flex: 1; overflow: auto; }
+
+  /* スクロールの棒。配色に合わせて自分で描く。
+     Firefox はこの2行だけ効く */
+  .grid { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
+  .grid::-webkit-scrollbar { width: 13px; height: 13px; }
+  .grid::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+  }
+  .grid::-webkit-scrollbar-thumb {
+    background: var(--fg);
+    border: 3px solid var(--bg);   /* 内側を空けて細く見せる */
+  }
+  .grid::-webkit-scrollbar-thumb:hover { background: var(--fg2); }
+  .grid::-webkit-scrollbar-corner { background: var(--bg); }
   table { border-collapse: collapse; font-variant-numeric: tabular-nums; table-layout: fixed; }
   th, td {
     border: 1px solid var(--line);
