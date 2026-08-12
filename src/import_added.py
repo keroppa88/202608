@@ -35,6 +35,13 @@ TO_JPX = {
     "東証グロース250": "東証グロース市場250指数",
 }
 
+# 終値だけのファイル。data/nikkei_ohlc.csv へ入れる
+#   データ日付\t終値
+#   2023/1/4\t4849.89
+TO_NIKKEI_CLOSE = {
+    "日経半導体株指数": "日経半導体株指数",
+}
+
 # 日経平均は Yahoo と同じ置き場所・同じ銘柄として入れる
 TO_MARKET = {
     "日経平均株価": {
@@ -47,6 +54,7 @@ TO_MARKET = {
 }
 
 JPX_HEADER = ["trade_date", "name", "open", "high", "low", "close", "change", "change_pct", "fetched_at"]
+NIKKEI_HEADER = ["trade_date", "name", "open", "high", "low", "close", "fetched_at"]
 
 
 def read_bars(path):
@@ -68,6 +76,47 @@ def read_bars(path):
                 }
             )
     return out
+
+
+def read_closes(path):
+    """終値だけのファイルを読む。日付は 2023/1/4 の形。"""
+    out = []
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for line in f:
+            cells = [c.strip() for c in line.rstrip("\n").split("\t")]
+            if len(cells) < 2:
+                continue
+            d, c = cells[0], cells[1]
+            parts = d.split("/")
+            if len(parts) != 3 or not c:
+                continue          # 見出しの行
+            try:
+                y, m, day = (int(x) for x in parts)
+            except ValueError:
+                continue
+            out.append({"trade_date": f"{y:04d}-{m:02d}-{day:02d}", "close": c})
+    return out
+
+
+def merge_nikkei(root, rows):
+    """data/nikkei_ohlc.csv へ。既にある日は触らない。"""
+    path = os.path.join(root, "data", "nikkei_ohlc.csv")
+    existing = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                existing[(r["trade_date"], r["name"])] = r
+    for r in rows:
+        key = (r["trade_date"], r["name"])
+        if key not in existing:
+            existing[key] = r
+
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        w = csv.DictWriter(f, fieldnames=NIKKEI_HEADER)
+        w.writeheader()
+        for key in sorted(existing):
+            w.writerow({k: existing[key].get(k, "") for k in NIKKEI_HEADER})
+    return len(existing)
 
 
 def merge_jpx(root, rows):
@@ -134,6 +183,26 @@ def main(argv):
                 }
             )
         print(f"  {meta['name']:24} {len(bars):6}日  {bars[0]['trade_date']} → {bars[-1]['trade_date']}")
+
+    nikkei_rows = []
+    for base, name in TO_NIKKEI_CLOSE.items():
+        for ext in (".CSV", ".csv"):
+            path = os.path.join(src, base + ext)
+            if os.path.exists(path):
+                break
+        else:
+            print(f"  {base}: ファイルが無い")
+            continue
+        bars = read_closes(path)
+        for b in bars:
+            nikkei_rows.append(
+                {**b, "name": name, "open": "", "high": "", "low": "", "fetched_at": stamp}
+            )
+        print(f"  {name:24} {len(bars):6}日  {bars[0]['trade_date']} → {bars[-1]['trade_date']}（終値のみ）")
+
+    if nikkei_rows:
+        total = merge_nikkei(root, nikkei_rows)
+        print(f"\ndata/nikkei_ohlc.csv  {total:,}行")
 
     if jpx_rows:
         total = merge_jpx(root, jpx_rows)
