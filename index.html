@@ -307,6 +307,42 @@ function splitLine(line) {
   return out;
 }
 
+// 候補はこの順で並べる
+const GROUPS = ["日本株指数", "米国株指数", "海外その他", "為替", "日本個別株", "海外個別株"];
+
+// 米国の株価指数。ここに無い海外指数は「海外その他」へ入れる
+const US_INDEX = new Set(["^DJI", "^IXIC", "^NDX", "^GSPC", "^RUT", "^SOX", "^VIX"]);
+
+// symbols.csv の分類 → 画面での分野
+function groupOf(category, symbol) {
+  if (category === "日本指数" || category === "先物") return "日本株指数";
+  if (category === "日本株") return "日本個別株";
+  if (category === "個別株") return "海外個別株";
+  if (category === "為替") return "為替";
+  if (category === "セクター" || category === "REIT" || category === "ボラティリティ") return "米国株指数";
+  if (category === "海外指数") return US_INDEX.has(symbol) ? "米国株指数" : "海外その他";
+  return "海外その他";           // 商品・金利・通貨指数・暗号資産・ETF
+}
+
+// 米国株指数の中の並び。主要なものを先に、残りはサブ指数として後ろへ
+const US_MAIN = ["^DJI", "^GSPC", "^IXIC", "^NDX", "^RUT", "^SOX"];
+
+// 分野の中の並び
+//   日本株指数 … TOPIX → 日経 → サブ指数（REIT・市場区分・業種別など）
+//   米国株指数 … NYダウ → S&P500 → ナスダック → ラッセル → SOX → サブ指数
+function subRank(c) {
+  if (c.group === "日本株指数") {
+    if (c.label.includes("TOPIX")) return 0;
+    if (c.label.startsWith("日経")) return 1;
+    return 2;
+  }
+  if (c.group === "米国株指数") {
+    const i = US_MAIN.indexOf(c.sym);
+    return i < 0 ? 99 : i;
+  }
+  return 0;
+}
+
 // 同じ指数が2か所から入っているもの。候補には出さない
 //   日経平均は Yahoo（^N225）で1985年から揃っているので、そちらに寄せる
 const HIDDEN = new Set(["nikkei:日経平均株価"]);
@@ -325,18 +361,23 @@ async function buildCatalog(year) {
     if (!seen.has(key)) {
       seen.add(key);
       const code = WITH_CODE.has(r.category) ? `（${r.symbol}）` : "";
-      cat.push({ key, label: r.name + code });
+      cat.push({ key, label: r.name + code, group: groupOf(r.category, r.symbol), sym: r.symbol });
     }
   }
   for (const r of await fetchCsv("data/jpx_index.csv")) {
     const key = "jpx:" + r.name;
-    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name }); }
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
   for (const r of await fetchCsv("data/nikkei_ohlc.csv")) {
     const key = "nikkei:" + r.name;
-    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name }); }
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
-  cat.sort((a, b) => a.label.localeCompare(b.label, "ja"));
+  // 分野の順、分野の中は名前順
+  cat.sort((a, b) =>
+    GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) ||
+    subRank(a) - subRank(b) ||
+    a.label.localeCompare(b.label, "ja")
+  );
   return cat;
 }
 
@@ -508,11 +549,19 @@ async function render() {
       keep.textContent = labelOf(key, catalog);
       sel.appendChild(keep);
     }
+    // 分野ごとに見出しを付けて区切る
+    let box = null, cur = null;
     catalog.forEach((c) => {
+      if (c.group !== cur) {
+        cur = c.group;
+        box = document.createElement("optgroup");
+        box.label = cur;
+        sel.appendChild(box);
+      }
       const o = document.createElement("option");
       o.value = c.key;
       o.textContent = c.label;
-      sel.appendChild(o);
+      box.appendChild(o);
     });
     sel.value = key;
     sel.addEventListener("change", () => {
