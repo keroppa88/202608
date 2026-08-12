@@ -122,19 +122,49 @@
     font-size: 12px; line-height: 1.25;
     word-break: break-all;      /* 銘柄名は途中でも折る */
     text-align: center;
+    cursor: pointer;            /* 二度押しでチャート */
   }
-  .colhead .del {
+  /* 右端に × と ▼ を縦に並べる */
+  .colhead .ops {
+    display: flex; flex-direction: column; align-items: center;
+    flex: none; line-height: 1;
+  }
+  .colhead .ops button {
     background: none; border: 0; color: var(--dim);
-    font: inherit; cursor: pointer; padding: 0 2px;
-    position: relative; z-index: 3;   /* 重ねた選択より上に置く */
+    font: inherit; font-size: 11px; cursor: pointer; padding: 0 2px;
+    position: relative; z-index: 3;
   }
-  /* 見出し全体が銘柄の選択になっている。見た目には出さない */
+  /* ▼ の上に重ねた選択。押すと候補が開く。見た目には出さない */
+  .pickwrap { position: relative; display: block; }
   .picker {
     position: absolute; inset: 0;
+    width: 100%; height: 100%;
     opacity: 0; cursor: pointer;
-    font: inherit; z-index: 1;
+    font: inherit; z-index: 4;
   }
-  .grip { z-index: 3; }
+  .grip { z-index: 5; }
+
+  /* ---- チャート（ポップアップ） ---- */
+  #chart {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0, 0, 0, .55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #chart .box {
+    background: var(--bg); color: var(--fg);
+    border: 2px solid var(--line);
+    padding: 14px 16px;
+  }
+  #chart .head {
+    display: flex; justify-content: space-between; gap: 20px;
+    margin-bottom: 8px; font-size: 13px;
+  }
+  #chart .head .sub { color: var(--dim); }
+  #chart svg { display: block; }
+  #chart .axis { stroke: var(--line); fill: none; }
+  #chart .tick { stroke: var(--dim); fill: none; }
+  #chart .lab { fill: var(--dim); font-size: 10px; }
+  #chart .plot { stroke: var(--fg); fill: none; stroke-width: 1.2; }
   .addcol {
     background: var(--panel); color: var(--fg); border: 1px solid var(--line);
     font: inherit; cursor: pointer; padding: 2px 10px;
@@ -166,6 +196,9 @@
   </div>
   <div class="grid" id="grid"><div id="loading">読み込み中…</div></div>
 </section>
+
+<!-- ===================== チャート（ポップアップ） ===================== -->
+<div id="chart" class="hidden"></div>
 
 <script>
 "use strict";
@@ -239,7 +272,8 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "Enter")     { decide(); e.preventDefault(); }
   } else if (e.key === "Escape") {
-    backToTitle();
+    if (!chartEl.classList.contains("hidden")) closeChart();
+    else backToTitle();
   }
 });
 items.forEach((b, i) => {
@@ -489,6 +523,83 @@ function fmt(v) {
 }
 
 /* ---------------------------------------------------------------
+   チャート。いま表に出ている分をそのまま折れ線にする
+
+   配色は表と同じものを使う（--bg / --fg / --line / --dim）。
+   横軸の目盛は1か月ごと。線は日足。
+--------------------------------------------------------------- */
+const chartEl = document.getElementById("chart");
+
+function openChart(title, map) {
+  const days = [...map.keys()].sort();
+  if (!days.length) return;
+
+  // 縦横は 1 : 1.62。画面に収まる範囲でいちばん大きく取る
+  const RATIO = 1.62;
+  let W = Math.min(window.innerWidth - 120, 1100);
+  let H = W / RATIO;
+  const maxH = window.innerHeight - 140;
+  if (H > maxH) { H = maxH; W = H * RATIO; }
+  W = Math.round(W); H = Math.round(H);
+  const L = 66, R = 16, T = 12, B = 30;                 // 余白
+  const iw = W - L - R, ih = H - T - B;
+
+  const vals = days.map((d) => Number(map.get(d)));
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (lo === hi) { lo -= 1; hi += 1; }
+  const pad = (hi - lo) * 0.06;
+  lo -= pad; hi += pad;
+
+  const x = (i) => L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
+  const y = (v) => T + ih - (ih * (v - lo)) / (hi - lo);
+
+  const parts = [];
+  parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+
+  // 横軸。月が変わる日に目盛を立てる
+  let prev = "";
+  days.forEach((d, i) => {
+    const m = d.slice(0, 7);
+    if (m === prev) return;
+    prev = m;
+    const px = x(i);
+    parts.push(`<line x1="${px}" y1="${T + ih}" x2="${px}" y2="${T + ih + 4}" class="tick"/>`);
+    parts.push(`<text x="${px}" y="${T + ih + 16}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}月</text>`);
+  });
+
+  // 縦軸。5本
+  for (let k = 0; k <= 4; k++) {
+    const v = lo + ((hi - lo) * k) / 4;
+    const py = y(v);
+    parts.push(`<line x1="${L - 4}" y1="${py}" x2="${L}" y2="${py}" class="tick"/>`);
+    parts.push(`<text x="${L - 8}" y="${py + 3}" class="lab" text-anchor="end">${fmt(v)}</text>`);
+  }
+
+  // 折れ線
+  const dpath = days.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(Number(map.get(d))).toFixed(1)}`).join("");
+  parts.push(`<path d="${dpath}" class="plot"/>`);
+
+  chartEl.innerHTML = `
+    <div class="box">
+      <div class="head">
+        <div>${title}</div>
+        <div class="sub">${days[0]} 〜 ${days[days.length - 1]}　${days.length}日</div>
+      </div>
+      <svg width="${W}" height="${H}">${parts.join("")}</svg>
+    </div>`;
+  chartEl.classList.remove("hidden");
+}
+
+function closeChart() {
+  chartEl.classList.add("hidden");
+  chartEl.innerHTML = "";
+}
+// チャート以外を押したら消す
+chartEl.addEventListener("click", (e) => {
+  if (!e.target.closest(".box")) closeChart();
+});
+
+/* ---------------------------------------------------------------
    表を描く。縦は日付（上が過去）、横は銘柄
 --------------------------------------------------------------- */
 const gridEl = document.getElementById("grid");
@@ -595,7 +706,6 @@ async function render() {
     });
 
     const del = document.createElement("button");
-    del.className = "del";
     del.textContent = "×";
     del.title = "この列を消す";
     del.addEventListener("click", () => {
@@ -604,13 +714,28 @@ async function render() {
       render();
     });
 
+    const arrow = document.createElement("button");
+    arrow.textContent = "▼";
+    arrow.title = "銘柄を変える";
+
+    // ▼ と選択を重ねる。▼を押すと候補が開く
+    const pick = document.createElement("div");
+    pick.className = "pickwrap";
+    pick.append(arrow, sel);
+
+    const ops = document.createElement("div");
+    ops.className = "ops";
+    ops.append(del, pick);
+
     const nameEl = document.createElement("div");
     nameEl.className = "name";
     nameEl.textContent = labelOf(key, catalog);
+    nameEl.title = "押すとチャート";
+    // 名前を押すと、いま画面に出ている分のチャートを出す
+    nameEl.addEventListener("click", () => openChart(nameEl.textContent, series[i]));
 
-    wrap.append(nameEl, del);
+    wrap.append(nameEl, ops);
     th.appendChild(wrap);
-    th.appendChild(sel);                       // 透明のまま見出し全体に重ねる
     th.appendChild(makeGrip(key, cols[i + 1]));
     htr.appendChild(th);
   });
