@@ -114,8 +114,12 @@
   td.na { color: var(--dim); }
   /* 見出しは幅を狭めると2行3行に折り返す */
   thead th { white-space: normal; }
-  /* 名前が横幅を丸ごと使う。× と ▼ はその下に置く。
-     横は詰まっているので、操作の記号に幅を割かない */
+  /* 名前が横幅を丸ごと使う。× と ▼ はマス目の下辺に貼り付ける。
+     横は詰まっているので操作の記号に幅を割かない。
+     名前の長さで位置がずれないよう、全列そろえて一番下に置く */
+  /* セルの中身を下へ寄せる。行の高さは一番背の高い見出しで決まるので、
+     これだけで全列の × ▼ が下辺にそろう */
+  thead th { vertical-align: bottom; }
   .colhead { display: block; }
   .colhead .name {
     font-size: 12px; line-height: 1.25;
@@ -126,6 +130,7 @@
   .colhead .ops {
     display: flex; justify-content: center; gap: 6px;
     line-height: 1; margin-top: 2px;
+    flex: none;
   }
   .colhead .ops button {
     background: none; border: 0; color: var(--dim);
