@@ -534,8 +534,13 @@ function openChart(title, map) {
   const days = [...map.keys()].sort();
   if (!days.length) return;
 
-  const W = Math.min(980, Math.max(560, window.innerWidth - 160));
-  const H = Math.min(560, Math.max(320, window.innerHeight - 200));
+  // 縦横は 1 : 1.62。画面に収まる範囲でいちばん大きく取る
+  const RATIO = 1.62;
+  let W = Math.min(window.innerWidth - 120, 1100);
+  let H = W / RATIO;
+  const maxH = window.innerHeight - 140;
+  if (H > maxH) { H = maxH; W = H * RATIO; }
+  W = Math.round(W); H = Math.round(H);
   const L = 66, R = 16, T = 12, B = 30;                 // 余白
   const iw = W - L - R, ih = H - T - B;
 
@@ -725,9 +730,9 @@ async function render() {
     const nameEl = document.createElement("div");
     nameEl.className = "name";
     nameEl.textContent = labelOf(key, catalog);
-    nameEl.title = "二度押しでチャート";
-    // 名前を二度押しすると、いま画面に出ている分のチャートを出す
-    nameEl.addEventListener("dblclick", () => openChart(nameEl.textContent, series[i]));
+    nameEl.title = "押すとチャート";
+    // 名前を押すと、いま画面に出ている分のチャートを出す
+    nameEl.addEventListener("click", () => openChart(nameEl.textContent, series[i]));
 
     wrap.append(nameEl, ops);
     th.appendChild(wrap);
