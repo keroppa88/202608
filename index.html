@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>相場データ</title>
+<style>
+  /* 配色は :root の変数だけで切り替える。全画面に波及する */
+  :root {
+    --bg:      #000000;
+    --fg:      #33ff66;
+    --fg2:     #55bbff;
+    --line:    #33ff66;
+    --panel:   #000000;
+    --sel-bg:  #33ff66;
+    --sel-fg:  #000000;
+    --dim:     #1a7a33;
+  }
+  html[data-theme="light"] {
+    --bg: #ffffff; --fg: #000000; --fg2: #000000; --line: #000000;
+    --panel: #ffffff; --sel-bg: #000000; --sel-fg: #ffffff; --dim: #888888;
+  }
+  html[data-theme="proposed"] {
+    --bg: #14181f; --fg: #d6dee8; --fg2: #7fb2ff; --line: #2c3644;
+    --panel: #1a1f28; --sel-bg: #7fb2ff; --sel-fg: #14181f; --dim: #6b7787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "MS Gothic", "Osaka-Mono", "Courier New", monospace;
+    font-size: 14px;
+  }
+  .hidden { display: none !important; }
+
+  /* ---- タイトル画面 ---- */
+  #title {
+    height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 28px;
+  }
+  #title h1 { font-size: 22px; letter-spacing: .4em; margin: 0 0 8px; font-weight: normal; }
+  #title .sub { color: var(--dim); font-size: 12px; margin-bottom: 12px; }
+  .menu { display: flex; flex-direction: column; gap: 14px; }
+  .menu button {
+    width: 320px; padding: 18px 0;
+    background: var(--panel); color: var(--fg);
+    border: 2px solid var(--line);
+    font: inherit; font-size: 18px; letter-spacing: .3em;
+    cursor: pointer;
+  }
+  .menu button[aria-selected="true"] { background: var(--sel-bg); color: var(--sel-fg); }
+  .menu button:disabled { color: var(--dim); border-color: var(--dim); cursor: default; }
+  .menu button[aria-selected="true"]:disabled { background: var(--dim); color: var(--bg); }
+  #title .hint { color: var(--dim); font-size: 12px; }
+
+  /* ---- 表画面 ---- */
+  #sheet { height: 100%; display: flex; flex-direction: column; }
+  .bar {
+    display: flex; align-items: stretch;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    flex: none;
+  }
+  .bar > * { border-right: 1px solid var(--line); }
+  .bar button, .bar select {
+    background: var(--panel); color: var(--fg);
+    border: 0; font: inherit; padding: 6px 14px; cursor: pointer;
+  }
+  .bar select { padding-right: 8px; }
+  .bar .spacer { flex: 1; border-right: 0; }
+  .bar .note { padding: 6px 14px; color: var(--dim); border-right: 0; }
+
+  .grid { flex: 1; overflow: auto; }
+  table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 3px 10px;
+    white-space: nowrap;
+    text-align: right;
+  }
+  thead th {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--panel); color: var(--fg2);
+    text-align: center;
+  }
+  thead th.corner { left: 0; z-index: 3; }
+  tbody th {
+    position: sticky; left: 0; z-index: 1;
+    background: var(--panel); color: var(--fg2);
+    text-align: left; font-weight: normal;
+  }
+  td.na { color: var(--dim); }
+  .colhead { display: flex; align-items: center; gap: 6px; justify-content: center; }
+  .colhead select {
+    background: var(--panel); color: var(--fg2);
+    border: 1px solid var(--line); font: inherit; font-size: 12px;
+    max-width: 210px;
+  }
+  .colhead .del {
+    background: none; border: 0; color: var(--dim);
+    font: inherit; cursor: pointer; padding: 0 2px;
+  }
+  .addcol {
+    background: var(--panel); color: var(--fg); border: 1px solid var(--line);
+    font: inherit; cursor: pointer; padding: 2px 10px;
+  }
+  #loading { padding: 20px; color: var(--dim); }
+</style>
+</head>
+<body>
+
+<!-- ===================== タイトル画面 ===================== -->
+<section id="title">
+  <h1>相 場 デ ー タ</h1>
+  <div class="sub">1999 - 2026</div>
+  <div class="menu" id="titleMenu">
+    <button data-go="sheet" aria-selected="true">表</button>
+    <button data-go="chart" disabled>チャート</button>
+  </div>
+  <div class="hint">↑ ↓ で選択　Enter で決定</div>
+</section>
+
+<!-- ===================== 表画面 ===================== -->
+<section id="sheet" class="hidden">
+  <div class="bar">
+    <button id="back" title="タイトルへ戻る">← 戻る</button>
+    <select id="year" title="表示する年"></select>
+    <select id="theme" title="配色">
+      <option value="retro">デザイン：90年代PC風</option>
+      <option value="light">デザイン：白背景に黒文字</option>
+      <option value="proposed">デザイン：提案配色</option>
+    </select>
+    <div class="spacer"></div>
+    <div class="note" id="status"></div>
+  </div>
+  <div class="grid" id="grid"><div id="loading">読み込み中…</div></div>
+</section>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------------
+   保存する設定。銘柄の並びと配色はブラウザに覚えさせる
+--------------------------------------------------------------- */
+const STORE = "soba.v1";
+const DEFAULT_COLUMNS = [
+  "yahoo:^N225",          // 日経平均株価
+  "jpx:TOPIX (東証株価指数)",
+  "nikkei:日経半導体株指数",
+  "yahoo:^DJI",           // NYダウ
+  "yahoo:^GSPC",          // S&P500
+  "yahoo:^IXIC",          // ナスダック総合
+  "yahoo:^SOX"            // SOX
+];
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE) || "{}");
+    return {
+      theme: s.theme || "retro",
+      year: s.year || 2026,
+      columns: Array.isArray(s.columns) && s.columns.length ? s.columns : DEFAULT_COLUMNS.slice()
+    };
+  } catch (e) {
+    return { theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice() };
+  }
+}
+function saveSettings() {
+  localStorage.setItem(STORE, JSON.stringify(settings));
+}
+let settings = loadSettings();
+
+function applyTheme(name) {
+  document.documentElement.dataset.theme = name;
+  settings.theme = name;
+  saveSettings();
+}
+applyTheme(settings.theme);
+
+/* ---------------------------------------------------------------
+   タイトル画面。↑↓ で選び Enter で決める
+--------------------------------------------------------------- */
+const titleEl = document.getElementById("title");
+const sheetEl = document.getElementById("sheet");
+const items = [...document.querySelectorAll("#titleMenu button")];
+let cursor = 0;
+
+function drawCursor() {
+  items.forEach((b, i) => b.setAttribute("aria-selected", String(i === cursor)));
+}
+function decide() {
+  const b = items[cursor];
+  if (b.disabled) return;               // チャートはまだ作らない
+  if (b.dataset.go === "sheet") openSheet();
+}
+document.addEventListener("keydown", (e) => {
+  if (!titleEl.classList.contains("hidden")) {
+    if (e.key === "ArrowDown") { cursor = (cursor + 1) % items.length; drawCursor(); e.preventDefault(); }
+    if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
+    if (e.key === "Enter")     { decide(); e.preventDefault(); }
+  } else if (e.key === "Escape") {
+    backToTitle();
+  }
+});
+items.forEach((b, i) => {
+  b.addEventListener("mouseenter", () => { cursor = i; drawCursor(); });
+  b.addEventListener("click", () => { cursor = i; drawCursor(); decide(); });
+});
+drawCursor();
+
+function backToTitle() {
+  sheetEl.classList.add("hidden");
+  titleEl.classList.remove("hidden");
+}
+document.getElementById("back").addEventListener("click", backToTitle);
+
+/* ---------------------------------------------------------------
+   データの読み込み。CSVはそのまま置いてあるものを読む
+
+     yahoo:{シンボル}  data/overseas_{年}.csv
+     jpx:{指数名}      data/jpx_index.csv
+     nikkei:{指数名}   data/nikkei_ohlc.csv
+
+   どれも終値を出す。無い日は #N/A
+--------------------------------------------------------------- */
+const cache = new Map();
+
+async function fetchCsv(path) {
+  if (cache.has(path)) return cache.get(path);
+  const p = fetch(path).then(async (r) => {
+    if (!r.ok) return [];
+    return parseCsv(await r.text());
+  }).catch(() => []);
+  cache.set(path, p);
+  return p;
+}
+
+function parseCsv(text) {
+  const lines = text.split("\n").filter((l) => l.length);
+  if (!lines.length) return [];
+  const head = splitLine(lines[0]);
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cells = splitLine(lines[i]);
+    const row = {};
+    head.forEach((h, j) => { row[h] = cells[j] === undefined ? "" : cells[j]; });
+    out.push(row);
+  }
+  return out;
+}
+
+// 引用符つきのカンマ区切りを分ける
+function splitLine(line) {
+  const out = [];
+  let cur = "", quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (quoted) {
+      if (c === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++; } else { quoted = false; }
+      } else cur += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { out.push(cur); cur = ""; }
+    else if (c !== "\r") cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+// 選べる銘柄の一覧を作る（その年に値がある銘柄）
+async function buildCatalog(year) {
+  const cat = [];
+  const seen = new Set();
+
+  for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
+    const key = "yahoo:" + r.symbol;
+    if (!seen.has(key)) {
+      seen.add(key);
+      cat.push({ key, label: `${r.name}（${r.symbol}）` });
+    }
+  }
+  for (const r of await fetchCsv("data/jpx_index.csv")) {
+    const key = "jpx:" + r.name;
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: `${r.name}（JPX）` }); }
+  }
+  for (const r of await fetchCsv("data/nikkei_ohlc.csv")) {
+    const key = "nikkei:" + r.name;
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: `${r.name}（日経）` }); }
+  }
+  cat.sort((a, b) => a.label.localeCompare(b.label, "ja"));
+  return cat;
+}
+
+// 1銘柄ぶんの「日付 → 終値」を返す
+async function seriesOf(key, year) {
+  const [src, id] = splitKey(key);
+  const map = new Map();
+  if (src === "yahoo") {
+    for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
+      if (r.symbol === id && r.close !== "") map.set(r.trade_date, r.close);
+    }
+  } else if (src === "jpx") {
+    for (const r of await fetchCsv("data/jpx_index.csv")) {
+      if (r.name === id && r.close !== "" && r.trade_date.startsWith(year)) {
+        map.set(r.trade_date, r.close);
+      }
+    }
+  } else if (src === "nikkei") {
+    for (const r of await fetchCsv("data/nikkei_ohlc.csv")) {
+      if (r.name === id && r.close !== "" && r.trade_date.startsWith(year)) {
+        map.set(r.trade_date, r.close);
+      }
+    }
+  }
+  return map;
+}
+
+function splitKey(key) {
+  const i = key.indexOf(":");
+  return [key.slice(0, i), key.slice(i + 1)];
+}
+
+function labelOf(key, catalog) {
+  const hit = catalog.find((c) => c.key === key);
+  if (hit) return hit.label;
+  return splitKey(key)[1];       // その年に無い銘柄は素の名前を出す
+}
+
+function fmt(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return v;
+  return n.toLocaleString("ja-JP", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/* ---------------------------------------------------------------
+   表を描く。縦は日付（上が過去）、横は銘柄
+--------------------------------------------------------------- */
+const gridEl = document.getElementById("grid");
+const yearEl = document.getElementById("year");
+const themeEl = document.getElementById("theme");
+const statusEl = document.getElementById("status");
+
+for (let y = 2026; y >= 1999; y--) {
+  const o = document.createElement("option");
+  o.value = String(y);
+  o.textContent = `${y}年`;
+  yearEl.appendChild(o);
+}
+yearEl.value = String(settings.year);
+themeEl.value = settings.theme;
+
+yearEl.addEventListener("change", () => {
+  settings.year = Number(yearEl.value);
+  saveSettings();
+  render();
+});
+themeEl.addEventListener("change", () => applyTheme(themeEl.value));
+
+function openSheet() {
+  titleEl.classList.add("hidden");
+  sheetEl.classList.remove("hidden");
+  render();
+}
+
+let rendering = 0;
+async function render() {
+  const mine = ++rendering;
+  const year = String(settings.year);
+  gridEl.innerHTML = '<div id="loading">読み込み中…</div>';
+  statusEl.textContent = "";
+
+  const catalog = await buildCatalog(year);
+  const series = [];
+  for (const key of settings.columns) series.push(await seriesOf(key, year));
+  if (mine !== rendering) return;                 // 途中で年が変わったら捨てる
+
+  const dates = new Set();
+  series.forEach((m) => m.forEach((_, d) => dates.add(d)));
+  const rows = [...dates].sort();                 // 上が過去、下が現在
+
+  const table = document.createElement("table");
+
+  const thead = document.createElement("thead");
+  const htr = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.className = "corner";
+  corner.textContent = "日付";
+  htr.appendChild(corner);
+
+  settings.columns.forEach((key, i) => {
+    const th = document.createElement("th");
+    const wrap = document.createElement("div");
+    wrap.className = "colhead";
+
+    const sel = document.createElement("select");
+    // その年に値が無い銘柄も選び続けられるようにしておく
+    if (!catalog.some((c) => c.key === key)) {
+      const keep = document.createElement("option");
+      keep.value = key;
+      keep.textContent = labelOf(key, catalog);
+      sel.appendChild(keep);
+    }
+    catalog.forEach((c) => {
+      const o = document.createElement("option");
+      o.value = c.key;
+      o.textContent = c.label;
+      sel.appendChild(o);
+    });
+    sel.value = key;
+    sel.addEventListener("change", () => {
+      settings.columns[i] = sel.value;
+      saveSettings();
+      render();
+    });
+
+    const del = document.createElement("button");
+    del.className = "del";
+    del.textContent = "×";
+    del.title = "この列を消す";
+    del.addEventListener("click", () => {
+      settings.columns.splice(i, 1);
+      saveSettings();
+      render();
+    });
+
+    wrap.append(sel, del);
+    th.appendChild(wrap);
+    htr.appendChild(th);
+  });
+
+  const addTh = document.createElement("th");
+  const add = document.createElement("button");
+  add.className = "addcol";
+  add.textContent = "＋";
+  add.title = "列を足す";
+  add.addEventListener("click", () => {
+    const first = catalog.find((c) => !settings.columns.includes(c.key));
+    settings.columns.push(first ? first.key : "yahoo:^GSPC");
+    saveSettings();
+    render();
+  });
+  addTh.appendChild(add);
+  htr.appendChild(addTh);
+  thead.appendChild(htr);
+
+  const tbody = document.createElement("tbody");
+  for (const d of rows) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = d;
+    tr.appendChild(th);
+    series.forEach((m) => {
+      const td = document.createElement("td");
+      const v = m.get(d);
+      if (v === undefined) { td.textContent = "#N/A"; td.className = "na"; }
+      else td.textContent = fmt(v);
+      tr.appendChild(td);
+    });
+    tr.appendChild(document.createElement("td"));
+    tbody.appendChild(tr);
+  }
+
+  table.append(thead, tbody);
+  gridEl.innerHTML = "";
+  gridEl.appendChild(table);
+  statusEl.textContent = `${rows.length}日 × ${settings.columns.length}銘柄`;
+}
+</script>
+</body>
+</html>
