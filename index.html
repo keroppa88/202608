@@ -114,20 +114,18 @@
   td.na { color: var(--dim); }
   /* 見出しは幅を狭めると2行3行に折り返す */
   thead th { white-space: normal; }
-  .colhead {
-    display: flex; align-items: flex-start; gap: 4px; justify-content: center;
-  }
+  /* 名前が横幅を丸ごと使う。× と ▼ はその下に置く。
+     横は詰まっているので、操作の記号に幅を割かない */
+  .colhead { display: block; }
   .colhead .name {
-    flex: 1; min-width: 0;
     font-size: 12px; line-height: 1.25;
     word-break: break-all;      /* 銘柄名は途中でも折る */
     text-align: center;
-    cursor: pointer;            /* 二度押しでチャート */
+    cursor: pointer;            /* 押すとチャート */
   }
-  /* 右端に × と ▼ を縦に並べる */
   .colhead .ops {
-    display: flex; flex-direction: column; align-items: center;
-    flex: none; line-height: 1;
+    display: flex; justify-content: center; gap: 6px;
+    line-height: 1; margin-top: 2px;
   }
   .colhead .ops button {
     background: none; border: 0; color: var(--dim);
@@ -858,7 +856,7 @@ async function render() {
 
     const ops = document.createElement("div");
     ops.className = "ops";
-    ops.append(del, pick);
+    ops.append(del, pick);        // 名前の下に横並びで置く
 
     const nameEl = document.createElement("div");
     nameEl.className = "name";
