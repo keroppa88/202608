@@ -150,6 +150,8 @@
     background: rgba(0, 0, 0, .55);
     display: flex; align-items: center; justify-content: center;
   }
+  /* 枠の幅は SVG に合わせて決め打ちする。
+     見出しが長くても横に伸ばさない。伸ばすと縦横比（1:1.62）が崩れる */
   #chart .box {
     background: var(--bg); color: var(--fg);
     border: 2px solid var(--line);
@@ -162,7 +164,8 @@
     font-weight: bold;
   }
   #chart .head {
-    display: flex; justify-content: space-between; gap: 20px;
+    display: flex; justify-content: space-between; gap: 8px 20px;
+    flex-wrap: wrap;                 /* 入らなければ行を変える */
     margin-bottom: 8px;
   }
   #chart .head .sub { color: var(--fg); }
@@ -173,8 +176,12 @@
   #chart .lab { fill: var(--fg); }
   #chart .plot { stroke: var(--fg); fill: none; stroke-width: 1.2; }
   #chart .ma { stroke: var(--fg); fill: none; stroke-width: 1; opacity: .75; }
-  #chart .head .left { display: flex; align-items: center; gap: 16px; }
-  #chart .ma-pick { display: flex; gap: 12px; color: var(--fg); }
+  #chart .head .left {
+    display: flex; align-items: center; gap: 8px 16px;
+    flex-wrap: wrap; min-width: 0;
+  }
+  #chart .head .name { word-break: break-all; }
+  #chart .ma-pick { display: flex; gap: 12px; color: var(--fg); flex: none; }
   #chart .ma-pick label {
     cursor: pointer; user-select: none;
     display: inline-flex; align-items: center; gap: 4px;
@@ -697,10 +704,11 @@ function drawChart() {
     `<label><input type="checkbox" data-ma="${m.n}"${settings.ma[m.n] ? " checked" : ""}><span class="bx"></span>${m.n}MA</label>`
   ).join("");
 
+  const boxW = W + 16 * 2 + 2 * 2;      // padding と枠線のぶん
   chartEl.innerHTML = `
-    <div class="box">
+    <div class="box" style="width:${boxW}px">
       <div class="head">
-        <div class="left">${title}<span class="ma-pick">${boxes}</span></div>
+        <div class="left"><span class="name">${title}</span><span class="ma-pick">${boxes}</span></div>
         <div class="sub">${days[0]} 〜 ${days[days.length - 1]}　${days.length}日</div>
       </div>
       <svg width="${W}" height="${H}">${parts.join("")}</svg>
