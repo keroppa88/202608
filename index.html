@@ -307,25 +307,34 @@ function splitLine(line) {
   return out;
 }
 
+// 同じ指数が2か所から入っているもの。候補には出さない
+//   日経平均は Yahoo（^N225）で1985年から揃っているので、そちらに寄せる
+const HIDDEN = new Set(["nikkei:日経平均株価"]);
+
 // 選べる銘柄の一覧を作る（その年に値がある銘柄）
 async function buildCatalog(year) {
   const cat = [];
-  const seen = new Set();
+  const seen = new Set(HIDDEN);
+
+  // 銘柄名だけを出す。コードを添えるのは個別株だけ。
+  // 指数や商品にコードを出しても読む側には意味がない
+  const WITH_CODE = new Set(["個別株", "日本株"]);
 
   for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
     const key = "yahoo:" + r.symbol;
     if (!seen.has(key)) {
       seen.add(key);
-      cat.push({ key, label: `${r.name}（${r.symbol}）` });
+      const code = WITH_CODE.has(r.category) ? `（${r.symbol}）` : "";
+      cat.push({ key, label: r.name + code });
     }
   }
   for (const r of await fetchCsv("data/jpx_index.csv")) {
     const key = "jpx:" + r.name;
-    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: `${r.name}（JPX）` }); }
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name }); }
   }
   for (const r of await fetchCsv("data/nikkei_ohlc.csv")) {
     const key = "nikkei:" + r.name;
-    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: `${r.name}（日経）` }); }
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name }); }
   }
   cat.sort((a, b) => a.label.localeCompare(b.label, "ja"));
   return cat;
