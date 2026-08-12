@@ -557,6 +557,17 @@ function fmt(v) {
   return n.toLocaleString("ja-JP", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// チャートの目盛。3桁区切りは出さない。小数も出さない。
+// ただし目盛の幅が1未満のとき（金利や為替）は、整数にすると同じ数字が
+// 並んでしまうので、その幅に必要なぶんだけ小数を残す
+function fmtAxis(v, step) {
+  const n = Number(v);
+  if (!isFinite(n)) return v;
+  if (!(step < 1)) return String(Math.round(n));
+  const d = Math.max(0, Math.ceil(-Math.log10(step)));
+  return n.toFixed(d);
+}
+
 /* ---------------------------------------------------------------
    チャート。いま表に出ている分をそのまま折れ線にする
 
@@ -681,7 +692,7 @@ function drawChart() {
   for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
     const py = y(v);
     parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
-    parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmt(v)}</text>`);
+    parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmtAxis(v, sc.step)}</text>`);
   }
 
   parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
