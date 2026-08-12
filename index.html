@@ -20,9 +20,18 @@
     --bg: #ffffff; --fg: #000000; --fg2: #000000; --line: #000000;
     --panel: #ffffff; --sel-bg: #000000; --sel-fg: #ffffff; --dim: #888888;
   }
-  html[data-theme="proposed"] {
+  /* 以下3つは提案。夜 / 紙 / 熾火 */
+  html[data-theme="midnight"] {
     --bg: #14181f; --fg: #d6dee8; --fg2: #7fb2ff; --line: #2c3644;
     --panel: #1a1f28; --sel-bg: #7fb2ff; --sel-fg: #14181f; --dim: #6b7787;
+  }
+  html[data-theme="paper"] {
+    --bg: #f4efe4; --fg: #33302a; --fg2: #7a5c3e; --line: #cabfa9;
+    --panel: #ece5d6; --sel-bg: #7a5c3e; --sel-fg: #f4efe4; --dim: #a1957f;
+  }
+  html[data-theme="ember"] {
+    --bg: #1b1a17; --fg: #e6dac4; --fg2: #e0863a; --line: #3d3830;
+    --panel: #221f1b; --sel-bg: #e0863a; --sel-fg: #1b1a17; --dim: #7c7263;
   }
 
   * { box-sizing: border-box; }
@@ -151,11 +160,7 @@
   <div class="bar">
     <button id="back" title="タイトルへ戻る">← 戻る</button>
     <select id="year" title="表示する年"></select>
-    <select id="theme" title="配色">
-      <option value="retro">デザイン：90年代PC風</option>
-      <option value="light">デザイン：白背景に黒文字</option>
-      <option value="proposed">デザイン：提案配色</option>
-    </select>
+    <button id="theme" title="押すたびに配色が変わる">Color</button>
     <div class="spacer"></div>
     <div class="note" id="status"></div>
   </div>
@@ -197,10 +202,18 @@ function saveSettings() {
 }
 let settings = loadSettings();
 
+// 押すたびにこの順で回る。先頭が既定
+const THEMES = ["retro", "light", "midnight", "paper", "ember"];
+
 function applyTheme(name) {
+  if (!THEMES.includes(name)) name = THEMES[0];
   document.documentElement.dataset.theme = name;
   settings.theme = name;
   saveSettings();
+}
+function nextTheme() {
+  const i = THEMES.indexOf(settings.theme);
+  applyTheme(THEMES[(i + 1) % THEMES.length]);
 }
 applyTheme(settings.theme);
 
@@ -416,14 +429,13 @@ for (let y = 2026; y >= 1999; y--) {
   yearEl.appendChild(o);
 }
 yearEl.value = String(settings.year);
-themeEl.value = settings.theme;
 
 yearEl.addEventListener("change", () => {
   settings.year = Number(yearEl.value);
   saveSettings();
   render();
 });
-themeEl.addEventListener("change", () => applyTheme(themeEl.value));
+themeEl.addEventListener("click", nextTheme);
 
 function openSheet() {
   titleEl.classList.add("hidden");
