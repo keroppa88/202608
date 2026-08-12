@@ -9,7 +9,7 @@
   :root {
     --bg:      #000000;
     --fg:      #33ff66;
-    --fg2:     #55bbff;
+    --fg2:     #33ff66;
     --line:    #33ff66;
     --panel:   #000000;
     --sel-bg:  #33ff66;
@@ -75,13 +75,22 @@
   .bar .note { padding: 6px 14px; color: var(--dim); border-right: 0; }
 
   .grid { flex: 1; overflow: auto; }
-  table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  table { border-collapse: collapse; font-variant-numeric: tabular-nums; table-layout: fixed; }
   th, td {
     border: 1px solid var(--line);
     padding: 3px 10px;
     white-space: nowrap;
     text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+  /* 見出しの右端を掴むと幅を変えられる */
+  .grip {
+    position: absolute; top: 0; right: -3px; width: 7px; height: 100%;
+    cursor: col-resize; user-select: none;
+  }
+  .grip:hover { background: var(--fg2); opacity: .5; }
+  /* sticky は位置指定なので、取っ手はこの中に絶対配置できる */
   thead th {
     position: sticky; top: 0; z-index: 2;
     background: var(--panel); color: var(--fg2);
@@ -146,7 +155,7 @@
 /* ---------------------------------------------------------------
    保存する設定。銘柄の並びと配色はブラウザに覚えさせる
 --------------------------------------------------------------- */
-const STORE = "soba.v1";
+const STORE = "soba.v2";
 const DEFAULT_COLUMNS = [
   "yahoo:^N225",          // 日経平均株価
   "jpx:TOPIX (東証株価指数)",
@@ -163,10 +172,11 @@ function loadSettings() {
     return {
       theme: s.theme || "retro",
       year: s.year || 2026,
-      columns: Array.isArray(s.columns) && s.columns.length ? s.columns : DEFAULT_COLUMNS.slice()
+      columns: Array.isArray(s.columns) && s.columns.length ? s.columns : DEFAULT_COLUMNS.slice(),
+      widths: (s.widths && typeof s.widths === "object") ? s.widths : {}
     };
   } catch (e) {
-    return { theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice() };
+    return { theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {} };
   }
 }
 function saveSettings() {
@@ -330,6 +340,48 @@ function labelOf(key, catalog) {
   return splitKey(key)[1];       // その年に無い銘柄は素の名前を出す
 }
 
+/* ---------------------------------------------------------------
+   列の幅。見出しの右端を掴んで動かす。幅は覚えさせる
+--------------------------------------------------------------- */
+const DATE_COL = "__date__";
+const DEFAULT_W = { [DATE_COL]: 110, __plus__: 44 };
+
+function widthOf(key) {
+  return settings.widths[key] || DEFAULT_W[key] || 130;
+}
+
+function makeGrip(key, col) {
+  const grip = document.createElement("div");
+  grip.className = "grip";
+  grip.title = "掴んで幅を変える";
+  grip.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const x0 = e.clientX;
+    const w0 = col.getBoundingClientRect ? parseInt(col.style.width, 10) || widthOf(key) : widthOf(key);
+    const move = (ev) => {
+      const w = Math.max(50, w0 + (ev.clientX - x0));
+      col.style.width = w + "px";
+      settings.widths[key] = w;
+    };
+    const up = () => {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+      saveSettings();
+    };
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+  });
+  // 取っ手を二度押しすると既定の幅へ戻す
+  grip.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    delete settings.widths[key];
+    col.style.width = widthOf(key) + "px";
+    saveSettings();
+  });
+  return grip;
+}
+
 function fmt(v) {
   const n = Number(v);
   if (!isFinite(n)) return v;
@@ -384,11 +436,27 @@ async function render() {
 
   const table = document.createElement("table");
 
+  // 幅は colgroup で決める（table-layout: fixed）
+  const colgroup = document.createElement("colgroup");
+  const cols = [];
+  const addCol = (key) => {
+    const c = document.createElement("col");
+    c.style.width = widthOf(key) + "px";
+    colgroup.appendChild(c);
+    cols.push(c);
+    return c;
+  };
+  const dateCol = addCol(DATE_COL);
+  settings.columns.forEach((key) => addCol(key));
+  addCol("__plus__");
+  table.appendChild(colgroup);
+
   const thead = document.createElement("thead");
   const htr = document.createElement("tr");
   const corner = document.createElement("th");
   corner.className = "corner";
   corner.textContent = "日付";
+  corner.appendChild(makeGrip(DATE_COL, dateCol));
   htr.appendChild(corner);
 
   settings.columns.forEach((key, i) => {
@@ -429,6 +497,7 @@ async function render() {
 
     wrap.append(sel, del);
     th.appendChild(wrap);
+    th.appendChild(makeGrip(key, cols[i + 1]));
     htr.appendChild(th);
   });
 
