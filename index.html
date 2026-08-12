@@ -164,7 +164,7 @@
   #chart .axis { stroke: var(--line); fill: none; }
   #chart .vline { stroke: var(--dim); stroke-width: .5; }
   #chart .hline { stroke: var(--dim); stroke-width: .5; }
-  #chart .lab { fill: var(--dim); font-size: 10px; }
+  #chart .lab { fill: var(--dim); font-size: 14px; }   /* 表の数字と同じ */
   #chart .plot { stroke: var(--fg); fill: none; stroke-width: 1.2; }
   .addcol {
     background: var(--panel); color: var(--fg); border: 1px solid var(--line);
@@ -579,7 +579,7 @@ function openChart(title, map) {
   const maxW = window.innerWidth - 80;
   if (W > maxW) { W = maxW; H = Math.round(W / RATIO); }
 
-  const L = 70, R = 16, T = 12, B = 26;                 // 余白
+  const L = 92, R = 16, T = 12, B = 32;                 // 余白（目盛の文字ぶん）
   const iw = W - L - R, ih = H - T - B;
 
   const vals = days.map((d) => Number(map.get(d)));
@@ -598,14 +598,14 @@ function openChart(title, map) {
     prev = m;
     const px = x(i);
     parts.push(`<line x1="${px}" y1="${T}" x2="${px}" y2="${T + ih}" class="vline"/>`);
-    parts.push(`<text x="${px}" y="${T + ih + 15}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}</text>`);
+    parts.push(`<text x="${px}" y="${T + ih + 18}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}</text>`);
   });
 
   // きりのいい価格に横線
   for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
     const py = y(v);
     parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
-    parts.push(`<text x="${L - 8}" y="${py + 3}" class="lab" text-anchor="end">${fmt(v)}</text>`);
+    parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmt(v)}</text>`);
   }
 
   parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
