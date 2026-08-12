@@ -307,27 +307,101 @@ function splitLine(line) {
   return out;
 }
 
+// 候補はこの順で並べる
+const GROUPS = ["日本株指数", "米国株指数", "海外その他", "為替", "日本個別株", "海外個別株"];
+
+// 米国の株価指数。ここに無い海外指数は「海外その他」へ入れる
+const US_INDEX = new Set(["^DJI", "^IXIC", "^NDX", "^GSPC", "^RUT", "^SOX", "^VIX"]);
+
+// symbols.csv の分類 → 画面での分野
+function groupOf(category, symbol) {
+  if (category === "日本指数" || category === "先物") return "日本株指数";
+  if (category === "日本株") return "日本個別株";
+  if (category === "個別株") return "海外個別株";
+  if (category === "為替") return "為替";
+  if (category === "セクター" || category === "REIT" || category === "ボラティリティ") return "米国株指数";
+  if (category === "海外指数") return US_INDEX.has(symbol) ? "米国株指数" : "海外その他";
+  return "海外その他";           // 商品・金利・通貨指数・暗号資産・ETF
+}
+
+// 米国株指数の中の並び。主要なものを先に、残りはサブ指数として後ろへ
+const US_MAIN = ["^DJI", "^GSPC", "^IXIC", "^NDX", "^RUT", "^SOX"];
+
+// 日本株指数の中の並び。名前がそのまま一致するものを先頭に置く
+const JP_MAIN = [
+  "TOPIX (東証株価指数)",
+  "日経平均株価",
+  "日経半導体株指数",
+  "日経平均ボラティリティー・インデックス",
+  "日経平均内需株50指数",
+  "日経平均外需株50指数"
+];
+
+// 東証33業種
+const GYOSHU = new Set([
+  "水産・農林業", "鉱業", "建設業", "食料品", "繊維製品", "パルプ・紙", "化学",
+  "医薬品", "石油・石炭製品", "ゴム製品", "ガラス・土石製品", "鉄鋼", "非鉄金属",
+  "金属製品", "機械", "電気機器", "輸送用機器", "精密機器", "その他製品",
+  "電気・ガス業", "陸運業", "海運業", "空運業", "倉庫・運輸関連業", "情報・通信業",
+  "卸売業", "小売業", "銀行業", "証券、商品先物取引業", "保険業", "その他金融業",
+  "不動産業", "サービス業"
+]);
+
+// 分野の中の並び
+//   日本株指数 … TOPIX → 日経平均 → 日経半導体 → 日経VI → 内需50 → 外需50 →
+//                 日経のほか → TOPIX系 → 業種別 → 残り
+//   米国株指数 … NYダウ → S&P500 → ナスダック → ラッセル → SOX → サブ指数
+function subRank(c) {
+  if (c.group === "日本株指数") {
+    const j = JP_MAIN.indexOf(c.label);
+    if (j >= 0) return j;
+    if (c.label.startsWith("日経")) return 10;      // 日経のほか
+    if (c.label.includes("TOPIX")) return 11;       // TOPIX系
+    if (GYOSHU.has(c.label)) return 12;             // 業種別
+    return 13;                                       // REIT・市場区分・規模別など
+  }
+  if (c.group === "米国株指数") {
+    const i = US_MAIN.indexOf(c.sym);
+    return i < 0 ? 99 : i;
+  }
+  return 0;
+}
+
+// 同じ指数が2か所から入っているもの。候補には出さない
+//   日経平均は Yahoo（^N225）で1985年から揃っているので、そちらに寄せる
+const HIDDEN = new Set(["nikkei:日経平均株価"]);
+
 // 選べる銘柄の一覧を作る（その年に値がある銘柄）
 async function buildCatalog(year) {
   const cat = [];
-  const seen = new Set();
+  const seen = new Set(HIDDEN);
+
+  // 銘柄名だけを出す。コードを添えるのは個別株だけ。
+  // 指数や商品にコードを出しても読む側には意味がない
+  const WITH_CODE = new Set(["個別株", "日本株"]);
 
   for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
     const key = "yahoo:" + r.symbol;
     if (!seen.has(key)) {
       seen.add(key);
-      cat.push({ key, label: `${r.name}（${r.symbol}）` });
+      const code = WITH_CODE.has(r.category) ? `（${r.symbol}）` : "";
+      cat.push({ key, label: r.name + code, group: groupOf(r.category, r.symbol), sym: r.symbol });
     }
   }
   for (const r of await fetchCsv("data/jpx_index.csv")) {
     const key = "jpx:" + r.name;
-    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: `${r.name}（JPX）` }); }
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
   for (const r of await fetchCsv("data/nikkei_ohlc.csv")) {
     const key = "nikkei:" + r.name;
-    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: `${r.name}（日経）` }); }
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
-  cat.sort((a, b) => a.label.localeCompare(b.label, "ja"));
+  // 分野の順、分野の中は名前順
+  cat.sort((a, b) =>
+    GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) ||
+    subRank(a) - subRank(b) ||
+    a.label.localeCompare(b.label, "ja")
+  );
   return cat;
 }
 
@@ -499,11 +573,19 @@ async function render() {
       keep.textContent = labelOf(key, catalog);
       sel.appendChild(keep);
     }
+    // 分野ごとに見出しを付けて区切る
+    let box = null, cur = null;
     catalog.forEach((c) => {
+      if (c.group !== cur) {
+        cur = c.group;
+        box = document.createElement("optgroup");
+        box.label = cur;
+        sel.appendChild(box);
+      }
       const o = document.createElement("option");
       o.value = c.key;
       o.textContent = c.label;
-      sel.appendChild(o);
+      box.appendChild(o);
     });
     sel.value = key;
     sel.addEventListener("change", () => {
