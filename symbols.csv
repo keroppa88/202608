@@ -131,3 +131,4 @@ ETF,アークETF,ARKK,yahoo,USD,
 商品,砂糖,SB=F,yahoo,USX,ICE先物。米セント建て(USX)。限月交代で不連続
 商品,綿,CT=F,yahoo,USX,ICE先物。米セント建て(USX)。限月交代で不連続
 通貨指数,ドル指数,DX-Y.NYB,yahoo,USD,ICEドル指数。主要6通貨に対するドルの強さ
+日本指数,日経平均株価,^N225,yahoo,JPY,東証の大引け値。日本市場なので夕方の枠で取る
