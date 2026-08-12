@@ -174,7 +174,7 @@
   #chart .box {
     background: var(--bg); color: var(--fg);
     border: 2px solid var(--line);
-    padding: 14px 16px;
+    padding: 8px 8px 6px;
   }
   /* チャートの中の字は全部おなじ。表の数字と同じ書体・大きさで、太字 */
   #chart .box, #chart text {
@@ -185,7 +185,7 @@
   #chart .head {
     display: flex; justify-content: space-between; gap: 8px 20px;
     flex-wrap: wrap;                 /* 入らなければ行を変える */
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   #chart .head .sub { color: var(--fg); }
   #chart svg { display: block; }
@@ -696,16 +696,6 @@ async function openChart(title, key, map) {
 function drawChart() {
   const { title, days, map, all } = chartState;
 
-  // 縦は表の領域の半分。横は 1 : 1.62
-  const RATIO = 1.62;
-  let H = Math.round(gridEl.clientHeight / 2);
-  H = Math.max(220, Math.min(H, window.innerHeight - 120));
-  let W = Math.round(H * RATIO);
-  const maxW = window.innerWidth - 80;
-  if (W > maxW) { W = maxW; H = Math.round(W / RATIO); }
-
-  const L = 92, R = 16, T = 12, B = 32;                 // 余白（目盛の文字ぶん）
-  const iw = W - L - R, ih = H - T - B;
 
   // 押されている移動平均を出す
   const shown = MA_LINES.filter((m) => settings.ma[m.n]).map((m) => ({
@@ -713,10 +703,28 @@ function drawChart() {
   }));
 
   // 上下の幅は、押しているかに関わらず 200MA を入れて決める。
-  // 押すたびに縮尺が動くと、線の傾きが目で比べられなくなる
+  // 押すたびに縮尺が動くと、線の傾きが目で比べられなくなる。
+  // 目盛の桁数が左の余白を決めるので、大きさより先に出す
   const vals = days.map((d) => Number(map.get(d)));
   movingAverage(all, days[0], 200).forEach((v) => vals.push(v));
   const sc = scaleOf(Math.min(...vals), Math.max(...vals));
+
+  // 縦横 1 : 1.62 にするのは**描画部分**（枠の内側）。
+  // 目盛の文字を置く余白は、その外側に必要なぶんだけ足す
+  const RATIO = 1.62;
+
+  // 左の余白は目盛の桁数で決める。等幅なので 1文字 ≒ 8.4px
+  const widest = Math.max(...[sc.bottom, sc.top].map((v) => fmtAxis(v, sc.step).length));
+  const L = Math.ceil(widest * 8.4) + 10;
+  const R = 6, T = 8, B = 24;
+
+  let ih = Math.round(gridEl.clientHeight / 2) - T - B;  // 描画部分の高さ
+  ih = Math.max(160, Math.min(ih, window.innerHeight - 90 - T - B));
+  let iw = Math.round(ih * RATIO);                       // 描画部分の幅
+  const maxIW = window.innerWidth - 60 - L - R;
+  if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
+
+  const W = iw + L + R, H = ih + T + B;
 
   const x = (i) => L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
   const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
@@ -764,7 +772,7 @@ function drawChart() {
     `<label><input type="checkbox" data-ma="${m.n}"${settings.ma[m.n] ? " checked" : ""}><span class="bx"></span>${m.n}MA</label>`
   ).join("");
 
-  const boxW = W + 16 * 2 + 2 * 2;      // padding と枠線のぶん
+  const boxW = W + 8 * 2 + 2 * 2;      // padding と枠線のぶん
   chartEl.innerHTML = `
     <div class="box" style="width:${boxW}px">
       <div class="head">
