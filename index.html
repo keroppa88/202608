@@ -162,7 +162,8 @@
   #chart .head .sub { color: var(--dim); }
   #chart svg { display: block; }
   #chart .axis { stroke: var(--line); fill: none; }
-  #chart .tick { stroke: var(--dim); fill: none; }
+  #chart .vline { stroke: var(--dim); stroke-width: .5; }
+  #chart .hline { stroke: var(--dim); stroke-width: .5; }
   #chart .lab { fill: var(--dim); font-size: 10px; }
   #chart .plot { stroke: var(--fg); fill: none; stroke-width: 1.2; }
   .addcol {
@@ -530,53 +531,88 @@ function fmt(v) {
 --------------------------------------------------------------- */
 const chartEl = document.getElementById("chart");
 
+// 目盛の幅。R÷6 にいちばん近い「きりのいい数」を選ぶ
+//   きりのいい数 … 1 / 2 / 2.5 / 5 の 10のべき乗倍。同点なら小さい方
+//   R=1000→200  3000→500  4000→500  5000→1000  8000→1000  10000→2000
+function niceStep(range) {
+  const t = range / 6;
+  const k = Math.floor(Math.log10(t));
+  let best = null;
+  for (const e of [k - 1, k, k + 1]) {
+    for (const m of [1, 2, 2.5, 5]) {
+      const step = m * Math.pow(10, e);
+      if (step <= 0) continue;
+      const d = Math.abs(step - t);
+      if (!best || d < best.d - 1e-12 || (Math.abs(d - best.d) < 1e-12 && step < best.step)) {
+        best = { d, step };
+      }
+    }
+  }
+  return best.step;
+}
+
+// 目盛の幅と上下端を決める。線は4〜10本に収める
+function scaleOf(lo, hi) {
+  let step = niceStep(hi - lo || Math.abs(hi) || 1);
+  for (let n = 0; n < 8; n++) {
+    const bottom = Math.floor(lo / step) * step;
+    const top = Math.ceil(hi / step) * step;
+    const lines = Math.round((top - bottom) / step) + 1;
+    if (lines < 4) { step /= 2; continue; }      // 少なすぎたら細かく
+    if (lines > 10) { step *= 2; continue; }     // 多すぎたら粗く
+    return { step, bottom, top, lines };
+  }
+  const bottom = Math.floor(lo / step) * step;
+  const top = Math.ceil(hi / step) * step;
+  return { step, bottom, top, lines: Math.round((top - bottom) / step) + 1 };
+}
+
 function openChart(title, map) {
   const days = [...map.keys()].sort();
   if (!days.length) return;
 
-  // 縦横は 1 : 1.62。画面に収まる範囲でいちばん大きく取る
+  // 縦は表の領域の半分。横は 1 : 1.62
   const RATIO = 1.62;
-  let W = Math.min(window.innerWidth - 120, 1100);
-  let H = W / RATIO;
-  const maxH = window.innerHeight - 140;
-  if (H > maxH) { H = maxH; W = H * RATIO; }
-  W = Math.round(W); H = Math.round(H);
-  const L = 66, R = 16, T = 12, B = 30;                 // 余白
+  let H = Math.round(gridEl.clientHeight / 2);
+  H = Math.max(220, Math.min(H, window.innerHeight - 120));
+  let W = Math.round(H * RATIO);
+  const maxW = window.innerWidth - 80;
+  if (W > maxW) { W = maxW; H = Math.round(W / RATIO); }
+
+  const L = 70, R = 16, T = 12, B = 26;                 // 余白
   const iw = W - L - R, ih = H - T - B;
 
   const vals = days.map((d) => Number(map.get(d)));
-  let lo = Math.min(...vals), hi = Math.max(...vals);
-  if (lo === hi) { lo -= 1; hi += 1; }
-  const pad = (hi - lo) * 0.06;
-  lo -= pad; hi += pad;
+  const sc = scaleOf(Math.min(...vals), Math.max(...vals));
 
   const x = (i) => L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
-  const y = (v) => T + ih - (ih * (v - lo)) / (hi - lo);
+  const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
 
   const parts = [];
-  parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
 
-  // 横軸。月が変わる日に目盛を立てる
+  // 月ごとの細い縦線
   let prev = "";
   days.forEach((d, i) => {
     const m = d.slice(0, 7);
     if (m === prev) return;
     prev = m;
     const px = x(i);
-    parts.push(`<line x1="${px}" y1="${T + ih}" x2="${px}" y2="${T + ih + 4}" class="tick"/>`);
-    parts.push(`<text x="${px}" y="${T + ih + 16}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}月</text>`);
+    parts.push(`<line x1="${px}" y1="${T}" x2="${px}" y2="${T + ih}" class="vline"/>`);
+    parts.push(`<text x="${px}" y="${T + ih + 15}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}</text>`);
   });
 
-  // 縦軸。5本
-  for (let k = 0; k <= 4; k++) {
-    const v = lo + ((hi - lo) * k) / 4;
+  // きりのいい価格に横線
+  for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
     const py = y(v);
-    parts.push(`<line x1="${L - 4}" y1="${py}" x2="${L}" y2="${py}" class="tick"/>`);
+    parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
     parts.push(`<text x="${L - 8}" y="${py + 3}" class="lab" text-anchor="end">${fmt(v)}</text>`);
   }
 
-  // 折れ線
-  const dpath = days.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(Number(map.get(d))).toFixed(1)}`).join("");
+  parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+
+  const dpath = days
+    .map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(Number(map.get(d))).toFixed(1)}`)
+    .join("");
   parts.push(`<path d="${dpath}" class="plot"/>`);
 
   chartEl.innerHTML = `
