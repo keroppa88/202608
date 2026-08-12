@@ -327,14 +327,38 @@ function groupOf(category, symbol) {
 // 米国株指数の中の並び。主要なものを先に、残りはサブ指数として後ろへ
 const US_MAIN = ["^DJI", "^GSPC", "^IXIC", "^NDX", "^RUT", "^SOX"];
 
+// 日本株指数の中の並び。名前がそのまま一致するものを先頭に置く
+const JP_MAIN = [
+  "TOPIX (東証株価指数)",
+  "日経平均株価",
+  "日経半導体株指数",
+  "日経平均ボラティリティー・インデックス",
+  "日経平均内需株50指数",
+  "日経平均外需株50指数"
+];
+
+// 東証33業種
+const GYOSHU = new Set([
+  "水産・農林業", "鉱業", "建設業", "食料品", "繊維製品", "パルプ・紙", "化学",
+  "医薬品", "石油・石炭製品", "ゴム製品", "ガラス・土石製品", "鉄鋼", "非鉄金属",
+  "金属製品", "機械", "電気機器", "輸送用機器", "精密機器", "その他製品",
+  "電気・ガス業", "陸運業", "海運業", "空運業", "倉庫・運輸関連業", "情報・通信業",
+  "卸売業", "小売業", "銀行業", "証券、商品先物取引業", "保険業", "その他金融業",
+  "不動産業", "サービス業"
+]);
+
 // 分野の中の並び
-//   日本株指数 … TOPIX → 日経 → サブ指数（REIT・市場区分・業種別など）
+//   日本株指数 … TOPIX → 日経平均 → 日経半導体 → 日経VI → 内需50 → 外需50 →
+//                 日経のほか → TOPIX系 → 業種別 → 残り
 //   米国株指数 … NYダウ → S&P500 → ナスダック → ラッセル → SOX → サブ指数
 function subRank(c) {
   if (c.group === "日本株指数") {
-    if (c.label.includes("TOPIX")) return 0;
-    if (c.label.startsWith("日経")) return 1;
-    return 2;
+    const j = JP_MAIN.indexOf(c.label);
+    if (j >= 0) return j;
+    if (c.label.startsWith("日経")) return 10;      // 日経のほか
+    if (c.label.includes("TOPIX")) return 11;       // TOPIX系
+    if (GYOSHU.has(c.label)) return 12;             // 業種別
+    return 13;                                       // REIT・市場区分・規模別など
   }
   if (c.group === "米国株指数") {
     const i = US_MAIN.indexOf(c.sym);
