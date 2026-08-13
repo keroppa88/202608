@@ -1639,15 +1639,15 @@ async function render() {
    表もチャートも出したまま、透けた板の上を虫が動くだけ。
    マウスを動かすかキーを押せば消える。
 --------------------------------------------------------------- */
-const IDLE_MS = 300000;        // 5分
+const IDLE_MS = 3000;          // テストのため3秒。本番は 300000（5分）
 // 出るたびにこの順で回る。最後まで行くと先頭へ戻る
 const SAVER_CYCLE = [
   { kind: "centipede", n: 1 },
   { kind: "zero", n: 1 },
+  { kind: "f1", n: 1 },
   { kind: "centipede", n: 2 },
   { kind: "zero", n: 2 },
-  { kind: "centipede", n: 3 },
-  { kind: "zero", n: 3 }
+  { kind: "f1", n: 2 }
 ];
 
 const saverEl = document.getElementById("saver");
@@ -1761,6 +1761,22 @@ function drawZero(b) {
   b.parts.blades.setAttribute("transform", `rotate(${(b.phase * 360).toFixed(0)},26,0)`);
 }
 
+/* F-1マシン。上から見た姿。車体と翼は塗りつぶし、
+   コクピットは地の色で抜く。タイヤは4つ外に張り出す */
+const F1_BODY = "M34,-2L20,-3L10,-6L2,-11L-8,-13L-18,-13L-26,-9L-32,-5"
+              + "L-32,5L-26,9L-18,13L-8,13L2,11L10,6L20,3Z";
+
+function buildF1(g) {
+  g.appendChild(svgEl("rect", { class: "bug body", x: -41, y: -17, width: 8, height: 34 })); // 後翼
+  [[-29, -24, 15, 9], [-29, 15, 15, 9],                                       // 後輪は大きい
+   [17, -22, 12, 7], [17, 15, 12, 7]].forEach(([x, y, width, height]) =>
+    g.appendChild(svgEl("rect", { class: "bug body", x, y, width, height })));
+  g.appendChild(svgEl("path", { class: "bug body", d: F1_BODY }));            // 車体
+  g.appendChild(svgEl("rect", { class: "bug body", x: 30, y: -22, width: 8, height: 44 })); // 前翼
+  g.appendChild(svgEl("ellipse", { class: "bug hollow", cx: 4, cy: 0, rx: 6, ry: 3 }));     // コクピット
+  return {};
+}
+
 /* ---- 動き ---- */
 
 // 端に寄ったら内側へ向き直る
@@ -1778,7 +1794,14 @@ function steer(b, w, h, k, margin) {
 }
 
 function moveBug(b, dt, w, h) {
-  if (b.kind === "zero") {
+  if (b.kind === "f1") {
+    // 直線は速く、曲がるときは落ちる
+    b.timer -= dt;
+    if (b.timer <= 0) { b.timer = rnd(0.8, 2.6); b.turn = rnd(-1.5, 1.5); }
+    b.ang += b.turn * dt;
+    b.speed = b.base * (1 - Math.min(0.5, Math.abs(b.turn) * 0.33));
+    steer(b, w, h, 0.05, 90);
+  } else if (b.kind === "zero") {
     // まっすぐ速く飛ぶ。ときどき向きを変えるが、曲がり方はゆるい
     b.timer -= dt;
     if (b.timer <= 0) { b.timer = rnd(1.2, 3.2); b.turn = rnd(-0.55, 0.55); }
@@ -1818,7 +1841,11 @@ function buildBugs(step) {
       ang: rnd(0, Math.PI * 2), phase: rnd(0, 6.3), seed: rnd(0, 6.3),
       timer: rnd(0, 2), turn: rnd(-0.5, 0.5)
     };
-    if (step.kind === "zero") {
+    if (step.kind === "f1") {
+      b.base = rnd(230, 340);
+      b.speed = b.base;
+      b.parts = buildF1(g);
+    } else if (step.kind === "zero") {
       b.speed = rnd(150, 260);
       b.parts = buildZero(g);
     } else {
@@ -1844,12 +1871,12 @@ function stepSaver(now) {
 
   saverBugs.forEach((b) => {
     moveBug(b, dt, w, h);
-    if (b.kind === "zero") {
-      drawZero(b);
+    if (b.kind === "centipede") {
+      drawCentipede(b);                     // 節ごとに置くので群そのものは動かさない
+    } else {
+      if (b.kind === "zero") drawZero(b);   // プロペラを回す
       b.g.setAttribute("transform",
         `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
-    } else {
-      drawCentipede(b);                         // 節ごとに置くので群そのものは動かさない
     }
   });
 
