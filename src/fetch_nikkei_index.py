@@ -66,6 +66,20 @@ LIST_TARGETS = [
     "日経平均外需株50指数",
 ]
 
+# ページの表記をこちらの呼び名に直す。保存も画面もこの名前で通す
+RENAME = {
+    "日経平均ボラティリティー・インデックス": "日経VI",
+    "日経平均内需株50指数": "日経内需株50",
+    "日経平均外需株50指数": "日経外需株50",
+    "日経平均カバードコール・インデックス": "日経カバードコール",
+    "日経平均カバードコールATMインデックス": "日経カバードコールATM",
+}
+
+
+def our_name(name):
+    return RENAME.get(name, name)
+
+
 OHLC_HEADER = ["trade_date", "name", "open", "high", "low", "close", "fetched_at"]
 TIME_HEADER = ["trade_date", "name", "open_time", "high_time", "low_time", "fetched_at"]
 DETAIL_HEADER = ["trade_date", "group", "key", "sub", "value", "unit", "fetched_at"]
@@ -97,7 +111,7 @@ def extract(texts, root, fetched_at):
     def add_ohlc(name, d, bars):
         ohlc.append(
             {
-                "trade_date": d, "name": name, "fetched_at": stamp,
+                "trade_date": d, "name": our_name(name), "fetched_at": stamp,
                 **{k: bars.get(k, "") for k in ("open", "high", "low", "close")},
             }
         )
@@ -126,7 +140,7 @@ def extract(texts, root, fetched_at):
         add_ohlc(p["name"], p["trade_date"], p["ohlc"])
         times.append(
             {
-                "trade_date": p["trade_date"], "name": p["name"], "fetched_at": stamp,
+                "trade_date": p["trade_date"], "name": our_name(p["name"]), "fetched_at": stamp,
                 **{f"{k}_time": p["times"].get(k, "") for k in ("open", "high", "low")},
             }
         )
