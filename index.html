@@ -1219,10 +1219,29 @@ function priceLines(sc, y, iw) {
   return out;
 }
 
+// 等幅なので文字数で幅が出る。全角は2文字ぶん
+function textW(s, fs) {
+  let n = 0;
+  for (const ch of s) n += ch.charCodeAt(0) < 256 ? 1 : 2;
+  return n * fs * 0.6;
+}
+
+/* 右横の名札。折れ線の終わりの高さに置くが、近すぎると重なるので
+   上から順に押し下げる。下にはみ出したら全体を上へ寄せる */
+function stackTags(tags, y, T, ih) {
+  const H = AXIS_FS + 3;
+  const out = tags.map((t) => ({ ...t, ly: y(t.v) })).sort((a, b) => a.ly - b.ly);
+  let prev = -1e9;
+  out.forEach((t) => { t.ly = Math.max(t.ly, prev + H); prev = t.ly; });
+  const over = out.length ? out[out.length - 1].ly - (T + ih) : 0;
+  if (over > 0) out.forEach((t) => { t.ly = Math.max(T + AXIS_FS, t.ly - over); });
+  return out;
+}
+
 // 描く場所の大きさ。描画部分が 1 : 1.62
-function boxSize(rows) {
+function boxSize(rows, rightPad) {
   const RATIO = 1.62;
-  const T = 8, B = 24, R = 6;
+  const T = 8, B = 24, R = rightPad === undefined ? 6 : rightPad;
   const avail = canvasEl.clientHeight - 20;
   let ih = rows > 1 ? Math.round(avail / 2) - T - B : avail - T - B;
   ih = Math.max(150, ih);
@@ -1265,7 +1284,27 @@ function drawRelative(days, series, catalog) {
   if (!vals.length) return;
   const sc = scaleOf(Math.min(...vals), Math.max(...vals));
 
-  const { iw, ih, T, B, R } = boxSize(1);
+  // 折れ線の右横に出す銘柄名と最終値。線と同じ色で置く
+  const tags = [];
+  rel.forEach((m, i) => {
+    let last = null;
+    for (let j = days.length - 1; j >= 0; j--) {
+      const v = m.get(days[j]);
+      if (v !== undefined) { last = v; break; }
+    }
+    if (last === null) return;
+    tags.push({
+      i, v: last,
+      text: `${labelOf(settings.chartColumns[i], catalog)}　${last.toFixed(1)}`
+    });
+  });
+
+  // 名前のぶんだけ右に余白を取る。取りすぎるとチャートが痩せるので頭を打つ
+  const pad = tags.length
+    ? Math.min(Math.max(...tags.map((t) => textW(t.text, AXIS_FS))) + 14,
+               Math.max(120, canvasEl.clientWidth * 0.34))
+    : 6;
+  const { iw, ih, T, B, R } = boxSize(1, pad);
   const W = iw + AXIS_L + R, H = ih + T + B;
 
   const x = (i) => AXIS_L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
@@ -1286,6 +1325,11 @@ function drawRelative(days, series, catalog) {
       const c = SERIES_COLORS[i % SERIES_COLORS.length];
       parts.push(`<path d="${d}" class="plot" stroke="${c}"/>`);
     }
+  });
+
+  stackTags(tags, y, T, ih).forEach((t) => {
+    const c = SERIES_COLORS[t.i % SERIES_COLORS.length];
+    parts.push(`<text x="${AXIS_L + iw + 8}" y="${t.ly.toFixed(1)}" class="lab" fill="${c}">${t.text}</text>`);
   });
 
   const box = document.createElement("div");
