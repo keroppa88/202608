@@ -2,7 +2,7 @@
 
 手で用意した過去分を入れるための道具。日々の取得とは関係しない。
 
-    追加/日経平均株価.csv     → data/overseas_YYYY.csv（^N225）
+    追加/日経平均.csv         → data/overseas_YYYY.csv（^N225）
     追加/topix.csv 他        → data/jpx_index.csv（JPXの指数名で入れる）
 
 入力の形はどれも同じ。
@@ -44,9 +44,9 @@ TO_NIKKEI_CLOSE = {
 
 # 日経平均は Yahoo と同じ置き場所・同じ銘柄として入れる
 TO_MARKET = {
-    "日経平均株価": {
+    "日経平均": {
         "category": "日本指数",
-        "name": "日経平均株価",
+        "name": "日経平均",
         "symbol": "^N225",
         "currency": "JPY",
         "exchange": "Osaka",

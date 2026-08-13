@@ -85,7 +85,7 @@
     大和証券G 8601 / ソニーグループ 6758 / パナソニックHD 6752 /
     フジクラ 5803 / 古河電気工業 5801 / 日立製作所 6501
 
-  日本指数 1   日経平均株価 ^N225   （夕方の枠で取る。1999年以降）
+  日本指数 1   日経平均 ^N225   （夕方の枠で取る。1999年以降）
 
   セクター 11  S&P500 の11セクター
     日々の値は 9. CNBC から取る。symbols.csv に載せてあるのは
@@ -206,7 +206,7 @@
 
   https://indexes.nikkei.co.jp/nkave/archives/summary?idx=nk225
   https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225
-      日経平均株価
+      日経平均
         四本値 / 高値・安値・始値の時刻
         騰落銘柄数（上昇・下落・変わらず）
         セクター別寄与度・セクター別ウェート
@@ -490,7 +490,7 @@ index.html 1枚。data/*.csv をそのまま読んで表示する。
 
 取り込んだもの
 
-    追加/日経平均株価.csv        → data/overseas_YYYY.csv（^N225）
+    追加/日経平均.csv            → data/overseas_YYYY.csv（^N225）
                                  1985-04-01 から 10,278行
 
     追加/topix.csv              → data/jpx_index.csv  TOPIX
