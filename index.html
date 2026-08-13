@@ -163,6 +163,51 @@
   }
   .grip { z-index: 5; }
 
+  /* ---- チャート画面 ---- */
+  #charts { height: 100%; display: flex; flex-direction: column; }
+  /* 銘柄の選択欄。既定5・最大10 */
+  .picks {
+    display: flex; flex-wrap: wrap; gap: 6px 10px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    flex: none;
+  }
+  .picks .one {
+    display: inline-flex; align-items: center; gap: 3px;
+    border: 1px solid var(--line); padding: 1px 4px;
+    position: relative;
+  }
+  .picks .one .nm { max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .picks .one button {
+    background: none; border: 0; color: var(--dim);
+    font: inherit; font-size: 11px; cursor: pointer; padding: 0 1px;
+  }
+  .picks .one select {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer; font: inherit;
+  }
+  .picks .add {
+    background: var(--panel); color: var(--fg);
+    border: 1px solid var(--line); font: inherit; cursor: pointer; padding: 1px 8px;
+  }
+  .canvas {
+    flex: 1; overflow: auto;
+    padding: 10px;
+    scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin;
+  }
+  .canvas::-webkit-scrollbar { width: 13px; height: 13px; }
+  .canvas::-webkit-scrollbar-track { background: var(--bg); border-left: 1px solid var(--line); }
+  .canvas::-webkit-scrollbar-thumb { background: var(--fg); border: 3px solid var(--bg); }
+  .canvas::-webkit-scrollbar-corner { background: var(--bg); }
+  .canvas .one-chart { margin-bottom: 14px; }
+  .canvas .cap { margin-bottom: 3px; }
+  .canvas svg { display: block; }
+  .canvas .axis { stroke: var(--line); fill: none; }
+  .canvas .vline, .canvas .hline { stroke: var(--dim); stroke-width: .5; }
+  .canvas .lab { fill: var(--fg); font-size: 14px; font-weight: bold; }
+  .canvas .plot { fill: none; stroke-width: 1.2; }
+
   /* ---- チャート（ポップアップ） ---- */
   #chart {
     position: fixed; inset: 0; z-index: 50;
@@ -227,7 +272,7 @@
   <div class="sub">1999 - 2026</div>
   <div class="menu" id="titleMenu">
     <button data-go="sheet" aria-selected="true">表</button>
-    <button data-go="chart" disabled>チャート</button>
+    <button data-go="chart">チャート</button>
   </div>
   <div class="hint">↑ ↓ で選択　Enter で決定</div>
 </section>
@@ -242,6 +287,20 @@
     <div class="note" id="status"></div>
   </div>
   <div class="grid" id="grid"><div id="loading">読み込み中…</div></div>
+</section>
+
+<!-- ===================== チャート画面 ===================== -->
+<section id="charts" class="hidden">
+  <div class="bar">
+    <button id="ctype" title="押すと相対と絶対が入れ替わる">相対</button>
+    <button id="cback" title="タイトルへ戻る">← 戻る</button>
+    <select id="cyear" title="表示する年"></select>
+    <button id="ctheme" title="押すたびに配色が変わる">Color</button>
+    <div class="spacer"></div>
+    <div class="note" id="cstatus"></div>
+  </div>
+  <div class="picks" id="cpicks"></div>
+  <div class="canvas" id="ccanvas"></div>
 </section>
 
 <!-- ===================== チャート（ポップアップ） ===================== -->
@@ -263,6 +322,15 @@ const DEFAULT_COLUMNS = [
   "yahoo:^IXIC",          // ナスダック総合
   "yahoo:^SOX"            // SOX
 ];
+// チャート画面の既定。5銘柄。＋で最大10まで
+const MAX_SERIES = 10;
+const DEFAULT_CHART_COLUMNS = [
+  "yahoo:^N225",          // 日経平均株価
+  "jpx:TOPIX (東証株価指数)",
+  "yahoo:^DJI",           // NYダウ
+  "yahoo:^GSPC",          // S&P500
+  "yahoo:^SOX"            // SOX
+];
 
 function loadSettings() {
   try {
@@ -272,12 +340,17 @@ function loadSettings() {
       year: s.year || 2026,
       columns: Array.isArray(s.columns) && s.columns.length ? s.columns : DEFAULT_COLUMNS.slice(),
       widths: (s.widths && typeof s.widths === "object") ? s.widths : {},
-      ma: (s.ma && typeof s.ma === "object") ? s.ma : { 20: false, 80: false, 200: false }
+      ma: (s.ma && typeof s.ma === "object") ? s.ma : { 20: false, 80: false, 200: false },
+      chartType: s.chartType === "abs" ? "abs" : "rel",
+      chartYear: s.chartYear || 2026,
+      chartColumns: Array.isArray(s.chartColumns) && s.chartColumns.length
+        ? s.chartColumns.slice(0, MAX_SERIES) : DEFAULT_CHART_COLUMNS.slice()
     };
   } catch (e) {
     return {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
-      ma: { 20: false, 80: false, 200: false }
+      ma: { 20: false, 80: false, 200: false },
+      chartType: "rel", chartYear: 2026, chartColumns: DEFAULT_CHART_COLUMNS.slice()
     };
   }
 }
@@ -314,8 +387,9 @@ function drawCursor() {
 }
 function decide() {
   const b = items[cursor];
-  if (b.disabled) return;               // チャートはまだ作らない
+  if (b.disabled) return;
   if (b.dataset.go === "sheet") openSheet();
+  if (b.dataset.go === "chart") openCharts();
 }
 // 表を矢印で動かす幅。1回押すとこれだけ寄る
 const STEP_X = 120;   // 列1つぶんくらい
@@ -327,6 +401,23 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { cursor = (cursor + 1) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "Enter")     { decide(); e.preventDefault(); }
+    return;
+  }
+
+  // チャート画面。Esc で戻り、矢印で上下左右へ寄せる
+  if (!chartsEl.classList.contains("hidden")) {
+    if (e.key === "Escape") { backFromCharts(); return; }
+    const m = {
+      ArrowLeft:  [-STEP_X, 0],
+      ArrowRight: [STEP_X, 0],
+      ArrowUp:    [0, -STEP_Y],
+      ArrowDown:  [0, STEP_Y],
+      PageUp:     [0, -canvasEl.clientHeight],
+      PageDown:   [0, canvasEl.clientHeight]
+    }[e.key];
+    if (!m) return;
+    canvasEl.scrollBy(m[0], m[1]);
+    e.preventDefault();
     return;
   }
 
@@ -799,6 +890,292 @@ function closeChart() {
 chartEl.addEventListener("click", (e) => {
   if (!e.target.closest(".box")) closeChart();
 });
+
+/* ---------------------------------------------------------------
+   チャート画面。相対と絶対をトグルで切り替える
+
+   相対 … 年初を100として全銘柄を1枚に重ねる。折れ線はカラフル
+   絶対 … 各銘柄をそのままの値で描き、同じ時系列を上から縦に並べる
+--------------------------------------------------------------- */
+const chartsEl = document.getElementById("charts");
+const canvasEl = document.getElementById("ccanvas");
+const picksEl = document.getElementById("cpicks");
+const ctypeEl = document.getElementById("ctype");
+const cyearEl = document.getElementById("cyear");
+const cstatusEl = document.getElementById("cstatus");
+
+// 相対チャートの色。緑地の上ではっきり見分けられるもの
+const SERIES_COLORS = [
+  "#ff5555", "#55aaff", "#ffdd33", "#ff9933", "#cc66ff",
+  "#33ffaa", "#ff66bb", "#88ff44", "#66ddff", "#ffffff"
+];
+
+function openCharts() {
+  titleEl.classList.add("hidden");
+  chartsEl.classList.remove("hidden");
+  drawCharts();
+}
+function backFromCharts() {
+  chartsEl.classList.add("hidden");
+  titleEl.classList.remove("hidden");
+}
+
+for (let y = 2026; y >= 1999; y--) {
+  const o = document.createElement("option");
+  o.value = String(y);
+  o.textContent = `${y}年`;
+  cyearEl.appendChild(o);
+}
+
+document.getElementById("cback").addEventListener("click", backFromCharts);
+document.getElementById("ctheme").addEventListener("click", nextTheme);
+ctypeEl.addEventListener("click", () => {
+  settings.chartType = settings.chartType === "rel" ? "abs" : "rel";
+  saveSettings();
+  drawCharts();
+});
+cyearEl.addEventListener("change", () => {
+  settings.chartYear = Number(cyearEl.value);
+  saveSettings();
+  drawCharts();
+});
+
+// 銘柄の選択欄を組み立てる
+function drawPicks(catalog) {
+  picksEl.innerHTML = "";
+  settings.chartColumns.forEach((key, i) => {
+    const one = document.createElement("div");
+    one.className = "one";
+
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    nm.textContent = labelOf(key, catalog);
+    if (settings.chartType === "rel") nm.style.color = SERIES_COLORS[i % SERIES_COLORS.length];
+
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = "この銘柄を外す";
+    del.addEventListener("click", () => {
+      settings.chartColumns.splice(i, 1);
+      saveSettings();
+      drawCharts();
+    });
+
+    const sel = document.createElement("select");
+    sel.title = "銘柄を変える";
+    fillPicker(sel, catalog, key);
+    sel.addEventListener("change", () => {
+      settings.chartColumns[i] = sel.value;
+      saveSettings();
+      drawCharts();
+    });
+
+    one.append(nm, del, sel);
+    picksEl.appendChild(one);
+  });
+
+  if (settings.chartColumns.length < MAX_SERIES) {
+    const add = document.createElement("button");
+    add.className = "add";
+    add.textContent = "＋";
+    add.title = "銘柄を足す";
+    add.addEventListener("click", () => {
+      const first = catalog.find((c) => !settings.chartColumns.includes(c.key));
+      if (first) {
+        settings.chartColumns.push(first.key);
+        saveSettings();
+        drawCharts();
+      }
+    });
+    picksEl.appendChild(add);
+  }
+}
+
+// 候補を分野ごとに区切って入れる。表の見出しと同じ作り
+function fillPicker(sel, catalog, key) {
+  if (!catalog.some((c) => c.key === key)) {
+    const keep = document.createElement("option");
+    keep.value = key;
+    keep.textContent = labelOf(key, catalog);
+    sel.appendChild(keep);
+  }
+  let box = null, cur = null;
+  catalog.forEach((c) => {
+    if (c.group !== cur) {
+      cur = c.group;
+      box = document.createElement("optgroup");
+      box.label = cur;
+      sel.appendChild(box);
+    }
+    const o = document.createElement("option");
+    o.value = c.key;
+    o.textContent = c.label;
+    box.appendChild(o);
+  });
+  sel.value = key;
+}
+
+let cRendering = 0;
+async function drawCharts() {
+  const mine = ++cRendering;
+  const year = String(settings.chartYear);
+  cyearEl.value = year;
+  ctypeEl.textContent = settings.chartType === "rel" ? "相対" : "絶対";
+  canvasEl.innerHTML = '<div id="loading">読み込み中…</div>';
+
+  const catalog = await buildCatalog(year);
+  const series = [];
+  for (const key of settings.chartColumns) series.push(await seriesOf(key, year));
+  if (mine !== cRendering) return;
+
+  drawPicks(catalog);
+
+  // 横軸は全銘柄をそろえる。どれかに値がある日を並べる
+  const dates = new Set();
+  series.forEach((m) => m.forEach((_, d) => dates.add(d)));
+  const days = [...dates].sort();
+
+  if (!days.length) {
+    canvasEl.innerHTML = '<div id="loading">この年のデータがない</div>';
+    cstatusEl.textContent = "";
+    return;
+  }
+
+  canvasEl.innerHTML = "";
+  if (settings.chartType === "rel") drawRelative(days, series, catalog);
+  else drawAbsolute(days, series, catalog);
+
+  cstatusEl.textContent =
+    `${days[0]} 〜 ${days[days.length - 1]}　${days.length}日 × ${settings.chartColumns.length}銘柄`;
+}
+
+// 描く場所の大きさ。描画部分が 1 : 1.62
+function boxSize(rows) {
+  const RATIO = 1.62;
+  const T = 8, B = 24, R = 6;
+  const avail = canvasEl.clientHeight - 20;
+  let ih = rows > 1 ? Math.round(avail / 2) - T - B : avail - T - B;
+  ih = Math.max(150, ih);
+  let iw = Math.round(ih * RATIO);
+  const maxIW = canvasEl.clientWidth - 40 - 70;
+  if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
+  return { iw, ih, T, B, R, RATIO };
+}
+
+// 月ごとの縦線と、下の月の数字
+function monthLines(days, x, T, ih) {
+  const out = [];
+  let prev = "";
+  days.forEach((d, i) => {
+    const m = d.slice(0, 7);
+    if (m === prev) return;
+    prev = m;
+    const px = x(i);
+    out.push(`<line x1="${px}" y1="${T}" x2="${px}" y2="${T + ih}" class="vline"/>`);
+    out.push(`<text x="${px}" y="${T + ih + 18}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}</text>`);
+  });
+  return out;
+}
+
+// 相対チャート。年初を100にして重ねる
+function drawRelative(days, series, catalog) {
+  const rel = series.map((m) => {
+    const first = days.map((d) => m.get(d)).find((v) => v !== undefined);
+    const out = new Map();
+    if (first === undefined) return out;
+    days.forEach((d) => {
+      const v = m.get(d);
+      if (v !== undefined) out.set(d, (Number(v) / Number(first)) * 100);
+    });
+    return out;
+  });
+
+  const vals = [];
+  rel.forEach((m) => m.forEach((v) => vals.push(v)));
+  if (!vals.length) return;
+  const sc = scaleOf(Math.min(...vals), Math.max(...vals));
+
+  const widest = Math.max(...[sc.bottom, sc.top].map((v) => fmtAxis(v, sc.step).length));
+  const L = Math.ceil(widest * 8.4) + 10;
+  const { iw, ih, T, B, R } = boxSize(1);
+  const W = iw + L + R, H = ih + T + B;
+
+  const x = (i) => L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
+  const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
+
+  const parts = monthLines(days, x, T, ih);
+  for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
+    const py = y(v);
+    parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
+    parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmtAxis(v, sc.step)}</text>`);
+  }
+  parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+
+  rel.forEach((m, i) => {
+    let d = "", pen = false;
+    days.forEach((day, j) => {
+      const v = m.get(day);
+      if (v === undefined) { pen = false; return; }
+      d += `${pen ? "L" : "M"}${x(j).toFixed(1)},${y(v).toFixed(1)}`;
+      pen = true;
+    });
+    if (d) {
+      const c = SERIES_COLORS[i % SERIES_COLORS.length];
+      parts.push(`<path d="${d}" class="plot" stroke="${c}"/>`);
+    }
+  });
+
+  const box = document.createElement("div");
+  box.className = "one-chart";
+  box.innerHTML = `<div class="cap">年初を100とした動き</div><svg width="${W}" height="${H}">${parts.join("")}</svg>`;
+  canvasEl.appendChild(box);
+}
+
+// 絶対チャート。そのままの値で、同じ時系列を上から縦に並べる
+function drawAbsolute(days, series, catalog) {
+  const { iw, ih, T, B, R } = boxSize(2);
+
+  settings.chartColumns.forEach((key, i) => {
+    const m = series[i];
+    const vals = days.map((d) => m.get(d)).filter((v) => v !== undefined).map(Number);
+    const box = document.createElement("div");
+    box.className = "one-chart";
+
+    if (!vals.length) {
+      box.innerHTML = `<div class="cap">${labelOf(key, catalog)}　この年のデータがない</div>`;
+      canvasEl.appendChild(box);
+      return;
+    }
+
+    const sc = scaleOf(Math.min(...vals), Math.max(...vals));
+    const widest = Math.max(...[sc.bottom, sc.top].map((v) => fmtAxis(v, sc.step).length));
+    const L = Math.ceil(widest * 8.4) + 10;
+    const W = iw + L + R, H = ih + T + B;
+
+    const x = (j) => L + (days.length === 1 ? iw / 2 : (iw * j) / (days.length - 1));
+    const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
+
+    const parts = monthLines(days, x, T, ih);
+    for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
+      const py = y(v);
+      parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
+      parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmtAxis(v, sc.step)}</text>`);
+    }
+    parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+
+    let d = "", pen = false;
+    days.forEach((day, j) => {
+      const v = m.get(day);
+      if (v === undefined) { pen = false; return; }
+      d += `${pen ? "L" : "M"}${x(j).toFixed(1)},${y(Number(v)).toFixed(1)}`;
+      pen = true;
+    });
+    parts.push(`<path d="${d}" class="plot" stroke="var(--fg)"/>`);
+
+    box.innerHTML = `<div class="cap">${labelOf(key, catalog)}</div><svg width="${W}" height="${H}">${parts.join("")}</svg>`;
+    canvasEl.appendChild(box);
+  });
+}
 
 /* ---------------------------------------------------------------
    表を描く。縦は日付（上が過去）、横は銘柄
