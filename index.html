@@ -1049,6 +1049,33 @@ async function drawCharts() {
     `${days[0]} 〜 ${days[days.length - 1]}　${days.length}日 × ${settings.chartColumns.length}銘柄`;
 }
 
+/* 価格の数字を置く左の幅。ここは固定する。
+   銘柄によって桁が違っても描画枠の大きさを変えないため、
+   5桁までは普段の大きさで書き、それより多い桁は字を縮めて収める。 */
+const AXIS_CHARS = 5;
+const AXIS_FS = 14;                                  // .lab と同じ大きさ
+const AXIS_CW = AXIS_FS * 0.6;                       // 1文字ぶんの幅
+const AXIS_L = Math.ceil(AXIS_CHARS * AXIS_CW) + 10;
+
+// 価格の横線と、その左の数字。数字は AXIS_L の幅に収める
+function priceLines(sc, y, iw) {
+  const labs = [];
+  for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) labs.push([v, fmtAxis(v, sc.step)]);
+  const widest = Math.max(...labs.map(([, s]) => s.length));
+  const fs = widest > AXIS_CHARS
+    ? Math.floor((AXIS_FS * AXIS_CHARS / widest) * 10) / 10
+    : AXIS_FS;
+
+  const out = [];
+  labs.forEach(([v, s]) => {
+    const py = y(v);
+    out.push(`<line x1="${AXIS_L}" y1="${py}" x2="${AXIS_L + iw}" y2="${py}" class="hline"/>`);
+    out.push(`<text x="${AXIS_L - 8}" y="${(py + fs * 0.36).toFixed(1)}" class="lab"`
+      + ` font-size="${fs}" text-anchor="end">${s}</text>`);
+  });
+  return out;
+}
+
 // 描く場所の大きさ。描画部分が 1 : 1.62
 function boxSize(rows) {
   const RATIO = 1.62;
@@ -1057,7 +1084,7 @@ function boxSize(rows) {
   let ih = rows > 1 ? Math.round(avail / 2) - T - B : avail - T - B;
   ih = Math.max(150, ih);
   let iw = Math.round(ih * RATIO);
-  const maxIW = canvasEl.clientWidth - 40 - 70;
+  const maxIW = canvasEl.clientWidth - 34 - AXIS_L - R;
   if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
   return { iw, ih, T, B, R, RATIO };
 }
@@ -1095,21 +1122,14 @@ function drawRelative(days, series, catalog) {
   if (!vals.length) return;
   const sc = scaleOf(Math.min(...vals), Math.max(...vals));
 
-  const widest = Math.max(...[sc.bottom, sc.top].map((v) => fmtAxis(v, sc.step).length));
-  const L = Math.ceil(widest * 8.4) + 10;
   const { iw, ih, T, B, R } = boxSize(1);
-  const W = iw + L + R, H = ih + T + B;
+  const W = iw + AXIS_L + R, H = ih + T + B;
 
-  const x = (i) => L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
+  const x = (i) => AXIS_L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
   const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
 
-  const parts = monthLines(days, x, T, ih);
-  for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
-    const py = y(v);
-    parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
-    parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmtAxis(v, sc.step)}</text>`);
-  }
-  parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+  const parts = monthLines(days, x, T, ih).concat(priceLines(sc, y, iw));
+  parts.push(`<rect x="${AXIS_L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
 
   rel.forEach((m, i) => {
     let d = "", pen = false;
@@ -1148,20 +1168,13 @@ function drawAbsolute(days, series, catalog) {
     }
 
     const sc = scaleOf(Math.min(...vals), Math.max(...vals));
-    const widest = Math.max(...[sc.bottom, sc.top].map((v) => fmtAxis(v, sc.step).length));
-    const L = Math.ceil(widest * 8.4) + 10;
-    const W = iw + L + R, H = ih + T + B;
+    const W = iw + AXIS_L + R, H = ih + T + B;
 
-    const x = (j) => L + (days.length === 1 ? iw / 2 : (iw * j) / (days.length - 1));
+    const x = (j) => AXIS_L + (days.length === 1 ? iw / 2 : (iw * j) / (days.length - 1));
     const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
 
-    const parts = monthLines(days, x, T, ih);
-    for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) {
-      const py = y(v);
-      parts.push(`<line x1="${L}" y1="${py}" x2="${L + iw}" y2="${py}" class="hline"/>`);
-      parts.push(`<text x="${L - 8}" y="${py + 5}" class="lab" text-anchor="end">${fmtAxis(v, sc.step)}</text>`);
-    }
-    parts.push(`<rect x="${L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+    const parts = monthLines(days, x, T, ih).concat(priceLines(sc, y, iw));
+    parts.push(`<rect x="${AXIS_L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
 
     let d = "", pen = false;
     days.forEach((day, j) => {
