@@ -104,10 +104,10 @@ def extract(texts, root, fetched_at):
 
     if "nk225_summary" in texts:
         s = N.parse_summary(texts["nk225_summary"])
-        add_ohlc("日経平均株価", s["trade_date"], s["ohlc"])
+        add_ohlc("日経平均", s["trade_date"], s["ohlc"])
         times.append(
             {
-                "trade_date": s["trade_date"], "name": "日経平均株価", "fetched_at": stamp,
+                "trade_date": s["trade_date"], "name": "日経平均", "fetched_at": stamp,
                 **{f"{k}_time": s["times"].get(k, "") for k in ("open", "high", "low")},
             }
         )

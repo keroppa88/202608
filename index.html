@@ -367,7 +367,7 @@
 --------------------------------------------------------------- */
 const STORE = "soba.v2";
 const DEFAULT_COLUMNS = [
-  "yahoo:^N225",          // 日経平均株価
+  "yahoo:^N225",          // 日経平均
   "jpx:TOPIX",
   "nikkei:日経半導体株指数",
   "yahoo:^DJI",           // NYダウ
@@ -378,7 +378,7 @@ const DEFAULT_COLUMNS = [
 // チャート画面の既定。5銘柄。＋で最大10まで
 const MAX_SERIES = 10;
 const DEFAULT_CHART_COLUMNS = [
-  "yahoo:^N225",          // 日経平均株価
+  "yahoo:^N225",          // 日経平均
   "jpx:TOPIX",
   "yahoo:^DJI",           // NYダウ
   "yahoo:^GSPC",          // S&P500
@@ -611,7 +611,7 @@ const US_MAIN = ["^DJI", "^GSPC", "^IXIC", "^NDX", "^RUT", "^SOX"];
 // 日本株指数の中の並び。名前がそのまま一致するものを先頭に置く
 const JP_MAIN = [
   "TOPIX",
-  "日経平均株価",
+  "日経平均",
   "日経半導体株指数",
   "日経平均ボラティリティー・インデックス",
   "日経平均内需株50指数",
@@ -650,7 +650,7 @@ function subRank(c) {
 
 // 同じ指数が2か所から入っているもの。候補には出さない
 //   日経平均は Yahoo（^N225）で1985年から揃っているので、そちらに寄せる
-const HIDDEN = new Set(["nikkei:日経平均株価"]);
+const HIDDEN = new Set(["nikkei:日経平均"]);
 
 // 選べる銘柄の一覧を作る（その年に値がある銘柄）
 // 四本値が4つとも入っているか
