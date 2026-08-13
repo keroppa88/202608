@@ -33,6 +33,27 @@
     --bg: #1b1a17; --fg: #e6dac4; --fg2: #e0863a; --line: #3d3830;
     --panel: #221f1b; --sel-bg: #e0863a; --sel-fg: #1b1a17; --dim: #7c7263;
   }
+  /* ここから5つ。琥珀端末 / 青画面 / 相場端末 / 深緑 / 桜 */
+  html[data-theme="amber"] {
+    --bg: #000000; --fg: #ffb000; --fg2: #ffb000; --line: #ffb000;
+    --panel: #000000; --sel-bg: #ffb000; --sel-fg: #000000; --dim: #7a5400;
+  }
+  html[data-theme="blue"] {
+    --bg: #000080; --fg: #ffffff; --fg2: #ffe066; --line: #5566cc;
+    --panel: #0000a8; --sel-bg: #ffffff; --sel-fg: #000080; --dim: #9aa4e0;
+  }
+  html[data-theme="desk"] {
+    --bg: #0a0a0a; --fg: #ededed; --fg2: #ff9d2f; --line: #333333;
+    --panel: #161616; --sel-bg: #ff9d2f; --sel-fg: #0a0a0a; --dim: #767676;
+  }
+  html[data-theme="deep"] {
+    --bg: #002b36; --fg: #94a5a5; --fg2: #b58900; --line: #0b3f4c;
+    --panel: #073642; --sel-bg: #b58900; --sel-fg: #002b36; --dim: #587680;
+  }
+  html[data-theme="sakura"] {
+    --bg: #fbf0f2; --fg: #3a2b30; --fg2: #b3506b; --line: #e2c4cc;
+    --panel: #f4e2e6; --sel-bg: #b3506b; --sel-fg: #fbf0f2; --dim: #a4868e;
+  }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -402,7 +423,8 @@ function saveSettings() {
 let settings = loadSettings();
 
 // 押すたびにこの順で回る。先頭が既定
-const THEMES = ["retro", "light", "midnight", "paper", "ember"];
+const THEMES = ["retro", "light", "midnight", "paper", "ember",
+                "amber", "blue", "desk", "deep", "sakura"];
 
 function applyTheme(name) {
   if (!THEMES.includes(name)) name = THEMES[0];
