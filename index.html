@@ -148,6 +148,10 @@
     line-height: 1; margin-top: 2px;
     flex: none;
   }
+  /* 四本値のとき、× ▼ は4列のうち左端だけに出す。
+     残りの3列は同じ高さの空きを置いて、下辺の位置をそろえる */
+  .colhead .ops.blank { visibility: hidden; }
+  .colhead .field { font-size: 12px; line-height: 1.25; text-align: center; }
   .colhead .ops button {
     background: none; border: 0; color: var(--dim);
     font: inherit; font-size: 11px; cursor: pointer; padding: 0 2px;
@@ -239,6 +243,9 @@
   #chart .hline { stroke: var(--dim); stroke-width: .5; }
   #chart .lab { fill: var(--fg); }
   #chart .plot { stroke: var(--fg); fill: none; stroke-width: 1.2; }
+  /* ローソク足。上げた日は枠だけ、下げた日は塗りつぶし */
+  #chart .cs { stroke: var(--fg); fill: none; stroke-width: 1; }
+  #chart .cs.dn { fill: var(--fg); }
   #chart .ma { stroke: var(--fg); fill: none; stroke-width: 1; opacity: .75; }
   #chart .head .left {
     display: flex; align-items: center; gap: 8px 16px;
@@ -296,6 +303,7 @@
 <!-- ===================== 表画面 ===================== -->
 <section id="sheet" class="hidden">
   <div class="bar">
+    <button id="mode" title="押すと終値と四本値が入れ替わる">終値</button>
     <button id="back" title="タイトルへ戻る">← 戻る</button>
     <select id="year" title="表示する年"></select>
     <button id="theme" title="押すたびに配色が変わる">Color</button>
@@ -350,6 +358,14 @@ const DEFAULT_CHART_COLUMNS = [
   "yahoo:^GSPC",          // S&P500
   "yahoo:^SOX"            // SOX
 ];
+// 表の四本値の既定。1銘柄で4列使う
+const DEFAULT_OHLC_COLUMNS = DEFAULT_CHART_COLUMNS.slice();
+const OHLC_FIELDS = [
+  { f: "open", label: "始値" },
+  { f: "high", label: "高値" },
+  { f: "low", label: "安値" },
+  { f: "close", label: "終値" }
+];
 
 function loadSettings() {
   try {
@@ -364,14 +380,18 @@ function loadSettings() {
       chartYear: s.chartYear || 2026,
       chartColumns: Array.isArray(s.chartColumns) && s.chartColumns.length
         ? s.chartColumns.slice(0, MAX_SERIES) : DEFAULT_CHART_COLUMNS.slice(),
-      bugIndex: Number(s.bugIndex) || 0
+      bugIndex: Number(s.bugIndex) || 0,
+      sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
+      ohlcColumns: Array.isArray(s.ohlcColumns) && s.ohlcColumns.length
+        ? s.ohlcColumns.slice() : DEFAULT_OHLC_COLUMNS.slice()
     };
   } catch (e) {
     return {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
       ma: { 20: false, 80: false, 200: false },
       chartType: "rel", chartYear: 2026, chartColumns: DEFAULT_CHART_COLUMNS.slice(),
-      bugIndex: 0
+      bugIndex: 0,
+      sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice()
     };
   }
 }
@@ -597,6 +617,11 @@ function subRank(c) {
 const HIDDEN = new Set(["nikkei:日経平均株価"]);
 
 // 選べる銘柄の一覧を作る（その年に値がある銘柄）
+// 四本値が4つとも入っているか
+function hasOhlc(r) {
+  return OHLC_FIELDS.every((x) => (r[x.f] || "").trim() !== "");
+}
+
 async function buildCatalog(year) {
   const cat = [];
   const seen = new Set(HIDDEN);
@@ -605,8 +630,17 @@ async function buildCatalog(year) {
   // 指数や商品にコードを出しても読む側には意味がない
   const WITH_CODE = new Set(["個別株", "日本株"]);
 
+  // その年の一番新しい日に四本値が揃っているかを見ておく。
+  // 揃っているものだけが四本値の表に出せる
+  const last = new Map();
+  const note = (key, r) => {
+    const cur = last.get(key);
+    if (!cur || r.trade_date > cur.date) last.set(key, { date: r.trade_date, ohlc: hasOhlc(r) });
+  };
+
   for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
     const key = "yahoo:" + r.symbol;
+    note(key, r);
     if (!seen.has(key)) {
       seen.add(key);
       const code = WITH_CODE.has(r.category) ? `（${r.symbol}）` : "";
@@ -615,12 +649,15 @@ async function buildCatalog(year) {
   }
   for (const r of await fetchCsv("data/jpx_index.csv")) {
     const key = "jpx:" + r.name;
+    if (r.trade_date.startsWith(year)) note(key, r);
     if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
   for (const r of await fetchCsv("data/nikkei_ohlc.csv")) {
     const key = "nikkei:" + r.name;
+    if (r.trade_date.startsWith(year)) note(key, r);
     if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
+  cat.forEach((c) => { c.ohlc = !!(last.get(c.key) || {}).ohlc; });
   // 分野の順、分野の中は名前順
   cat.sort((a, b) =>
     GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) ||
@@ -654,6 +691,28 @@ async function seriesOf(key, year) {
   return map;
 }
 
+// 1銘柄ぶんの「日付 → 四本値」を返す。4つとも揃っている日だけ
+async function barsOf(key, year) {
+  const [src, id] = splitKey(key);
+  const map = new Map();
+  const take = (rows, hit) => {
+    for (const r of rows) {
+      if (!hit(r) || !hasOhlc(r)) continue;
+      map.set(r.trade_date, {
+        open: r.open, high: r.high, low: r.low, close: r.close
+      });
+    }
+  };
+  if (src === "yahoo") {
+    take(await fetchCsv(`data/overseas_${year}.csv`), (r) => r.symbol === id);
+  } else if (src === "jpx") {
+    take(await fetchCsv("data/jpx_index.csv"), (r) => r.name === id && r.trade_date.startsWith(year));
+  } else if (src === "nikkei") {
+    take(await fetchCsv("data/nikkei_ohlc.csv"), (r) => r.name === id && r.trade_date.startsWith(year));
+  }
+  return map;
+}
+
 function splitKey(key) {
   const i = key.indexOf(":");
   return [key.slice(0, i), key.slice(i + 1)];
@@ -671,22 +730,29 @@ function labelOf(key, catalog) {
 const DATE_COL = "__date__";
 const DEFAULT_W = { [DATE_COL]: 110, __plus__: 44 };
 
+// 四本値の列幅は終値の表とは別に覚える。1銘柄4列ぶんが同じ幅で動く
+const OHLC_W = 92;
+const ohlcWidthKey = (key) => "ohlc|" + key;
+
 function widthOf(key) {
-  return settings.widths[key] || DEFAULT_W[key] || 130;
+  return settings.widths[key] || DEFAULT_W[key] ||
+    (key.startsWith("ohlc|") ? OHLC_W : 130);
 }
 
+// col は1本でも、まとめて動かす複数本でもよい
 function makeGrip(key, col) {
   const grip = document.createElement("div");
   grip.className = "grip";
   grip.title = "掴んで幅を変える";
+  const cols = Array.isArray(col) ? col : [col];
   grip.addEventListener("mousedown", (e) => {
     e.preventDefault();
     e.stopPropagation();
     const x0 = e.clientX;
-    const w0 = col.getBoundingClientRect ? parseInt(col.style.width, 10) || widthOf(key) : widthOf(key);
+    const w0 = parseInt(cols[0].style.width, 10) || widthOf(key);
     const move = (ev) => {
       const w = Math.max(50, w0 + (ev.clientX - x0));
-      col.style.width = w + "px";
+      cols.forEach((c) => { c.style.width = w + "px"; });
       settings.widths[key] = w;
     };
     const up = () => {
@@ -701,7 +767,7 @@ function makeGrip(key, col) {
   grip.addEventListener("dblclick", (e) => {
     e.stopPropagation();
     delete settings.widths[key];
-    col.style.width = widthOf(key) + "px";
+    cols.forEach((c) => { c.style.width = widthOf(key) + "px"; });
     saveSettings();
   });
   return grip;
@@ -790,7 +856,7 @@ function movingAverage(all, from, n) {
 // いま開いているチャートの中身。押し直しで描き直すために持っておく
 let chartState = null;
 
-async function openChart(title, key, map) {
+async function openChart(title, key, map, bars) {
   const days = [...map.keys()].sort();
   if (!days.length) return;
 
@@ -800,13 +866,13 @@ async function openChart(title, key, map) {
   [...prev.keys()].sort().forEach((d) => all.push({ d, v: Number(prev.get(d)) }));
   days.forEach((d) => all.push({ d, v: Number(map.get(d)) }));
 
-  chartState = { title, days, map, all };
+  chartState = { title, days, map, all, bars: bars || null };
   drawChart();
   chartEl.classList.remove("hidden");
 }
 
 function drawChart() {
-  const { title, days, map, all } = chartState;
+  const { title, days, map, all, bars } = chartState;
 
 
   // 押されている移動平均を出す
@@ -818,6 +884,7 @@ function drawChart() {
   // 押すたびに縮尺が動くと、線の傾きが目で比べられなくなる。
   // 目盛の桁数が左の余白を決めるので、大きさより先に出す
   const vals = days.map((d) => Number(map.get(d)));
+  if (bars) bars.forEach((b) => { vals.push(Number(b.high), Number(b.low)); });
   movingAverage(all, days[0], 200).forEach((v) => vals.push(v));
   const sc = scaleOf(Math.min(...vals), Math.max(...vals));
 
@@ -875,10 +942,26 @@ function drawChart() {
     if (d) parts.push(`<path d="${d}" class="ma" stroke-dasharray="${m.dash}"/>`);
   });
 
-  const dpath = days
-    .map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(Number(map.get(d))).toFixed(1)}`)
-    .join("");
-  parts.push(`<path d="${dpath}" class="plot"/>`);
+  if (bars) {
+    // ローソク足。ヒゲは細線、実体は箱。陽線は枠だけ、陰線は塗りつぶし
+    const cw = Math.max(1, Math.min(11, (iw / days.length) * 0.7));
+    days.forEach((d, i) => {
+      const b = bars.get(d);
+      if (!b) return;
+      const o = Number(b.open), h = Number(b.high), l = Number(b.low), c = Number(b.close);
+      const px = x(i);
+      parts.push(`<line x1="${px.toFixed(1)}" y1="${y(h).toFixed(1)}" x2="${px.toFixed(1)}" y2="${y(l).toFixed(1)}" class="cs"/>`);
+      const top = y(Math.max(o, c));
+      const hgt = Math.max(1, Math.abs(y(o) - y(c)));
+      const cls = c < o ? "cs dn" : "cs";      // 下げた日は塗る
+      parts.push(`<rect x="${(px - cw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${cw.toFixed(1)}" height="${hgt.toFixed(1)}" class="${cls}"/>`);
+    });
+  } else {
+    const dpath = days
+      .map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(Number(map.get(d))).toFixed(1)}`)
+      .join("");
+    parts.push(`<path d="${dpath}" class="plot"/>`);
+  }
 
   const boxes = MA_LINES.map((m) =>
     `<label><input type="checkbox" data-ma="${m.n}"${settings.ma[m.n] ? " checked" : ""}><span class="bx"></span>${m.n}MA</label>`
@@ -1217,6 +1300,7 @@ function drawAbsolute(days, series, catalog) {
 const gridEl = document.getElementById("grid");
 const yearEl = document.getElementById("year");
 const themeEl = document.getElementById("theme");
+const modeEl = document.getElementById("mode");
 const statusEl = document.getElementById("status");
 
 for (let y = 2026; y >= 1999; y--) {
@@ -1234,6 +1318,13 @@ yearEl.addEventListener("change", () => {
 });
 themeEl.addEventListener("click", nextTheme);
 
+// 終値 ⇄ 四本値。銘柄の並びはそれぞれ別に覚えているので、戻せば元に戻る
+modeEl.addEventListener("click", () => {
+  settings.sheetMode = settings.sheetMode === "ohlc" ? "close" : "ohlc";
+  saveSettings();
+  render();
+});
+
 function openSheet() {
   titleEl.classList.add("hidden");
   sheetEl.classList.remove("hidden");
@@ -1241,15 +1332,35 @@ function openSheet() {
 }
 
 let rendering = 0;
+// いま表に並べている銘柄。終値と四本値で別々に覚える
+function curColumns() {
+  return settings.sheetMode === "ohlc" ? settings.ohlcColumns : settings.columns;
+}
+
 async function render() {
   const mine = ++rendering;
   const year = String(settings.year);
+  const ohlc = settings.sheetMode === "ohlc";
+  modeEl.textContent = ohlc ? "四本値" : "終値";
   gridEl.innerHTML = '<div id="loading">読み込み中…</div>';
   statusEl.textContent = "";
 
-  const catalog = await buildCatalog(year);
-  const series = [];
-  for (const key of settings.columns) series.push(await seriesOf(key, year));
+  // 四本値のときは、四本値の揃っている銘柄だけを候補にする
+  const all = await buildCatalog(year);
+  const catalog = ohlc ? all.filter((c) => c.ohlc) : all;
+
+  const keys = curColumns();
+  const series = [];                 // 終値。チャートと移動平均に使う
+  const bars = [];                   // 四本値
+  for (const key of keys) {
+    if (ohlc) {
+      const b = await barsOf(key, year);
+      bars.push(b);
+      series.push(new Map([...b].map(([d, v]) => [d, v.close])));
+    } else {
+      series.push(await seriesOf(key, year));
+    }
+  }
   if (mine !== rendering) return;                 // 途中で年が変わったら捨てる
 
   const dates = new Set();
@@ -1260,16 +1371,17 @@ async function render() {
 
   // 幅は colgroup で決める（table-layout: fixed）
   const colgroup = document.createElement("colgroup");
-  const cols = [];
   const addCol = (key) => {
     const c = document.createElement("col");
     c.style.width = widthOf(key) + "px";
     colgroup.appendChild(c);
-    cols.push(c);
     return c;
   };
   const dateCol = addCol(DATE_COL);
-  settings.columns.forEach((key) => addCol(key));
+  // 四本値は1銘柄で4列。4列とも同じ幅で動かす
+  const groupCols = keys.map((key) =>
+    ohlc ? OHLC_FIELDS.map(() => addCol(ohlcWidthKey(key))) : [addCol(key)]
+  );
   addCol("__plus__");
   table.appendChild(colgroup);
 
@@ -1281,75 +1393,92 @@ async function render() {
   corner.appendChild(makeGrip(DATE_COL, dateCol));
   htr.appendChild(corner);
 
-  settings.columns.forEach((key, i) => {
-    const th = document.createElement("th");
-    const wrap = document.createElement("div");
-    wrap.className = "colhead";
+  keys.forEach((key, i) => {
+    const name = labelOf(key, all);
 
-    const sel = document.createElement("select");
-    sel.className = "picker";
-    sel.title = "銘柄を変える";
-    // その年に値が無い銘柄も選び続けられるようにしておく
-    if (!catalog.some((c) => c.key === key)) {
-      const keep = document.createElement("option");
-      keep.value = key;
-      keep.textContent = labelOf(key, catalog);
-      sel.appendChild(keep);
-    }
-    // 分野ごとに見出しを付けて区切る
-    let box = null, cur = null;
-    catalog.forEach((c) => {
-      if (c.group !== cur) {
-        cur = c.group;
-        box = document.createElement("optgroup");
-        box.label = cur;
-        sel.appendChild(box);
+    // 四本値は 銘柄名 / 始値・高値・安値・終値 の2行。名前は4列とも出す
+    const fields = ohlc ? OHLC_FIELDS : [null];
+    fields.forEach((fld, j) => {
+      const th = document.createElement("th");
+      const wrap = document.createElement("div");
+      wrap.className = "colhead";
+
+      const sel = document.createElement("select");
+      sel.className = "picker";
+      sel.title = "銘柄を変える";
+      // その年に値が無い銘柄も選び続けられるようにしておく
+      if (!catalog.some((c) => c.key === key)) {
+        const keep = document.createElement("option");
+        keep.value = key;
+        keep.textContent = name;
+        sel.appendChild(keep);
       }
-      const o = document.createElement("option");
-      o.value = c.key;
-      o.textContent = c.label;
-      box.appendChild(o);
+      // 分野ごとに見出しを付けて区切る
+      let box = null, cur = null;
+      catalog.forEach((c) => {
+        if (c.group !== cur) {
+          cur = c.group;
+          box = document.createElement("optgroup");
+          box.label = cur;
+          sel.appendChild(box);
+        }
+        const o = document.createElement("option");
+        o.value = c.key;
+        o.textContent = c.label;
+        box.appendChild(o);
+      });
+      sel.value = key;
+      sel.addEventListener("change", () => {
+        curColumns()[i] = sel.value;
+        saveSettings();
+        render();
+      });
+
+      const del = document.createElement("button");
+      del.textContent = "×";
+      del.title = "この列を消す";
+      del.addEventListener("click", () => {
+        curColumns().splice(i, 1);
+        saveSettings();
+        render();
+      });
+
+      const arrow = document.createElement("button");
+      arrow.textContent = "▼";
+      arrow.title = "銘柄を変える";
+
+      // ▼ と選択を重ねる。▼を押すと候補が開く
+      const pick = document.createElement("div");
+      pick.className = "pickwrap";
+      pick.append(arrow, sel);
+
+      const ops = document.createElement("div");
+      ops.className = "ops" + (j ? " blank" : "");   // 出すのは左端の1列だけ
+      ops.append(del, pick);        // 名前の下に横並びで置く
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "name";
+      nameEl.textContent = name;
+      nameEl.title = "押すとチャート";
+      // 名前を押すと、いま画面に出ている分のチャートを出す
+      nameEl.addEventListener("click", () =>
+        openChart(name, key, series[i], ohlc ? bars[i] : null));
+
+      wrap.appendChild(nameEl);
+      if (fld) {
+        const f = document.createElement("div");
+        f.className = "field";
+        f.textContent = fld.label;
+        wrap.appendChild(f);
+      }
+      wrap.appendChild(ops);
+      th.appendChild(wrap);
+      // 取っ手は銘柄の右端に置く。掴むと4列とも同じ幅で動く
+      if (j === fields.length - 1) {
+        th.appendChild(makeGrip(ohlc ? ohlcWidthKey(key) : key, groupCols[i]));
+      }
+      htr.appendChild(th);
     });
-    sel.value = key;
-    sel.addEventListener("change", () => {
-      settings.columns[i] = sel.value;
-      saveSettings();
-      render();
-    });
-
-    const del = document.createElement("button");
-    del.textContent = "×";
-    del.title = "この列を消す";
-    del.addEventListener("click", () => {
-      settings.columns.splice(i, 1);
-      saveSettings();
-      render();
-    });
-
-    const arrow = document.createElement("button");
-    arrow.textContent = "▼";
-    arrow.title = "銘柄を変える";
-
-    // ▼ と選択を重ねる。▼を押すと候補が開く
-    const pick = document.createElement("div");
-    pick.className = "pickwrap";
-    pick.append(arrow, sel);
-
-    const ops = document.createElement("div");
-    ops.className = "ops";
-    ops.append(del, pick);        // 名前の下に横並びで置く
-
-    const nameEl = document.createElement("div");
-    nameEl.className = "name";
-    nameEl.textContent = labelOf(key, catalog);
-    nameEl.title = "押すとチャート";
-    // 名前を押すと、いま画面に出ている分のチャートを出す
-    nameEl.addEventListener("click", () => openChart(nameEl.textContent, key, series[i]));
-
-    wrap.append(nameEl, ops);
-    th.appendChild(wrap);
-    th.appendChild(makeGrip(key, cols[i + 1]));
-    htr.appendChild(th);
   });
 
   const addTh = document.createElement("th");
@@ -1358,8 +1487,9 @@ async function render() {
   add.textContent = "＋";
   add.title = "列を足す";
   add.addEventListener("click", () => {
-    const first = catalog.find((c) => !settings.columns.includes(c.key));
-    settings.columns.push(first ? first.key : "yahoo:^GSPC");
+    const first = catalog.find((c) => !curColumns().includes(c.key));
+    if (!first) return;
+    curColumns().push(first.key);
     saveSettings();
     render();
   });
@@ -1373,12 +1503,15 @@ async function render() {
     const th = document.createElement("th");
     th.textContent = d;
     tr.appendChild(th);
-    series.forEach((m) => {
-      const td = document.createElement("td");
-      const v = m.get(d);
-      if (v === undefined) { td.textContent = "#N/A"; td.className = "na"; }
-      else td.textContent = fmt(v);
-      tr.appendChild(td);
+    keys.forEach((key, i) => {
+      const b = ohlc ? bars[i].get(d) : null;
+      (ohlc ? OHLC_FIELDS : [null]).forEach((fld) => {
+        const td = document.createElement("td");
+        const v = ohlc ? (b ? b[fld.f] : undefined) : series[i].get(d);
+        if (v === undefined) { td.textContent = "#N/A"; td.className = "na"; }
+        else td.textContent = fmt(v);
+        tr.appendChild(td);
+      });
     });
     tr.appendChild(document.createElement("td"));
     tbody.appendChild(tr);
@@ -1387,7 +1520,7 @@ async function render() {
   table.append(thead, tbody);
   gridEl.innerHTML = "";
   gridEl.appendChild(table);
-  statusEl.textContent = `${rows.length}日 × ${settings.columns.length}銘柄`;
+  statusEl.textContent = `${rows.length}日 × ${keys.length}銘柄`;
 }
 
 /* ---------------------------------------------------------------
