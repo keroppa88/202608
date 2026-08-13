@@ -1396,8 +1396,8 @@ async function render() {
    マウスを動かすかキーを押せば消える。
 --------------------------------------------------------------- */
 const IDLE_MS = 3000;          // テストのため3秒。本番は 180000（3分）
-const BUGS = ["roach", "centipede"];          // 出るたびにこの順で回る
-const HOW_MANY = { roach: 1, centipede: 1 };  // どちらも1匹
+// 出るたびに匹数が増える。5匹の次はまた1匹に戻る
+const HOW_MANY = [1, 2, 3, 4, 5];
 
 const saverEl = document.getElementById("saver");
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -1427,30 +1427,6 @@ function legPath(ax, ay, side, reach, spread, ph) {
 }
 
 /* ---- 形を作る。どれも右（+X）を向いた姿で描く ---- */
-
-const ROACH_LEG = [
-  { ax: 8, reach: 21, spread: 0.85 },     // 前脚は前へ
-  { ax: 1, reach: 23, spread: 0.15 },     // 中脚は横へ
-  { ax: -8, reach: 27, spread: -0.75 }    // 後脚は後ろへ
-];
-
-function buildRoach(g) {
-  const legs = [];
-  for (let i = 0; i < 6; i++) legs.push(g.appendChild(svgEl("path", { class: "bug" })));
-  g.appendChild(svgEl("ellipse", { class: "bug body", cx: -4, cy: 0, rx: 16, ry: 9 }));
-  g.appendChild(svgEl("path", { class: "bug seam", d: "M10,0L-20,0" }));                   // 翅の合わせ目
-  g.appendChild(svgEl("ellipse", { class: "bug body", cx: 10, cy: 0, rx: 7.5, ry: 7 }));   // 前胸
-  g.appendChild(svgEl("ellipse", { class: "bug body", cx: 17, cy: 0, rx: 4.5, ry: 3.8 })); // 頭
-  return { legs };
-}
-
-function drawRoach(b) {
-  b.parts.legs.forEach((L, i) => {
-    const k = i % 3, side = i < 3 ? 1 : -1, g = ROACH_LEG[k];
-    const ph = b.phase + (((k + (side < 0 ? 1 : 0)) % 2) ? Math.PI : 0);   // 三脚で歩く
-    L.setAttribute("d", legPath(g.ax, side * 6, side, g.reach, g.spread, ph));
-  });
-}
 
 const CENTI_SEGS = 14, CENTI_GAP = 8;
 
@@ -1521,25 +1497,10 @@ function steer(b, w, h) {
 }
 
 function moveBug(b, dt, w, h) {
-  b.timer -= dt;
-  let v = 0;
-
-  if (b.kind === "roach") {
-    // ダッと走る → 止まる → 向きを変えてまた走る
-    if (b.timer <= 0) {
-      b.run = !b.run;
-      if (b.run) { b.timer = rnd(0.6, 1.8); b.ang += rnd(-2.4, 2.4); b.speed = rnd(100, 200); }
-      else b.timer = rnd(0.2, 0.9);
-    }
-    v = b.run ? b.speed : 0;
-    b.phase += (b.run ? 20 : 1.5) * dt;
-
-  } else {
-    // ムカデ。ゆっくり波打って進む
-    b.ang += Math.sin(saverT * 1.1 + b.seed) * 1.2 * dt;
-    v = b.speed;
-    b.phase += 9 * dt;
-  }
+  // ゆっくり波打って進む
+  b.ang += Math.sin(saverT * 1.1 + b.seed) * 1.2 * dt;
+  b.phase += 9 * dt;
+  const v = b.speed;
 
   steer(b, w, h);
   b.x += Math.cos(b.ang) * v * dt;
@@ -1547,35 +1508,28 @@ function moveBug(b, dt, w, h) {
   b.x = Math.min(Math.max(b.x, -30), w + 30);
   b.y = Math.min(Math.max(b.y, -30), h + 30);
 
-  if (b.trail) {
-    b.trail.unshift({ x: b.x, y: b.y });
-    if (b.trail.length > 400) b.trail.pop();
-  }
+  b.trail.unshift({ x: b.x, y: b.y });
+  if (b.trail.length > 400) b.trail.pop();
 }
 
 /* ---- 出す・消す ---- */
 
-function buildBugs(kind) {
+function buildBugs(howMany) {
   const svg = svgEl("svg", {});
   const w = window.innerWidth, h = window.innerHeight;
   saverBugs = [];
 
-  for (let i = 0; i < HOW_MANY[kind]; i++) {
+  for (let i = 0; i < howMany; i++) {
     const g = svg.appendChild(svgEl("g", {}));
     const b = {
-      kind, g,
+      g,
       x: rnd(60, w - 60), y: rnd(60, h - 60),
-      ang: rnd(0, Math.PI * 2), speed: 0, phase: rnd(0, 6.3),
-      timer: rnd(0, 1), run: true, seed: rnd(0, 6.3)
+      ang: rnd(0, Math.PI * 2), speed: rnd(45, 80), phase: rnd(0, 6.3),
+      seed: rnd(0, 6.3), trail: []
     };
-    if (kind === "roach") { b.parts = buildRoach(g); b.speed = rnd(100, 200); }
-    else {
-      b.parts = buildCentipede(g);
-      b.speed = rnd(45, 80);
-      b.trail = [];
-      for (let k = 0; k < 260; k++) {            // 最初から体がつながって見えるように
-        b.trail.push({ x: b.x - Math.cos(b.ang) * k * 0.6, y: b.y - Math.sin(b.ang) * k * 0.6 });
-      }
+    b.parts = buildCentipede(g);
+    for (let k = 0; k < 260; k++) {              // 最初から体がつながって見えるように
+      b.trail.push({ x: b.x - Math.cos(b.ang) * k * 0.6, y: b.y - Math.sin(b.ang) * k * 0.6 });
     }
     saverBugs.push(b);
   }
@@ -1592,13 +1546,7 @@ function stepSaver(now) {
 
   saverBugs.forEach((b) => {
     moveBug(b, dt, w, h);
-    if (b.kind === "roach") drawRoach(b);
-    else drawCentipede(b);
-
-    if (b.kind === "roach") {                   // ムカデは節ごとに置くのでここでは動かさない
-      b.g.setAttribute("transform",
-        `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
-    }
+    drawCentipede(b);                           // 節ごとに置くので群そのものは動かさない
   });
 
   saverRAF = requestAnimationFrame(stepSaver);
@@ -1606,11 +1554,11 @@ function stepSaver(now) {
 
 function startSaver() {
   if (!saverEl.classList.contains("hidden")) return;
-  const kind = BUGS[settings.bugIndex % BUGS.length];
-  settings.bugIndex = (settings.bugIndex + 1) % BUGS.length;   // 次は別の虫
+  const howMany = HOW_MANY[settings.bugIndex % HOW_MANY.length];
+  settings.bugIndex = (settings.bugIndex + 1) % HOW_MANY.length;   // 次は1匹増える
   saveSettings();
 
-  buildBugs(kind);
+  buildBugs(howMany);
   saverEl.classList.remove("hidden");
   saverT = 0;
   saverLast = performance.now();
