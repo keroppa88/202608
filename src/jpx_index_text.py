@@ -76,6 +76,10 @@ def _num(text):
     return None if text in EMPTY else float(text.replace(",", ""))
 
 
+# ページの表記をこちらの呼び名に直す。保存も画面もこの名前で通す
+RENAME = {"TOPIX (東証株価指数)": "TOPIX"}
+
+
 def parse(text):
     """指数ごとの値を返す。名前のない行は数を数えて別に返す。
 
@@ -94,7 +98,7 @@ def parse(text):
         if len(cells) < 4:
             continue
 
-        name = cells[0].strip()
+        name = RENAME.get(cells[0].strip(), cells[0].strip())
         has_close = bool(NUMBER.match(cells[1].strip()))
         # 前日比が数値なら、指数名や現在値が欠けていてもデータ行のなれの果て
         looks_like_row = has_close or NUMBER.match(cells[2].strip().replace("+", ""))

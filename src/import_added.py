@@ -25,7 +25,7 @@ from common import now_jst, repo_root
 
 # ファイル名 → 入れる先。JPX の指数はページに出ている名前に合わせる
 TO_JPX = {
-    "topix": "TOPIX (東証株価指数)",
+    "topix": "TOPIX",
     "topixグロース": "TOPIX グロース",
     "topixバリュー": "TOPIX バリュー",
     "東証REIT": "東証REIT指数",

@@ -292,6 +292,11 @@
   #loading { padding: 20px; color: var(--dim); }
 
   /* ---- 擬似スクリーンセーバー。画面の上を虫が動くだけ ---- */
+  /* 白っぽい地に色の折れ線は飛んで見えにくい。相対チャートだけ太くする */
+  html[data-theme="light"] .canvas .plot.rel,
+  html[data-theme="paper"] .canvas .plot.rel,
+  html[data-theme="sakura"] .canvas .plot.rel { stroke-width: 2; }
+
   #saver {
     position: fixed; inset: 0; z-index: 90;
     pointer-events: none;               /* 板は素通し。下の操作を邪魔しない */
@@ -363,7 +368,7 @@
 const STORE = "soba.v2";
 const DEFAULT_COLUMNS = [
   "yahoo:^N225",          // 日経平均株価
-  "jpx:TOPIX (東証株価指数)",
+  "jpx:TOPIX",
   "nikkei:日経半導体株指数",
   "yahoo:^DJI",           // NYダウ
   "yahoo:^GSPC",          // S&P500
@@ -374,7 +379,7 @@ const DEFAULT_COLUMNS = [
 const MAX_SERIES = 10;
 const DEFAULT_CHART_COLUMNS = [
   "yahoo:^N225",          // 日経平均株価
-  "jpx:TOPIX (東証株価指数)",
+  "jpx:TOPIX",
   "yahoo:^DJI",           // NYダウ
   "yahoo:^GSPC",          // S&P500
   "yahoo:^SOX"            // SOX
@@ -388,24 +393,30 @@ const OHLC_FIELDS = [
   { f: "close", label: "終値" }
 ];
 
+// 呼び名を変えた銘柄。前に覚えた並びもここで読み替える
+const RENAMED = { "jpx:TOPIX (東証株価指数)": "jpx:TOPIX" };
+
+function fixKeys(list, fallback) {
+  if (!Array.isArray(list) || !list.length) return fallback.slice();
+  return list.map((k) => RENAMED[k] || k);
+}
+
 function loadSettings() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE) || "{}");
     return {
       theme: s.theme || "retro",
       year: s.year || 2026,
-      columns: Array.isArray(s.columns) && s.columns.length ? s.columns : DEFAULT_COLUMNS.slice(),
+      columns: fixKeys(s.columns, DEFAULT_COLUMNS),
       widths: (s.widths && typeof s.widths === "object") ? s.widths : {},
       ma: (s.ma && typeof s.ma === "object") ? s.ma : { 20: false, 80: false, 200: false },
       chartType: s.chartType === "abs" ? "abs" : "rel",
       chartYear: s.chartYear || 2026,
-      chartColumns: Array.isArray(s.chartColumns) && s.chartColumns.length
-        ? s.chartColumns.slice(0, MAX_SERIES) : DEFAULT_CHART_COLUMNS.slice(),
+      chartColumns: fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES),
       bugIndex: Number(s.bugIndex) || 0,
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
-      ohlcColumns: Array.isArray(s.ohlcColumns) && s.ohlcColumns.length
-        ? s.ohlcColumns.slice() : DEFAULT_OHLC_COLUMNS.slice()
+      ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS)
     };
   } catch (e) {
     return {
@@ -435,6 +446,8 @@ function applyTheme(name) {
 function nextTheme() {
   const i = THEMES.indexOf(settings.theme);
   applyTheme(THEMES[(i + 1) % THEMES.length]);
+  // 相対チャートの線の色は地の明るさで変わる。出ているなら描き直す
+  if (!chartsEl.classList.contains("hidden")) drawCharts();
 }
 applyTheme(settings.theme);
 
@@ -597,7 +610,7 @@ const US_MAIN = ["^DJI", "^GSPC", "^IXIC", "^NDX", "^RUT", "^SOX"];
 
 // 日本株指数の中の並び。名前がそのまま一致するものを先頭に置く
 const JP_MAIN = [
-  "TOPIX (東証株価指数)",
+  "TOPIX",
   "日経平均株価",
   "日経半導体株指数",
   "日経平均ボラティリティー・インデックス",
@@ -1047,11 +1060,23 @@ const ctypeEl = document.getElementById("ctype");
 const cyearEl = document.getElementById("cyear");
 const cstatusEl = document.getElementById("cstatus");
 
-// 相対チャートの色。緑地の上ではっきり見分けられるもの
-const SERIES_COLORS = [
+/* 相対チャートの色。地の明るさで2組を使い分ける。
+   同じ順で同じ系統の色にしてあるので、配色を変えても銘柄の色味は変わらない */
+const SERIES_COLORS = [                      // 暗い地。明るく浮く色
   "#ff5555", "#55aaff", "#ffdd33", "#ff9933", "#cc66ff",
   "#33ffaa", "#ff66bb", "#88ff44", "#66ddff", "#ffffff"
 ];
+const SERIES_COLORS_LIGHT = [                // 明るい地。濃く沈む色
+  "#cc0000", "#0057c2", "#8a6d00", "#cc5500", "#7b2fbe",
+  "#00795c", "#c2185b", "#4a7a00", "#00708f", "#222222"
+];
+// 地が明るい配色。ここでは濃いほうの色を使う
+const LIGHT_THEMES = new Set(["light", "paper", "sakura"]);
+
+function seriesColor(i) {
+  const c = LIGHT_THEMES.has(settings.theme) ? SERIES_COLORS_LIGHT : SERIES_COLORS;
+  return c[i % c.length];
+}
 
 function openCharts() {
   titleEl.classList.add("hidden");
@@ -1093,7 +1118,7 @@ function drawPicks(catalog) {
     const nm = document.createElement("span");
     nm.className = "nm";
     nm.textContent = labelOf(key, catalog);
-    if (settings.chartType === "rel") nm.style.color = SERIES_COLORS[i % SERIES_COLORS.length];
+    if (settings.chartType === "rel") nm.style.color = seriesColor(i);
 
     const del = document.createElement("button");
     del.textContent = "×";
@@ -1322,13 +1347,13 @@ function drawRelative(days, series, catalog) {
       pen = true;
     });
     if (d) {
-      const c = SERIES_COLORS[i % SERIES_COLORS.length];
-      parts.push(`<path d="${d}" class="plot" stroke="${c}"/>`);
+      const c = seriesColor(i);
+      parts.push(`<path d="${d}" class="plot rel" stroke="${c}"/>`);
     }
   });
 
   stackTags(tags, y, T, ih).forEach((t) => {
-    const c = SERIES_COLORS[t.i % SERIES_COLORS.length];
+    const c = seriesColor(t.i);
     parts.push(`<text x="${AXIS_L + iw + 8}" y="${t.ly.toFixed(1)}" class="lab" fill="${c}">${t.text}</text>`);
   });
 
