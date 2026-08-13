@@ -381,6 +381,7 @@ function loadSettings() {
       chartColumns: Array.isArray(s.chartColumns) && s.chartColumns.length
         ? s.chartColumns.slice(0, MAX_SERIES) : DEFAULT_CHART_COLUMNS.slice(),
       bugIndex: Number(s.bugIndex) || 0,
+      chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: Array.isArray(s.ohlcColumns) && s.ohlcColumns.length
         ? s.ohlcColumns.slice() : DEFAULT_OHLC_COLUMNS.slice()
@@ -390,7 +391,7 @@ function loadSettings() {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
       ma: { 20: false, 80: false, 200: false },
       chartType: "rel", chartYear: 2026, chartColumns: DEFAULT_CHART_COLUMNS.slice(),
-      bugIndex: 0,
+      bugIndex: 0, chartZoom: 1,
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice()
     };
   }
@@ -898,10 +899,15 @@ function drawChart() {
   const R = 6, T = 8, B = 24;
 
   let ih = Math.round(gridEl.clientHeight / 2) - T - B;  // 描画部分の高さ
-  ih = Math.max(160, Math.min(ih, window.innerHeight - 90 - T - B));
+  ih = Math.round(Math.max(160, ih) * settings.chartZoom);   // ホイールで伸び縮み
   let iw = Math.round(ih * RATIO);                       // 描画部分の幅
+
+  // 画面からはみ出す分は詰める。縦横の比は変えない
+  const maxIH = window.innerHeight - 90 - T - B;
   const maxIW = window.innerWidth - 60 - L - R;
+  if (ih > maxIH) { ih = maxIH; iw = Math.round(ih * RATIO); }
   if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
+  if (ih < 100) { ih = 100; iw = Math.round(ih * RATIO); }
 
   const W = iw + L + R, H = ih + T + B;
 
@@ -994,6 +1000,17 @@ function closeChart() {
 chartEl.addEventListener("click", (e) => {
   if (!e.target.closest(".box")) closeChart();
 });
+
+// ホイールで大きさを変える。縦横の比は 1 : 1.62 のまま
+const ZOOM_MIN = 0.4, ZOOM_MAX = 4;
+chartEl.addEventListener("wheel", (e) => {
+  if (chartEl.classList.contains("hidden")) return;
+  e.preventDefault();
+  const f = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  settings.chartZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, settings.chartZoom * f));
+  saveSettings();
+  drawChart();
+}, { passive: false });
 
 /* ---------------------------------------------------------------
    チャート画面。相対と絶対をトグルで切り替える
