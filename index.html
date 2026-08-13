@@ -311,9 +311,8 @@
   #saver .body { fill: var(--fg); stroke: var(--bg); stroke-width: 1.2; }
   #saver .seam { stroke: var(--bg); }
   #saver .seg { stroke-width: .8; }         /* ムカデの節。切れ目は細く */
-  /* ゼロ戦。風防と日の丸は地の色で抜く。プロペラの回転面は薄く */
+  /* 地の色で抜くところ */
   #saver .hollow { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; }
-  #saver .disc { fill: none; stroke: var(--fg); stroke-width: .6; opacity: .35; }
 </style>
 </head>
 <body>
@@ -1643,11 +1642,9 @@ const IDLE_MS = 3000;          // テストのため3秒。本番は 300000（5�
 // 出るたびにこの順で回る。最後まで行くと先頭へ戻る
 const SAVER_CYCLE = [
   { kind: "centipede", n: 1 },
-  { kind: "zero", n: 1 },
-  { kind: "f1", n: 1 },
-  { kind: "centipede", n: 2 },
-  { kind: "zero", n: 2 },
-  { kind: "f1", n: 2 }
+  { kind: "ball", n: 2 },
+  { kind: "centipede", n: 3 },
+  { kind: "ball", n: 4 }
 ];
 
 const saverEl = document.getElementById("saver");
@@ -1731,53 +1728,11 @@ function trailAt(trail, dist) {
   return trail[trail.length - 1];
 }
 
-/* ゼロ戦。上から見た姿。主翼・尾翼・胴体は塗りつぶし、
-   風防と日の丸は地の色で抜く。プロペラは回す */
-const ZERO_WING = "M11,0L10.5,-10L10,-20L8.5,-27L6.5,-31L3,-33L0,-31L-1,-27L-2,-20L-4,-10L-6,0"
-                + "L-4,10L-2,20L-1,27L0,31L3,33L6.5,31L8.5,27L10,20L10.5,10Z";
-const ZERO_TAIL = "M-11,0L-11.5,-5L-12.5,-10L-14,-13L-16.5,-14L-18.5,-12L-19.5,-7L-20,0"
-                + "L-19.5,7L-18.5,12L-16.5,14L-14,13L-12.5,10L-11.5,5Z";
-// 風防。胴体の上に長く伸びる
-const ZERO_CANOPY = "M13,0L11,-2.6L2,-3.2L-5,-2.4L-7,0L-5,2.4L2,3.2L11,2.6Z";
+/* ボール。枠に当たると跳ね返る */
+const BALL_R = 11;
 
-function buildZero(g) {
-  g.appendChild(svgEl("path", { class: "bug body", d: ZERO_WING }));          // 主翼
-  g.appendChild(svgEl("path", { class: "bug body", d: ZERO_TAIL }));          // 水平尾翼
-  g.appendChild(svgEl("path", { class: "bug body", d: "M-10,0L-23,-3L-23,3Z" }));    // 垂直尾翼
-  g.appendChild(svgEl("ellipse", { class: "bug body", cx: 2, cy: 0, rx: 24, ry: 4.5 }));
-  g.appendChild(svgEl("ellipse", { class: "bug body", cx: 19, cy: 0, rx: 7, ry: 5.5 }));    // 発動機の覆い
-  g.appendChild(svgEl("path", { class: "bug hollow", d: ZERO_CANOPY }));                    // 風防
-  [-19, 19].forEach((cy) =>                                                   // 日の丸
-    g.appendChild(svgEl("circle", { class: "bug hollow", cx: 5, cy, r: 5 })));
-
-  g.appendChild(svgEl("circle", { class: "bug disc", cx: 26, cy: 0, r: 10 })); // 回転面
-  const blades = g.appendChild(svgEl("g", {}));
-  for (let k = 0; k < 3; k++) {
-    blades.appendChild(svgEl("path", {
-      class: "bug", d: "M26,0L26,-10", transform: `rotate(${k * 120},26,0)`
-    }));
-  }
-  return { blades };
-}
-
-function drawZero(b) {
-  b.parts.blades.setAttribute("transform", `rotate(${(b.phase * 360).toFixed(0)},26,0)`);
-}
-
-/* F-1マシン。上から見た姿。車体と翼は塗りつぶし、
-   コクピットは地の色で抜く。タイヤは4つ外に張り出す */
-const F1_BODY = "M34,-3.5L14,-3.5L8,-6L2,-10L-8,-14L-20,-14L-28,-10L-32,-6"
-              + "L-32,6L-28,10L-20,14L-8,14L2,10L8,6L14,3.5L34,3.5Z";
-
-function buildF1(g) {
-  g.appendChild(svgEl("rect", { class: "bug body", x: -41, y: -18, width: 8, height: 36 })); // 後翼
-  [[-29, -24, 15, 9], [-29, 15, 15, 9],                                       // 後輪は大きい
-   [17, -22, 12, 7], [17, 15, 12, 7]].forEach(([x, y, width, height]) =>
-    g.appendChild(svgEl("rect", { class: "bug body", x, y, width, height })));
-  g.appendChild(svgEl("path", { class: "bug body", d: F1_BODY }));            // 車体
-  // 前翼はタイヤの外へ出さない
-  g.appendChild(svgEl("rect", { class: "bug body", x: 32, y: -17, width: 7, height: 34 }));
-  g.appendChild(svgEl("ellipse", { class: "bug hollow", cx: 3, cy: 0, rx: 7, ry: 3.6 }));   // コクピット
+function buildBall(g) {
+  g.appendChild(svgEl("circle", { class: "bug body", cx: 0, cy: 0, r: BALL_R }));
   return {};
 }
 
@@ -1798,36 +1753,29 @@ function steer(b, w, h, k, margin) {
 }
 
 function moveBug(b, dt, w, h) {
-  if (b.kind === "f1") {
-    // 直線は速く、曲がるときは落ちる
-    b.timer -= dt;
-    if (b.timer <= 0) { b.timer = rnd(0.8, 2.6); b.turn = rnd(-1.5, 1.5); }
-    b.ang += b.turn * dt;
-    b.speed = b.base * (1 - Math.min(0.5, Math.abs(b.turn) * 0.33));
-    steer(b, w, h, 0.05, 90);
-  } else if (b.kind === "zero") {
-    // まっすぐ速く飛ぶ。ときどき向きを変えるが、曲がり方はゆるい
-    b.timer -= dt;
-    if (b.timer <= 0) { b.timer = rnd(1.2, 3.2); b.turn = rnd(-0.55, 0.55); }
-    b.ang += b.turn * dt;
-    b.phase += 9 * dt;                       // プロペラ
-    steer(b, w, h, 0.035, 110);              // 早めに、ゆるく回り込む
-  } else {
-    // ムカデ。ゆっくり波打って進む
-    b.ang += Math.sin(saverT * 1.1 + b.seed) * 1.2 * dt;
-    b.phase += 9 * dt;
-    steer(b, w, h);
+  if (b.kind === "ball") {
+    // まっすぐ飛んで、枠に当たったら跳ね返る
+    b.x += Math.cos(b.ang) * b.speed * dt;
+    b.y += Math.sin(b.ang) * b.speed * dt;
+    if (b.x < BALL_R) { b.x = BALL_R; b.ang = Math.PI - b.ang; }
+    else if (b.x > w - BALL_R) { b.x = w - BALL_R; b.ang = Math.PI - b.ang; }
+    if (b.y < BALL_R) { b.y = BALL_R; b.ang = -b.ang; }
+    else if (b.y > h - BALL_R) { b.y = h - BALL_R; b.ang = -b.ang; }
+    return;
   }
+
+  // ムカデ。ゆっくり波打って進む
+  b.ang += Math.sin(saverT * 1.1 + b.seed) * 1.2 * dt;
+  b.phase += 9 * dt;
+  steer(b, w, h);
 
   b.x += Math.cos(b.ang) * b.speed * dt;
   b.y += Math.sin(b.ang) * b.speed * dt;
   b.x = Math.min(Math.max(b.x, -40), w + 40);
   b.y = Math.min(Math.max(b.y, -40), h + 40);
 
-  if (b.trail) {
-    b.trail.unshift({ x: b.x, y: b.y });
-    if (b.trail.length > 400) b.trail.pop();
-  }
+  b.trail.unshift({ x: b.x, y: b.y });
+  if (b.trail.length > 400) b.trail.pop();
 }
 
 /* ---- 出す・消す ---- */
@@ -1845,13 +1793,11 @@ function buildBugs(step) {
       ang: rnd(0, Math.PI * 2), phase: rnd(0, 6.3), seed: rnd(0, 6.3),
       timer: rnd(0, 2), turn: rnd(-0.5, 0.5)
     };
-    if (step.kind === "f1") {
-      b.base = rnd(230, 340);
-      b.speed = b.base;
-      b.parts = buildF1(g);
-    } else if (step.kind === "zero") {
-      b.speed = rnd(150, 260);
-      b.parts = buildZero(g);
+    if (step.kind === "ball") {
+      // 真横や真上に飛ぶと単調なので、その向きは外す
+      b.ang = rnd(0.4, 1.2) + Math.floor(rnd(0, 4)) * (Math.PI / 2);
+      b.speed = rnd(260, 430);
+      b.parts = buildBall(g);
     } else {
       b.speed = rnd(45, 80);
       b.trail = [];
@@ -1875,12 +1821,10 @@ function stepSaver(now) {
 
   saverBugs.forEach((b) => {
     moveBug(b, dt, w, h);
-    if (b.kind === "centipede") {
-      drawCentipede(b);                     // 節ごとに置くので群そのものは動かさない
+    if (b.kind === "ball") {
+      b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)})`);
     } else {
-      if (b.kind === "zero") drawZero(b);   // プロペラを回す
-      b.g.setAttribute("transform",
-        `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
+      drawCentipede(b);                     // 節ごとに置くので群そのものは動かさない
     }
   });
 
