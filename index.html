@@ -545,6 +545,7 @@ document.getElementById("back").addEventListener("click", backToTitle);
      nikkei:{指数名}   data/nikkei_ohlc.csv
      yomiuri:{指数名}  data/yomiuri333.csv
      ratio:{名前}      data/ratios.csv
+     rates:{名前}      data/rates.csv
 
    どれも終値を出す。無い日は #N/A
 --------------------------------------------------------------- */
@@ -593,7 +594,7 @@ function splitLine(line) {
 }
 
 // 候補はこの順で並べる
-const GROUPS = ["日本株指数", "米国株指数", "海外その他", "為替", "日本個別株", "海外個別株"];
+const GROUPS = ["日本株指数", "米国株指数", "海外その他", "債券", "為替", "日本個別株", "海外個別株"];
 
 // 米国の株価指数。ここに無い海外指数は「海外その他」へ入れる
 const US_INDEX = new Set(["^DJI", "^IXIC", "^NDX", "^GSPC", "^RUT", "^SOX", "^VIX"]);
@@ -605,12 +606,30 @@ function groupOf(category, symbol) {
   if (category === "個別株") return "海外個別株";
   if (category === "為替") return "為替";
   if (category === "セクター" || category === "REIT" || category === "ボラティリティ") return "米国株指数";
+  if (category === "金利") return "債券";
   if (category === "海外指数") return US_INDEX.has(symbol) ? "米国株指数" : "海外その他";
-  return "海外その他";           // 商品・金利・通貨指数・暗号資産・ETF
+  return "海外その他";           // 商品・通貨指数・暗号資産・ETF
 }
 
 // 米国株指数の中の並び。主要なものを先に、残りはサブ指数として後ろへ
 const US_MAIN = ["^DJI", "^GSPC", "^IXIC", "^NDX", "^RUT", "^SOX"];
+
+// 債券の中の並び。よく見るものを先に
+const BOND_MAIN = [
+  "日本 10年国債",
+  "日本 無担保コール翌日物",
+  "日本 公定歩合",
+  "米10年債利回り",
+  "米30年債利回り",
+  "米5年債利回り",
+  "米13週Tビル",
+  "米国 10年国債",
+  "アメリカ フェデラルファンド金利",
+  "ドイツ 10年国債",
+  "イギリス 10年国債",
+  "ユーロ 市場調整金利",
+  "中国 10年国債"
+];
 
 // 日本株指数の中の並び。名前がそのまま一致するものを先頭に置く
 const JP_MAIN = [
@@ -662,6 +681,14 @@ function subRank(c) {
   if (c.group === "米国株指数") {
     const i = US_MAIN.indexOf(c.sym);
     return i < 0 ? 99 : i;
+  }
+  if (c.group === "債券") {
+    // 日本 → 米国 → そのほかの国。国ごとに国債利回りが先、政策金利が後
+    const i = BOND_MAIN.indexOf(c.label);
+    if (i >= 0) return i;
+    if (c.label.startsWith("日本")) return 20;
+    if (c.label.startsWith("米") || c.label.startsWith("アメリカ")) return 21;
+    return 30;
   }
   return 0;
 }
@@ -721,6 +748,11 @@ async function buildCatalog(year) {
     if (r.trade_date.startsWith(year)) note(key, r);
     if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
+  // 国債利回りと政策金利。値の列が close ではなく value
+  for (const r of await fetchCsv("data/rates.csv")) {
+    const key = "rates:" + r.name;
+    if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "債券" }); }
+  }
   cat.forEach((c) => { c.ohlc = !!(last.get(c.key) || {}).ohlc; });
   // 分野の順、分野の中は名前順
   cat.sort((a, b) =>
@@ -761,6 +793,12 @@ async function seriesOf(key, year) {
     for (const r of await fetchCsv("data/ratios.csv")) {
       if (r.name === id && r.close !== "" && r.trade_date.startsWith(year)) {
         map.set(r.trade_date, r.close);
+      }
+    }
+  } else if (src === "rates") {
+    for (const r of await fetchCsv("data/rates.csv")) {
+      if (r.name === id && r.value !== "" && r.trade_date.startsWith(year)) {
+        map.set(r.trade_date, r.value);
       }
     }
   }
