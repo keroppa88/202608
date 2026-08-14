@@ -244,9 +244,10 @@
 ===============================================================================
 7. JPX（日本取引所）                                              [全コピペ]
 ===============================================================================
-アドレス   https://www.jpx.co.jp/markets/indices/realvalues/01.html
+アドレス   https://www.jpx.co.jp/markets/indices/realvalues/index.html
 取得方法   ブラウザで開いて画面の文字を丸ごと保存してから抽出
-           出ているのは過去5営業日ぶん
+           当日分が出る。01.html（過去5営業日）は当日分が載るのが
+           翌営業日になるので使わない
 プログラム src/fetch_jpx_index.py
 保存場所   生データ  data/raw/YYYY-MM-DD/jpx_realvalues.txt
            蓄積      data/jpx_index.csv
