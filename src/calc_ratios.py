@@ -6,12 +6,16 @@
     日経/プライム・売買代金比率
                              日経平均の構成銘柄の売買代金合計 /
                              東証プライム売買代金
+                             こちらは割り算をしない。日経のページに
+                             「対市場占有率」として出ている値をそのまま使う。
+                             売買代金合計はページに兆円・小数2桁でしか
+                             出ておらず、割って出すと 0.1ポイントほど狂う
 
 読むもの
 
     data/rank_trading_value.csv  東証の売買代金ランキング（円）
     data/nikkei_kabu.csv         東証プライムの売買代金（百万円）
-    data/nikkei225_detail.csv    日経平均構成銘柄の売買代金合計（兆円）
+    data/nikkei225_detail.csv    日経平均構成銘柄の売買代金の対市場占有率（％）
 
 書くもの
 
@@ -72,28 +76,42 @@ def read_prime(path):
     return out
 
 
-def read_n225_turnover(path):
-    """{取引日: 日経平均構成銘柄の売買代金合計（円）} を返す。ページの単位は兆円。"""
+def read_n225_share(path):
+    """{取引日: 日経平均構成銘柄の売買代金の対市場占有率（％）} を返す。
+
+    売買代金合計から自分で割って出すこともできるが、その値はページに
+    兆円・小数2桁でしか出ていないため 0.1ポイントほど狂う。
+    同じ数字がページに出ているので、そのまま使う。
+    """
     out = {}
     if not os.path.exists(path):
         return out
     with open(path, encoding="utf-8", newline="") as f:
         for r in csv.DictReader(f):
-            if r["key"] != "売買代金合計" or (r["sub"] or "").strip():
-                continue          # 「対市場占有率」の行は分母が違うので使わない
+            if r["key"] != "売買代金合計" or r["sub"] != "対市場占有率":
+                continue
             try:
-                out[r["trade_date"]] = float(r["value"]) * 1_000_000_000_000
+                out[r["trade_date"]] = float(r["value"])
             except (TypeError, ValueError):
                 continue
     return out
 
 
-def calc(ranking, prime, n225):
+def calc(ranking, prime, share):
     """出せる日ぶんだけ行を作る。順位に抜けがある日は、その本数を出さない。"""
     rows, skipped = [], []
-    days = sorted(set(ranking) | set(n225))
+    days = sorted(set(ranking) | set(share))
 
     for d in days:
+        # 日経/プライムはページに出ている値をそのまま使う。割り算をしないので
+        # プライム売買代金が無い日でも出せる
+        s = share.get(d)
+        if s is not None:
+            rows.append({"trade_date": d, "sort": 99, "name": N225_NAME,
+                         "close": s, "numerator": "", "denominator": ""})
+        else:
+            skipped.append((d, "日経平均の対市場占有率が無い"))
+
         p = prime.get(d)
         if not p:
             skipped.append((d, "プライム売買代金が無い"))
@@ -112,14 +130,6 @@ def calc(ranking, prime, n225):
             rows.append({"trade_date": d, "sort": n, "name": LEAD_NAME.format(n),
                          "close": round(top / p * 100, 2),
                          "numerator": top, "denominator": p})
-
-        t = n225.get(d)
-        if t:
-            rows.append({"trade_date": d, "sort": 99, "name": N225_NAME,
-                         "close": round(t / p * 100, 2),
-                         "numerator": t, "denominator": p})
-        else:
-            skipped.append((d, "日経平均の売買代金合計が無い"))
 
     return rows, skipped
 
@@ -140,11 +150,11 @@ def main(argv):
 
     ranking = read_ranking(os.path.join(data, "rank_trading_value.csv"))
     prime = read_prime(os.path.join(data, "nikkei_kabu.csv"))
-    n225 = read_n225_turnover(os.path.join(data, "nikkei225_detail.csv"))
+    share = read_n225_share(os.path.join(data, "nikkei225_detail.csv"))
     print(f"ランキング {len(ranking)}日 / プライム売買代金 {len(prime)}日 / "
-          f"日経平均の売買代金合計 {len(n225)}日")
+          f"日経平均の対市場占有率 {len(share)}日")
 
-    rows, skipped = calc(ranking, prime, n225)
+    rows, skipped = calc(ranking, prime, share)
     if not rows:
         return report([], [("計算", "出せる日が1日も無い")], "売買代金比率")
 
