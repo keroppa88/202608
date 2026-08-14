@@ -1,0 +1,27 @@
+name: 売買代金比率の算出
+
+# 取得はしない。保存済みのものから計算するだけ。ブラウザも要らない。
+#
+# もとになる3つ（売買代金ランキング / プライム売買代金 / 日経平均の売買代金合計）は
+# どれも JST 18:00 の枠で取る。それが済んでから動かしたいので 18:30 にする。
+# JST 18:30 = UTC 09:30（同日）。曜日はずれない。
+on:
+  schedule:
+    - cron: "30 9 * * 1-5" # UTC 月〜金 09:30 = JST 月〜金 18:30
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  calc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 算出
+        run: python3 src/calc_ratios.py
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "売買代金比率 $(date -u +%Y-%m-%d)"
