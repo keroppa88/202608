@@ -1,4 +1,9 @@
-"""売買代金の比率を出す。取得はしない。保存済みのものから計算するだけ。
+"""比率を出す。取得はしない。保存済みのものから計算するだけ。
+
+    NT倍率                   日経平均 / TOPIX（どちらも終値）
+                             日経平均は data/overseas_YYYY.csv の ^N225、
+                             TOPIX は data/jpx_index.csv。どちらも1本の
+                             出どころで通す
 
     東証先導株比率1-N        売買代金1位〜N位の合計 / 東証プライム売買代金
                              上位 5 / 10 / 20 / 30 の4本
@@ -13,6 +18,8 @@
 
 読むもの
 
+    data/overseas_YYYY.csv       日経平均（^N225）の終値
+    data/jpx_index.csv           TOPIX の終値
     data/rank_trading_value.csv  東証の売買代金ランキング（円）
     data/nikkei_kabu.csv         東証プライムの売買代金（百万円）
     data/nikkei225_detail.csv    日経平均構成銘柄の売買代金の対市場占有率（％）
@@ -33,6 +40,7 @@
 """
 
 import csv
+import glob
 import os
 import sys
 
@@ -41,8 +49,40 @@ from common import now_jst, report, repo_root
 TOPS = (5, 10, 20, 30)
 LEAD_NAME = "東証先導株比率1-{}"
 N225_NAME = "日経/プライム・売買代金比率"
+NT_NAME = "NT倍率"
 
 HEADER = ["trade_date", "name", "close", "numerator", "denominator", "calculated_at"]
+
+
+def read_overseas_close(data_dir, symbol):
+    """{取引日: 終値} を返す。年ごとに分かれているので全部読む。"""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(data_dir, "overseas_*.csv"))):
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                if r["symbol"] != symbol or not r["close"]:
+                    continue
+                try:
+                    out[r["trade_date"]] = float(r["close"])
+                except ValueError:
+                    continue
+    return out
+
+
+def read_jpx_close(path, name):
+    """{取引日: 終値} を返す。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if r["name"] != name or not r["close"]:
+                continue
+            try:
+                out[r["trade_date"]] = float(r["close"])
+            except ValueError:
+                continue
+    return out
 
 
 def read_ranking(path):
@@ -97,9 +137,17 @@ def read_n225_share(path):
     return out
 
 
-def calc(ranking, prime, share):
+def calc(nikkei, topix, ranking, prime, share):
     """出せる日ぶんだけ行を作る。順位に抜けがある日は、その本数を出さない。"""
     rows, skipped = [], []
+
+    # NT倍率。日経平均は1985年から、TOPIXは2004年からあるので両方そろう日だけ
+    for d in sorted(set(nikkei) & set(topix)):
+        if topix[d]:
+            rows.append({"trade_date": d, "sort": 1, "name": NT_NAME,
+                         "close": round(nikkei[d] / topix[d], 2),
+                         "numerator": nikkei[d], "denominator": topix[d]})
+
     days = sorted(set(ranking) | set(share))
 
     for d in days:
@@ -148,17 +196,25 @@ def main(argv):
     root = repo_root()
     data = os.path.join(root, "data")
 
+    nikkei = read_overseas_close(data, "^N225")
+    topix = read_jpx_close(os.path.join(data, "jpx_index.csv"), "TOPIX")
     ranking = read_ranking(os.path.join(data, "rank_trading_value.csv"))
     prime = read_prime(os.path.join(data, "nikkei_kabu.csv"))
     share = read_n225_share(os.path.join(data, "nikkei225_detail.csv"))
-    print(f"ランキング {len(ranking)}日 / プライム売買代金 {len(prime)}日 / "
+    print(f"日経平均 {len(nikkei)}日 / TOPIX {len(topix)}日 / "
+          f"ランキング {len(ranking)}日 / プライム売買代金 {len(prime)}日 / "
           f"日経平均の対市場占有率 {len(share)}日")
 
-    rows, skipped = calc(ranking, prime, share)
+    rows, skipped = calc(nikkei, topix, ranking, prime, share)
     if not rows:
-        return report([], [("計算", "出せる日が1日も無い")], "売買代金比率")
+        return report([], [("計算", "出せる日が1日も無い")], "比率")
 
-    for d in sorted({r["trade_date"] for r in rows}):
+    nt = sorted((r for r in rows if r["name"] == NT_NAME), key=lambda r: r["trade_date"])
+    if nt:
+        print(f"  NT倍率  {nt[0]['trade_date']} 〜 {nt[-1]['trade_date']}  "
+              f"{len(nt)}日  最新 {nt[-1]['close']}")
+
+    for d in sorted({r["trade_date"] for r in rows if r["name"] != NT_NAME}):
         got = {r["name"]: r["close"] for r in rows if r["trade_date"] == d}
         line = "  ".join(f"1-{n} {got[LEAD_NAME.format(n)]:5.2f}%"
                          for n in TOPS if LEAD_NAME.format(n) in got)
@@ -170,7 +226,7 @@ def main(argv):
 
     write(os.path.join(data, "ratios.csv"), rows, now_jst().isoformat(timespec="seconds"))
     print(f"\ndata/ratios.csv  {len(rows)}行")
-    return report([r["name"] for r in rows], [], "売買代金比率")
+    return report([r["name"] for r in rows], [], "比率")
 
 
 if __name__ == "__main__":

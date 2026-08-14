@@ -640,8 +640,9 @@ function subRank(c) {
   if (c.group === "日本株指数") {
     const j = JP_MAIN.indexOf(c.label);
     if (j >= 0) return j;
-    // 売買代金の比率は一番後ろにまとめる。指数ではないので分けて置く。
+    // 比率は一番後ろにまとめる。指数ではないので分けて置く。
     // 先導株比率は 1-5 → 1-10 → 1-20 → 1-30 の順。名前順だと 1-10 が先に来る
+    if (c.label === "NT倍率") return 13.5;
     const lead = /^東証先導株比率1-(\d+)$/.exec(c.label);
     if (lead) return 14 + Number(lead[1]) / 100;
     if (c.label === "日経/プライム・売買代金比率") return 14.99;
