@@ -2,9 +2,29 @@ name: ページ公開
 
 # リポジトリの中身をそのまま GitHub Pages に出す。
 # index.html が data/*.csv を読むので、加工はしない。
+#
+# 取得のワークフローが打った push ではここが起きない。既定の GITHUB_TOKEN で
+# push したコミットは別のワークフローを起こさない、という GitHub の決まりのため。
+# そこで取得のワークフローが終わったのを合図に公開する（workflow_run）。
+# こちらはトークンの制限を受けない。
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows:
+      - 相場データ取得（海外）
+      - 相場データ取得（日本株）
+      - JPX・株価指数取得
+      - 日経・指数ページ取得
+      - 日経・国内株式指標取得
+      - 日経・東証大引け記事取得
+      - 日経・米国株記事取得
+      - 日経・日本株ランキング取得
+      - 国債利回り・政策金利取得
+      - 松井証券・投資指標取得
+      - Fear & Greed 取得
+      - 過去分の取り込み（手動）
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -24,7 +44,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      # workflow_run のときの既定は「起こした側が動いた時点のコミット」で、
+      # そのあとに取得が打ったコミットが入っていない。main の先端を明示して取る
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/configure-pages@v5
 
