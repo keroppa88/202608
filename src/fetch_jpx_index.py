@@ -1,6 +1,9 @@
 """JPX の株価指数ページを開き、表示テキストを保存して指数値を取り出す（SPEC §4D）。
 
-https://www.jpx.co.jp/markets/indices/realvalues/01.html
+https://www.jpx.co.jp/markets/indices/realvalues/index.html
+
+01.html（過去5営業日）は当日分が載るのが翌営業日になるため、当日分が出る
+こちらを見る。
 
 数値は JavaScript で描画されるため、静的HTMLには入っていない。
 ブラウザで開いて画面に見えている文字を取る。
@@ -25,7 +28,7 @@ import jpx_index_text as J
 from common import now_jst, report, repo_root, save_raw
 from page_text import browser_session
 
-URL = "https://www.jpx.co.jp/markets/indices/realvalues/01.html"
+URL = "https://www.jpx.co.jp/markets/indices/realvalues/index.html"
 
 HEADER = [
     "trade_date",
