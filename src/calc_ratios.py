@@ -1,4 +1,6 @@
-"""比率を出す。取得はしない。保存済みのものから計算するだけ。
+"""比率と指標をまとめる。取得はしない。保存済みのものから出すだけ。
+
+    ドル建て日経平均株価     日経平均 / ドル円（どちらも終値）
 
     NT倍率                   日経平均 / TOPIX（どちらも終値）
                              日経平均は data/overseas_YYYY.csv の ^N225、
@@ -16,13 +18,28 @@
                              売買代金合計はページに兆円・小数2桁でしか
                              出ておらず、割って出すと 0.1ポイントほど狂う
 
+    日経予想PER/プライム予想PER
+    日経平均PBR/プライムPBR
+                             日経平均とプライム全銘柄の比。割高・割安の差
+
+    プライム予想PER / 日経予想PER / プライムPBR / 日経平均PBR
+                             ページに出ている値をそのまま入れる。計算しない
+                             PBR はページに予想と前期基準の別が無く、
+                             純資産倍率が1つだけ出ている。それを使う
+
+    イールドスプレッド       プライム株式益回り − 長期金利
+                             プライム株式益回り = 1 / プライム予想PER
+                             長期金利 = 日本国債10年利回り
+
 読むもの
 
-    data/overseas_YYYY.csv       日経平均（^N225）の終値
+    data/overseas_YYYY.csv       日経平均（^N225）とドル円（USDJPY=X）の終値
     data/jpx_index.csv           TOPIX の終値
     data/rank_trading_value.csv  東証の売買代金ランキング（円）
     data/nikkei_kabu.csv         東証プライムの売買代金（百万円）
+                                 PER・PBR（株価収益率 / 純資産倍率）
     data/nikkei225_detail.csv    日経平均構成銘柄の売買代金の対市場占有率（％）
+    data/rates.csv               日本国債10年利回り（％）
 
 書くもの
 
@@ -50,6 +67,34 @@ TOPS = (5, 10, 20, 30)
 LEAD_NAME = "東証先導株比率1-{}"
 N225_NAME = "日経/プライム・売買代金比率"
 NT_NAME = "NT倍率"
+USD_NAME = "ドル建て日経平均株価"
+SPREAD_NAME = "日本株イールドスプレッド"
+JGB10 = "日本 10年国債"
+
+# ページに出ている値をそのまま入れるもの
+#   名前: (節, 項目, 欄)
+PLAIN = {
+    "プライム予想PER": ("株価収益率（連結決算ベース）", "プライム全銘柄", "予想"),
+    "日経予想PER": ("株価収益率（連結決算ベース）", "日経平均", "予想"),
+    "プライムPBR": ("純資産倍率（連結決算ベース）", "プライム全銘柄", "純資産倍率"),
+    "日経平均PBR": ("純資産倍率（連結決算ベース）", "日経平均", "純資産倍率"),
+}
+
+# 割り算して出すもの
+#   名前: (分子の名前, 分母の名前)
+PAIRS = {
+    "日経予想PER/プライム予想PER": ("日経予想PER", "プライム予想PER"),
+    "日経平均PBR/プライムPBR": ("日経平均PBR", "プライムPBR"),
+}
+
+# 画面に並べる順。小さいほど先
+ORDER = {
+    USD_NAME: 0, NT_NAME: 1,
+    "日経予想PER/プライム予想PER": 101, "日経平均PBR/プライムPBR": 102,
+    "プライム予想PER": 103, "日経予想PER": 104,
+    "プライムPBR": 105, "日経平均PBR": 106,
+    SPREAD_NAME: 107,
+}
 
 HEADER = ["trade_date", "name", "close", "numerator", "denominator", "calculated_at"]
 
@@ -81,6 +126,38 @@ def read_jpx_close(path, name):
             try:
                 out[r["trade_date"]] = float(r["close"])
             except ValueError:
+                continue
+    return out
+
+
+def read_kabu_value(path, section, item, column):
+    """{取引日: 値} を返す。国内株式指標のページの1項目ぶん。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if r["section"] != section or r["item"] != item or r["column"] != column:
+                continue
+            try:
+                out[r["trade_date"]] = float(r["value"])
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
+def read_rate(path, name):
+    """{取引日: 利回り（％）} を返す。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if r["name"] != name:
+                continue
+            try:
+                out[r["trade_date"]] = float(r["value"])
+            except (TypeError, ValueError):
                 continue
     return out
 
@@ -137,16 +214,41 @@ def read_n225_share(path):
     return out
 
 
-def calc(nikkei, topix, ranking, prime, share):
+def calc(nikkei, topix, usdjpy, plain, jgb, ranking, prime, share):
     """出せる日ぶんだけ行を作る。順位に抜けがある日は、その本数を出さない。"""
     rows, skipped = [], []
+
+    def put(d, name, close, num="", den=""):
+        rows.append({"trade_date": d, "sort": ORDER.get(name, 50), "name": name,
+                     "close": close, "numerator": num, "denominator": den})
+
+    # ドル建て日経平均株価。日経平均は1985年から、ドル円は1999年から
+    for d in sorted(set(nikkei) & set(usdjpy)):
+        if usdjpy[d]:
+            put(d, USD_NAME, round(nikkei[d] / usdjpy[d], 2), nikkei[d], usdjpy[d])
 
     # NT倍率。日経平均は1985年から、TOPIXは2004年からあるので両方そろう日だけ
     for d in sorted(set(nikkei) & set(topix)):
         if topix[d]:
-            rows.append({"trade_date": d, "sort": 1, "name": NT_NAME,
-                         "close": round(nikkei[d] / topix[d], 2),
-                         "numerator": nikkei[d], "denominator": topix[d]})
+            put(d, NT_NAME, round(nikkei[d] / topix[d], 2), nikkei[d], topix[d])
+
+    # PER・PBR。ページの値をそのまま入れる
+    for name, series in plain.items():
+        for d, v in sorted(series.items()):
+            put(d, name, v)
+
+    # 日経とプライムの比
+    for name, (a, b) in PAIRS.items():
+        for d in sorted(set(plain[a]) & set(plain[b])):
+            if plain[b][d]:
+                put(d, name, round(plain[a][d] / plain[b][d], 3), plain[a][d], plain[b][d])
+
+    # イールドスプレッド。プライム株式益回り − 長期金利
+    per = plain["プライム予想PER"]
+    for d in sorted(set(per) & set(jgb)):
+        if per[d]:
+            earn = 100 / per[d]
+            put(d, SPREAD_NAME, round(earn - jgb[d], 2), round(earn, 3), jgb[d])
 
     days = sorted(set(ranking) | set(share))
 
@@ -155,8 +257,7 @@ def calc(nikkei, topix, ranking, prime, share):
         # プライム売買代金が無い日でも出せる
         s = share.get(d)
         if s is not None:
-            rows.append({"trade_date": d, "sort": 99, "name": N225_NAME,
-                         "close": s, "numerator": "", "denominator": ""})
+            put(d, N225_NAME, s)
         else:
             skipped.append((d, "日経平均の対市場占有率が無い"))
 
@@ -175,9 +276,7 @@ def calc(nikkei, topix, ranking, prime, share):
                 skipped.append((d, f"1〜{n}位に抜けがある"))
                 continue
             top = sum(by_rank[k] for k in range(1, n + 1))
-            rows.append({"trade_date": d, "sort": n, "name": LEAD_NAME.format(n),
-                         "close": round(top / p * 100, 2),
-                         "numerator": top, "denominator": p})
+            put(d, LEAD_NAME.format(n), round(top / p * 100, 2), top, p)
 
     return rows, skipped
 
@@ -196,30 +295,44 @@ def main(argv):
     root = repo_root()
     data = os.path.join(root, "data")
 
+    kabu = os.path.join(data, "nikkei_kabu.csv")
     nikkei = read_overseas_close(data, "^N225")
+    usdjpy = read_overseas_close(data, "USDJPY=X")
     topix = read_jpx_close(os.path.join(data, "jpx_index.csv"), "TOPIX")
+    plain = {name: read_kabu_value(kabu, *where) for name, where in PLAIN.items()}
+    jgb = read_rate(os.path.join(data, "rates.csv"), JGB10)
     ranking = read_ranking(os.path.join(data, "rank_trading_value.csv"))
-    prime = read_prime(os.path.join(data, "nikkei_kabu.csv"))
+    prime = read_prime(kabu)
     share = read_n225_share(os.path.join(data, "nikkei225_detail.csv"))
-    print(f"日経平均 {len(nikkei)}日 / TOPIX {len(topix)}日 / "
+    print(f"日経平均 {len(nikkei)}日 / ドル円 {len(usdjpy)}日 / TOPIX {len(topix)}日 / "
+          f"PER・PBR {min(len(v) for v in plain.values())}日 / "
+          f"日本国債10年 {len(jgb)}日 / "
           f"ランキング {len(ranking)}日 / プライム売買代金 {len(prime)}日 / "
           f"日経平均の対市場占有率 {len(share)}日")
 
-    rows, skipped = calc(nikkei, topix, ranking, prime, share)
+    rows, skipped = calc(nikkei, topix, usdjpy, plain, jgb, ranking, prime, share)
     if not rows:
         return report([], [("計算", "出せる日が1日も無い")], "比率")
 
-    nt = sorted((r for r in rows if r["name"] == NT_NAME), key=lambda r: r["trade_date"])
-    if nt:
-        print(f"  NT倍率  {nt[0]['trade_date']} 〜 {nt[-1]['trade_date']}  "
-              f"{len(nt)}日  最新 {nt[-1]['close']}")
+    for name in (USD_NAME, NT_NAME):
+        got = sorted((r for r in rows if r["name"] == name), key=lambda r: r["trade_date"])
+        if got:
+            print(f"  {name:12} {got[0]['trade_date']} 〜 {got[-1]['trade_date']}  "
+                  f"{len(got):5}日  最新 {got[-1]['close']}")
 
-    for d in sorted({r["trade_date"] for r in rows if r["name"] != NT_NAME}):
+    daily = {USD_NAME, NT_NAME}
+    for d in sorted({r["trade_date"] for r in rows if r["name"] not in daily}):
         got = {r["name"]: r["close"] for r in rows if r["trade_date"] == d}
         line = "  ".join(f"1-{n} {got[LEAD_NAME.format(n)]:5.2f}%"
                          for n in TOPS if LEAD_NAME.format(n) in got)
         if N225_NAME in got:
             line += f"   日経/プライム {got[N225_NAME]:5.2f}%"
+        line += (f"   PER 日経 {got.get('日経予想PER', 0):.2f} / プライム "
+                 f"{got.get('プライム予想PER', 0):.2f}"
+                 f"   PBR 日経 {got.get('日経平均PBR', 0):.2f} / プライム "
+                 f"{got.get('プライムPBR', 0):.2f}")
+        if SPREAD_NAME in got:
+            line += f"   スプレッド {got[SPREAD_NAME]:.2f}"
         print(f"  {d}  {line}")
     for d, why in skipped:
         print(f"  {d}  出せない: {why}")

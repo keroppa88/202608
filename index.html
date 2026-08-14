@@ -642,10 +642,18 @@ function subRank(c) {
     if (j >= 0) return j;
     // 比率は一番後ろにまとめる。指数ではないので分けて置く。
     // 先導株比率は 1-5 → 1-10 → 1-20 → 1-30 の順。名前順だと 1-10 が先に来る
+    if (c.label === "ドル建て日経平均株価") return 13.4;
     if (c.label === "NT倍率") return 13.5;
     const lead = /^東証先導株比率1-(\d+)$/.exec(c.label);
     if (lead) return 14 + Number(lead[1]) / 100;
     if (c.label === "日経/プライム・売買代金比率") return 14.99;
+    // PER・PBR。比 → プライム → 日経 の順
+    const PB = ["日経予想PER/プライム予想PER", "日経平均PBR/プライムPBR",
+                "プライム予想PER", "日経予想PER",
+                "プライムPBR", "日経平均PBR",
+                "日本株イールドスプレッド"];
+    const pb = PB.indexOf(c.label);
+    if (pb >= 0) return 15 + pb / 100;
     if (c.label.startsWith("日経")) return 10;      // 日経のほか
     if (c.label.includes("TOPIX")) return 11;       // TOPIX系
     if (GYOSHU.has(c.label)) return 12;             // 業種別
