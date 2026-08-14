@@ -8,6 +8,10 @@ name: 相場データ取得（海外）
 # 進行中の足は終値ではないので採らない決まりのため、為替だけ1日遅れていた。
 # 08:10 にずらして、為替も当日ぶんが入るようにする。
 #
+# 区切りがもっと遅い分類は、この枠から外して別に取る。
+#   暗号資産  00:00Z 区切り  market-crypto.yml     JST 09:10
+#   商品・先物 04:00Z 区切り  market-commodity.yml  JST 18:20
+#
 # JST 08:10 = UTC 23:10（前日）。曜日が1日戻るため、
 # 「JST 火〜土」は UTC では「月〜金」になる。
 # 月曜朝は新しい確定足がないため対象外。
@@ -31,7 +35,10 @@ jobs:
           playwright install --with-deps chromium
 
       - name: 取得
-        run: python3 src/fetch_market.py --exclude 日本株 --exclude 日本指数 --exclude セクター
+        run: >-
+          python3 src/fetch_market.py
+          --exclude 日本株 --exclude 日本指数 --exclude セクター
+          --exclude 暗号資産 --exclude 商品 --exclude 先物
 
       # 同じ data/overseas.csv を書くので、必ずこの順で同じジョブの中で走らせる
       - name: セクター指数（CNBC）

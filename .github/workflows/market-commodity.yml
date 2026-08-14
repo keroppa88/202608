@@ -1,0 +1,27 @@
+name: 相場データ取得（商品・先物）
+
+# 商品と先物の1日は 04:00Z 区切り（＝ JST 13:00）。
+# 朝の枠（JST 08:10 / 09:10）ではまだその日の足がセッション中で採れず、
+# 1日遅れていた。区切りを過ぎた夕方に取る。
+#
+# JST 18:20 = UTC 09:20（同日）。曜日はずれない。
+on:
+  schedule:
+    - cron: "20 9 * * 1-5" # UTC 月〜金 09:20 = JST 月〜金 18:20
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_market.py --category 商品 --category 先物
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "相場データ（商品・先物） $(date -u +%Y-%m-%d)"
