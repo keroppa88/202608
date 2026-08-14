@@ -648,9 +648,10 @@ function subRank(c) {
     if (lead) return 14 + Number(lead[1]) / 100;
     if (c.label === "日経/プライム・売買代金比率") return 14.99;
     // PER・PBR。比 → プライム → 日経 の順
-    const PB = ["日経予想PER/プライム予想PER", "日経予想PBR/プライム予想PBR",
+    const PB = ["日経予想PER/プライム予想PER", "日経平均PBR/プライムPBR",
                 "プライム予想PER", "日経予想PER",
-                "プライム予想PBR", "日経予想PBR"];
+                "プライムPBR", "日経平均PBR",
+                "日本株イールドスプレッド"];
     const pb = PB.indexOf(c.label);
     if (pb >= 0) return 15 + pb / 100;
     if (c.label.startsWith("日経")) return 10;      // 日経のほか
