@@ -1,0 +1,32 @@
+name: 相場データ取得（暗号資産・商品）
+
+# 24時間動く市場は、朝の枠（market.yml / JST 08:10）ではまだその日の足が
+# セッション中で採れない。1日の変わり目が市場ごとに違うため。
+#
+#   為替        22:00Z 区切り  → JST 08:10 の枠で入る
+#   暗号資産    00:00Z 区切り  → ここで入る
+#   商品        04:00Z 区切り  → JST 13:00 より前には入らない
+#
+# JST 09:10 = UTC 00:10（同日）。曜日はずれない。
+# 商品はこの時刻でもまだ1日遅れのままだが、翌日の実行で必ず入る
+# （毎回1か月ぶんの足をまとめて取り込むため）。
+on:
+  schedule:
+    - cron: "10 0 * * 2-6" # UTC 火〜土 00:10 = JST 火〜土 09:10
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        run: python3 src/fetch_market.py --category 暗号資産 --category 商品
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "相場データ（暗号資産・商品） $(date -u +%Y-%m-%d)"

@@ -25,8 +25,20 @@
 プログラム src/fetch_market.py
 保存場所   生データ  data/raw/YYYY-MM-DD/yahoo_{シンボル}.json.gz
            蓄積      data/overseas_YYYY.csv（年ごと・四本値）
-実行       海外 market.yml        JST 火〜土 07:00（日本株・日本指数・セクターを除く）
+実行       海外 market.yml        JST 火〜土 08:10（日本株・日本指数・セクターを除く）
            日本 japan-stocks.yml  JST 月〜金 18:00（日本株・日本指数）
+           夜間 market-late.yml   JST 火〜土 09:10（暗号資産・商品）
+
+  24時間動く市場は1日の変わり目が市場ごとに違う。進行中の足は終値では
+  ないので採らない決まりのため、区切りの前に取ると1日遅れる
+
+    為替      22:00Z 区切り  → 08:10 の枠で当日ぶんが入る
+    暗号資産  00:00Z 区切り  → 09:10 の枠で入る
+    商品      04:00Z 区切り  → JST 13:00 より前には入らない。1日遅れのまま
+    先物・通貨指数            → 同じく1日遅れのまま
+
+  遅れても消えはしない。毎回1か月ぶんの足をまとめて取り込むので、
+  翌日の実行で必ず入る
 
 蓄積するモノ … 144銘柄の四本値（symbols.csv が正）
 
@@ -110,7 +122,7 @@
 プログラム    src/fetch_market.py
 保存場所      生データ  data/raw/YYYY-MM-DD/moex_{シンボル}.json.gz
               蓄積      data/overseas_YYYY.csv
-実行          market.yml  JST 火〜土 07:00
+実行          market.yml  JST 火〜土 08:10
 
 
 ===============================================================================
@@ -359,7 +371,7 @@
 プログラム src/fetch_cnbc_sectors.py
 保存場所   生データ  data/raw/YYYY-MM-DD/cnbc_sectors.txt
            蓄積      data/overseas_YYYY.csv（相場データと同じ置き場所）
-実行       market.yml  JST 火〜土 07:00
+実行       market.yml  JST 火〜土 08:10
 
 蓄積するモノ … S&P500 セクター指数 11本の終値
     ヘルスケア / 資本財 / 金融 / エネルギー / 一般消費財・サービス /
@@ -527,13 +539,18 @@
     ratios.yml          比率（取得ではなく算出）
 
 朝    JST 火〜土 07:00
-    market.yml          相場データ（海外）＋ CNBCセクター
     matsui.yml          松井証券・投資指標
     fear-greed.yml      Fear & Greed
     rates.yml           国債利回り・政策金利
 
 朝    JST 火〜土 08:00
     nikkei-us.yml       日経・米国株記事
+
+朝    JST 火〜土 08:10
+    market.yml          相場データ（海外）＋ CNBCセクター
+
+朝    JST 火〜土 09:10
+    market-late.yml     相場データ（暗号資産・商品）
 
 手動のみ（定期実行しない）
     backfill.yml        過去分の取り込み（1999年以降）
