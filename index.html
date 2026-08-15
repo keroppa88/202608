@@ -1606,6 +1606,13 @@ async function render() {
       const sel = document.createElement("select");
       sel.className = "picker";
       sel.title = "銘柄を変える";
+      {
+        // 指で押すと × に当てにくいので、候補の筆頭にも削除を置く
+        const kill = document.createElement("option");
+        kill.value = DEL_VALUE;
+        kill.textContent = "× 削除";
+        sel.appendChild(kill);
+      }
       // その年に値が無い銘柄も選び続けられるようにしておく
       if (!catalog.some((c) => c.key === key)) {
         const keep = document.createElement("option");
@@ -1629,7 +1636,8 @@ async function render() {
       });
       sel.value = key;
       sel.addEventListener("change", () => {
-        curColumns()[i] = sel.value;
+        if (sel.value === DEL_VALUE) curColumns().splice(i, 1);
+        else curColumns()[i] = sel.value;
         saveSettings();
         render();
       });
