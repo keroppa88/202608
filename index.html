@@ -90,19 +90,21 @@
   /* ---- 表画面 ---- */
   #sheet { height: 100%; display: flex; flex-direction: column; }
   .bar {
-    display: flex; align-items: stretch;
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 8px;
     border-bottom: 1px solid var(--line);
     background: var(--panel);
     flex: none;
   }
-  .bar > * { border-right: 1px solid var(--line); }
+  /* ひとつずつ枠で囲う */
   .bar button, .bar select {
     background: var(--panel); color: var(--fg);
-    border: 0; font: inherit; padding: 6px 14px; cursor: pointer;
+    border: 1px solid var(--line); font: inherit;
+    padding: 4px 12px; cursor: pointer;
   }
-  .bar select { padding-right: 8px; }
-  .bar .spacer { flex: 1; border-right: 0; }
-  .bar .note { padding: 6px 14px; color: var(--dim); border-right: 0; }
+  .bar select { padding-right: 6px; }
+  .bar .spacer { flex: 1; }
+  .bar .note { padding: 4px 6px; color: var(--dim); }
 
   .grid { flex: 1; overflow: auto; }
 
@@ -333,8 +335,8 @@
 <!-- ===================== 表画面 ===================== -->
 <section id="sheet" class="hidden">
   <div class="bar">
+    <button id="back" title="タイトルへ戻る">戻る</button>
     <button id="mode" title="押すと終値と四本値が入れ替わる">終値</button>
-    <button id="back" title="タイトルへ戻る">← 戻る</button>
     <select id="year" title="表示する年"></select>
     <button id="theme" title="押すたびに配色が変わる">Color</button>
     <div class="spacer"></div>
@@ -346,8 +348,8 @@
 <!-- ===================== チャート画面 ===================== -->
 <section id="charts" class="hidden">
   <div class="bar">
+    <button id="cback" title="タイトルへ戻る">戻る</button>
     <button id="ctype" title="押すと相対と絶対が入れ替わる">相対</button>
-    <button id="cback" title="タイトルへ戻る">← 戻る</button>
     <select id="cyear" title="表示する年"></select>
     <button id="ctheme" title="押すたびに配色が変わる">Color</button>
     <div class="spacer"></div>
@@ -485,9 +487,20 @@ document.addEventListener("keydown", (e) => {
     return;
   }
 
-  // チャート画面。Esc で戻り、矢印で上下左右へ寄せる
+  // チャート画面。Esc で戻り、上下で年を変え、左右で寄せる
   if (!chartsEl.classList.contains("hidden")) {
     if (e.key === "Escape") { backFromCharts(); return; }
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      const y = stepYear(settings.chartYear, e.key === "ArrowUp" ? 1 : -1);
+      if (y !== settings.chartYear) {
+        settings.chartYear = y;
+        cyearEl.value = String(y);
+        saveSettings();
+        drawCharts();
+      }
+      e.preventDefault();
+      return;
+    }
     const m = {
       ArrowLeft:  [-STEP_X, 0],
       ArrowRight: [STEP_X, 0],
@@ -508,8 +521,25 @@ document.addEventListener("keydown", (e) => {
     return;
   }
 
-  // チャートを出している間は表を動かさない
-  if (!chartEl.classList.contains("hidden")) return;
+  // チャートを出している間は表を動かさない。
+  // 左右で隣の銘柄へ、上下で年を変える。年は表にも効く
+  if (!chartEl.classList.contains("hidden")) {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      openChartAt(chartState.index + (e.key === "ArrowRight" ? 1 : -1));
+      e.preventDefault();
+    } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      const y = stepYear(settings.year, e.key === "ArrowUp" ? 1 : -1);
+      if (y !== settings.year) {
+        const at = chartState.index;
+        settings.year = y;
+        yearEl.value = String(y);
+        saveSettings();
+        render().then(() => openChartAt(at));
+      }
+      e.preventDefault();
+    }
+    return;
+  }
 
   // 表画面。矢印で上下左右へ寄せる
   const move = {
@@ -972,7 +1002,7 @@ function movingAverage(all, from, n) {
 // いま開いているチャートの中身。押し直しで描き直すために持っておく
 let chartState = null;
 
-async function openChart(title, key, map, bars) {
+async function openChart(title, key, map, bars, index) {
   const days = [...map.keys()].sort();
   if (!days.length) return;
 
@@ -982,7 +1012,7 @@ async function openChart(title, key, map, bars) {
   [...prev.keys()].sort().forEach((d) => all.push({ d, v: Number(prev.get(d)) }));
   days.forEach((d) => all.push({ d, v: Number(map.get(d)) }));
 
-  chartState = { title, days, map, all, bars: bars || null };
+  chartState = { title, days, map, all, bars: bars || null, index: index || 0 };
   drawChart();
   chartEl.classList.remove("hidden");
 }
@@ -1105,6 +1135,34 @@ function drawChart() {
       drawChart();
     });
   });
+}
+
+/* 表に出ている i 番目の銘柄でチャートを開く。
+   左右の矢印で隣へ移るときも、年を変えたときもここを通る */
+async function openChartAt(i) {
+  const keys = curColumns();
+  if (!keys.length) { closeChart(); return; }
+  const at = ((i % keys.length) + keys.length) % keys.length;   // 端で回る
+  const key = keys[at];
+  const year = String(settings.year);
+
+  const catalog = await buildCatalog(year);
+  const bars = settings.sheetMode === "ohlc" ? await barsOf(key, year) : null;
+  const map = bars
+    ? new Map([...bars].map(([d, v]) => [d, v.close]))
+    : await seriesOf(key, year);
+
+  if (!map.size) { closeChart(); return; }   // その年に値が無ければ閉じる
+  await openChart(labelOf(key, catalog), key, map, bars, at);
+}
+
+// 年の一覧は新しい順。dir が +1 で新しい年、-1 で古い年
+function stepYear(cur, dir) {
+  const years = [...yearEl.options].map((o) => Number(o.value));
+  const at = years.indexOf(Number(cur));
+  if (at < 0) return cur;
+  const next = years[at - dir];
+  return next === undefined ? cur : next;
 }
 
 function closeChart() {
@@ -1669,8 +1727,7 @@ async function render() {
       nameEl.textContent = name;
       nameEl.title = "押すとチャート";
       // 名前を押すと、いま画面に出ている分のチャートを出す
-      nameEl.addEventListener("click", () =>
-        openChart(name, key, series[i], ohlc ? bars[i] : null));
+      nameEl.addEventListener("click", () => openChartAt(i));
 
       wrap.appendChild(nameEl);
       if (fld) {
