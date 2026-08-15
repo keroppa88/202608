@@ -317,6 +317,13 @@
   #saver .seg { stroke-width: .8; }         /* ムカデの節。切れ目は細く */
   /* 地の色で抜くところ */
   #saver .hollow { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; }
+  /* 飛ぶものは配色テーマに左右されない緑一色 */
+  #saver .fly-fill { fill: #00a85a; stroke: #00a85a; stroke-width: 1.2; }
+  #saver .fly-line {
+    fill: none; stroke: #00a85a; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  #saver .fly-pattern { fill: none; stroke: #00a85a; stroke-width: 2.4; }
 </style>
 </head>
 <body>
@@ -421,7 +428,6 @@ function loadSettings() {
       chartYear: s.chartYear || 2026,
       chartJoin: s.chartJoin === true,
       chartColumns: fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES),
-      bugIndex: Number(s.bugIndex) || 0,
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS)
@@ -432,7 +438,7 @@ function loadSettings() {
       ma: { 20: false, 80: false, 200: false },
       chartType: "rel", chartYear: 2026, chartJoin: false,
       chartColumns: DEFAULT_CHART_COLUMNS.slice(),
-      bugIndex: 0, chartZoom: 1,
+      chartZoom: 1,
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice()
     };
   }
@@ -1805,18 +1811,12 @@ async function render() {
 }
 
 /* ---------------------------------------------------------------
-   擬似スクリーンセーバー。しばらく触らないと虫が出てくる。
-   表もチャートも出したまま、透けた板の上を虫が動くだけ。
+   擬似スクリーンセーバー。しばらく触らないと生き物が出てくる。
+   表もチャートも出したまま、透けた板の上を動くだけ。
    マウスを動かすかキーを押せば消える。
 --------------------------------------------------------------- */
-const IDLE_MS = 300000;        // 5分
-// 出るたびにこの順で回る。最後まで行くと先頭へ戻る
-const SAVER_CYCLE = [
-  { kind: "centipede", n: 1 },
-  { kind: "ball", n: 2 },
-  { kind: "centipede", n: 3 },
-  { kind: "ball", n: 4 }
-];
+const IDLE_MS = 5000;          // 5秒
+const SAVER_KINDS = ["centipede", "ball", "butterfly", "bird"];
 
 const saverEl = document.getElementById("saver");
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -1907,6 +1907,70 @@ function buildBall(g) {
   return {};
 }
 
+/* モスラを思わせる、模様のある大きな蝶 */
+function buildButterfly(g) {
+  const backWing = g.appendChild(svgEl("path", { class: "fly-fill", opacity: ".28" }));
+  const wings = [
+    g.appendChild(svgEl("path", { class: "fly-line" })),
+    g.appendChild(svgEl("path", { class: "fly-line" }))
+  ];
+  const patterns = [
+    g.appendChild(svgEl("path", { class: "fly-pattern" })),
+    g.appendChild(svgEl("path", { class: "fly-pattern" }))
+  ];
+  g.appendChild(svgEl("ellipse", { class: "fly-fill", cx: 0, cy: 0, rx: 11, ry: 4.5 }));
+  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 11, cy: 0, r: 4.5 }));
+  const antennae = [
+    g.appendChild(svgEl("path", { class: "fly-line" })),
+    g.appendChild(svgEl("path", { class: "fly-line" }))
+  ];
+  antennae[0].setAttribute("d", "M12,-2 Q22,-12 29,-8");
+  antennae[1].setAttribute("d", "M12,2 Q22,12 29,8");
+  return { backWing, wings, patterns };
+}
+
+function drawButterfly(b) {
+  const flap = 0.18 + 0.82 * Math.abs(Math.sin(b.phase));
+  const span = 19 + 38 * flap;
+  const sweep = 13 + 21 * flap;
+  const wingPath = (side) =>
+    `M2,${side * 2} C${-7},${side * 17} ${-18},${side * span} ${-42},${side * (span + 8)}` +
+    ` C${-65},${side * (span + 2)} ${-66},${side * 10} ${-35},${side * 2}` +
+    ` C${-52},${side * sweep} ${-38},${side * (sweep + 18)} 2,${side * 2}Z`;
+  b.parts.wings[0].setAttribute("d", wingPath(-1));
+  b.parts.wings[1].setAttribute("d", wingPath(1));
+  b.parts.backWing.setAttribute("d", `${wingPath(-1)} ${wingPath(1)}`);
+  b.parts.patterns[0].setAttribute("d", `M-7,-8 Q-27,${-span * 0.72} -49,${-span * 0.62} M-24,-9 Q-39,-18 -50,-13`);
+  b.parts.patterns[1].setAttribute("d", `M-7,8 Q-27,${span * 0.72} -49,${span * 0.62} M-24,9 Q-39,18 -50,13`);
+  b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
+}
+
+/* After Dark の白い鳥を、緑一色の大きな横向きシルエットで */
+function buildBird(g) {
+  const rearWing = g.appendChild(svgEl("path", { class: "fly-fill", opacity: ".35" }));
+  const wing = g.appendChild(svgEl("path", { class: "fly-fill" }));
+  g.appendChild(svgEl("path", {
+    class: "fly-fill",
+    d: "M-60,1 L-88,-18 L-76,2 L-91,18 L-55,9 C-25,21 24,19 57,1 C28,-17 -22,-19 -60,1Z"
+  }));
+  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 55, cy: -3, r: 12 }));
+  g.appendChild(svgEl("path", { class: "fly-fill", d: "M65,-8 L88,-1 L66,3Z" }));
+  g.appendChild(svgEl("circle", { cx: 59, cy: -7, r: 1.8, fill: "var(--bg)" }));
+  return { rearWing, wing };
+}
+
+function drawBird(b) {
+  const flap = Math.sin(b.phase);
+  const tipY = -flap * 68;
+  const wingPath = (offset) =>
+    `M${-28 + offset},${-3 + offset} C${-49 + offset},${(tipY * 0.42 + offset).toFixed(1)}` +
+    ` ${-39 + offset},${(tipY + offset).toFixed(1)} ${5 + offset},${(tipY * 1.08 + offset).toFixed(1)}` +
+    ` C${23 + offset},${(tipY * 0.48 + offset).toFixed(1)} ${22 + offset},-8 ${14 + offset},2Z`;
+  b.parts.rearWing.setAttribute("d", wingPath(-5));
+  b.parts.wing.setAttribute("d", wingPath(0));
+  b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)}) scale(1.18)`);
+}
+
 /* ---- 動き ---- */
 
 // 端に寄ったら内側へ向き直る
@@ -1935,6 +1999,20 @@ function moveBug(b, dt, w, h) {
     return;
   }
 
+  if (b.kind === "butterfly" || b.kind === "bird") {
+    const isBird = b.kind === "bird";
+    const turnRate = isBird ? 0.22 : 0.65;
+    b.ang += Math.sin(saverT * (isBird ? 0.45 : 0.72) + b.seed) * turnRate * dt;
+    b.phase += (isBird ? 4.2 : 6.2) * dt;
+    steer(b, w, h, isBird ? 0.035 : 0.055, isBird ? 150 : 100);
+    b.x += Math.cos(b.ang) * b.speed * dt;
+    b.y += Math.sin(b.ang) * b.speed * dt;
+    b.y += Math.sin(b.phase * 0.5 + b.seed) * (isBird ? 5 : 10) * dt;
+    b.x = Math.min(Math.max(b.x, -90), w + 90);
+    b.y = Math.min(Math.max(b.y, -90), h + 90);
+    return;
+  }
+
   // ムカデ。ゆっくり波打って進む
   b.ang += Math.sin(saverT * 1.1 + b.seed) * 1.2 * dt;
   b.phase += 9 * dt;
@@ -1951,24 +2029,30 @@ function moveBug(b, dt, w, h) {
 
 /* ---- 出す・消す ---- */
 
-function buildBugs(step) {
+function buildBugs() {
   const svg = svgEl("svg", {});
   const w = window.innerWidth, h = window.innerHeight;
   saverBugs = [];
 
-  for (let i = 0; i < step.n; i++) {
+  SAVER_KINDS.forEach((kind, i) => {
     const g = svg.appendChild(svgEl("g", {}));
     const b = {
-      kind: step.kind, g,
-      x: rnd(80, w - 80), y: rnd(80, h - 80),
+      kind, g,
+      x: w * (0.18 + i * 0.21), y: h * (0.20 + (i % 2) * 0.48),
       ang: rnd(0, Math.PI * 2), phase: rnd(0, 6.3), seed: rnd(0, 6.3),
       timer: rnd(0, 2), turn: rnd(-0.5, 0.5)
     };
-    if (step.kind === "ball") {
+    if (kind === "ball") {
       // 真横や真上に飛ぶと単調なので、その向きは外す
       b.ang = rnd(0.4, 1.2) + Math.floor(rnd(0, 4)) * (Math.PI / 2);
       b.speed = rnd(260, 430);
       b.parts = buildBall(g);
+    } else if (kind === "butterfly") {
+      b.speed = rnd(28, 42);
+      b.parts = buildButterfly(g);
+    } else if (kind === "bird") {
+      b.speed = rnd(55, 75);
+      b.parts = buildBird(g);
     } else {
       b.speed = rnd(45, 80);
       b.trail = [];
@@ -1978,7 +2062,7 @@ function buildBugs(step) {
       }
     }
     saverBugs.push(b);
-  }
+  });
 
   saverEl.innerHTML = "";
   saverEl.appendChild(svg);
@@ -1994,6 +2078,10 @@ function stepSaver(now) {
     moveBug(b, dt, w, h);
     if (b.kind === "ball") {
       b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)})`);
+    } else if (b.kind === "butterfly") {
+      drawButterfly(b);
+    } else if (b.kind === "bird") {
+      drawBird(b);
     } else {
       drawCentipede(b);                     // 節ごとに置くので群そのものは動かさない
     }
@@ -2004,11 +2092,7 @@ function stepSaver(now) {
 
 function startSaver() {
   if (!saverEl.classList.contains("hidden")) return;
-  const step = SAVER_CYCLE[settings.bugIndex % SAVER_CYCLE.length];
-  settings.bugIndex = (settings.bugIndex + 1) % SAVER_CYCLE.length;   // 次は別のもの
-  saveSettings();
-
-  buildBugs(step);
+  buildBugs();
   saverEl.classList.remove("hidden");
   saverT = 0;
   saverLast = performance.now();
