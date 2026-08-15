@@ -1909,46 +1909,45 @@ function buildBall(g) {
 
 /* 添付見本のモスラ型。頭を右に向けた左右対称のシルエット */
 function buildButterfly(g) {
-  const wings = [
+  const foreWings = [
     g.appendChild(svgEl("path", { class: "fly-fill" })),
     g.appendChild(svgEl("path", { class: "fly-fill" }))
   ];
-  const patterns = [
-    g.appendChild(svgEl("path", { class: "fly-pattern" })),
-    g.appendChild(svgEl("path", { class: "fly-pattern" }))
+  const hindWings = [
+    g.appendChild(svgEl("path", { class: "fly-fill" })),
+    g.appendChild(svgEl("path", { class: "fly-fill" }))
   ];
   g.appendChild(svgEl("path", {
     class: "fly-fill",
-    d: "M23,-4 C10,-7 -9,-7 -31,-4 L-48,0 L-31,4 C-9,7 10,7 23,4Z"
+    d: "M24,-2.4 C7,-3.2 -17,-3 -39,-2 L-56,0 L-39,2 C-17,3 7,3.2 24,2.4Z"
   }));
-  [-22, -11, 0, 11].forEach((x) =>
-    g.appendChild(svgEl("path", { class: "fly-line", d: `M${x},-5 L${x},5` }))
-  );
-  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 25, cy: 0, r: 6 }));
+  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 26, cy: 0, r: 4.5 }));
   const antennae = [
     g.appendChild(svgEl("path", { class: "fly-line" })),
     g.appendChild(svgEl("path", { class: "fly-line" }))
   ];
-  antennae[0].setAttribute("d", "M27,-3 Q36,-13 43,-8");
-  antennae[1].setAttribute("d", "M27,3 Q36,13 43,8");
-  return { wings, patterns };
+  antennae[0].setAttribute("d", "M28,-2 Q37,-11 43,-7");
+  antennae[1].setAttribute("d", "M28,2 Q37,11 43,7");
+  return { foreWings, hindWings };
 }
 
 function drawButterfly(b) {
   // 輪郭が細く潰れない範囲で開閉し、見本のシルエットを常に保つ
   const flap = 0.68 + 0.32 * Math.abs(Math.sin(b.phase));
-  const sy = (n, side) => (n * flap * side).toFixed(1);
-  const wingPath = (side) =>
-    `M19,${sy(4, side)} C9,${sy(13, side)} 1,${sy(35, side)} -10,${sy(61, side)}` +
-    ` C-20,${sy(75, side)} -43,${sy(69, side)} -52,${sy(49, side)}` +
-    ` C-46,${sy(40, side)} -38,${sy(34, side)} -29,${sy(33, side)}` +
-    ` C-43,${sy(34, side)} -57,${sy(42, side)} -56,${sy(54, side)}` +
-    ` C-54,${sy(67, side)} -37,${sy(72, side)} -25,${sy(62, side)}` +
-    ` C-13,${sy(52, side)} -10,${sy(29, side)} -4,${sy(8, side)}Z`;
-  b.parts.wings[0].setAttribute("d", wingPath(-1));
-  b.parts.wings[1].setAttribute("d", wingPath(1));
-  b.parts.patterns[0].setAttribute("d", `M8,${sy(-9, 1)} Q-16,${sy(-38, 1)} -42,${sy(-48, 1)} M-16,${sy(-16, 1)} Q-34,${sy(-25, 1)} -47,${sy(-20, 1)}`);
-  b.parts.patterns[1].setAttribute("d", `M8,${sy(9, 1)} Q-16,${sy(38, 1)} -42,${sy(48, 1)} M-16,${sy(16, 1)} Q-34,${sy(25, 1)} -47,${sy(20, 1)}`);
+  // 根元の隙間は一定にして、胴体と翅が接触しないようにする
+  const wy = (n, side) => ((4.6 + (n - 4.6) * flap) * side).toFixed(1);
+  const forePath = (side) =>
+    `M18,${wy(4.6, side)} C12,${wy(18, side)} 8,${wy(48, side)} 0,${wy(71, side)}` +
+    ` C-7,${wy(84, side)} -25,${wy(75, side)} -31,${wy(52, side)}` +
+    ` C-34,${wy(31, side)} -21,${wy(14, side)} -6,${wy(4.6, side)}Z`;
+  const hindPath = (side) =>
+    `M-20,${wy(4.6, side)} C-30,${wy(10, side)} -45,${wy(18, side)} -53,${wy(29, side)}` +
+    ` C-61,${wy(40, side)} -51,${wy(47, side)} -41,${wy(44, side)}` +
+    ` C-29,${wy(40, side)} -23,${wy(24, side)} -16,${wy(4.6, side)}Z`;
+  b.parts.foreWings[0].setAttribute("d", forePath(-1));
+  b.parts.foreWings[1].setAttribute("d", forePath(1));
+  b.parts.hindWings[0].setAttribute("d", hindPath(-1));
+  b.parts.hindWings[1].setAttribute("d", hindPath(1));
   b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
 }
 
