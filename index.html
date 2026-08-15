@@ -317,13 +317,13 @@
   #saver .seg { stroke-width: .8; }         /* ムカデの節。切れ目は細く */
   /* 地の色で抜くところ */
   #saver .hollow { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; }
-  /* 飛ぶものは配色テーマに左右されない緑一色 */
-  #saver .fly-fill { fill: #00a85a; stroke: #00a85a; stroke-width: 1.2; }
+  /* 飛ぶものもムカデ・丸と同じ配色テーマにそろえる */
+  #saver .fly-fill { fill: var(--fg); stroke: var(--fg); stroke-width: 1.2; }
   #saver .fly-line {
-    fill: none; stroke: #00a85a; stroke-width: 2;
+    fill: none; stroke: var(--fg); stroke-width: 2;
     stroke-linecap: round; stroke-linejoin: round;
   }
-  #saver .fly-pattern { fill: none; stroke: #00a85a; stroke-width: 2.4; }
+  #saver .fly-pattern { fill: none; stroke: var(--fg); stroke-width: 2.4; }
 </style>
 </head>
 <body>
@@ -430,7 +430,8 @@ function loadSettings() {
       chartColumns: fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES),
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
-      ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS)
+      ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
+      saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
   } catch (e) {
     return {
@@ -439,7 +440,8 @@ function loadSettings() {
       chartType: "rel", chartYear: 2026, chartJoin: false,
       chartColumns: DEFAULT_CHART_COLUMNS.slice(),
       chartZoom: 1,
-      sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice()
+      sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
+      saverIndex: 0
     };
   }
 }
@@ -1815,8 +1817,18 @@ async function render() {
    表もチャートも出したまま、透けた板の上を動くだけ。
    マウスを動かすかキーを押せば消える。
 --------------------------------------------------------------- */
-const IDLE_MS = 5000;          // 5秒
-const SAVER_KINDS = ["centipede", "ball", "butterfly"];
+const IDLE_MS = 5 * 60 * 1000; // 5分
+const SAVER_CYCLE = [
+  { kind: "centipede", count: 1 },
+  { kind: "ball", count: 1 },
+  { kind: "butterfly", count: 1 },
+  { kind: "centipede", count: 2 },
+  { kind: "ball", count: 2 },
+  { kind: "butterfly", count: 2 },
+  { kind: "centipede", count: 3 },
+  { kind: "ball", count: 3 },
+  { kind: "butterfly", count: 4 }
+];
 
 const saverEl = document.getElementById("saver");
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -1909,26 +1921,41 @@ function buildBall(g) {
 
 /* 選択した生成画像を透明化した蝶シルエット */
 const BUTTERFLY_ASSET = "assets/butterfly-silhouette.png";
+let butterflyAssetId = 0;
 
 function buildButterfly(g) {
+  const assetId = ++butterflyAssetId;
   const defs = g.appendChild(svgEl("defs", {}));
   const makeClip = (id, x, width) => {
     const clip = defs.appendChild(svgEl("clipPath", { id }));
     clip.appendChild(svgEl("rect", { x, y: 0, width, height: 100 }));
   };
-  makeClip("butterfly-left", 0, 73);
-  makeClip("butterfly-body", 73, 17);
-  makeClip("butterfly-right", 90, 72);
+  const leftClip = `butterfly-left-${assetId}`;
+  const bodyClip = `butterfly-body-${assetId}`;
+  const rightClip = `butterfly-right-${assetId}`;
+  const shapeMask = `butterfly-shape-${assetId}`;
+  makeClip(leftClip, 0, 73);
+  makeClip(bodyClip, 73, 17);
+  makeClip(rightClip, 90, 72);
 
-  const attrs = { x: 0, y: 0, width: 162, height: 100, preserveAspectRatio: "none" };
-  const left = g.appendChild(svgEl("image", {
-    ...attrs, href: BUTTERFLY_ASSET, "clip-path": "url(#butterfly-left)"
+  // 画像は輪郭（アルファ）だけ使い、色はムカデ・丸と同じテーマ色で塗る。
+  const mask = defs.appendChild(svgEl("mask", {
+    id: shapeMask, x: 0, y: 0, width: 162, height: 100,
+    maskUnits: "userSpaceOnUse", style: "mask-type:alpha"
   }));
-  const right = g.appendChild(svgEl("image", {
-    ...attrs, href: BUTTERFLY_ASSET, "clip-path": "url(#butterfly-right)"
+  mask.appendChild(svgEl("image", {
+    href: BUTTERFLY_ASSET, x: 0, y: 0, width: 162, height: 100,
+    preserveAspectRatio: "none"
   }));
-  const body = g.appendChild(svgEl("image", {
-    ...attrs, href: BUTTERFLY_ASSET, "clip-path": "url(#butterfly-body)"
+  const attrs = { x: 0, y: 0, width: 162, height: 100, fill: "var(--fg)", mask: `url(#${shapeMask})` };
+  const left = g.appendChild(svgEl("rect", {
+    ...attrs, "clip-path": `url(#${leftClip})`
+  }));
+  const right = g.appendChild(svgEl("rect", {
+    ...attrs, "clip-path": `url(#${rightClip})`
+  }));
+  const body = g.appendChild(svgEl("rect", {
+    ...attrs, "clip-path": `url(#${bodyClip})`
   }));
   return { left, right, body };
 }
@@ -2001,16 +2028,20 @@ function moveBug(b, dt, w, h) {
 
 /* ---- 出す・消す ---- */
 
-function buildBugs() {
+function buildBugs(entry) {
   const svg = svgEl("svg", {});
   const w = window.innerWidth, h = window.innerHeight;
   saverBugs = [];
 
-  SAVER_KINDS.forEach((kind, i) => {
+  const cols = Math.ceil(Math.sqrt(entry.count));
+  const rows = Math.ceil(entry.count / cols);
+  for (let i = 0; i < entry.count; i++) {
+    const kind = entry.kind;
+    const col = i % cols, row = Math.floor(i / cols);
     const g = svg.appendChild(svgEl("g", {}));
     const b = {
       kind, g,
-      x: w * (0.18 + i * 0.21), y: h * (0.20 + (i % 2) * 0.48),
+      x: w * ((col + 1) / (cols + 1)), y: h * ((row + 1) / (rows + 1)),
       ang: rnd(0, Math.PI * 2), phase: rnd(0, 6.3), seed: rnd(0, 6.3),
       timer: rnd(0, 2), turn: rnd(-0.5, 0.5)
     };
@@ -2031,7 +2062,7 @@ function buildBugs() {
       }
     }
     saverBugs.push(b);
-  });
+  }
 
   saverEl.innerHTML = "";
   saverEl.appendChild(svg);
@@ -2059,7 +2090,10 @@ function stepSaver(now) {
 
 function startSaver() {
   if (!saverEl.classList.contains("hidden")) return;
-  buildBugs();
+  const index = settings.saverIndex % SAVER_CYCLE.length;
+  buildBugs(SAVER_CYCLE[index]);
+  settings.saverIndex = (index + 1) % SAVER_CYCLE.length;
+  saveSettings();
   saverEl.classList.remove("hidden");
   saverT = 0;
   saverLast = performance.now();
