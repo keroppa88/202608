@@ -237,6 +237,43 @@
   .canvas .lab { fill: var(--fg); font-size: 14px; font-weight: bold; }
   .canvas .plot { fill: none; stroke-width: 1.2; }
 
+  /* ---- 相関分析画面 ---- */
+  #correlations { height: 100%; display: flex; flex-direction: column; }
+  .corr-periods { display: inline-flex; gap: 4px; }
+  .corr-periods button.active { background: var(--sel-bg); color: var(--sel-fg); }
+  .corr-main {
+    flex: 1; overflow: auto; padding: 10px;
+    scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin;
+  }
+  .corr-main::-webkit-scrollbar { width: 13px; height: 13px; }
+  .corr-main::-webkit-scrollbar-track { background: var(--bg); border: 1px solid var(--line); }
+  .corr-main::-webkit-scrollbar-thumb { background: var(--fg); border: 3px solid var(--bg); }
+  .corr-block { margin-bottom: 16px; border: 1px solid var(--line); background: var(--panel); }
+  .corr-block h2 { margin: 0; padding: 6px 9px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: normal; }
+  .corr-body { padding: 8px; }
+  .corr-scroll { overflow: auto; max-height: 62vh; }
+  .corr-table { table-layout: auto; min-width: 100%; }
+  .corr-table th, .corr-table td { padding: 4px 8px; }
+  .corr-table thead th { top: 0; z-index: 4; }
+  .corr-table tbody th { left: 0; z-index: 3; }
+  .corr-matrix td:not(.na), .corr-pairs tbody tr { cursor: pointer; }
+  .corr-matrix td:hover, .corr-pairs tbody tr:hover { background: var(--sel-bg); color: var(--sel-fg); }
+  .corr-sort { cursor: pointer; user-select: none; }
+  .corr-cards { display: flex; flex-wrap: wrap; gap: 8px; }
+  .corr-card { border: 1px solid var(--line); padding: 8px 14px; min-width: 130px; }
+  .corr-card .v { display: block; margin-top: 3px; font-size: 20px; }
+  .corr-chart { position: relative; overflow-x: auto; }
+  .corr-chart svg { display: block; width: 100%; min-width: 720px; height: 330px; }
+  .corr-chart .axis { stroke: var(--line); fill: none; }
+  .corr-chart .gridline { stroke: var(--dim); stroke-width: .6; }
+  .corr-chart .zero { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 4 3; }
+  .corr-chart .plot { fill: none; stroke-width: 1.4; }
+  .corr-chart .lab { fill: var(--fg); font-size: 12px; }
+  .corr-tip {
+    position: absolute; display: none; pointer-events: none; white-space: pre;
+    border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 5px 7px;
+  }
+
   /* ---- チャート（ポップアップ） ---- */
   #chart {
     position: fixed; inset: 0; z-index: 50;
@@ -335,8 +372,26 @@
   <div class="menu" id="titleMenu">
     <button data-go="sheet" aria-selected="true">表</button>
     <button data-go="chart">チャート</button>
+    <button data-go="correlation">相関</button>
   </div>
   <div class="hint">↑ ↓ で選択　Enter で決定</div>
+</section>
+
+<!-- ===================== 相関分析画面 ===================== -->
+<section id="correlations" class="hidden">
+  <div class="bar">
+    <button id="rback" title="タイトルへ戻る">戻る</button>
+    <div class="corr-periods" id="rperiods" aria-label="相関期間">
+      <button data-period="20">20日</button>
+      <button data-period="60">60日</button>
+      <button data-period="120">120日</button>
+    </div>
+    <button id="rtheme" title="押すたびに配色が変わる">Color</button>
+    <div class="spacer"></div>
+    <div class="note" id="rstatus"></div>
+  </div>
+  <div class="picks" id="rpicks"></div>
+  <div class="corr-main" id="rmain"><div id="loading">読み込み中…</div></div>
 </section>
 
 <!-- ===================== 表画面 ===================== -->
@@ -373,6 +428,7 @@
 <!-- ===================== 擬似スクリーンセーバー ===================== -->
 <div id="saver" class="hidden" aria-hidden="true"></div>
 
+<script src="correlation.js"></script>
 <script>
 "use strict";
 
@@ -429,6 +485,8 @@ function loadSettings() {
       chartJoin: s.chartJoin === true,
       chartColumns: fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES),
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
+      corrColumns: fixKeys(s.corrColumns, s.columns || DEFAULT_COLUMNS),
+      corrPeriod: [20, 60, 120].includes(Number(s.corrPeriod)) ? Number(s.corrPeriod) : 20,
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
@@ -440,6 +498,7 @@ function loadSettings() {
       chartType: "rel", chartYear: 2026, chartJoin: false,
       chartColumns: DEFAULT_CHART_COLUMNS.slice(),
       chartZoom: 1,
+      corrColumns: DEFAULT_COLUMNS.slice(), corrPeriod: 20,
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       saverIndex: 0
     };
@@ -465,6 +524,7 @@ function nextTheme() {
   applyTheme(THEMES[(i + 1) % THEMES.length]);
   // 相対チャートの線の色は地の明るさで変わる。出ているなら描き直す
   if (!chartsEl.classList.contains("hidden")) drawCharts();
+  if (!corrEl.classList.contains("hidden") && corrState) drawCorrelationResults();
 }
 applyTheme(settings.theme);
 
@@ -484,6 +544,7 @@ function decide() {
   if (b.disabled) return;
   if (b.dataset.go === "sheet") openSheet();
   if (b.dataset.go === "chart") openCharts();
+  if (b.dataset.go === "correlation") openCorrelations();
 }
 // 表を矢印で動かす幅。1回押すとこれだけ寄る
 const STEP_X = 120;   // 列1つぶんくらい
@@ -495,6 +556,11 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { cursor = (cursor + 1) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "Enter")     { decide(); e.preventDefault(); }
+    return;
+  }
+
+  if (!corrEl.classList.contains("hidden")) {
+    if (e.key === "Escape") backFromCorrelations();
     return;
   }
 
@@ -768,7 +834,7 @@ async function buildCatalog(year) {
     if (!seen.has(key)) {
       seen.add(key);
       const code = WITH_CODE.has(r.category) ? `（${r.symbol}）` : "";
-      cat.push({ key, label: r.name + code, group: groupOf(r.category, r.symbol), sym: r.symbol });
+      cat.push({ key, label: r.name + code, group: groupOf(r.category, r.symbol), sym: r.symbol, category: r.category });
     }
   }
   for (const r of await fetchCsv("data/jpx_index.csv")) {
@@ -1811,6 +1877,436 @@ async function render() {
   gridEl.appendChild(table);
   statusEl.textContent = `${rows.length}日 × ${keys.length}銘柄`;
 }
+
+/* ---------------------------------------------------------------
+   相関分析。ここを開いたときだけ全年度を読み、計算結果を再利用する。
+--------------------------------------------------------------- */
+const corrEl = document.getElementById("correlations");
+const corrMainEl = document.getElementById("rmain");
+const corrPicksEl = document.getElementById("rpicks");
+const corrStatusEl = document.getElementById("rstatus");
+const CORR_PERIODS = [20, 60, 120];
+const CORR_YEARS = Array.from({ length: 2026 - 1999 + 1 }, (_, i) => 1999 + i);
+const CORR_CALENDAR = { JP: "yahoo:^N225", KR: "yahoo:^KS11" };
+const corrPriceCache = new Map();
+const corrChangeCache = new Map();
+const corrPairCache = new Map();
+let corrCatalog = null;
+let corrState = null;
+let corrStateSignature = "";
+let corrRendering = 0;
+let corrSelectedPair = null;
+let corrSort = { key: "r20", dir: -1 };
+
+function corrMeta(key, catalog) {
+  const [src, id] = splitKey(key);
+  const hit = catalog.find((c) => c.key === key) || {};
+  let market = "OTHER", calcType = "return";
+  if (["jpx", "nikkei", "yomiuri", "ratio"].includes(src)) market = "JP";
+  if (src === "rates") {
+    calcType = "diff";
+    if (/^(米|アメリカ)/.test(id)) market = "US";
+    else if (id.startsWith("日本")) market = "JP";
+    else if (id.startsWith("韓国")) market = "KR";
+  }
+  if (src === "yahoo") {
+    if (id === "^N225" || id.endsWith(".T")) market = "JP";
+    else if (id === "^KS11" || id.endsWith(".KS") || id.endsWith(".KQ")) market = "KR";
+    else if (US_INDEX.has(id) || ["セクター", "REIT", "ボラティリティ"].includes(hit.category)
+      || (hit.category === "個別株" && !id.includes("."))) market = "US";
+  }
+  return { key, label: labelOf(key, catalog), market, calcType };
+}
+
+function appendSelectedYahoo(text, idToKey, maps) {
+  const lines = text.split("\n").filter((x) => x.length);
+  if (lines.length < 2) return;
+  const head = splitLine(lines[0]);
+  const di = head.indexOf("trade_date"), si = head.indexOf("symbol"), vi = head.indexOf("close");
+  if (di < 0 || si < 0 || vi < 0) return;
+  for (let i = 1; i < lines.length; i++) {
+    const c = splitLine(lines[i]);
+    const key = idToKey.get(c[si]);
+    if (!key) continue;
+    const v = CorrelationEngine.finiteNumber(c[vi]);
+    if (v !== null && c[di]) maps.get(key).set(c[di].slice(0, 10), v);
+  }
+}
+
+async function loadCorrelationPrices(keys, progress) {
+  const wanted = [...new Set(keys)];
+  const missing = wanted.filter((key) => !corrPriceCache.has(key));
+  if (missing.length) {
+    const maps = new Map(missing.map((key) => [key, new Map()]));
+    const yahoo = new Map();
+    missing.forEach((key) => {
+      const [src, id] = splitKey(key);
+      if (src === "yahoo") yahoo.set(id, key);
+    });
+    if (yahoo.size) {
+      for (let i = 0; i < CORR_YEARS.length; i++) {
+        const year = CORR_YEARS[i];
+        if (progress) progress(`全期間データ ${i + 1}/${CORR_YEARS.length}（${year}年）`);
+        try {
+          const r = await fetch(`data/overseas_${year}.csv`);
+          if (r.ok) appendSelectedYahoo(await r.text(), yahoo, maps);
+        } catch (_) { /* 無い年は欠損のままにする */ }
+      }
+    }
+
+    const staticFiles = {
+      jpx: ["data/jpx_index.csv", "name", "close"],
+      nikkei: ["data/nikkei_ohlc.csv", "name", "close"],
+      yomiuri: ["data/yomiuri333.csv", "name", "close"],
+      ratio: ["data/ratios.csv", "name", "close"],
+      rates: ["data/rates.csv", "name", "value"]
+    };
+    for (const [src, spec] of Object.entries(staticFiles)) {
+      const targets = new Map(missing.filter((key) => splitKey(key)[0] === src)
+        .map((key) => [splitKey(key)[1], key]));
+      if (!targets.size) continue;
+      for (const r of await fetchCsv(spec[0])) {
+        const key = targets.get(r[spec[1]]);
+        const v = CorrelationEngine.finiteNumber(r[spec[2]]);
+        if (key && v !== null && r.trade_date) maps.get(key).set(r.trade_date.slice(0, 10), v);
+      }
+    }
+    maps.forEach((map, key) => corrPriceCache.set(key, map));
+  }
+  return new Map(wanted.map((key) => [key, corrPriceCache.get(key) || new Map()]));
+}
+
+function corrPairKey(a, b) {
+  return a < b ? `${a}\n${b}` : `${b}\n${a}`;
+}
+
+function correlationChanges(key, prices, meta) {
+  if (!corrChangeCache.has(key)) {
+    corrChangeCache.set(key, CorrelationEngine.priceChanges(prices, meta.calcType));
+  }
+  return corrChangeCache.get(key);
+}
+
+async function calculateCorrelations(keys, catalog, progress) {
+  const allKeys = [...new Set([...keys, CORR_CALENDAR.JP, CORR_CALENDAR.KR])];
+  const prices = await loadCorrelationPrices(allKeys, progress);
+  const metas = new Map(allKeys.map((key) => [key, corrMeta(key, catalog)]));
+  const changes = new Map(allKeys.map((key) => [key,
+    correlationChanges(key, prices.get(key), metas.get(key))]));
+  const calendars = {
+    JP: [...prices.get(CORR_CALENDAR.JP).keys()].sort(),
+    KR: [...prices.get(CORR_CALENDAR.KR).keys()].sort()
+  };
+  const pairs = [];
+  for (let i = 0; i < keys.length; i++) {
+    for (let j = i + 1; j < keys.length; j++) {
+      const a = keys[i], b = keys[j], cacheKey = corrPairKey(a, b);
+      let analysis = corrPairCache.get(cacheKey);
+      if (!analysis) {
+        const first = a < b ? a : b, second = a < b ? b : a;
+        analysis = CorrelationEngine.analysePair(
+          changes.get(first), changes.get(second), metas.get(first), metas.get(second),
+          calendars, CORR_PERIODS
+        );
+        corrPairCache.set(cacheKey, analysis);
+      }
+      pairs.push({ a, b, key: cacheKey, analysis });
+    }
+  }
+
+  const centrality = keys.map((key) => {
+    const values = {};
+    CORR_PERIODS.forEach((period) => {
+      const usable = pairs.filter((p) => p.a === key || p.b === key)
+        .map((p) => p.analysis.current[period]).filter((v) => v !== null);
+      values[period] = {
+        v: usable.length ? usable.reduce((a, b) => a + b, 0) / usable.length : null,
+        used: usable.length, total: Math.max(0, keys.length - 1)
+      };
+    });
+    return { key, values };
+  });
+  const concentration = {};
+  CORR_PERIODS.forEach((period) => {
+    const usable = pairs.map((p) => p.analysis.current[period]).filter((v) => v !== null);
+    concentration[period] = {
+      v: usable.length ? usable.reduce((a, b) => a + b, 0) / usable.length : null,
+      used: usable.length, total: pairs.length
+    };
+  });
+  if (progress) progress("相関集中度の長期推移を計算中…");
+  const concentrationTimeline = CorrelationEngine.concentrationTimeline(
+    pairs.map((p) => p.analysis), CORR_PERIODS, 14
+  );
+  return { keys, catalog, metas, pairs, centrality, concentration, concentrationTimeline };
+}
+
+function fmtCorr(v, signed) {
+  if (v === null || v === undefined || !Number.isFinite(v)) return "N/A";
+  return `${signed && v > 0 ? "+" : ""}${v.toFixed(3)}`;
+}
+
+function makeCorrBlock(title) {
+  const block = document.createElement("section");
+  block.className = "corr-block";
+  const h = document.createElement("h2");
+  h.textContent = title;
+  const body = document.createElement("div");
+  body.className = "corr-body";
+  block.append(h, body);
+  return { block, body };
+}
+
+function makeCorrelationChart(title, sets) {
+  const box = makeCorrBlock(title);
+  const wrap = document.createElement("div");
+  wrap.className = "corr-chart";
+  const svg = svgEl("svg", { viewBox: "0 0 1100 330", preserveAspectRatio: "none" });
+  const L = 54, R = 18, T = 16, B = 34, W = 1100, H = 330;
+  const all = sets.flatMap((s) => s.data);
+  if (!all.length) {
+    box.body.textContent = "表示できる相関データがない";
+    return box.block;
+  }
+  const dates = all.map((p) => p.d).sort();
+  const t0 = Date.parse(dates[0] + "T00:00:00Z"), t1 = Date.parse(dates[dates.length - 1] + "T00:00:00Z");
+  const x = (d) => L + (W - L - R) * (Date.parse(d + "T00:00:00Z") - t0) / Math.max(1, t1 - t0);
+  const y = (v) => T + (H - T - B) * (1 - (v + 1) / 2);
+  [-1, -0.5, 0, 0.5, 1].forEach((v) => {
+    svg.appendChild(svgEl("line", { x1: L, y1: y(v), x2: W - R, y2: y(v), class: v === 0 ? "zero" : "gridline" }));
+    const lab = svg.appendChild(svgEl("text", { x: L - 7, y: y(v) + 4, class: "lab", "text-anchor": "end" }));
+    lab.textContent = v.toFixed(1);
+  });
+  const y0 = Number(dates[0].slice(0, 4)), y1 = Number(dates[dates.length - 1].slice(0, 4));
+  const yearStep = Math.max(1, Math.ceil((y1 - y0 + 1) / 12));
+  for (let year = y0; year <= y1; year += yearStep) {
+    const d = `${year}-01-01`, px = x(d);
+    svg.appendChild(svgEl("line", { x1: px, y1: T, x2: px, y2: H - B, class: "gridline" }));
+    const lab = svg.appendChild(svgEl("text", { x: px, y: H - 10, class: "lab", "text-anchor": "middle" }));
+    lab.textContent = String(year);
+  }
+  svg.appendChild(svgEl("rect", { x: L, y: T, width: W - L - R, height: H - T - B, class: "axis" }));
+  sets.forEach((set, i) => {
+    const d = set.data.map((p, j) => `${j ? "L" : "M"}${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+    if (d) svg.appendChild(svgEl("path", { d, class: "plot", stroke: seriesColor(i) }));
+  });
+  const legend = svg.appendChild(svgEl("text", { x: L + 8, y: T + 15, class: "lab" }));
+  legend.textContent = sets.map((s) => s.label).join("　");
+  const tip = document.createElement("div");
+  tip.className = "corr-tip";
+  svg.addEventListener("mousemove", (e) => {
+    const rect = svg.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const at = t0 + ratio * (t1 - t0);
+    const lines = [new Date(at).toISOString().slice(0, 10)];
+    sets.forEach((set) => {
+      let lo = 0, hi = set.data.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (Date.parse(set.data[mid].d + "T00:00:00Z") < at) lo = mid + 1; else hi = mid;
+      }
+      const p = set.data[Math.min(lo, set.data.length - 1)];
+      if (p) lines.push(`${set.label} ${fmtCorr(p.v)}`);
+    });
+    tip.textContent = lines.join("\n");
+    tip.style.display = "block";
+    tip.style.left = `${Math.min(wrap.clientWidth - 160, e.clientX - rect.left + 12)}px`;
+    tip.style.top = `${Math.max(0, e.clientY - rect.top - 10)}px`;
+  });
+  svg.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+  wrap.append(svg, tip);
+  box.body.appendChild(wrap);
+  return box.block;
+}
+
+function openPairDetail(pair) {
+  corrSelectedPair = pair.key;
+  drawCorrelationResults();
+  document.getElementById("corr-detail")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function drawCorrelationResults() {
+  if (!corrState) return;
+  const { keys, catalog, pairs, centrality, concentration, concentrationTimeline } = corrState;
+  const period = settings.corrPeriod;
+  const pairByKey = new Map(pairs.map((p) => [p.key, p]));
+  document.querySelectorAll("#rperiods button").forEach((b) => b.classList.toggle("active", Number(b.dataset.period) === period));
+  corrMainEl.innerHTML = "";
+
+  const matrix = makeCorrBlock(`相関マトリクス（${period}日）`);
+  const matrixScroll = document.createElement("div");
+  matrixScroll.className = "corr-scroll";
+  const mt = document.createElement("table");
+  mt.className = "corr-table corr-matrix";
+  const mh = document.createElement("thead"), mhr = document.createElement("tr");
+  mhr.appendChild(document.createElement("th"));
+  keys.forEach((key) => { const th = document.createElement("th"); th.textContent = labelOf(key, catalog); mhr.appendChild(th); });
+  mh.appendChild(mhr); mt.appendChild(mh);
+  const mb = document.createElement("tbody");
+  keys.forEach((a, i) => {
+    const tr = document.createElement("tr"), th = document.createElement("th");
+    th.textContent = labelOf(a, catalog); tr.appendChild(th);
+    keys.forEach((b, j) => {
+      const td = document.createElement("td");
+      if (i === j) td.textContent = "1.000";
+      else {
+        const pair = pairByKey.get(corrPairKey(a, b));
+        const v = pair ? pair.analysis.current[period] : null;
+        td.textContent = fmtCorr(v);
+        if (v === null) td.className = "na";
+        else td.addEventListener("click", () => openPairDetail(pair));
+      }
+      tr.appendChild(td);
+    });
+    mb.appendChild(tr);
+  });
+  mt.appendChild(mb); matrixScroll.appendChild(mt); matrix.body.appendChild(matrixScroll);
+  corrMainEl.appendChild(matrix.block);
+
+  if (corrSelectedPair) {
+    const pair = pairs.find((p) => p.key === corrSelectedPair);
+    if (pair) {
+      const chart = makeCorrelationChart(
+        `${labelOf(pair.a, catalog)} × ${labelOf(pair.b, catalog)}　ローリング相関`,
+        CORR_PERIODS.map((n) => ({ label: `${n}日`, data: pair.analysis.rolling[n] }))
+      );
+      chart.id = "corr-detail";
+      corrMainEl.appendChild(chart);
+    }
+  }
+
+  const pairBox = makeCorrBlock("相関ペア一覧");
+  const pairScroll = document.createElement("div"); pairScroll.className = "corr-scroll";
+  const pt = document.createElement("table"); pt.className = "corr-table corr-pairs";
+  const cols = [["a", "銘柄A"], ["b", "銘柄B"], ["r20", "20日"], ["r60", "60日"], ["r120", "120日"], ["d2060", "Δ20-60"], ["d20120", "Δ20-120"]];
+  const ph = document.createElement("thead"), phr = document.createElement("tr");
+  cols.forEach(([key, label]) => {
+    const th = document.createElement("th"); th.className = "corr-sort";
+    th.textContent = label + (corrSort.key === key ? (corrSort.dir > 0 ? " ▲" : " ▼") : "");
+    th.addEventListener("click", () => {
+      corrSort = corrSort.key === key ? { key, dir: -corrSort.dir } : { key, dir: key === "a" || key === "b" ? 1 : -1 };
+      drawCorrelationResults();
+    });
+    phr.appendChild(th);
+  });
+  ph.appendChild(phr); pt.appendChild(ph);
+  const pairRows = pairs.map((p) => {
+    const c = p.analysis.current;
+    return { p, a: labelOf(p.a, catalog), b: labelOf(p.b, catalog), r20: c[20], r60: c[60], r120: c[120],
+      d2060: c[20] === null || c[60] === null ? null : c[20] - c[60],
+      d20120: c[20] === null || c[120] === null ? null : c[20] - c[120],
+      d60120: c[60] === null || c[120] === null ? null : c[60] - c[120] };
+  });
+  pairRows.sort((x, y) => {
+    const a = x[corrSort.key], b = y[corrSort.key];
+    if (a === null) return 1; if (b === null) return -1;
+    return (typeof a === "string" ? a.localeCompare(b, "ja") : a - b) * corrSort.dir;
+  });
+  const pb = document.createElement("tbody");
+  pairRows.forEach((r) => {
+    const tr = document.createElement("tr");
+    [r.a, r.b, fmtCorr(r.r20), fmtCorr(r.r60), fmtCorr(r.r120), fmtCorr(r.d2060, true), fmtCorr(r.d20120, true)]
+      .forEach((v) => { const td = document.createElement("td"); td.textContent = v; if (v === "N/A") td.className = "na"; tr.appendChild(td); });
+    tr.addEventListener("click", () => openPairDetail(r.p)); pb.appendChild(tr);
+  });
+  pt.appendChild(pb); pairScroll.appendChild(pt); pairBox.body.appendChild(pairScroll); corrMainEl.appendChild(pairBox.block);
+
+  const cent = makeCorrBlock(`中心性ランキング（${period}日順）`);
+  const ct = document.createElement("table"); ct.className = "corr-table";
+  ct.innerHTML = "<thead><tr><th>順位</th><th>銘柄</th><th>20日</th><th>60日</th><th>120日</th></tr></thead>";
+  const cb = document.createElement("tbody");
+  [...centrality].sort((a, b) => (b.values[period].v ?? -Infinity) - (a.values[period].v ?? -Infinity)).forEach((r, i) => {
+    const tr = document.createElement("tr");
+    const vals = [String(i + 1), labelOf(r.key, catalog), ...CORR_PERIODS.map((n) => {
+      const x = r.values[n]; return `${fmtCorr(x.v)} (${x.used}/${x.total})`;
+    })];
+    vals.forEach((v) => { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); }); cb.appendChild(tr);
+  });
+  ct.appendChild(cb); cent.body.appendChild(ct); corrMainEl.appendChild(cent.block);
+
+  const conc = makeCorrBlock("相関集中度");
+  const cards = document.createElement("div"); cards.className = "corr-cards";
+  CORR_PERIODS.forEach((n) => {
+    const c = concentration[n], card = document.createElement("div"); card.className = "corr-card";
+    card.textContent = `${n}日　${c.used}/${c.total}ペア`;
+    const v = document.createElement("span"); v.className = "v"; v.textContent = fmtCorr(c.v); card.appendChild(v); cards.appendChild(card);
+  });
+  conc.body.appendChild(cards); corrMainEl.appendChild(conc.block);
+  corrMainEl.appendChild(makeCorrelationChart("相関集中度　長期推移",
+    CORR_PERIODS.map((n) => ({ label: `${n}日`, data: concentrationTimeline[n] }))));
+}
+
+function drawCorrelationPicks(catalog) {
+  corrPicksEl.innerHTML = "";
+  settings.corrColumns.forEach((key, i) => {
+    const one = document.createElement("div"); one.className = "one";
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = labelOf(key, catalog);
+    const del = document.createElement("button"); del.textContent = "×"; del.title = "分析対象から外す";
+    del.addEventListener("click", () => { settings.corrColumns.splice(i, 1); saveSettings(); renderCorrelations(); });
+    const sel = document.createElement("select"); sel.title = "銘柄を変える"; fillPicker(sel, catalog, key, true);
+    sel.addEventListener("change", () => {
+      if (sel.value === DEL_VALUE) settings.corrColumns.splice(i, 1);
+      else if (!settings.corrColumns.includes(sel.value)) settings.corrColumns[i] = sel.value;
+      saveSettings(); renderCorrelations();
+    });
+    one.append(nm, del, sel); corrPicksEl.appendChild(one);
+  });
+  const add = document.createElement("button"); add.className = "add"; add.textContent = "＋"; add.title = "分析対象を足す";
+  add.addEventListener("click", () => {
+    const first = catalog.find((c) => !settings.corrColumns.includes(c.key));
+    if (first) { settings.corrColumns.push(first.key); saveSettings(); renderCorrelations(); }
+  });
+  corrPicksEl.appendChild(add);
+}
+
+async function renderCorrelations() {
+  const mine = ++corrRendering;
+  corrMainEl.innerHTML = '<div id="loading">全期間データを読み込み中…</div>';
+  corrStatusEl.textContent = "";
+  corrCatalog = corrCatalog || await buildCatalog("2026");
+  settings.corrColumns = [...new Set(settings.corrColumns)].filter(Boolean);
+  drawCorrelationPicks(corrCatalog);
+  if (settings.corrColumns.length < 2) {
+    corrMainEl.innerHTML = '<div id="loading">相関分析には2銘柄以上を選んでください</div>';
+    return;
+  }
+  const signature = settings.corrColumns.join("\n");
+  if (corrState && corrStateSignature === signature) {
+    drawCorrelationResults();
+    const usable = corrState.pairs.filter((p) => p.analysis.current[settings.corrPeriod] !== null).length;
+    corrStatusEl.textContent = `${corrState.keys.length}銘柄　${corrState.pairs.length}ペア（有効 ${usable}）`;
+    return;
+  }
+  corrState = null; corrSelectedPair = null;
+  const progress = (s) => { if (mine === corrRendering) corrStatusEl.textContent = s; };
+  const state = await calculateCorrelations(settings.corrColumns, corrCatalog, progress);
+  if (mine !== corrRendering) return;
+  corrState = state;
+  corrStateSignature = signature;
+  drawCorrelationResults();
+  const usable = state.pairs.filter((p) => p.analysis.current[settings.corrPeriod] !== null).length;
+  corrStatusEl.textContent = `${state.keys.length}銘柄　${state.pairs.length}ペア（有効 ${usable}）`;
+}
+
+function openCorrelations() {
+  titleEl.classList.add("hidden");
+  corrEl.classList.remove("hidden");
+  renderCorrelations();
+}
+function backFromCorrelations() {
+  corrEl.classList.add("hidden");
+  titleEl.classList.remove("hidden");
+}
+document.getElementById("rback").addEventListener("click", backFromCorrelations);
+document.getElementById("rtheme").addEventListener("click", nextTheme);
+document.querySelectorAll("#rperiods button").forEach((b) => b.addEventListener("click", () => {
+  settings.corrPeriod = Number(b.dataset.period); saveSettings();
+  if (corrState) {
+    drawCorrelationResults();
+    const usable = corrState.pairs.filter((p) => p.analysis.current[settings.corrPeriod] !== null).length;
+    corrStatusEl.textContent = `${corrState.keys.length}銘柄　${corrState.pairs.length}ペア（有効 ${usable}）`;
+  }
+}));
 
 /* ---------------------------------------------------------------
    擬似スクリーンセーバー。しばらく触らないと生き物が出てくる。
