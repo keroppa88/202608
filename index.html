@@ -1411,13 +1411,18 @@ function stackTags(tags, y, T, ih) {
   return out;
 }
 
-// 描く場所の大きさ。描画部分が 1 : 1.62
+/* 描く場所の大きさ。描画部分が 1 : 1.62。
+   縦は画面の縦幅の 2/3 までに抑える。横はそれに合わせて決まる */
 function boxSize(rows, rightPad) {
   const RATIO = 1.62;
   const T = 8, B = 24, R = rightPad === undefined ? 6 : rightPad;
   const avail = canvasEl.clientHeight - 20;
   let ih = rows > 1 ? Math.round(avail / 2) - T - B : avail - T - B;
-  ih = Math.max(150, ih);
+
+  // 画面の縦幅の 2/3。枠の上下の余白もその中に入れる
+  const cap = Math.round(window.innerHeight * 2 / 3) - T - B;
+  ih = Math.min(Math.max(150, ih), cap);
+
   let iw = Math.round(ih * RATIO);
   const maxIW = canvasEl.clientWidth - 34 - AXIS_L - R;
   if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
