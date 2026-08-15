@@ -1,6 +1,6 @@
 """比率と指標をまとめる。取得はしない。保存済みのものから出すだけ。
 
-    ドル建て日経平均株価     日経平均 / ドル円（どちらも終値）
+    ドル建て日経平均         日経平均 / ドル円（どちらも終値）
 
     NT倍率                   日経平均 / TOPIX（どちらも終値）
                              日経平均は data/overseas_YYYY.csv の ^N225、
@@ -67,7 +67,7 @@ TOPS = (5, 10, 20, 30)
 LEAD_NAME = "東証先導株比率1-{}"
 N225_NAME = "日経/プライム・売買代金比率"
 NT_NAME = "NT倍率"
-USD_NAME = "ドル建て日経平均株価"
+USD_NAME = "ドル建て日経平均"
 SPREAD_NAME = "日本株イールドスプレッド"
 JGB10 = "日本 10年国債"
 
@@ -222,7 +222,7 @@ def calc(nikkei, topix, usdjpy, plain, jgb, ranking, prime, share):
         rows.append({"trade_date": d, "sort": ORDER.get(name, 50), "name": name,
                      "close": close, "numerator": num, "denominator": den})
 
-    # ドル建て日経平均株価。日経平均は1985年から、ドル円は1999年から
+    # ドル建て日経平均。日経平均は1985年から、ドル円は1999年から
     for d in sorted(set(nikkei) & set(usdjpy)):
         if usdjpy[d]:
             put(d, USD_NAME, round(nikkei[d] / usdjpy[d], 2), nikkei[d], usdjpy[d])
