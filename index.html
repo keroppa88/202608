@@ -249,7 +249,16 @@
   .corr-main::-webkit-scrollbar-track { background: var(--bg); border: 1px solid var(--line); }
   .corr-main::-webkit-scrollbar-thumb { background: var(--fg); border: 3px solid var(--bg); }
   .corr-block { margin-bottom: 16px; border: 1px solid var(--line); background: var(--panel); }
-  .corr-block h2 { margin: 0; padding: 6px 9px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: normal; }
+  .corr-block h2 {
+    margin: 0; padding: 6px 9px; border-bottom: 1px solid var(--line);
+    font-size: 14px; font-weight: normal; display: flex; align-items: center; gap: 7px;
+  }
+  .corr-info-btn {
+    width: 18px; height: 18px; padding: 0; border: 1px solid var(--line); border-radius: 50%;
+    background: var(--panel); color: var(--fg); font: bold 12px/16px "Courier New", monospace;
+    text-align: center; cursor: pointer; flex: none;
+  }
+  .corr-info-btn:hover, .corr-info-btn:focus { background: var(--sel-bg); color: var(--sel-fg); outline: none; }
   .corr-body { padding: 8px; }
   .corr-scroll { overflow: auto; max-height: 62vh; }
   .corr-table { table-layout: auto; min-width: 100%; }
@@ -272,6 +281,22 @@
   .corr-tip {
     position: absolute; display: none; pointer-events: none; white-space: pre;
     border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 5px 7px;
+  }
+  #corr-info-modal {
+    position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center;
+    padding: 20px; background: rgba(0, 0, 0, .66);
+  }
+  #corr-info-modal .info-box {
+    width: min(760px, 100%); max-height: 86vh; overflow: auto;
+    border: 2px solid var(--line); background: var(--bg); color: var(--fg); padding: 12px 16px 16px;
+  }
+  #corr-info-modal .info-head { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+  #corr-info-modal h3 { margin: 0; font-size: 16px; font-weight: normal; flex: 1; }
+  #corr-info-modal h4 { margin: 14px 0 5px; font-size: 14px; color: var(--fg2); }
+  #corr-info-modal p { margin: 4px 0; line-height: 1.65; white-space: pre-line; }
+  #corr-info-modal .formula { border-left: 2px solid var(--line); padding-left: 10px; color: var(--fg2); }
+  #corr-info-modal .info-close {
+    background: var(--panel); color: var(--fg); border: 1px solid var(--line); font: inherit; cursor: pointer; padding: 3px 9px;
   }
 
   /* ---- チャート（ポップアップ） ---- */
@@ -393,6 +418,16 @@
   <div class="picks" id="rpicks"></div>
   <div class="corr-main" id="rmain"><div id="loading">読み込み中…</div></div>
 </section>
+
+<div id="corr-info-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="corr-info-title">
+  <div class="info-box">
+    <div class="info-head">
+      <h3 id="corr-info-title"></h3>
+      <button class="info-close" id="corr-info-close" aria-label="説明を閉じる">閉じる</button>
+    </div>
+    <div id="corr-info-content"></div>
+  </div>
+</div>
 
 <!-- ===================== 表画面 ===================== -->
 <section id="sheet" class="hidden">
@@ -560,7 +595,10 @@ document.addEventListener("keydown", (e) => {
   }
 
   if (!corrEl.classList.contains("hidden")) {
-    if (e.key === "Escape") backFromCorrelations();
+    if (e.key === "Escape") {
+      if (!corrInfoModal.classList.contains("hidden")) closeCorrInfo();
+      else backFromCorrelations();
+    }
     return;
   }
 
@@ -2046,19 +2084,107 @@ function fmtCorr(v, signed) {
   return `${signed && v > 0 ? "+" : ""}${v.toFixed(3)}`;
 }
 
-function makeCorrBlock(title) {
+const CORR_INFO = {
+  matrix: {
+    title: "各銘柄相関",
+    sections: [
+      { h: "定義", p: "選択した銘柄同士の連動の強さを、Pearson相関係数で表したものです。対角線は同じ銘柄同士なので1.000です。" },
+      { h: "算出法", p: "株価・指数・為替・商品などは価格水準ではなく日次騰落率を使います。金利・政策金利は前日差を使います。両銘柄に有効値がある観測だけを取り出し、20・60・120個の直近観測で計算します。", formula: "騰落率 r = 当日値 ÷ 前回値 − 1\n相関 ρ = 共分散 ÷（標準偏差X × 標準偏差Y）" },
+      { h: "読み方・意義", p: "+1に近いほど同方向、−1に近いほど逆方向、0に近いほど直線的な連動が弱いことを示します。分散が0、または必要な観測数に足りない場合はN/Aです。セルを押すと、その2銘柄の長期推移を表示します。" }
+    ]
+  },
+  pairChanges: {
+    title: "相関の変化量",
+    sections: [
+      { h: "定義", p: "選択銘柄の全組み合わせを並べ、20日・60日・120日相関と、短期相関が中長期相関からどれだけ離れたかを示します。" },
+      { h: "算出法", p: "各期間の相関は各銘柄相関と同じ方法です。変化量は短期相関から長期相関を引きます。", formula: "Δ20−60 = 20日相関 − 60日相関\nΔ20−120 = 20日相関 − 120日相関" },
+      { h: "読み方・意義", p: "正の値が大きいほど最近になって連動が強まり、負の値が大きいほど最近になって連動が弱まったことを示します。見出しを押すと昇順・降順に並べ替えられ、行を押すと長期推移を表示します。" }
+    ]
+  },
+  pairTrend: {
+    title: "各銘柄相関の長期推移",
+    sections: [
+      { h: "定義", p: "選んだ2銘柄について、20日・60日・120日のローリング相関を、保有する全期間にわたって表示します。" },
+      { h: "算出法", p: "各日以前の最新20・60・120個の有効対応観測を使い、1観測ずつ窓をずらしてPearson相関を再計算します。Y軸は−1.0〜+1.0で固定し、0線を明示します。" },
+      { h: "読み方・意義", p: "20日は短期変化、60日は中期傾向、120日は比較的安定した構造を見る線です。線が急に上がれば連動の強まり、下がれば連動の弱まりまたは逆相関化を示します。グラフへマウスを重ねると日付と3期間の値を確認できます。" }
+    ]
+  },
+  centrality: {
+    title: "中心性指数",
+    sections: [
+      { h: "定義", p: "選択した銘柄集合の中で、各銘柄が残りの銘柄全体とどれだけ同調しているかを示すランキングです。" },
+      { h: "算出法", p: "銘柄iと、それ以外の各銘柄との符号付き相関を平均します。自己相関は含めず、N/Aのペアは平均から除外します。括弧内は実際に使えたペア数です。", formula: "中心性 Ci = Σ(銘柄iと銘柄jの相関) ÷ 有効ペア数　（j ≠ i）" },
+      { h: "読み方・意義", p: "値が高い銘柄ほど、選択した市場群の共通した動きを代表しやすい銘柄です。値が低い、または負の銘柄は、集合と異なる動きをしやすいことを示します。選択中の期間で順位を並べます。" }
+    ]
+  },
+  concentration: {
+    title: "相関の集中度",
+    sections: [
+      { h: "定義", p: "選択した全銘柄ペアの相関を平均し、市場群全体がどの程度同じ方向へ動いているかを1つの値にまとめた指標です。" },
+      { h: "算出法", p: "自己相関を除く全ペアのうち、計算できた符号付き相関だけを平均します。絶対値にはしません。", formula: "集中度 M = Σ(各ペアの相関) ÷ 計算可能なペア数" },
+      { h: "読み方・意義", p: "値が高い局面は多くの市場が同方向へ動き、分散効果が弱まりやすい状態です。0に近い局面は動きがばらばらで、負の局面は逆方向の動きが多い状態です。表示中の有効ペア数も併記します。" }
+    ]
+  },
+  concentrationTrend: {
+    title: "相関の集中度・長期推移",
+    sections: [
+      { h: "定義", p: "20日・60日・120日の相関集中度が、全保有期間でどのように変化したかを示します。" },
+      { h: "算出法", p: "各基準日で、各ペアのその日以前の最新ローリング相関を集めて平均します。長期間更新されていないペアは使わず、各時点で有効なペアだけを平均します。" },
+      { h: "読み方・意義", p: "上昇局面は市場全体の同方向化、低下局面は市場ごとの分化を示します。短期線だけが急上昇する場合は、一時的な市場一体化が起きている可能性があります。" }
+    ]
+  }
+};
+
+const CORR_COMMON_INFO = [
+  { h: "市場間の日付対応", p: "米国のn日付けの値動きは、その後に存在する最初の日本または韓国の取引日と比較します。通常は米国n日と日本n+1日です。日本と韓国は同日同士を比較します。" },
+  { h: "休場時の扱い", p: "日本または韓国の休場中に米国市場が複数回動いた場合、その間の米国騰落率を複利合成し、休場明けの相手市場と比較します。米国休場日に人工的な0%は作りません。欠損値も0へ置き換えません。" },
+  { h: "保留", p: "相関ネットワークは今回の実装対象外です。" }
+];
+
+const corrInfoModal = document.getElementById("corr-info-modal");
+const corrInfoTitle = document.getElementById("corr-info-title");
+const corrInfoContent = document.getElementById("corr-info-content");
+
+function openCorrInfo(key) {
+  const info = CORR_INFO[key];
+  if (!info) return;
+  corrInfoTitle.textContent = info.title;
+  corrInfoContent.innerHTML = "";
+  [...info.sections, ...CORR_COMMON_INFO].forEach((section) => {
+    const h = document.createElement("h4"); h.textContent = section.h;
+    const p = document.createElement("p"); p.textContent = section.p;
+    corrInfoContent.append(h, p);
+    if (section.formula) {
+      const f = document.createElement("p"); f.className = "formula"; f.textContent = section.formula;
+      corrInfoContent.appendChild(f);
+    }
+  });
+  corrInfoModal.classList.remove("hidden");
+  document.getElementById("corr-info-close").focus();
+}
+function closeCorrInfo() { corrInfoModal.classList.add("hidden"); }
+document.getElementById("corr-info-close").addEventListener("click", closeCorrInfo);
+corrInfoModal.addEventListener("click", (e) => { if (e.target === corrInfoModal) closeCorrInfo(); });
+
+function makeCorrBlock(title, infoKey) {
   const block = document.createElement("section");
   block.className = "corr-block";
   const h = document.createElement("h2");
-  h.textContent = title;
+  const label = document.createElement("span"); label.textContent = title; h.appendChild(label);
+  if (infoKey) {
+    const info = document.createElement("button");
+    info.className = "corr-info-btn"; info.textContent = "i";
+    info.title = `${CORR_INFO[infoKey].title}の説明`; info.setAttribute("aria-label", info.title);
+    info.addEventListener("click", () => openCorrInfo(infoKey)); h.appendChild(info);
+  }
   const body = document.createElement("div");
   body.className = "corr-body";
   block.append(h, body);
   return { block, body };
 }
 
-function makeCorrelationChart(title, sets) {
-  const box = makeCorrBlock(title);
+function makeCorrelationChart(title, sets, infoKey) {
+  const box = makeCorrBlock(title, infoKey);
   const wrap = document.createElement("div");
   wrap.className = "corr-chart";
   const svg = svgEl("svg", { viewBox: "0 0 1100 330", preserveAspectRatio: "none" });
@@ -2133,7 +2259,7 @@ function drawCorrelationResults() {
   document.querySelectorAll("#rperiods button").forEach((b) => b.classList.toggle("active", Number(b.dataset.period) === period));
   corrMainEl.innerHTML = "";
 
-  const matrix = makeCorrBlock(`相関マトリクス（${period}日）`);
+  const matrix = makeCorrBlock(`相関マトリクス（${period}日）`, "matrix");
   const matrixScroll = document.createElement("div");
   matrixScroll.className = "corr-scroll";
   const mt = document.createElement("table");
@@ -2168,14 +2294,15 @@ function drawCorrelationResults() {
     if (pair) {
       const chart = makeCorrelationChart(
         `${labelOf(pair.a, catalog)} × ${labelOf(pair.b, catalog)}　ローリング相関`,
-        CORR_PERIODS.map((n) => ({ label: `${n}日`, data: pair.analysis.rolling[n] }))
+        CORR_PERIODS.map((n) => ({ label: `${n}日`, data: pair.analysis.rolling[n] })),
+        "pairTrend"
       );
       chart.id = "corr-detail";
       corrMainEl.appendChild(chart);
     }
   }
 
-  const pairBox = makeCorrBlock("相関ペア一覧");
+  const pairBox = makeCorrBlock("相関ペア一覧", "pairChanges");
   const pairScroll = document.createElement("div"); pairScroll.className = "corr-scroll";
   const pt = document.createElement("table"); pt.className = "corr-table corr-pairs";
   const cols = [["a", "銘柄A"], ["b", "銘柄B"], ["r20", "20日"], ["r60", "60日"], ["r120", "120日"], ["d2060", "Δ20-60"], ["d20120", "Δ20-120"]];
@@ -2211,7 +2338,7 @@ function drawCorrelationResults() {
   });
   pt.appendChild(pb); pairScroll.appendChild(pt); pairBox.body.appendChild(pairScroll); corrMainEl.appendChild(pairBox.block);
 
-  const cent = makeCorrBlock(`中心性ランキング（${period}日順）`);
+  const cent = makeCorrBlock(`中心性ランキング（${period}日順）`, "centrality");
   const ct = document.createElement("table"); ct.className = "corr-table";
   ct.innerHTML = "<thead><tr><th>順位</th><th>銘柄</th><th>20日</th><th>60日</th><th>120日</th></tr></thead>";
   const cb = document.createElement("tbody");
@@ -2224,7 +2351,7 @@ function drawCorrelationResults() {
   });
   ct.appendChild(cb); cent.body.appendChild(ct); corrMainEl.appendChild(cent.block);
 
-  const conc = makeCorrBlock("相関集中度");
+  const conc = makeCorrBlock("相関集中度", "concentration");
   const cards = document.createElement("div"); cards.className = "corr-cards";
   CORR_PERIODS.forEach((n) => {
     const c = concentration[n], card = document.createElement("div"); card.className = "corr-card";
@@ -2233,7 +2360,8 @@ function drawCorrelationResults() {
   });
   conc.body.appendChild(cards); corrMainEl.appendChild(conc.block);
   corrMainEl.appendChild(makeCorrelationChart("相関集中度　長期推移",
-    CORR_PERIODS.map((n) => ({ label: `${n}日`, data: concentrationTimeline[n] }))));
+    CORR_PERIODS.map((n) => ({ label: `${n}日`, data: concentrationTimeline[n] })),
+    "concentrationTrend"));
 }
 
 function drawCorrelationPicks(catalog) {
