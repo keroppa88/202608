@@ -1919,15 +1919,15 @@ function buildButterfly(g) {
   ];
   g.appendChild(svgEl("path", {
     class: "fly-fill",
-    d: "M24,-2.4 C7,-3.2 -17,-3 -39,-2 L-56,0 L-39,2 C-17,3 7,3.2 24,2.4Z"
+    d: "M24,-4 C10,-4.8 -7,-4.4 -22,-3.7 C-36,-3 -45,-2 -51,0 C-45,2 -36,3 -22,3.7 C-7,4.4 10,4.8 24,4Z"
   }));
-  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 26, cy: 0, r: 4.5 }));
+  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 27, cy: 0, r: 5 }));
   const antennae = [
     g.appendChild(svgEl("path", { class: "fly-line" })),
     g.appendChild(svgEl("path", { class: "fly-line" }))
   ];
-  antennae[0].setAttribute("d", "M28,-2 Q37,-11 43,-7");
-  antennae[1].setAttribute("d", "M28,2 Q37,11 43,7");
+  antennae[0].setAttribute("d", "M29,-3 Q38,-12 45,-7");
+  antennae[1].setAttribute("d", "M29,3 Q38,12 45,7");
   return { foreWings, hindWings };
 }
 
@@ -1935,15 +1935,17 @@ function drawButterfly(b) {
   // 輪郭が細く潰れない範囲で開閉し、見本のシルエットを常に保つ
   const flap = 0.68 + 0.32 * Math.abs(Math.sin(b.phase));
   // 根元の隙間は一定にして、胴体と翅が接触しないようにする
-  const wy = (n, side) => ((4.6 + (n - 4.6) * flap) * side).toFixed(1);
+  const wy = (n, side) => ((5.6 + (n - 5.6) * flap) * side).toFixed(1);
   const forePath = (side) =>
-    `M18,${wy(4.6, side)} C12,${wy(18, side)} 8,${wy(48, side)} 0,${wy(71, side)}` +
-    ` C-7,${wy(84, side)} -25,${wy(75, side)} -31,${wy(52, side)}` +
-    ` C-34,${wy(31, side)} -21,${wy(14, side)} -6,${wy(4.6, side)}Z`;
+    `M18,${wy(5.6, side)} C12,${wy(17, side)} 10,${wy(43, side)} 3,${wy(69, side)}` +
+    ` L-2,${wy(84, side)} C-18,${wy(80, side)} -36,${wy(70, side)} -43,${wy(54, side)}` +
+    ` C-48,${wy(38, side)} -31,${wy(20, side)} -7,${wy(9, side)}` +
+    ` C2,${wy(6, side)} 10,${wy(5.6, side)} 18,${wy(5.6, side)}Z`;
   const hindPath = (side) =>
-    `M-20,${wy(4.6, side)} C-30,${wy(10, side)} -45,${wy(18, side)} -53,${wy(29, side)}` +
-    ` C-61,${wy(40, side)} -51,${wy(47, side)} -41,${wy(44, side)}` +
-    ` C-29,${wy(40, side)} -23,${wy(24, side)} -16,${wy(4.6, side)}Z`;
+    `M-19,${wy(5.6, side)} C-29,${wy(10, side)} -38,${wy(22, side)} -42,${wy(36, side)}` +
+    ` C-46,${wy(48, side)} -57,${wy(51, side)} -65,${wy(43, side)}` +
+    ` C-73,${wy(34, side)} -67,${wy(22, side)} -55,${wy(15, side)}` +
+    ` C-44,${wy(8, side)} -30,${wy(5.6, side)} -19,${wy(5.6, side)}Z`;
   b.parts.foreWings[0].setAttribute("d", forePath(-1));
   b.parts.foreWings[1].setAttribute("d", forePath(1));
   b.parts.hindWings[0].setAttribute("d", hindPath(-1));
