@@ -1957,6 +1957,9 @@ function buildButterfly(g) {
   const body = g.appendChild(svgEl("rect", {
     ...attrs, "clip-path": `url(#${bodyClip})`
   }));
+  // 頭の先から左右へ伸びる2本の触角。胴体と一緒に固定しておく。
+  g.appendChild(svgEl("path", { class: "bug", d: "M78,29 Q72,18 65,12" }));
+  g.appendChild(svgEl("path", { class: "bug", d: "M84,29 Q90,18 97,12" }));
   return { left, right, body };
 }
 
@@ -1968,7 +1971,7 @@ function drawButterfly(b) {
   b.parts.right.setAttribute("transform", wingTransform);
   b.g.setAttribute(
     "transform",
-    `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG + 90).toFixed(1)}) scale(1.05) translate(-81,-50)`
+    `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG + 90).toFixed(1)}) scale(0.70) translate(-81,-50)`
   );
 }
 
