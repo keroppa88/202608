@@ -1907,48 +1907,42 @@ function buildBall(g) {
   return {};
 }
 
-/* 添付見本のモスラ型。頭を右に向けた左右対称のシルエット */
+/* 選択した生成画像を透明化した蝶シルエット */
+const BUTTERFLY_ASSET = "assets/butterfly-silhouette.png";
+
 function buildButterfly(g) {
-  const foreWings = [
-    g.appendChild(svgEl("path", { class: "fly-fill" })),
-    g.appendChild(svgEl("path", { class: "fly-fill" }))
-  ];
-  const hindWings = [
-    g.appendChild(svgEl("path", { class: "fly-fill" })),
-    g.appendChild(svgEl("path", { class: "fly-fill" }))
-  ];
-  g.appendChild(svgEl("path", {
-    class: "fly-fill",
-    d: "M24,-2.4 C7,-3.2 -17,-3 -39,-2 L-56,0 L-39,2 C-17,3 7,3.2 24,2.4Z"
+  const defs = g.appendChild(svgEl("defs", {}));
+  const makeClip = (id, x, width) => {
+    const clip = defs.appendChild(svgEl("clipPath", { id }));
+    clip.appendChild(svgEl("rect", { x, y: 0, width, height: 100 }));
+  };
+  makeClip("butterfly-left", 0, 73);
+  makeClip("butterfly-body", 73, 17);
+  makeClip("butterfly-right", 90, 72);
+
+  const attrs = { x: 0, y: 0, width: 162, height: 100, preserveAspectRatio: "none" };
+  const left = g.appendChild(svgEl("image", {
+    ...attrs, href: BUTTERFLY_ASSET, "clip-path": "url(#butterfly-left)"
   }));
-  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 26, cy: 0, r: 4.5 }));
-  const antennae = [
-    g.appendChild(svgEl("path", { class: "fly-line" })),
-    g.appendChild(svgEl("path", { class: "fly-line" }))
-  ];
-  antennae[0].setAttribute("d", "M28,-2 Q37,-11 43,-7");
-  antennae[1].setAttribute("d", "M28,2 Q37,11 43,7");
-  return { foreWings, hindWings };
+  const right = g.appendChild(svgEl("image", {
+    ...attrs, href: BUTTERFLY_ASSET, "clip-path": "url(#butterfly-right)"
+  }));
+  const body = g.appendChild(svgEl("image", {
+    ...attrs, href: BUTTERFLY_ASSET, "clip-path": "url(#butterfly-body)"
+  }));
+  return { left, right, body };
 }
 
 function drawButterfly(b) {
-  // 輪郭が細く潰れない範囲で開閉し、見本のシルエットを常に保つ
-  const flap = 0.68 + 0.32 * Math.abs(Math.sin(b.phase));
-  // 根元の隙間は一定にして、胴体と翅が接触しないようにする
-  const wy = (n, side) => ((4.6 + (n - 4.6) * flap) * side).toFixed(1);
-  const forePath = (side) =>
-    `M18,${wy(4.6, side)} C12,${wy(18, side)} 8,${wy(48, side)} 0,${wy(71, side)}` +
-    ` C-7,${wy(84, side)} -25,${wy(75, side)} -31,${wy(52, side)}` +
-    ` C-34,${wy(31, side)} -21,${wy(14, side)} -6,${wy(4.6, side)}Z`;
-  const hindPath = (side) =>
-    `M-20,${wy(4.6, side)} C-30,${wy(10, side)} -45,${wy(18, side)} -53,${wy(29, side)}` +
-    ` C-61,${wy(40, side)} -51,${wy(47, side)} -41,${wy(44, side)}` +
-    ` C-29,${wy(40, side)} -23,${wy(24, side)} -16,${wy(4.6, side)}Z`;
-  b.parts.foreWings[0].setAttribute("d", forePath(-1));
-  b.parts.foreWings[1].setAttribute("d", forePath(1));
-  b.parts.hindWings[0].setAttribute("d", hindPath(-1));
-  b.parts.hindWings[1].setAttribute("d", hindPath(1));
-  b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
+  // 円形の頭と太い胴体は固定し、左右の翼だけを中心線へ寄せて羽ばたかせる
+  const flap = 0.78 + 0.22 * Math.abs(Math.sin(b.phase));
+  const wingTransform = `translate(81,0) scale(${flap.toFixed(3)},1) translate(-81,0)`;
+  b.parts.left.setAttribute("transform", wingTransform);
+  b.parts.right.setAttribute("transform", wingTransform);
+  b.g.setAttribute(
+    "transform",
+    `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG + 90).toFixed(1)}) scale(1.05) translate(-81,-50)`
+  );
 }
 
 /* ---- 動き ---- */
