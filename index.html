@@ -1816,7 +1816,7 @@ async function render() {
    マウスを動かすかキーを押せば消える。
 --------------------------------------------------------------- */
 const IDLE_MS = 5000;          // 5秒
-const SAVER_KINDS = ["centipede", "ball", "butterfly", "bird"];
+const SAVER_KINDS = ["centipede", "ball", "butterfly"];
 
 const saverEl = document.getElementById("saver");
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -1907,68 +1907,49 @@ function buildBall(g) {
   return {};
 }
 
-/* モスラを思わせる、模様のある大きな蝶 */
+/* 添付見本のモスラ型。頭を右に向けた左右対称のシルエット */
 function buildButterfly(g) {
-  const backWing = g.appendChild(svgEl("path", { class: "fly-fill", opacity: ".28" }));
   const wings = [
-    g.appendChild(svgEl("path", { class: "fly-line" })),
-    g.appendChild(svgEl("path", { class: "fly-line" }))
+    g.appendChild(svgEl("path", { class: "fly-fill" })),
+    g.appendChild(svgEl("path", { class: "fly-fill" }))
   ];
   const patterns = [
     g.appendChild(svgEl("path", { class: "fly-pattern" })),
     g.appendChild(svgEl("path", { class: "fly-pattern" }))
   ];
-  g.appendChild(svgEl("ellipse", { class: "fly-fill", cx: 0, cy: 0, rx: 11, ry: 4.5 }));
-  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 11, cy: 0, r: 4.5 }));
+  g.appendChild(svgEl("path", {
+    class: "fly-fill",
+    d: "M23,-4 C10,-7 -9,-7 -31,-4 L-48,0 L-31,4 C-9,7 10,7 23,4Z"
+  }));
+  [-22, -11, 0, 11].forEach((x) =>
+    g.appendChild(svgEl("path", { class: "fly-line", d: `M${x},-5 L${x},5` }))
+  );
+  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 25, cy: 0, r: 6 }));
   const antennae = [
     g.appendChild(svgEl("path", { class: "fly-line" })),
     g.appendChild(svgEl("path", { class: "fly-line" }))
   ];
-  antennae[0].setAttribute("d", "M12,-2 Q22,-12 29,-8");
-  antennae[1].setAttribute("d", "M12,2 Q22,12 29,8");
-  return { backWing, wings, patterns };
+  antennae[0].setAttribute("d", "M27,-3 Q36,-13 43,-8");
+  antennae[1].setAttribute("d", "M27,3 Q36,13 43,8");
+  return { wings, patterns };
 }
 
 function drawButterfly(b) {
-  const flap = 0.18 + 0.82 * Math.abs(Math.sin(b.phase));
-  const span = 19 + 38 * flap;
-  const sweep = 13 + 21 * flap;
+  // 輪郭が細く潰れない範囲で開閉し、見本のシルエットを常に保つ
+  const flap = 0.68 + 0.32 * Math.abs(Math.sin(b.phase));
+  const sy = (n, side) => (n * flap * side).toFixed(1);
   const wingPath = (side) =>
-    `M2,${side * 2} C${-7},${side * 17} ${-18},${side * span} ${-42},${side * (span + 8)}` +
-    ` C${-65},${side * (span + 2)} ${-66},${side * 10} ${-35},${side * 2}` +
-    ` C${-52},${side * sweep} ${-38},${side * (sweep + 18)} 2,${side * 2}Z`;
+    `M19,${sy(4, side)} C9,${sy(13, side)} 1,${sy(35, side)} -10,${sy(61, side)}` +
+    ` C-20,${sy(75, side)} -43,${sy(69, side)} -52,${sy(49, side)}` +
+    ` C-46,${sy(40, side)} -38,${sy(34, side)} -29,${sy(33, side)}` +
+    ` C-43,${sy(34, side)} -57,${sy(42, side)} -56,${sy(54, side)}` +
+    ` C-54,${sy(67, side)} -37,${sy(72, side)} -25,${sy(62, side)}` +
+    ` C-13,${sy(52, side)} -10,${sy(29, side)} -4,${sy(8, side)}Z`;
   b.parts.wings[0].setAttribute("d", wingPath(-1));
   b.parts.wings[1].setAttribute("d", wingPath(1));
-  b.parts.backWing.setAttribute("d", `${wingPath(-1)} ${wingPath(1)}`);
-  b.parts.patterns[0].setAttribute("d", `M-7,-8 Q-27,${-span * 0.72} -49,${-span * 0.62} M-24,-9 Q-39,-18 -50,-13`);
-  b.parts.patterns[1].setAttribute("d", `M-7,8 Q-27,${span * 0.72} -49,${span * 0.62} M-24,9 Q-39,18 -50,13`);
+  b.parts.patterns[0].setAttribute("d", `M8,${sy(-9, 1)} Q-16,${sy(-38, 1)} -42,${sy(-48, 1)} M-16,${sy(-16, 1)} Q-34,${sy(-25, 1)} -47,${sy(-20, 1)}`);
+  b.parts.patterns[1].setAttribute("d", `M8,${sy(9, 1)} Q-16,${sy(38, 1)} -42,${sy(48, 1)} M-16,${sy(16, 1)} Q-34,${sy(25, 1)} -47,${sy(20, 1)}`);
   b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
-}
-
-/* After Dark の白い鳥を、緑一色の大きな横向きシルエットで */
-function buildBird(g) {
-  const rearWing = g.appendChild(svgEl("path", { class: "fly-fill", opacity: ".35" }));
-  const wing = g.appendChild(svgEl("path", { class: "fly-fill" }));
-  g.appendChild(svgEl("path", {
-    class: "fly-fill",
-    d: "M-60,1 L-88,-18 L-76,2 L-91,18 L-55,9 C-25,21 24,19 57,1 C28,-17 -22,-19 -60,1Z"
-  }));
-  g.appendChild(svgEl("circle", { class: "fly-fill", cx: 55, cy: -3, r: 12 }));
-  g.appendChild(svgEl("path", { class: "fly-fill", d: "M65,-8 L88,-1 L66,3Z" }));
-  g.appendChild(svgEl("circle", { cx: 59, cy: -7, r: 1.8, fill: "var(--bg)" }));
-  return { rearWing, wing };
-}
-
-function drawBird(b) {
-  const flap = Math.sin(b.phase);
-  const tipY = -flap * 68;
-  const wingPath = (offset) =>
-    `M${-28 + offset},${-3 + offset} C${-49 + offset},${(tipY * 0.42 + offset).toFixed(1)}` +
-    ` ${-39 + offset},${(tipY + offset).toFixed(1)} ${5 + offset},${(tipY * 1.08 + offset).toFixed(1)}` +
-    ` C${23 + offset},${(tipY * 0.48 + offset).toFixed(1)} ${22 + offset},-8 ${14 + offset},2Z`;
-  b.parts.rearWing.setAttribute("d", wingPath(-5));
-  b.parts.wing.setAttribute("d", wingPath(0));
-  b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)}) scale(1.18)`);
 }
 
 /* ---- 動き ---- */
@@ -1999,15 +1980,13 @@ function moveBug(b, dt, w, h) {
     return;
   }
 
-  if (b.kind === "butterfly" || b.kind === "bird") {
-    const isBird = b.kind === "bird";
-    const turnRate = isBird ? 0.22 : 0.65;
-    b.ang += Math.sin(saverT * (isBird ? 0.45 : 0.72) + b.seed) * turnRate * dt;
-    b.phase += (isBird ? 4.2 : 6.2) * dt;
-    steer(b, w, h, isBird ? 0.035 : 0.055, isBird ? 150 : 100);
+  if (b.kind === "butterfly") {
+    b.ang += Math.sin(saverT * 0.72 + b.seed) * 0.65 * dt;
+    b.phase += 6.2 * dt;
+    steer(b, w, h, 0.055, 100);
     b.x += Math.cos(b.ang) * b.speed * dt;
     b.y += Math.sin(b.ang) * b.speed * dt;
-    b.y += Math.sin(b.phase * 0.5 + b.seed) * (isBird ? 5 : 10) * dt;
+    b.y += Math.sin(b.phase * 0.5 + b.seed) * 10 * dt;
     b.x = Math.min(Math.max(b.x, -90), w + 90);
     b.y = Math.min(Math.max(b.y, -90), h + 90);
     return;
@@ -2050,9 +2029,6 @@ function buildBugs() {
     } else if (kind === "butterfly") {
       b.speed = rnd(28, 42);
       b.parts = buildButterfly(g);
-    } else if (kind === "bird") {
-      b.speed = rnd(55, 75);
-      b.parts = buildBird(g);
     } else {
       b.speed = rnd(45, 80);
       b.trail = [];
@@ -2080,8 +2056,6 @@ function stepSaver(now) {
       b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)})`);
     } else if (b.kind === "butterfly") {
       drawButterfly(b);
-    } else if (b.kind === "bird") {
-      drawBird(b);
     } else {
       drawCentipede(b);                     // 節ごとに置くので群そのものは動かさない
     }
