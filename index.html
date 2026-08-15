@@ -352,6 +352,7 @@
     <button id="ctype" title="押すと相対と絶対が入れ替わる">相対</button>
     <select id="cyear" title="表示する年"></select>
     <button id="ctheme" title="押すたびに配色が変わる">Color</button>
+    <button id="cjoin" title="押すと休みの日をまたいで線をつなぐ">線補完なし</button>
     <div class="spacer"></div>
     <div class="note" id="cstatus"></div>
   </div>
@@ -418,6 +419,7 @@ function loadSettings() {
       ma: (s.ma && typeof s.ma === "object") ? s.ma : { 20: false, 80: false, 200: false },
       chartType: s.chartType === "abs" ? "abs" : "rel",
       chartYear: s.chartYear || 2026,
+      chartJoin: s.chartJoin === true,
       chartColumns: fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES),
       bugIndex: Number(s.bugIndex) || 0,
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
@@ -428,7 +430,8 @@ function loadSettings() {
     return {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
       ma: { 20: false, 80: false, 200: false },
-      chartType: "rel", chartYear: 2026, chartColumns: DEFAULT_CHART_COLUMNS.slice(),
+      chartType: "rel", chartYear: 2026, chartJoin: false,
+      chartColumns: DEFAULT_CHART_COLUMNS.slice(),
       bugIndex: 0, chartZoom: 1,
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice()
     };
@@ -1240,6 +1243,11 @@ ctypeEl.addEventListener("click", () => {
   saveSettings();
   drawCharts();
 });
+document.getElementById("cjoin").addEventListener("click", () => {
+  settings.chartJoin = !settings.chartJoin;
+  saveSettings();
+  drawCharts();
+});
 cyearEl.addEventListener("change", () => {
   settings.chartYear = Number(cyearEl.value);
   saveSettings();
@@ -1337,6 +1345,8 @@ async function drawCharts() {
   const year = String(settings.chartYear);
   cyearEl.value = year;
   ctypeEl.textContent = settings.chartType === "rel" ? "相対" : "絶対";
+  document.getElementById("cjoin").textContent =
+    settings.chartJoin ? "線補完あり" : "線補完なし";
   canvasEl.innerHTML = '<div id="loading">読み込み中…</div>';
 
   const catalog = await buildCatalog(year);
@@ -1495,7 +1505,8 @@ function drawRelative(days, series, catalog) {
     let d = "", pen = false;
     days.forEach((day, j) => {
       const v = m.get(day);
-      if (v === undefined) { pen = false; return; }
+      // 休みの日は値が無い。線補完ありなら切らずにそのまま次の点へつなぐ
+      if (v === undefined) { if (!settings.chartJoin) pen = false; return; }
       d += `${pen ? "L" : "M"}${x(j).toFixed(1)},${y(v).toFixed(1)}`;
       pen = true;
     });
@@ -1546,7 +1557,7 @@ function drawAbsolute(days, series, catalog) {
     let d = "", pen = false;
     days.forEach((day, j) => {
       const v = m.get(day);
-      if (v === undefined) { pen = false; return; }
+      if (v === undefined) { if (!settings.chartJoin) pen = false; return; }
       d += `${pen ? "L" : "M"}${x(j).toFixed(1)},${y(Number(v)).toFixed(1)}`;
       pen = true;
     });
