@@ -253,12 +253,21 @@
     margin: 0; padding: 6px 9px; border-bottom: 1px solid var(--line);
     font-size: 14px; font-weight: normal; display: flex; align-items: center; gap: 7px;
   }
+  .corr-block.collapsed h2 { border-bottom: 0; }
+  .corr-block.collapsed .corr-body { display: none; }
+  .corr-head-label { min-width: 0; }
+  .corr-head-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; flex: none; }
   .corr-info-btn {
     width: 18px; height: 18px; padding: 0; border: 1px solid var(--line); border-radius: 50%;
     background: var(--panel); color: var(--fg); font: bold 12px/16px "Courier New", monospace;
     text-align: center; cursor: pointer; flex: none;
   }
   .corr-info-btn:hover, .corr-info-btn:focus { background: var(--sel-bg); color: var(--sel-fg); outline: none; }
+  .corr-block-btn {
+    min-width: 22px; height: 20px; padding: 0 5px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--fg); font: inherit; line-height: 18px; cursor: pointer;
+  }
+  .corr-block-btn:hover, .corr-block-btn:focus { background: var(--sel-bg); color: var(--sel-fg); outline: none; }
   .corr-body { padding: 8px; }
   .corr-scroll { overflow: auto; max-height: 62vh; }
   .corr-table { table-layout: auto; min-width: 100%; }
@@ -271,8 +280,16 @@
   .corr-cards { display: flex; flex-wrap: wrap; gap: 8px; }
   .corr-card { border: 1px solid var(--line); padding: 8px 14px; min-width: 130px; }
   .corr-card .v { display: block; margin-top: 3px; font-size: 20px; }
-  .corr-chart { position: relative; overflow-x: auto; }
-  .corr-chart svg { display: block; width: 100%; min-width: 720px; height: 330px; }
+  .corr-chart { position: relative; }
+  .corr-chart-viewport {
+    overflow-x: scroll; overflow-y: auto; max-height: 70vh; cursor: grab; touch-action: pan-y;
+    scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin;
+  }
+  .corr-chart-viewport.dragging { cursor: grabbing; user-select: none; }
+  .corr-chart-viewport::-webkit-scrollbar { width: 13px; height: 13px; }
+  .corr-chart-viewport::-webkit-scrollbar-track { background: var(--bg); border: 1px solid var(--line); }
+  .corr-chart-viewport::-webkit-scrollbar-thumb { background: var(--fg); border: 3px solid var(--bg); }
+  .corr-chart svg { display: block; width: 1100px; height: 330px; max-width: none; }
   .corr-chart .axis { stroke: var(--line); fill: none; }
   .corr-chart .gridline { stroke: var(--dim); stroke-width: .6; }
   .corr-chart .zero { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 4 3; }
@@ -2166,27 +2183,57 @@ function closeCorrInfo() { corrInfoModal.classList.add("hidden"); }
 document.getElementById("corr-info-close").addEventListener("click", closeCorrInfo);
 corrInfoModal.addEventListener("click", (e) => { if (e.target === corrInfoModal) closeCorrInfo(); });
 
-function makeCorrBlock(title, infoKey) {
+const corrCollapsed = new Set();
+
+function makeCorrBlock(title, infoKey, options) {
+  options = options || {};
   const block = document.createElement("section");
   block.className = "corr-block";
+  if (options.blockKey && corrCollapsed.has(options.blockKey)) block.classList.add("collapsed");
   const h = document.createElement("h2");
-  const label = document.createElement("span"); label.textContent = title; h.appendChild(label);
+  const label = document.createElement("span"); label.className = "corr-head-label"; label.textContent = title; h.appendChild(label);
   if (infoKey) {
     const info = document.createElement("button");
     info.className = "corr-info-btn"; info.textContent = "i";
     info.title = `${CORR_INFO[infoKey].title}の説明`; info.setAttribute("aria-label", info.title);
     info.addEventListener("click", () => openCorrInfo(infoKey)); h.appendChild(info);
   }
+  const actions = document.createElement("span");
+  actions.className = "corr-head-actions";
+  if (options.blockKey) {
+    const collapse = document.createElement("button");
+    collapse.className = "corr-block-btn corr-collapse";
+    collapse.textContent = block.classList.contains("collapsed") ? "＋" : "−";
+    collapse.title = block.classList.contains("collapsed") ? "内容を開く" : "題名だけに縮小";
+    collapse.setAttribute("aria-label", collapse.title);
+    collapse.addEventListener("click", () => {
+      const closed = block.classList.toggle("collapsed");
+      collapse.textContent = closed ? "＋" : "−";
+      collapse.title = closed ? "内容を開く" : "題名だけに縮小";
+      collapse.setAttribute("aria-label", collapse.title);
+      if (closed) corrCollapsed.add(options.blockKey); else corrCollapsed.delete(options.blockKey);
+    });
+    actions.appendChild(collapse);
+  }
+  if (options.onClose) {
+    const close = document.createElement("button");
+    close.className = "corr-block-btn corr-chart-close"; close.textContent = "×";
+    close.title = "チャートを閉じる"; close.setAttribute("aria-label", close.title);
+    close.addEventListener("click", options.onClose); actions.appendChild(close);
+  }
+  if (actions.childNodes.length) h.appendChild(actions);
   const body = document.createElement("div");
   body.className = "corr-body";
   block.append(h, body);
   return { block, body };
 }
 
-function makeCorrelationChart(title, sets, infoKey) {
-  const box = makeCorrBlock(title, infoKey);
+function makeCorrelationChart(title, sets, infoKey, options) {
+  const box = makeCorrBlock(title, infoKey, options);
   const wrap = document.createElement("div");
   wrap.className = "corr-chart";
+  const viewport = document.createElement("div");
+  viewport.className = "corr-chart-viewport";
   const svg = svgEl("svg", { viewBox: "0 0 1100 330", preserveAspectRatio: "none" });
   const L = 54, R = 18, T = 16, B = 34, W = 1100, H = 330;
   const all = sets.flatMap((s) => s.data);
@@ -2216,11 +2263,17 @@ function makeCorrelationChart(title, sets, infoKey) {
     const d = set.data.map((p, j) => `${j ? "L" : "M"}${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
     if (d) svg.appendChild(svgEl("path", { d, class: "plot", stroke: seriesColor(i) }));
   });
-  const legend = svg.appendChild(svgEl("text", { x: L + 8, y: T + 15, class: "lab" }));
-  legend.textContent = sets.map((s) => s.label).join("　");
+  let legendX = L + 8;
+  sets.forEach((set, i) => {
+    const legend = svg.appendChild(svgEl("text", { x: legendX, y: T + 15, class: "lab", style: `fill:${seriesColor(i)}` }));
+    legend.textContent = set.label;
+    legendX += textW(set.label, 12) + 24;
+  });
   const tip = document.createElement("div");
   tip.className = "corr-tip";
+  let dragging = false;
   svg.addEventListener("mousemove", (e) => {
+    if (dragging) return;
     const rect = svg.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const at = t0 + ratio * (t1 - t0);
@@ -2240,7 +2293,38 @@ function makeCorrelationChart(title, sets, infoKey) {
     tip.style.top = `${Math.max(0, e.clientY - rect.top - 10)}px`;
   });
   svg.addEventListener("mouseleave", () => { tip.style.display = "none"; });
-  wrap.append(svg, tip);
+  let zoom = 1;
+  const applyZoom = () => {
+    svg.style.width = `${W * zoom}px`;
+    svg.style.height = `${H * zoom}px`;
+  };
+  viewport.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const rect = viewport.getBoundingClientRect();
+    const oldW = W * zoom, oldH = H * zoom;
+    const anchorX = viewport.scrollLeft + e.clientX - rect.left;
+    const anchorY = viewport.scrollTop + e.clientY - rect.top;
+    zoom = Math.max(0.65, Math.min(5, zoom * (e.deltaY < 0 ? 1.16 : 1 / 1.16)));
+    applyZoom();
+    viewport.scrollLeft = anchorX / oldW * (W * zoom) - (e.clientX - rect.left);
+    viewport.scrollTop = anchorY / oldH * (H * zoom) - (e.clientY - rect.top);
+  }, { passive: false });
+  let dragX = 0, dragScroll = 0;
+  viewport.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    dragging = true; dragX = e.clientX; dragScroll = viewport.scrollLeft;
+    viewport.classList.add("dragging"); tip.style.display = "none";
+    viewport.setPointerCapture(e.pointerId);
+  });
+  viewport.addEventListener("pointermove", (e) => {
+    if (dragging) viewport.scrollLeft = dragScroll - (e.clientX - dragX);
+  });
+  const stopDrag = () => { dragging = false; viewport.classList.remove("dragging"); };
+  viewport.addEventListener("pointerup", stopDrag);
+  viewport.addEventListener("pointercancel", stopDrag);
+  applyZoom();
+  viewport.appendChild(svg);
+  wrap.append(viewport, tip);
   box.body.appendChild(wrap);
   return box.block;
 }
@@ -2251,6 +2335,12 @@ function openPairDetail(pair) {
   document.getElementById("corr-detail")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function closePairDetail() {
+  corrSelectedPair = null;
+  corrCollapsed.delete("pairChart");
+  drawCorrelationResults();
+}
+
 function drawCorrelationResults() {
   if (!corrState) return;
   const { keys, catalog, pairs, centrality, concentration, concentrationTimeline } = corrState;
@@ -2259,7 +2349,7 @@ function drawCorrelationResults() {
   document.querySelectorAll("#rperiods button").forEach((b) => b.classList.toggle("active", Number(b.dataset.period) === period));
   corrMainEl.innerHTML = "";
 
-  const matrix = makeCorrBlock(`相関マトリクス（${period}日）`, "matrix");
+  const matrix = makeCorrBlock(`相関マトリクス（${period}日）`, "matrix", { blockKey: "matrix" });
   const matrixScroll = document.createElement("div");
   matrixScroll.className = "corr-scroll";
   const mt = document.createElement("table");
@@ -2289,20 +2379,21 @@ function drawCorrelationResults() {
   mt.appendChild(mb); matrixScroll.appendChild(mt); matrix.body.appendChild(matrixScroll);
   corrMainEl.appendChild(matrix.block);
 
+  let pairChart = null;
   if (corrSelectedPair) {
     const pair = pairs.find((p) => p.key === corrSelectedPair);
     if (pair) {
-      const chart = makeCorrelationChart(
-        `${labelOf(pair.a, catalog)} × ${labelOf(pair.b, catalog)}　ローリング相関`,
-        CORR_PERIODS.map((n) => ({ label: `${n}日`, data: pair.analysis.rolling[n] })),
-        "pairTrend"
+      const pairName = `${labelOf(pair.a, catalog)} × ${labelOf(pair.b, catalog)}`;
+      pairChart = makeCorrelationChart(
+        `${pairName}　ローリング相関`,
+        CORR_PERIODS.map((n) => ({ label: `${pairName} ${n}日`, data: pair.analysis.rolling[n] })),
+        "pairTrend", { blockKey: "pairChart", onClose: closePairDetail }
       );
-      chart.id = "corr-detail";
-      corrMainEl.appendChild(chart);
+      pairChart.id = "corr-detail";
     }
   }
 
-  const pairBox = makeCorrBlock("相関ペア一覧", "pairChanges");
+  const pairBox = makeCorrBlock("相関ペア一覧", "pairChanges", { blockKey: "pairs" });
   const pairScroll = document.createElement("div"); pairScroll.className = "corr-scroll";
   const pt = document.createElement("table"); pt.className = "corr-table corr-pairs";
   const cols = [["a", "銘柄A"], ["b", "銘柄B"], ["r20", "20日"], ["r60", "60日"], ["r120", "120日"], ["d2060", "Δ20-60"], ["d20120", "Δ20-120"]];
@@ -2337,8 +2428,9 @@ function drawCorrelationResults() {
     tr.addEventListener("click", () => openPairDetail(r.p)); pb.appendChild(tr);
   });
   pt.appendChild(pb); pairScroll.appendChild(pt); pairBox.body.appendChild(pairScroll); corrMainEl.appendChild(pairBox.block);
+  if (pairChart) corrMainEl.appendChild(pairChart);
 
-  const cent = makeCorrBlock(`中心性ランキング（${period}日順）`, "centrality");
+  const cent = makeCorrBlock(`中心性ランキング（${period}日順）`, "centrality", { blockKey: "centrality" });
   const ct = document.createElement("table"); ct.className = "corr-table";
   ct.innerHTML = "<thead><tr><th>順位</th><th>銘柄</th><th>20日</th><th>60日</th><th>120日</th></tr></thead>";
   const cb = document.createElement("tbody");
@@ -2349,9 +2441,9 @@ function drawCorrelationResults() {
     })];
     vals.forEach((v) => { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); }); cb.appendChild(tr);
   });
-  ct.appendChild(cb); cent.body.appendChild(ct); corrMainEl.appendChild(cent.block);
+  ct.appendChild(cb); cent.body.appendChild(ct);
 
-  const conc = makeCorrBlock("相関集中度", "concentration");
+  const conc = makeCorrBlock("相関集中度", "concentration", { blockKey: "concentration" });
   const cards = document.createElement("div"); cards.className = "corr-cards";
   CORR_PERIODS.forEach((n) => {
     const c = concentration[n], card = document.createElement("div"); card.className = "corr-card";
@@ -2359,9 +2451,10 @@ function drawCorrelationResults() {
     const v = document.createElement("span"); v.className = "v"; v.textContent = fmtCorr(c.v); card.appendChild(v); cards.appendChild(card);
   });
   conc.body.appendChild(cards); corrMainEl.appendChild(conc.block);
+  corrMainEl.appendChild(cent.block);
   corrMainEl.appendChild(makeCorrelationChart("相関集中度　長期推移",
-    CORR_PERIODS.map((n) => ({ label: `${n}日`, data: concentrationTimeline[n] })),
-    "concentrationTrend"));
+    CORR_PERIODS.map((n) => ({ label: `相関集中度 ${n}日`, data: concentrationTimeline[n] })),
+    "concentrationTrend", { blockKey: "concentrationChart" }));
 }
 
 function drawCorrelationPicks(catalog) {
