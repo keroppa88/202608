@@ -281,15 +281,14 @@
   .corr-card { border: 1px solid var(--line); padding: 8px 14px; min-width: 130px; }
   .corr-card .v { display: block; margin-top: 3px; font-size: 20px; }
   .corr-chart { position: relative; }
-  .corr-chart-viewport {
-    overflow-x: scroll; overflow-y: auto; max-height: 70vh; cursor: grab; touch-action: pan-y;
-    scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin;
+  .corr-chart-range {
+    display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-bottom: 6px;
   }
-  .corr-chart-viewport.dragging { cursor: grabbing; user-select: none; }
-  .corr-chart-viewport::-webkit-scrollbar { width: 13px; height: 13px; }
-  .corr-chart-viewport::-webkit-scrollbar-track { background: var(--bg); border: 1px solid var(--line); }
-  .corr-chart-viewport::-webkit-scrollbar-thumb { background: var(--fg); border: 3px solid var(--bg); }
-  .corr-chart svg { display: block; width: 1100px; height: 330px; max-width: none; }
+  .corr-chart-range select {
+    min-width: 72px; padding: 2px 5px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--fg); font: inherit; cursor: pointer;
+  }
+  .corr-chart svg { display: block; width: 100%; height: auto; cursor: crosshair; }
   .corr-chart .axis { stroke: var(--line); fill: none; }
   .corr-chart .gridline { stroke: var(--dim); stroke-width: .6; }
   .corr-chart .zero { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 4 3; }
@@ -539,6 +538,8 @@ function loadSettings() {
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
       corrColumns: fixKeys(s.corrColumns, s.columns || DEFAULT_COLUMNS),
       corrPeriod: [20, 60, 120].includes(Number(s.corrPeriod)) ? Number(s.corrPeriod) : 20,
+      corrStartYear: Number(s.corrStartYear) || 2000,
+      corrEndYear: Number(s.corrEndYear) || new Date().getFullYear(),
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
@@ -551,6 +552,7 @@ function loadSettings() {
       chartColumns: DEFAULT_CHART_COLUMNS.slice(),
       chartZoom: 1,
       corrColumns: DEFAULT_COLUMNS.slice(), corrPeriod: 20,
+      corrStartYear: 2000, corrEndYear: new Date().getFullYear(),
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       saverIndex: 0
     };
@@ -2184,6 +2186,7 @@ document.getElementById("corr-info-close").addEventListener("click", closeCorrIn
 corrInfoModal.addEventListener("click", (e) => { if (e.target === corrInfoModal) closeCorrInfo(); });
 
 const corrCollapsed = new Set();
+const corrTightScale = new Set();
 
 function makeCorrBlock(title, infoKey, options) {
   options = options || {};
@@ -2229,56 +2232,103 @@ function makeCorrBlock(title, infoKey, options) {
 }
 
 function makeCorrelationChart(title, sets, infoKey, options) {
+  options = options || {};
   const box = makeCorrBlock(title, infoKey, options);
   const wrap = document.createElement("div");
   wrap.className = "corr-chart";
-  const viewport = document.createElement("div");
-  viewport.className = "corr-chart-viewport";
+  const range = document.createElement("div");
+  range.className = "corr-chart-range";
+  const startSelect = document.createElement("select");
+  const endSelect = document.createElement("select");
+  startSelect.title = "表示開始年"; startSelect.setAttribute("aria-label", "表示開始年");
+  endSelect.title = "表示終了年"; endSelect.setAttribute("aria-label", "表示終了年");
+  const raw = sets.flatMap((s) => s.data);
+  const rawYears = raw.map((p) => Number(p.d.slice(0, 4))).filter(Number.isFinite);
+  const thisYear = new Date().getFullYear();
+  const firstYear = rawYears.reduce((v, year) => Math.min(v, year), 1999);
+  const lastYear = rawYears.reduce((v, year) => Math.max(v, year), thisYear);
+  let startYear = Math.max(firstYear, Math.min(lastYear, Number(settings.corrStartYear) || 2000));
+  let endYear = Math.max(firstYear, Math.min(lastYear, Number(settings.corrEndYear) || thisYear));
+  if (startYear > endYear) startYear = endYear;
+  for (let year = firstYear; year <= lastYear; year++) {
+    const a = document.createElement("option"); a.value = year; a.textContent = year; startSelect.appendChild(a);
+    const b = document.createElement("option"); b.value = year; b.textContent = year; endSelect.appendChild(b);
+  }
+  startSelect.value = String(startYear); endSelect.value = String(endYear);
+  const between = document.createElement("span"); between.textContent = "～";
+  const rangeLabel = document.createElement("span"); rangeLabel.textContent = "表示年";
+  const changeRange = (fromStart) => {
+    let a = Number(startSelect.value), b = Number(endSelect.value);
+    if (a > b) { if (fromStart) b = a; else a = b; }
+    settings.corrStartYear = a; settings.corrEndYear = b; saveSettings(); drawCorrelationResults();
+  };
+  startSelect.addEventListener("change", () => changeRange(true));
+  endSelect.addEventListener("change", () => changeRange(false));
+  range.append(rangeLabel, startSelect, between, endSelect);
   const svg = svgEl("svg", { viewBox: "0 0 1100 330", preserveAspectRatio: "none" });
   const L = 54, R = 18, T = 16, B = 34, W = 1100, H = 330;
-  const all = sets.flatMap((s) => s.data);
+  const shownSets = sets.map((set) => ({
+    ...set,
+    data: set.data.filter((p) => {
+      const year = Number(p.d.slice(0, 4));
+      return year >= startYear && year <= endYear;
+    })
+  }));
+  const all = shownSets.flatMap((s) => s.data);
   if (!all.length) {
-    box.body.textContent = "表示できる相関データがない";
+    const empty = document.createElement("div"); empty.textContent = "表示できる相関データがない";
+    box.body.append(range, empty);
     return box.block;
   }
-  const dates = all.map((p) => p.d).sort();
-  const t0 = Date.parse(dates[0] + "T00:00:00Z"), t1 = Date.parse(dates[dates.length - 1] + "T00:00:00Z");
+  const t0 = Date.UTC(startYear, 0, 1), t1 = Date.UTC(endYear + 1, 0, 1);
   const x = (d) => L + (W - L - R) * (Date.parse(d + "T00:00:00Z") - t0) / Math.max(1, t1 - t0);
-  const y = (v) => T + (H - T - B) * (1 - (v + 1) / 2);
-  [-1, -0.5, 0, 0.5, 1].forEach((v) => {
-    svg.appendChild(svgEl("line", { x1: L, y1: y(v), x2: W - R, y2: y(v), class: v === 0 ? "zero" : "gridline" }));
-    const lab = svg.appendChild(svgEl("text", { x: L - 7, y: y(v) + 4, class: "lab", "text-anchor": "end" }));
-    lab.textContent = v.toFixed(1);
-  });
-  const y0 = Number(dates[0].slice(0, 4)), y1 = Number(dates[dates.length - 1].slice(0, 4));
-  const yearStep = Math.max(1, Math.ceil((y1 - y0 + 1) / 12));
-  for (let year = y0; year <= y1; year += yearStep) {
-    const d = `${year}-01-01`, px = x(d);
-    svg.appendChild(svgEl("line", { x1: px, y1: T, x2: px, y2: H - B, class: "gridline" }));
-    const lab = svg.appendChild(svgEl("text", { x: px, y: H - 10, class: "lab", "text-anchor": "middle" }));
-    lab.textContent = String(year);
-  }
-  svg.appendChild(svgEl("rect", { x: L, y: T, width: W - L - R, height: H - T - B, class: "axis" }));
-  sets.forEach((set, i) => {
-    const d = set.data.map((p, j) => `${j ? "L" : "M"}${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
-    if (d) svg.appendChild(svgEl("path", { d, class: "plot", stroke: seriesColor(i) }));
-  });
-  let legendX = L + 8;
-  sets.forEach((set, i) => {
-    const legend = svg.appendChild(svgEl("text", { x: legendX, y: T + 15, class: "lab", style: `fill:${seriesColor(i)}` }));
-    legend.textContent = set.label;
-    legendX += textW(set.label, 12) + 24;
-  });
+  const chartKey = options.blockKey || title;
+  const drawPlot = () => {
+    svg.replaceChildren();
+    const values = all.map((p) => p.v).filter(Number.isFinite);
+    const tight = corrTightScale.has(chartKey);
+    const lo = tight ? Math.min(...values) - 0.1 : -1;
+    const hi = tight ? Math.max(...values) + 0.1 : 1;
+    const y = (v) => T + (H - T - B) * (hi - v) / Math.max(0.000001, hi - lo);
+    const yTicks = tight ? Array.from({ length: 5 }, (_, i) => lo + (hi - lo) * i / 4) : [-1, -0.5, 0, 0.5, 1];
+    yTicks.forEach((v) => {
+      svg.appendChild(svgEl("line", { x1: L, y1: y(v), x2: W - R, y2: y(v), class: Math.abs(v) < 1e-9 ? "zero" : "gridline" }));
+      const lab = svg.appendChild(svgEl("text", { x: L - 7, y: y(v) + 4, class: "lab", "text-anchor": "end" }));
+      lab.textContent = tight ? v.toFixed(2) : v.toFixed(1);
+    });
+    const totalMonths = (endYear - startYear + 1) * 12;
+    let monthStep = 12;
+    [6, 4, 2, 1].forEach((candidate) => {
+      if (Math.ceil(totalMonths / candidate) <= 20) monthStep = candidate;
+    });
+    for (let offset = 0; offset < totalMonths; offset += monthStep) {
+      const year = startYear + Math.floor(offset / 12), month = offset % 12;
+      const px = x(`${year}-${String(month + 1).padStart(2, "0")}-01`);
+      svg.appendChild(svgEl("line", { x1: px, y1: T, x2: px, y2: H - B, class: "gridline" }));
+      const lab = svg.appendChild(svgEl("text", { x: px, y: H - 10, class: "lab", "text-anchor": offset === 0 ? "start" : "middle" }));
+      lab.textContent = month === 0 ? String(year) : `${month + 1}月`;
+    }
+    svg.appendChild(svgEl("rect", { x: L, y: T, width: W - L - R, height: H - T - B, class: "axis" }));
+    shownSets.forEach((set, i) => {
+      const d = set.data.map((p, j) => `${j ? "L" : "M"}${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+      if (d) svg.appendChild(svgEl("path", { d, class: "plot", stroke: seriesColor(i) }));
+    });
+    let legendX = L + 8;
+    shownSets.forEach((set, i) => {
+      const legend = svg.appendChild(svgEl("text", { x: legendX, y: T + 15, class: "lab", style: `fill:${seriesColor(i)}` }));
+      legend.textContent = set.label;
+      legendX += textW(set.label, 12) + 24;
+    });
+  };
+  drawPlot();
   const tip = document.createElement("div");
   tip.className = "corr-tip";
-  let dragging = false;
   svg.addEventListener("mousemove", (e) => {
-    if (dragging) return;
     const rect = svg.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const at = t0 + ratio * (t1 - t0);
     const lines = [new Date(at).toISOString().slice(0, 10)];
-    sets.forEach((set) => {
+    shownSets.forEach((set) => {
       let lo = 0, hi = set.data.length;
       while (lo < hi) {
         const mid = (lo + hi) >> 1;
@@ -2293,38 +2343,11 @@ function makeCorrelationChart(title, sets, infoKey, options) {
     tip.style.top = `${Math.max(0, e.clientY - rect.top - 10)}px`;
   });
   svg.addEventListener("mouseleave", () => { tip.style.display = "none"; });
-  let zoom = 1;
-  const applyZoom = () => {
-    svg.style.width = `${W * zoom}px`;
-    svg.style.height = `${H * zoom}px`;
-  };
-  viewport.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    const rect = viewport.getBoundingClientRect();
-    const oldW = W * zoom, oldH = H * zoom;
-    const anchorX = viewport.scrollLeft + e.clientX - rect.left;
-    const anchorY = viewport.scrollTop + e.clientY - rect.top;
-    zoom = Math.max(0.65, Math.min(5, zoom * (e.deltaY < 0 ? 1.16 : 1 / 1.16)));
-    applyZoom();
-    viewport.scrollLeft = anchorX / oldW * (W * zoom) - (e.clientX - rect.left);
-    viewport.scrollTop = anchorY / oldH * (H * zoom) - (e.clientY - rect.top);
-  }, { passive: false });
-  let dragX = 0, dragScroll = 0;
-  viewport.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    dragging = true; dragX = e.clientX; dragScroll = viewport.scrollLeft;
-    viewport.classList.add("dragging"); tip.style.display = "none";
-    viewport.setPointerCapture(e.pointerId);
+  svg.addEventListener("dblclick", (e) => {
+    e.preventDefault(); corrTightScale.add(chartKey); tip.style.display = "none"; drawPlot();
   });
-  viewport.addEventListener("pointermove", (e) => {
-    if (dragging) viewport.scrollLeft = dragScroll - (e.clientX - dragX);
-  });
-  const stopDrag = () => { dragging = false; viewport.classList.remove("dragging"); };
-  viewport.addEventListener("pointerup", stopDrag);
-  viewport.addEventListener("pointercancel", stopDrag);
-  applyZoom();
-  viewport.appendChild(svg);
-  wrap.append(viewport, tip);
+  svg.setAttribute("title", "ダブルクリックで縦軸を折れ線の最小値−0.1～最大値＋0.1に合わせる");
+  wrap.append(range, svg, tip);
   box.body.appendChild(wrap);
   return box.block;
 }
