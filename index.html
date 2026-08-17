@@ -255,7 +255,13 @@
   }
   .corr-block.collapsed h2 { border-bottom: 0; }
   .corr-block.collapsed .corr-body { display: none; }
+  .corr-block.corr-dragging { opacity: .45; }
+  .corr-block.corr-drop-before { box-shadow: 0 -3px 0 var(--fg2); }
+  .corr-block.corr-drop-after { box-shadow: 0 3px 0 var(--fg2); }
+  .corr-block h2.corr-drag-handle { cursor: grab; user-select: none; touch-action: none; }
+  .corr-block h2.corr-drag-handle:active { cursor: grabbing; }
   .corr-head-label { min-width: 0; }
+  .corr-drag-mark { color: var(--dim); flex: none; }
   .corr-head-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; flex: none; }
   .corr-info-btn {
     width: 18px; height: 18px; padding: 0; border: 1px solid var(--line); border-radius: 50%;
@@ -540,6 +546,7 @@ function loadSettings() {
       corrPeriod: [20, 60, 120].includes(Number(s.corrPeriod)) ? Number(s.corrPeriod) : 20,
       corrStartYear: Number(s.corrStartYear) || 2000,
       corrEndYear: Number(s.corrEndYear) || new Date().getFullYear(),
+      corrBlockOrder: Array.isArray(s.corrBlockOrder) ? s.corrBlockOrder.slice() : [],
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
@@ -553,6 +560,7 @@ function loadSettings() {
       chartZoom: 1,
       corrColumns: DEFAULT_COLUMNS.slice(), corrPeriod: 20,
       corrStartYear: 2000, corrEndYear: new Date().getFullYear(),
+      corrBlockOrder: [],
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       saverIndex: 0
     };
@@ -1945,6 +1953,7 @@ const corrStatusEl = document.getElementById("rstatus");
 const CORR_PERIODS = [20, 60, 120];
 const CORR_YEARS = Array.from({ length: 2026 - 1999 + 1 }, (_, i) => 1999 + i);
 const CORR_CALENDAR = { JP: "yahoo:^N225", KR: "yahoo:^KS11" };
+const CORR_BLOCK_ORDER = ["matrix", "pairs", "pairChart", "concentration", "centrality", "concentrationChart", "securitiesChart"];
 const corrPriceCache = new Map();
 const corrChangeCache = new Map();
 const corrPairCache = new Map();
@@ -2095,7 +2104,7 @@ async function calculateCorrelations(keys, catalog, progress) {
   const concentrationTimeline = CorrelationEngine.concentrationTimeline(
     pairs.map((p) => p.analysis), CORR_PERIODS, 14
   );
-  return { keys, catalog, metas, pairs, centrality, concentration, concentrationTimeline };
+  return { keys, catalog, metas, prices, pairs, centrality, concentration, concentrationTimeline };
 }
 
 function fmtCorr(v, signed) {
@@ -2151,6 +2160,14 @@ const CORR_INFO = {
       { h: "算出法", p: "各基準日で、各ペアのその日以前の最新ローリング相関を集めて平均します。長期間更新されていないペアは使わず、各時点で有効なペアだけを平均します。" },
       { h: "読み方・意義", p: "上昇局面は市場全体の同方向化、低下局面は市場ごとの分化を示します。短期線だけが急上昇する場合は、一時的な市場一体化が起きている可能性があります。" }
     ]
+  },
+  securitiesChart: {
+    title: "銘柄チャート",
+    sections: [
+      { h: "表示方法", p: "選択が1銘柄なら価格・指数などの値をそのまま表示します。2銘柄以上なら、表示開始年以降の各銘柄の最初の有効値を100として相対化します。" },
+      { h: "表示銘柄", p: "相関画面で選択した順の先頭10銘柄までを描きます。11銘柄目以降は相関計算には含めますが、このチャートには表示しません。", formula: "相対値 = 当日の値 ÷ 表示期間内の最初の有効値 × 100" },
+      { h: "読み方・意義", p: "相対表示では、異なる価格水準の銘柄を同じ開始点から比較できます。100より上は開始時点からの上昇、100より下は下落を示します。" }
+    ]
   }
 };
 
@@ -2169,7 +2186,7 @@ function openCorrInfo(key) {
   if (!info) return;
   corrInfoTitle.textContent = info.title;
   corrInfoContent.innerHTML = "";
-  [...info.sections, ...CORR_COMMON_INFO].forEach((section) => {
+  [...info.sections, ...(key === "securitiesChart" ? [] : CORR_COMMON_INFO)].forEach((section) => {
     const h = document.createElement("h4"); h.textContent = section.h;
     const p = document.createElement("p"); p.textContent = section.p;
     corrInfoContent.append(h, p);
@@ -2187,6 +2204,24 @@ corrInfoModal.addEventListener("click", (e) => { if (e.target === corrInfoModal)
 
 const corrCollapsed = new Set();
 const corrTightScale = new Set();
+let corrDraggingKey = null;
+let corrPointerDrag = null;
+
+function normalizedCorrBlockOrder() {
+  const saved = Array.isArray(settings.corrBlockOrder) ? settings.corrBlockOrder : [];
+  return [...new Set([...saved.filter((key) => CORR_BLOCK_ORDER.includes(key)), ...CORR_BLOCK_ORDER])];
+}
+
+function moveCorrBlock(fromKey, toKey, after) {
+  const order = normalizedCorrBlockOrder().filter((key) => key !== fromKey);
+  let at = order.indexOf(toKey);
+  if (at < 0) at = order.length;
+  if (after) at++;
+  order.splice(at, 0, fromKey);
+  settings.corrBlockOrder = order;
+  saveSettings();
+  drawCorrelationResults();
+}
 
 function makeCorrBlock(title, infoKey, options) {
   options = options || {};
@@ -2194,6 +2229,47 @@ function makeCorrBlock(title, infoKey, options) {
   block.className = "corr-block";
   if (options.blockKey && corrCollapsed.has(options.blockKey)) block.classList.add("collapsed");
   const h = document.createElement("h2");
+  if (options.blockKey) {
+    block.dataset.blockKey = options.blockKey;
+    h.className = "corr-drag-handle";
+    h.title = "ドラッグして枠を上下に移動";
+    const clearDragMarks = () => document.querySelectorAll(".corr-block")
+      .forEach((el) => el.classList.remove("corr-dragging", "corr-drop-before", "corr-drop-after"));
+    h.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || e.target.closest("button, select, input, a")) return;
+      corrPointerDrag = { key: options.blockKey, pointerId: e.pointerId, startY: e.clientY, started: false, target: null, after: false };
+      h.setPointerCapture(e.pointerId);
+    });
+    h.addEventListener("pointermove", (e) => {
+      const drag = corrPointerDrag;
+      if (!drag || drag.pointerId !== e.pointerId) return;
+      if (!drag.started && Math.abs(e.clientY - drag.startY) < 6) return;
+      drag.started = true; corrDraggingKey = drag.key; block.classList.add("corr-dragging");
+      clearDragMarks(); block.classList.add("corr-dragging");
+      const mainRect = corrMainEl.getBoundingClientRect();
+      if (e.clientY < mainRect.top + 48) corrMainEl.scrollTop -= 24;
+      else if (e.clientY > mainRect.bottom - 48) corrMainEl.scrollTop += 24;
+      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest(".corr-block[data-block-key]");
+      if (!target || target.dataset.blockKey === drag.key) { drag.target = null; return; }
+      drag.target = target.dataset.blockKey;
+      const rect = target.getBoundingClientRect(); drag.after = e.clientY > rect.top + rect.height / 2;
+      target.classList.add(drag.after ? "corr-drop-after" : "corr-drop-before");
+    });
+    const finishPointerDrag = (e) => {
+      const drag = corrPointerDrag;
+      if (!drag || drag.pointerId !== e.pointerId) return;
+      corrPointerDrag = null; corrDraggingKey = null; clearDragMarks();
+      if (drag.started && drag.target) { e.preventDefault(); moveCorrBlock(drag.key, drag.target, drag.after); }
+    };
+    h.addEventListener("pointerup", finishPointerDrag);
+    h.addEventListener("pointercancel", (e) => {
+      if (corrPointerDrag && corrPointerDrag.pointerId === e.pointerId) {
+        corrPointerDrag = null; corrDraggingKey = null; clearDragMarks();
+      }
+    });
+  }
+  const dragMark = document.createElement("span"); dragMark.className = "corr-drag-mark"; dragMark.textContent = "↕";
+  if (options.blockKey) h.appendChild(dragMark);
   const label = document.createElement("span"); label.className = "corr-head-label"; label.textContent = title; h.appendChild(label);
   if (infoKey) {
     const info = document.createElement("button");
@@ -2287,11 +2363,20 @@ function makeCorrelationChart(title, sets, infoKey, options) {
     svg.replaceChildren();
     const values = all.map((p) => p.v).filter(Number.isFinite);
     const tight = corrTightScale.has(chartKey);
-    const lo = tight ? Math.min(...values) - 0.1 : -1;
-    const hi = tight ? Math.max(...values) + 0.1 : 1;
-    const y = (v) => T + (H - T - B) * (hi - v) / Math.max(0.000001, hi - lo);
+    let lo = tight ? Math.min(...values) - 0.1 : -1;
+    let hi = tight ? Math.max(...values) + 0.1 : 1;
     let yTicks = [-1, -0.5, 0, 0.5, 1], tickDecimals = 1;
-    if (tight) {
+    let tickLabel = (v) => v.toFixed(tickDecimals);
+    if (options.valueMode === "market") {
+      let dataLo = Math.min(...values), dataHi = Math.max(...values);
+      if (dataLo === dataHi) {
+        const pad = Math.abs(dataLo) * 0.01 || 1; dataLo -= pad; dataHi += pad;
+      }
+      const sc = scaleOf(dataLo, dataHi);
+      lo = sc.bottom; hi = sc.top; yTicks = [];
+      for (let v = sc.bottom; v <= sc.top + sc.step / 2; v += sc.step) yTicks.push(Math.abs(v) < 1e-12 ? 0 : v);
+      tickLabel = (v) => fmtAxis(v, sc.step);
+    } else if (tight) {
       const step = niceStep(hi - lo);
       tickDecimals = 0;
       while (tickDecimals < 6 && Math.abs(step * Math.pow(10, tickDecimals) - Math.round(step * Math.pow(10, tickDecimals))) > 1e-9) tickDecimals++;
@@ -2299,10 +2384,11 @@ function makeCorrelationChart(title, sets, infoKey, options) {
       yTicks = [];
       for (let v = first; v <= hi + 1e-12; v += step) yTicks.push(Math.abs(v) < 1e-12 ? 0 : v);
     }
+    const y = (v) => T + (H - T - B) * (hi - v) / Math.max(0.000001, hi - lo);
     yTicks.forEach((v) => {
       svg.appendChild(svgEl("line", { x1: L, y1: y(v), x2: W - R, y2: y(v), class: Math.abs(v) < 1e-9 ? "zero" : "gridline" }));
       const lab = svg.appendChild(svgEl("text", { x: L - 7, y: y(v) + 4, class: "lab", "text-anchor": "end" }));
-      lab.textContent = v.toFixed(tickDecimals);
+      lab.textContent = tickLabel(v);
     });
     const totalMonths = (endYear - startYear + 1) * 12;
     let monthStep = 12;
@@ -2343,7 +2429,7 @@ function makeCorrelationChart(title, sets, infoKey, options) {
         if (Date.parse(set.data[mid].d + "T00:00:00Z") < at) lo = mid + 1; else hi = mid;
       }
       const p = set.data[Math.min(lo, set.data.length - 1)];
-      if (p) lines.push(`${set.label} ${fmtCorr(p.v)}`);
+      if (p) lines.push(`${set.label} ${options.valueMode === "market" ? fmt(p.v) : fmtCorr(p.v)}`);
     });
     tip.textContent = lines.join("\n");
     tip.style.display = "block";
@@ -2352,9 +2438,10 @@ function makeCorrelationChart(title, sets, infoKey, options) {
   });
   svg.addEventListener("mouseleave", () => { tip.style.display = "none"; });
   svg.addEventListener("dblclick", (e) => {
+    if (options.valueMode === "market") return;
     e.preventDefault(); corrTightScale.add(chartKey); tip.style.display = "none"; drawPlot();
   });
-  svg.setAttribute("title", "ダブルクリックで縦軸を折れ線の最小値−0.1～最大値＋0.1に合わせる");
+  if (options.valueMode !== "market") svg.setAttribute("title", "ダブルクリックで縦軸を折れ線の最小値−0.1～最大値＋0.1に合わせる");
   wrap.append(range, svg, tip);
   box.body.appendChild(wrap);
   return box.block;
@@ -2372,11 +2459,41 @@ function closePairDetail() {
   drawCorrelationResults();
 }
 
+function makeSecuritiesChart(keys, catalog, prices) {
+  const chartKeys = keys.slice(0, 10);
+  const relative = chartKeys.length >= 2;
+  const from = Number(settings.corrStartYear) || 2000;
+  const to = Number(settings.corrEndYear) || new Date().getFullYear();
+  const sets = chartKeys.map((key) => {
+    const source = [...(prices.get(key) || new Map())]
+      .map(([d, v]) => ({ d, v: Number(v) }))
+      .filter((p) => Number.isFinite(p.v) && Number(p.d.slice(0, 4)) >= from && Number(p.d.slice(0, 4)) <= to)
+      .sort((a, b) => a.d.localeCompare(b.d));
+    if (!relative) return { label: labelOf(key, catalog), data: source };
+    const first = source.length ? source[0].v : null;
+    return {
+      label: `${labelOf(key, catalog)} 開始100`,
+      data: first === null || first === 0 ? [] : source.map((p) => ({ d: p.d, v: p.v / first * 100 }))
+    };
+  });
+  const mode = relative ? "相対値・開始100" : "絶対値";
+  return makeCorrelationChart(`銘柄チャート（${mode}）`, sets, "securitiesChart",
+    { blockKey: "securitiesChart", valueMode: "market" });
+}
+
+function appendCorrelationBlocks(blocks) {
+  normalizedCorrBlockOrder().forEach((key) => {
+    const block = blocks.get(key);
+    if (block) corrMainEl.appendChild(block);
+  });
+}
+
 function drawCorrelationResults() {
   if (!corrState) return;
-  const { keys, catalog, pairs, centrality, concentration, concentrationTimeline } = corrState;
+  const { keys, catalog, prices, pairs, centrality, concentration, concentrationTimeline } = corrState;
   const period = settings.corrPeriod;
   const pairByKey = new Map(pairs.map((p) => [p.key, p]));
+  const blocks = new Map();
   document.querySelectorAll("#rperiods button").forEach((b) => b.classList.toggle("active", Number(b.dataset.period) === period));
   corrMainEl.innerHTML = "";
 
@@ -2408,7 +2525,7 @@ function drawCorrelationResults() {
     mb.appendChild(tr);
   });
   mt.appendChild(mb); matrixScroll.appendChild(mt); matrix.body.appendChild(matrixScroll);
-  corrMainEl.appendChild(matrix.block);
+  blocks.set("matrix", matrix.block);
 
   let pairChart = null;
   if (corrSelectedPair) {
@@ -2458,8 +2575,8 @@ function drawCorrelationResults() {
       .forEach((v) => { const td = document.createElement("td"); td.textContent = v; if (v === "N/A") td.className = "na"; tr.appendChild(td); });
     tr.addEventListener("click", () => openPairDetail(r.p)); pb.appendChild(tr);
   });
-  pt.appendChild(pb); pairScroll.appendChild(pt); pairBox.body.appendChild(pairScroll); corrMainEl.appendChild(pairBox.block);
-  if (pairChart) corrMainEl.appendChild(pairChart);
+  pt.appendChild(pb); pairScroll.appendChild(pt); pairBox.body.appendChild(pairScroll); blocks.set("pairs", pairBox.block);
+  if (pairChart) blocks.set("pairChart", pairChart);
 
   const cent = makeCorrBlock(`中心性ランキング（${period}日順）`, "centrality", { blockKey: "centrality" });
   const ct = document.createElement("table"); ct.className = "corr-table";
@@ -2481,11 +2598,13 @@ function drawCorrelationResults() {
     card.textContent = `${n}日　${c.used}/${c.total}ペア`;
     const v = document.createElement("span"); v.className = "v"; v.textContent = fmtCorr(c.v); card.appendChild(v); cards.appendChild(card);
   });
-  conc.body.appendChild(cards); corrMainEl.appendChild(conc.block);
-  corrMainEl.appendChild(cent.block);
-  corrMainEl.appendChild(makeCorrelationChart("相関集中度　長期推移",
+  conc.body.appendChild(cards); blocks.set("concentration", conc.block);
+  blocks.set("centrality", cent.block);
+  blocks.set("concentrationChart", makeCorrelationChart("相関集中度　長期推移",
     CORR_PERIODS.map((n) => ({ label: `相関集中度 ${n}日`, data: concentrationTimeline[n] })),
     "concentrationTrend", { blockKey: "concentrationChart" }));
+  blocks.set("securitiesChart", makeSecuritiesChart(keys, catalog, prices));
+  appendCorrelationBlocks(blocks);
 }
 
 function drawCorrelationPicks(catalog) {
@@ -2518,8 +2637,8 @@ async function renderCorrelations() {
   corrCatalog = corrCatalog || await buildCatalog("2026");
   settings.corrColumns = [...new Set(settings.corrColumns)].filter(Boolean);
   drawCorrelationPicks(corrCatalog);
-  if (settings.corrColumns.length < 2) {
-    corrMainEl.innerHTML = '<div id="loading">相関分析には2銘柄以上を選んでください</div>';
+  if (settings.corrColumns.length < 1) {
+    corrMainEl.innerHTML = '<div id="loading">銘柄を1つ以上選んでください</div>';
     return;
   }
   const signature = settings.corrColumns.join("\n");
