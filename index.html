@@ -294,6 +294,12 @@
     min-width: 72px; padding: 2px 5px; border: 1px solid var(--line);
     background: var(--panel); color: var(--fg); font: inherit; cursor: pointer;
   }
+  .corr-series-picks { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+  .corr-series-pick {
+    padding: 3px 8px; border: 1px solid var(--series-color); background: var(--bg);
+    color: var(--series-color); font: inherit; cursor: pointer;
+  }
+  .corr-series-pick.off { background: var(--series-color); color: var(--bg); }
   .corr-chart svg { display: block; width: 100%; height: auto; cursor: crosshair; }
   .corr-chart .axis { stroke: var(--line); fill: none; }
   .corr-chart .gridline { stroke: var(--dim); stroke-width: .6; }
@@ -547,6 +553,7 @@ function loadSettings() {
       corrStartYear: Number(s.corrStartYear) || 2000,
       corrEndYear: Number(s.corrEndYear) || new Date().getFullYear(),
       corrBlockOrder: Array.isArray(s.corrBlockOrder) ? s.corrBlockOrder.slice() : [],
+      corrChartHidden: Array.isArray(s.corrChartHidden) ? s.corrChartHidden.slice() : [],
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
@@ -561,6 +568,7 @@ function loadSettings() {
       corrColumns: DEFAULT_COLUMNS.slice(), corrPeriod: 20,
       corrStartYear: 2000, corrEndYear: new Date().getFullYear(),
       corrBlockOrder: [],
+      corrChartHidden: [],
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       saverIndex: 0
     };
@@ -2165,7 +2173,7 @@ const CORR_INFO = {
     title: "銘柄チャート",
     sections: [
       { h: "表示方法", p: "選択が1銘柄なら価格・指数などの値をそのまま表示します。2銘柄以上なら、表示開始年以降の各銘柄の最初の有効値を100として相対化します。" },
-      { h: "表示銘柄", p: "相関画面で選択した順の先頭10銘柄までを描きます。11銘柄目以降は相関計算には含めますが、このチャートには表示しません。", formula: "相対値 = 当日の値 ÷ 表示期間内の最初の有効値 × 100" },
+      { h: "表示銘柄", p: "相関画面で選択した順の先頭10銘柄までを描きます。チャート上部の銘柄名を押すとボタンの色が反転し、その線だけを非表示にできます。もう一度押すと表示へ戻ります。11銘柄目以降は相関計算には含めますが、このチャートには表示しません。", formula: "相対値 = 当日の値 ÷ 表示期間内の最初の有効値 × 100" },
       { h: "読み方・意義", p: "相対表示では、異なる価格水準の銘柄を同じ開始点から比較できます。100より上は開始時点からの上昇、100より下は下落を示します。" }
     ]
   }
@@ -2405,11 +2413,11 @@ function makeCorrelationChart(title, sets, infoKey, options) {
     svg.appendChild(svgEl("rect", { x: L, y: T, width: W - L - R, height: H - T - B, class: "axis" }));
     shownSets.forEach((set, i) => {
       const d = set.data.map((p, j) => `${j ? "L" : "M"}${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
-      if (d) svg.appendChild(svgEl("path", { d, class: "plot", stroke: seriesColor(i) }));
+      if (d) svg.appendChild(svgEl("path", { d, class: "plot", stroke: set.color || seriesColor(i) }));
     });
     let legendX = L + 8;
     shownSets.forEach((set, i) => {
-      const legend = svg.appendChild(svgEl("text", { x: legendX, y: T + 15, class: "lab", style: `fill:${seriesColor(i)}` }));
+      const legend = svg.appendChild(svgEl("text", { x: legendX, y: T + 15, class: "lab", style: `fill:${set.color || seriesColor(i)}` }));
       legend.textContent = set.label;
       legendX += textW(set.label, 12) + 24;
     });
@@ -2461,24 +2469,45 @@ function closePairDetail() {
 
 function makeSecuritiesChart(keys, catalog, prices) {
   const chartKeys = keys.slice(0, 10);
+  const hidden = new Set(Array.isArray(settings.corrChartHidden) ? settings.corrChartHidden : []);
   const relative = chartKeys.length >= 2;
   const from = Number(settings.corrStartYear) || 2000;
   const to = Number(settings.corrEndYear) || new Date().getFullYear();
-  const sets = chartKeys.map((key) => {
+  const sets = chartKeys.map((key, i) => {
     const source = [...(prices.get(key) || new Map())]
       .map(([d, v]) => ({ d, v: Number(v) }))
       .filter((p) => Number.isFinite(p.v) && Number(p.d.slice(0, 4)) >= from && Number(p.d.slice(0, 4)) <= to)
       .sort((a, b) => a.d.localeCompare(b.d));
-    if (!relative) return { label: labelOf(key, catalog), data: source };
+    if (!relative) return { key, label: labelOf(key, catalog), data: source, color: seriesColor(i) };
     const first = source.length ? source[0].v : null;
     return {
+      key,
       label: `${labelOf(key, catalog)} 開始100`,
-      data: first === null || first === 0 ? [] : source.map((p) => ({ d: p.d, v: p.v / first * 100 }))
+      data: first === null || first === 0 ? [] : source.map((p) => ({ d: p.d, v: p.v / first * 100 })),
+      color: seriesColor(i)
     };
   });
   const mode = relative ? "相対値・開始100" : "絶対値";
-  return makeCorrelationChart(`銘柄チャート（${mode}）`, sets, "securitiesChart",
+  const chart = makeCorrelationChart(`銘柄チャート（${mode}）`, sets.filter((set) => !hidden.has(set.key)), "securitiesChart",
     { blockKey: "securitiesChart", valueMode: "market" });
+  const picks = document.createElement("div"); picks.className = "corr-series-picks";
+  sets.forEach((set) => {
+    const button = document.createElement("button");
+    const off = hidden.has(set.key);
+    button.className = `corr-series-pick${off ? " off" : ""}`;
+    button.textContent = labelOf(set.key, catalog);
+    button.style.setProperty("--series-color", set.color);
+    button.title = off ? "クリックして線を表示" : "クリックして線を非表示";
+    button.setAttribute("aria-pressed", off ? "false" : "true");
+    button.addEventListener("click", () => {
+      const next = new Set(Array.isArray(settings.corrChartHidden) ? settings.corrChartHidden : []);
+      if (next.has(set.key)) next.delete(set.key); else next.add(set.key);
+      settings.corrChartHidden = [...next]; saveSettings(); drawCorrelationResults();
+    });
+    picks.appendChild(button);
+  });
+  chart.querySelector(".corr-body").prepend(picks);
+  return chart;
 }
 
 function appendCorrelationBlocks(blocks) {
