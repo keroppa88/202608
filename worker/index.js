@@ -76,7 +76,7 @@ const RULES = `次のJSONは、ある銘柄（main）と、その相関の相手
 - r60Path … [年月, 60日相関] を古い順に間引いたもの`;
 
 async function callGemini(env, payload) {
-  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = env.GEMINI_MODEL || "gemini-3.5-pro";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const res = await fetch(url, {
     method: "POST",

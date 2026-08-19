@@ -4,6 +4,6 @@ compatibility_date = "2026-08-01"
 
 [vars]
 # 使うモデル。変えたければここを直す
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.5-pro"
 # 受け付ける送り元。カンマ区切り。空にすると送り元を見ない
 ALLOWED_ORIGINS = "https://keroppa88.github.io"
