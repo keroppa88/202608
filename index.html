@@ -1814,8 +1814,12 @@ const IDLE_MS = 300000;        // 5分
 const SAVER_CYCLE = [
   { kind: "centipede", n: 1 },
   { kind: "ball", n: 2 },
+  { kind: "moth", n: 2 },
+  { kind: "bird", n: 4 },
   { kind: "centipede", n: 3 },
-  { kind: "ball", n: 4 }
+  { kind: "ball", n: 4 },
+  { kind: "moth", n: 3 },
+  { kind: "bird", n: 6 }
 ];
 
 const saverEl = document.getElementById("saver");
@@ -1907,6 +1911,66 @@ function buildBall(g) {
   return {};
 }
 
+/* 蝶（モスラ）。上から見た姿。翅は羽ばたくと縦に縮んで見える */
+const MOTH_FORE = "M4,-2C20,-8 24,-30 8,-38C-8,-44 -18,-24 -10,-4Z";      // 前翅
+const MOTH_HIND = "M-6,-2C-8,-16 -20,-30 -32,-22C-40,-15 -33,-4 -14,-2Z"; // 後翅
+
+function buildMoth(g) {
+  // 翅は上下2枚ずつ。羽ばたきは「縦に潰す」ことで表す
+  const wings = svgEl("g", {});
+  [1, -1].forEach((side) => {
+    const half = svgEl("g", { transform: `scale(1,${side})` });
+    half.appendChild(svgEl("path", { class: "bug body", d: MOTH_HIND }));
+    half.appendChild(svgEl("path", { class: "bug body", d: MOTH_FORE }));
+    half.appendChild(svgEl("circle", { class: "bug hollow", cx: 2, cy: -24, r: 4.5 })); // 紋
+    wings.appendChild(half);
+  });
+  g.appendChild(wings);
+  g.appendChild(svgEl("ellipse", { class: "bug body", cx: -3, cy: 0, rx: 19, ry: 4.5 })); // 胴
+  g.appendChild(svgEl("ellipse", { class: "bug body", cx: 17, cy: 0, rx: 5.5, ry: 4 }));  // 頭
+  const ant = [g.appendChild(svgEl("path", { class: "bug" })),
+               g.appendChild(svgEl("path", { class: "bug" }))];
+  return { wings, ant };
+}
+
+function drawMoth(b) {
+  const k = 0.15 + 0.85 * Math.abs(Math.cos(b.phase));       // 羽ばたき
+  b.parts.wings.setAttribute("transform", `scale(1,${k.toFixed(3)})`);
+  b.parts.ant.forEach((A, i) => {
+    const s = i ? 1 : -1;
+    const w = Math.sin(saverT * 3 + i) * 2;
+    A.setAttribute("d", `M20,${s * 2}Q29,${s * 7 + w} 35,${s * 14 + w}`);
+  });
+}
+
+/* 鳥。After Dark のトースターのように羽ばたいて画面を斜めに横切る。
+   横から見た姿で、翼は肩を軸に上下する */
+const BIRD_WING = "M4,-5C10,-16 6,-32 -6,-44C-11,-31 -14,-16 -12,-5Z";
+const BIRD_BODY = "M-15,0C-13,-6 4,-10 16,-5C22,-3 22,3 15,5C3,8 -12,6 -15,0Z";
+const BIRD_TAIL = "M-13,-2L-32,-10L-28,0L-32,9L-13,3Z";
+const BIRD_BEAK = "M25,-8L37,-5L25,-2Z";
+
+function buildBird(g) {
+  const far = svgEl("g", {});                       // 奥の翼。少し薄くして重なりを分ける
+  far.appendChild(svgEl("path", { class: "bug body", d: BIRD_WING, opacity: .55 }));
+  g.appendChild(far);
+  g.appendChild(svgEl("path", { class: "bug body", d: BIRD_TAIL }));                   // 尾
+  g.appendChild(svgEl("path", { class: "bug body", d: BIRD_BODY }));                   // 胴
+  g.appendChild(svgEl("circle", { class: "bug body", cx: 19, cy: -6, r: 6 }));         // 頭
+  g.appendChild(svgEl("path", { class: "bug body", d: BIRD_BEAK }));                   // くちばし
+  g.appendChild(svgEl("circle", { class: "bug hollow", cx: 21, cy: -8, r: 1.5 }));     // 目
+  const near = svgEl("g", {});                      // 手前の翼
+  near.appendChild(svgEl("path", { class: "bug body", d: BIRD_WING }));
+  g.appendChild(near);
+  return { far, near };
+}
+
+function drawBird(b) {
+  const a = Math.sin(b.phase) * 55;                 // 肩を軸に翼を上下させる
+  b.parts.near.setAttribute("transform", `rotate(${a.toFixed(1)},2,-5)`);
+  b.parts.far.setAttribute("transform", `rotate(${(a * 0.75 + 14).toFixed(1)},2,-5)`);
+}
+
 /* ---- 動き ---- */
 
 // 端に寄ったら内側へ向き直る
@@ -1932,6 +1996,27 @@ function moveBug(b, dt, w, h) {
     else if (b.x > w - BALL_R) { b.x = w - BALL_R; b.ang = Math.PI - b.ang; }
     if (b.y < BALL_R) { b.y = BALL_R; b.ang = -b.ang; }
     else if (b.y > h - BALL_R) { b.y = h - BALL_R; b.ang = -b.ang; }
+    return;
+  }
+
+  if (b.kind === "moth") {
+    // ゆっくりひらひら。羽ばたきながら向きが揺れる
+    b.ang += Math.sin(saverT * 0.9 + b.seed) * 1.6 * dt;
+    b.phase += 7 * dt;
+    steer(b, w, h, 0.04, 90);
+    b.x += Math.cos(b.ang) * b.speed * dt;
+    b.y += Math.sin(b.ang) * b.speed * dt;
+    return;
+  }
+
+  if (b.kind === "bird") {
+    // After Dark 風。みな同じ向きに流れ、画面の外へ出たら反対側から戻る
+    b.phase += b.flap * dt;
+    b.x += Math.cos(b.ang) * b.speed * dt;
+    b.y += Math.sin(b.ang) * b.speed * dt;
+    const m = 60;
+    if (b.x < -m) { b.x = w + m; b.y = rnd(-m, h); }
+    if (b.y > h + m) { b.y = -m; b.x = rnd(0, w + m); }
     return;
   }
 
@@ -1964,7 +2049,16 @@ function buildBugs(step) {
       ang: rnd(0, Math.PI * 2), phase: rnd(0, 6.3), seed: rnd(0, 6.3),
       timer: rnd(0, 2), turn: rnd(-0.5, 0.5)
     };
-    if (step.kind === "ball") {
+    if (step.kind === "moth") {
+      b.speed = rnd(35, 70);
+      b.parts = buildMoth(g);
+    } else if (step.kind === "bird") {
+      // 右上から左下へ。みな同じ向きに流れる
+      b.ang = 2.75 + rnd(-0.08, 0.08);
+      b.speed = rnd(90, 170);
+      b.flap = rnd(7, 11);
+      b.parts = buildBird(g);
+    } else if (step.kind === "ball") {
       // 真横や真上に飛ぶと単調なので、その向きは外す
       b.ang = rnd(0.4, 1.2) + Math.floor(rnd(0, 4)) * (Math.PI / 2);
       b.speed = rnd(260, 430);
@@ -1994,6 +2088,17 @@ function stepSaver(now) {
     moveBug(b, dt, w, h);
     if (b.kind === "ball") {
       b.g.setAttribute("transform", `translate(${b.x.toFixed(1)},${b.y.toFixed(1)})`);
+    } else if (b.kind === "moth") {
+      drawMoth(b);
+      b.g.setAttribute("transform",
+        `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) rotate(${(b.ang * DEG).toFixed(1)})`);
+    } else if (b.kind === "bird") {
+      // 横から見た姿なので、左へ行くときは回さずに左右を裏返す。
+      // 回すと逆さまになる。裏返したうえで、進む向きのぶんだけ首を傾ける
+      drawBird(b);
+      const tilt = (Math.PI - b.ang) * DEG;
+      b.g.setAttribute("transform",
+        `translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) scale(-1,1) rotate(${tilt.toFixed(1)})`);
     } else {
       drawCentipede(b);                     // 節ごとに置くので群そのものは動かさない
     }
