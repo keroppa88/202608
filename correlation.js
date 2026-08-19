@@ -163,6 +163,203 @@
     return result;
   }
 
+  /* -----------------------------------------------------------------
+     ここから下は AI に渡す数字を作るための計算。
+     どれも「対応の取れた観測」の上で動く。points は alignPair の返り値で、
+     x がメイン銘柄、y がサブ銘柄。日付が飛んでいても隣り合う観測を
+     1日として数える。休場日をゼロで埋めることはしない。
+  ----------------------------------------------------------------- */
+
+  // 直近 size 観測（自分を含む）の累積。差分の系列は足し算、騰落率は複利
+  function trailingSeries(values, size, calcType) {
+    const out = new Array(values.length).fill(null);
+    if (size < 1) return out;
+    for (let i = size - 1; i < values.length; i++) {
+      let acc = calcType === "diff" ? 0 : 1;
+      for (let k = i - size + 1; k <= i; k++) {
+        acc = calcType === "diff" ? acc + values[k] : acc * (1 + values[k]);
+      }
+      out[i] = calcType === "diff" ? acc : acc - 1;
+    }
+    return out;
+  }
+
+  // 次の size 観測（自分は含まない）の累積。この先どうなったかを見る
+  function forwardSeries(values, size, calcType) {
+    const out = new Array(values.length).fill(null);
+    if (size < 1) return out;
+    for (let i = 0; i + size < values.length; i++) {
+      let acc = calcType === "diff" ? 0 : 1;
+      for (let k = i + 1; k <= i + size; k++) {
+        acc = calcType === "diff" ? acc + values[k] : acc * (1 + values[k]);
+      }
+      out[i] = calcType === "diff" ? acc : acc - 1;
+    }
+    return out;
+  }
+
+  function mean(values) {
+    if (!values.length) return null;
+    let s = 0;
+    for (const v of values) s += v;
+    return s / values.length;
+  }
+
+  function stdev(values) {
+    if (values.length < 2) return null;
+    const m = mean(values);
+    let s = 0;
+    for (const v of values) s += (v - m) * (v - m);
+    return Math.sqrt(s / (values.length - 1));
+  }
+
+  // 昇順に並べたときの p（0〜1）の位置の値
+  function quantile(values, p) {
+    if (!values.length) return null;
+    const sorted = [...values].sort((a, b) => a - b);
+    const at = (sorted.length - 1) * p;
+    const lo = Math.floor(at), hi = Math.ceil(at);
+    if (lo === hi) return sorted[lo];
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (at - lo);
+  }
+
+  // v が values の中で下から何割の位置にあるか（0〜1）
+  function quantileRank(values, v) {
+    if (!values.length || v === null || v === undefined) return null;
+    let below = 0;
+    for (const x of values) if (x <= v) below++;
+    return below / values.length;
+  }
+
+  // メインの局面ごとの相関。局面は「前の観測までの累積」で決める。
+  // その日の値動きを局面の判定に混ぜると、答えを見てから分けることになる
+  function regimeCorrelation(points, size, mainCalcType) {
+    const trail = trailingSeries(points.map((p) => p.x), size, mainCalcType);
+    const up = [], down = [];
+    for (let i = 1; i < points.length; i++) {
+      const state = trail[i - 1];
+      if (state === null) continue;
+      (state >= 0 ? up : down).push(points[i]);
+    }
+    return {
+      up: pearson(up), down: pearson(down),
+      upDays: up.length, downDays: down.length
+    };
+  }
+
+  // サブが上がった日／下がった日に、メインはどうだったか
+  function conditionalReturns(points) {
+    const up = [], down = [];
+    for (const p of points) {
+      if (p.y > 0) up.push(p.x);
+      else if (p.y < 0) down.push(p.x);
+    }
+    const side = (values) => ({
+      main: mean(values),
+      win: values.length ? values.filter((v) => v > 0).length / values.length : null,
+      n: values.length
+    });
+    return { subUp: side(up), subDown: side(down), base: { main: mean(points.map((p) => p.x)), n: points.length } };
+  }
+
+  // サブの直近 lookback 観測の累積が上位25%／下位25%だったとき、
+  // メインはその後 forward 観測でどうだったか
+  function forwardAfterExtreme(points, lookback, forward, subCalcType, mainCalcType) {
+    const back = trailingSeries(points.map((p) => p.y), lookback, subCalcType);
+    const ahead = forwardSeries(points.map((p) => p.x), forward, mainCalcType);
+    const usable = [];
+    for (let i = 0; i < points.length; i++) {
+      if (back[i] === null || ahead[i] === null) continue;
+      usable.push({ back: back[i], ahead: ahead[i] });
+    }
+    if (!usable.length) return null;
+    const hi = quantile(usable.map((u) => u.back), 0.75);
+    const lo = quantile(usable.map((u) => u.back), 0.25);
+    const pick = (test) => {
+      const values = usable.filter(test).map((u) => u.ahead);
+      return {
+        main: mean(values),
+        win: values.length ? values.filter((v) => v > 0).length / values.length : null,
+        n: values.length
+      };
+    };
+    return {
+      high: pick((u) => u.back >= hi),
+      low: pick((u) => u.back <= lo),
+      base: { main: mean(usable.map((u) => u.ahead)), n: usable.length }
+    };
+  }
+
+  // サブを k 観測ずらしたときの相関。k が正なら「サブが先、メインが後」
+  function leadLag(points, shifts) {
+    return shifts.map((k) => {
+      const paired = [];
+      for (let i = 0; i < points.length; i++) {
+        const j = i - k;
+        if (j < 0 || j >= points.length) continue;
+        paired.push({ x: points[i].x, y: points[j].y });
+      }
+      return { shift: k, r: pearson(paired), n: paired.length };
+    });
+  }
+
+  // 系列から count 点を等間隔に抜く。推移の形だけ渡すため
+  function sampleEvenly(series, count) {
+    if (!series.length) return [];
+    if (series.length <= count) return series.slice();
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      out.push(series[Math.round((series.length - 1) * (i / (count - 1)))]);
+    }
+    return out;
+  }
+
+  // 値そのものの並び（[{d,v}] 昇順）から、値動きの様子をまとめる
+  function summarizeSeries(series, calcType) {
+    const rows = series.filter((p) => finiteNumber(p.v) !== null);
+    if (!rows.length) return null;
+    const v = rows.map((p) => Number(p.v));
+    const last = v[v.length - 1], lastDate = rows[rows.length - 1].d;
+    const diff = calcType === "diff";
+    const move = (from) => (from === undefined || from === null) ? null : (diff ? last - from : last / from - 1);
+
+    const back = (n) => (v.length > n ? v[v.length - 1 - n] : null);
+    const ret = {};
+    [5, 20, 60, 250].forEach((n) => { ret[n] = move(back(n)); });
+
+    // 年初来。その年の最初の観測の、ひとつ前の値を起点にする
+    const year = String(lastDate).slice(0, 4);
+    let at = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (String(rows[i].d).slice(0, 4) === year) { at = i; break; }
+    }
+    ret.ytd = at > 0 ? move(v[at - 1]) : null;
+
+    const tail = v.slice(-250);
+    const hi = Math.max(...tail), lo = Math.min(...tail);
+    const ma200 = v.length >= 200 ? mean(v.slice(-200)) : null;
+
+    let hv = null;
+    if (!diff && v.length > 20) {
+      const r = [];
+      for (let i = v.length - 20; i < v.length; i++) {
+        if (v[i - 1]) r.push(v[i] / v[i - 1] - 1);
+      }
+      const sd = stdev(r);
+      if (sd !== null) hv = sd * Math.sqrt(250);
+    }
+
+    return {
+      date: lastDate, close: last, n: v.length, calcType: diff ? "diff" : "return",
+      ret,
+      hv20: hv,
+      ma200Gap: ma200 === null ? null : (diff ? last - ma200 : last / ma200 - 1),
+      drawdown: diff ? null : (hi ? last / hi - 1 : null),
+      rangePos: hi === lo ? null : (last - lo) / (hi - lo),
+      high250: hi, low250: lo
+    };
+  }
+
   return {
     finiteNumber,
     priceChanges,
@@ -172,6 +369,16 @@
     alignPair,
     rollingCorrelation,
     analysePair,
-    concentrationTimeline
+    concentrationTimeline,
+    trailingSeries,
+    forwardSeries,
+    quantile,
+    quantileRank,
+    regimeCorrelation,
+    conditionalReturns,
+    forwardAfterExtreme,
+    leadLag,
+    sampleEvenly,
+    summarizeSeries
   };
 });
