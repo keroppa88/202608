@@ -333,6 +333,7 @@
   #corr-info-modal h4 { margin: 14px 0 5px; font-size: 14px; color: var(--fg2); }
   #corr-info-modal p { margin: 4px 0; line-height: 1.65; white-space: pre-line; }
   #corr-info-modal .formula { border-left: 2px solid var(--line); padding-left: 10px; color: var(--fg2); }
+  #corr-info-modal .info-tail { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 10px; }
   #corr-info-modal .info-close {
     background: var(--panel); color: var(--fg); border: 1px solid var(--line); font: inherit; cursor: pointer; padding: 3px 9px;
   }
@@ -2144,7 +2145,8 @@ const CORR_INFO = {
       { h: "定義", p: "メイン銘柄1つと、サブ銘柄（最大10）との関係を、数字にしてからAIに渡し、文章で返してもらいます。表の数値そのものは送りません。" },
       { h: "算出法", p: "送るのはメイン銘柄の値動きの要約と、サブごとの相関・局面別相関・条件付きリターン・その後20観測の成績・リードラグです。相関の計算方法は各銘柄相関と同じで、対応の取れた観測だけを使います。", formula: "局面別相関 … メインの直前20観測の累積が プラス／マイナス で分けて相関\n条件付き … サブが上がった日／下がった日の、メインの平均と勝率\nその後20 … サブの直近20観測の累積が上位25%／下位25%だった後の、メインの20観測\nリードラグ … サブを ±1・±5 観測ずらしたときの相関" },
       { h: "読み方・意義", p: "相関は連動の強さであって因果ではありません。条件付きの数字も、そうなった日が過去にどうだったかの平均に過ぎず、次に同じことが起きる保証はありません。AIには渡した数字だけで書くよう指示しており、数字に無いことは書きません。" }
-    ]
+    ],
+    tail: "※AIのAPI料金はkeroppaのなけなしの小銭から出る仕組みです。"
   },
   matrix: {
     title: "各銘柄相関",
@@ -2228,6 +2230,11 @@ function openCorrInfo(key) {
       corrInfoContent.appendChild(f);
     }
   });
+  if (info.tail) {                       // 見出しを付けずに、いちばん最後へ
+    const p = document.createElement("p");
+    p.className = "info-tail"; p.textContent = info.tail;
+    corrInfoContent.appendChild(p);
+  }
   corrInfoModal.classList.remove("hidden");
   document.getElementById("corr-info-close").focus();
 }
