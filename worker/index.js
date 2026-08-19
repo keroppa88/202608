@@ -11,7 +11,7 @@
  *
  * 必要なもの
  *   GEMINI_API_KEY    wrangler secret put GEMINI_API_KEY で入れる
- *   GEMINI_MODEL      任意。既定は gemini-2.5-flash
+ *   GEMINI_MODEL      任意。既定は gemini-3.1-pro-preview
  *   ALLOWED_ORIGINS   カンマ区切り。空なら送り元を見ない
  */
 
@@ -76,7 +76,7 @@ const RULES = `次のJSONは、ある銘柄（main）と、その相関の相手
 - r60Path … [年月, 60日相関] を古い順に間引いたもの`;
 
 async function callGemini(env, payload) {
-  const model = env.GEMINI_MODEL || "gemini-3.5-pro";
+  const model = env.GEMINI_MODEL || "gemini-3.1-pro-preview";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const res = await fetch(url, {
     method: "POST",
