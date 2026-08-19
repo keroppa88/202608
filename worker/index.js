@@ -83,7 +83,15 @@ async function callGemini(env, payload) {
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
     body: JSON.stringify({
       contents: [{ role: "user", parts: [{ text: `${RULES}\n\n${JSON.stringify(payload)}` }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 1600 }
+      generationConfig: {
+        temperature: 0.2,
+        // 考えた分も出力として数えられ、料金もそこにかかる。
+        // 上限で頭打ちになるので、1回あたりの費用はここで決まる。
+        // 入力3,000トークンとして 入力 約1円 ＋ 出力 7,000で約13円（1ドル155円）
+        maxOutputTokens: 7000,
+        // 考えるほうで使い切ると本文が残らない。半分ほどに抑える
+        thinkingConfig: { thinkingBudget: 3500 }
+      }
     })
   });
   const text = await res.text();
