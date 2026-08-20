@@ -238,8 +238,26 @@
   .canvas .plot { fill: none; stroke-width: 1.2; }
 
   /* ---- テクニカル画面 ---- */
-  /* 上が表、下がチャート。それぞれ別に動かす */
+  /* 上がテクニカルの数字、下が相関。それぞれ別に動かす */
   #technical { height: 100%; display: flex; flex-direction: column; }
+  .technical-workspace { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .technical-top {
+    flex: none; min-height: 120px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .technical-splitter {
+    flex: none; height: 9px; cursor: row-resize; touch-action: none;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--panel); position: relative;
+  }
+  .technical-splitter::after {
+    content: ""; position: absolute; left: 50%; top: 3px;
+    width: 42px; height: 1px; transform: translateX(-50%); background: var(--fg2);
+  }
+  .technical-bottom {
+    flex: 1; min-height: 150px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
   #technical #tgrid { flex: 1; }
   /* 数字の欄。指標ごとに枠で囲う */
   .tparams {
@@ -399,8 +417,7 @@
   /* 表はこの中だけで動かす */
   #techcomp .tcgrid { flex: 1; min-height: 0; border-top: 1px solid var(--line); }
 
-  /* ---- 相関分析画面 ---- */
-  #correlations { height: 100%; display: flex; flex-direction: column; }
+  /* ---- テクニカル下段の相関分析 ---- */
   .corr-periods { display: inline-flex; gap: 4px; }
   .corr-periods button.active { background: var(--sel-bg); color: var(--sel-fg); }
   .corr-main {
@@ -509,10 +526,14 @@
   /* 枠の幅は SVG に合わせて決め打ちする。
      見出しが長くても横に伸ばさない。伸ばすと縦横比（1:1.62）が崩れる */
   #chart .box {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
     background: var(--bg); color: var(--fg);
     border: 2px solid var(--line);
     padding: 8px 8px 6px;
   }
+  #chart .box.is-pannable { cursor: grab; user-select: none; touch-action: none; }
+  #chart .box.is-panning { cursor: grabbing; }
   /* チャートの中の字は全部おなじ。表の数字と同じ書体・大きさで、太字 */
   #chart .box, #chart text {
     font-family: "MS Gothic", "Osaka-Mono", "Courier New", monospace;
@@ -525,6 +546,11 @@
     margin-bottom: 4px;
   }
   #chart .head .sub { color: var(--fg); }
+  #chart .chart-nav { display: inline-flex; gap: 4px; }
+  #chart .chart-nav button {
+    min-width: 28px; padding: 0 6px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--fg); font: inherit; cursor: pointer;
+  }
   #chart svg { display: block; }
   #chart .axis { stroke: var(--line); fill: none; }
   #chart .vline { stroke: var(--dim); stroke-width: .5; }
@@ -598,27 +624,9 @@
   <div class="menu" id="titleMenu">
     <button data-go="sheet" aria-selected="true">表</button>
     <button data-go="chart">チャート</button>
-    <button data-go="correlation">相関</button>
     <button data-go="technical">テクニカル</button>
   </div>
   <div class="hint">↑ ↓ で選択　Enter で決定</div>
-</section>
-
-<!-- ===================== 相関分析画面 ===================== -->
-<section id="correlations" class="hidden">
-  <div class="bar">
-    <button id="rback" title="タイトルへ戻る">戻る</button>
-    <div class="corr-periods" id="rperiods" aria-label="相関期間">
-      <button data-period="20">20日</button>
-      <button data-period="60">60日</button>
-      <button data-period="120">120日</button>
-    </div>
-    <button id="rtheme" title="押すたびに配色が変わる">Color</button>
-    <div class="spacer"></div>
-    <div class="note" id="rstatus"></div>
-  </div>
-  <div class="picks" id="rpicks"></div>
-  <div class="corr-main" id="rmain"><div id="loading">読み込み中…</div></div>
 </section>
 
 <div id="corr-info-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="corr-info-title">
@@ -637,6 +645,7 @@
     <button id="back" title="タイトルへ戻る">戻る</button>
     <button id="mode" title="押すと終値と四本値が入れ替わる">終値</button>
     <select id="year" title="表示する年"></select>
+    <button id="sheet-chart" title="現在位置の銘柄を簡易チャートで表示">チャート</button>
     <button id="theme" title="押すたびに配色が変わる">Color</button>
     <div class="spacer"></div>
     <div class="note" id="status"></div>
@@ -673,8 +682,28 @@
     <div class="spacer"></div>
     <div class="note" id="tstatus"></div>
   </div>
-  <div class="tparams" id="tparams"></div>
-  <div class="grid" id="tgrid"><div id="loading">読み込み中…</div></div>
+  <div class="technical-workspace" id="technical-workspace">
+    <div class="technical-top" id="technical-top">
+      <div class="tparams" id="tparams"></div>
+      <div class="grid" id="tgrid"><div id="loading">読み込み中…</div></div>
+    </div>
+    <div class="technical-splitter" id="technical-splitter" role="separator"
+         aria-label="テクニカルと相関の表示領域を調整" aria-orientation="horizontal"
+         aria-valuemin="20" aria-valuemax="80" aria-valuenow="50" tabindex="0"></div>
+    <div class="technical-bottom" id="technical-bottom">
+      <div class="bar">
+        <div class="corr-periods" id="rperiods" aria-label="相関期間">
+          <button data-period="20">20日</button>
+          <button data-period="60">60日</button>
+          <button data-period="120">120日</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="note" id="rstatus"></div>
+      </div>
+      <div class="picks" id="rpicks"></div>
+      <div class="corr-main" id="rmain"><div id="loading">読み込み中…</div></div>
+    </div>
+  </div>
 </section>
 
 <!-- ===================== チャート（ポップアップ） ===================== -->
@@ -817,6 +846,7 @@ function loadSettings() {
       corrEndYear: Number(s.corrEndYear) || new Date().getFullYear(),
       corrBlockOrder: Array.isArray(s.corrBlockOrder) ? s.corrBlockOrder.slice() : [],
       corrChartHidden: Array.isArray(s.corrChartHidden) ? s.corrChartHidden.slice() : [],
+      technicalSplit: Number(s.technicalSplit) >= 20 && Number(s.technicalSplit) <= 80 ? Number(s.technicalSplit) : 50,
       corrAiMain: s.corrAiMain || "",
       corrAiSubs: Array.isArray(s.corrAiSubs) ? fixKeys(s.corrAiSubs, []).slice(0, MAX_AI_SUBS) : [],
       corrAiText: typeof s.corrAiText === "string" ? s.corrAiText : "",
@@ -842,6 +872,7 @@ function loadSettings() {
       corrStartYear: 2000, corrEndYear: new Date().getFullYear(),
       corrBlockOrder: [],
       corrChartHidden: [],
+      technicalSplit: 50,
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       techKey: "yahoo:^N225", techYear: 2026,
@@ -891,7 +922,6 @@ function decide() {
   if (b.disabled) return;
   if (b.dataset.go === "sheet") openSheet();
   if (b.dataset.go === "chart") openCharts();
-  if (b.dataset.go === "correlation") openCorrelations();
   if (b.dataset.go === "technical") openTechnical();
 }
 // 表を矢印で動かす幅。1回押すとこれだけ寄る
@@ -904,14 +934,6 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { cursor = (cursor + 1) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "Enter")     { decide(); e.preventDefault(); }
-    return;
-  }
-
-  if (!corrEl.classList.contains("hidden")) {
-    if (e.key === "Escape") {
-      if (!corrInfoModal.classList.contains("hidden")) closeCorrInfo();
-      else backFromCorrelations();
-    }
     return;
   }
 
@@ -946,7 +968,8 @@ document.addEventListener("keydown", (e) => {
   // テクニカル画面。Esc で戻り、矢印で表を寄せる
   if (!techEl.classList.contains("hidden")) {
     if (e.key === "Escape") {
-      if (!techPickEl.classList.contains("hidden")) closeTechPick();
+      if (!corrInfoModal.classList.contains("hidden")) closeCorrInfo();
+      else if (!techPickEl.classList.contains("hidden")) closeTechPick();
       else if (!techGetEl.classList.contains("hidden")) closeTechGet();
       else if (!techChartEl.classList.contains("hidden")) closeTechChart();
       else if (!techCompEl.classList.contains("hidden")) closeTechCompare();
@@ -958,6 +981,7 @@ document.addEventListener("keydown", (e) => {
     if (!techGetEl.classList.contains("hidden")) return;
     if (!techChartEl.classList.contains("hidden")) return;
     if (!techCompEl.classList.contains("hidden")) return;
+    if (document.activeElement === technicalSplitterEl) return;
     if (document.activeElement && document.activeElement.tagName === "INPUT") return;
     const t = {
       ArrowLeft:  [-STEP_X, 0],
@@ -1521,6 +1545,30 @@ function movingAverage(all, from, n) {
 
 // いま開いているチャートの中身。押し直しで描き直すために持っておく
 let chartState = null;
+let chartPan = { x: 0, y: 0 };
+let chartDrag = null;
+
+function resetChartPan() {
+  chartPan = { x: 0, y: 0 };
+  chartDrag = null;
+}
+
+function chartPanBounds(box) {
+  return {
+    x: Math.max(0, (box.offsetWidth - chartEl.clientWidth) / 2),
+    y: Math.max(0, (box.offsetHeight - chartEl.clientHeight) / 2)
+  };
+}
+
+function applyChartPan() {
+  const box = chartEl.querySelector(".box");
+  if (!box || chartEl.classList.contains("hidden")) return;
+  const bound = chartPanBounds(box);
+  chartPan.x = Math.max(-bound.x, Math.min(bound.x, chartPan.x));
+  chartPan.y = Math.max(-bound.y, Math.min(bound.y, chartPan.y));
+  box.classList.toggle("is-pannable", bound.x > 0 || bound.y > 0);
+  box.style.transform = `translate(-50%, -50%) translate(${chartPan.x}px, ${chartPan.y}px)`;
+}
 
 async function openChart(title, key, map, bars, index) {
   const days = [...map.keys()].sort();
@@ -1533,8 +1581,10 @@ async function openChart(title, key, map, bars, index) {
   days.forEach((d) => all.push({ d, v: Number(map.get(d)) }));
 
   chartState = { title, days, map, all, bars: bars || null, index: index || 0 };
+  resetChartPan();
   drawChart();
   chartEl.classList.remove("hidden");
+  applyChartPan();
 }
 
 function drawChart() {
@@ -1563,16 +1613,17 @@ function drawChart() {
   const L = Math.ceil(widest * 8.4) + 10;
   const R = 6, T = 8, B = 24;
 
-  let ih = Math.round(gridEl.clientHeight / 2) - T - B;  // 描画部分の高さ
-  ih = Math.round(Math.max(160, ih) * settings.chartZoom);   // ホイールで伸び縮み
+  let ih = Math.max(160, Math.round(gridEl.clientHeight / 2) - T - B);  // 1倍時の描画部分の高さ
   let iw = Math.round(ih * RATIO);                       // 描画部分の幅
 
-  // 画面からはみ出す分は詰める。縦横の比は変えない
+  // 1倍の大きさだけは画面内に収める。その後の拡大は画面より大きくしてよい
   const maxIH = window.innerHeight - 90 - T - B;
   const maxIW = window.innerWidth - 60 - L - R;
   if (ih > maxIH) { ih = maxIH; iw = Math.round(ih * RATIO); }
   if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
   if (ih < 100) { ih = 100; iw = Math.round(ih * RATIO); }
+  ih = Math.round(ih * settings.chartZoom);
+  iw = Math.round(ih * RATIO);
 
   const W = iw + L + R, H = ih + T + B;
 
@@ -1644,6 +1695,10 @@ function drawChart() {
       <div class="head">
         <div class="left"><span class="name">${title}</span><span class="ma-pick">${boxes}</span></div>
         <div class="sub">${days[0]} 〜 ${days[days.length - 1]}　${days.length}日</div>
+        <div class="chart-nav" aria-label="銘柄を切り替える">
+          <button type="button" data-chart-step="-1" title="前の銘柄">←</button>
+          <button type="button" data-chart-step="1" title="次の銘柄">→</button>
+        </div>
       </div>
       <svg width="${W}" height="${H}">${parts.join("")}</svg>
     </div>`;
@@ -1655,6 +1710,10 @@ function drawChart() {
       drawChart();
     });
   });
+  chartEl.querySelectorAll("button[data-chart-step]").forEach((button) => {
+    button.addEventListener("click", () => openChartAt(chartState.index + Number(button.dataset.chartStep)));
+  });
+  applyChartPan();
 }
 
 /* 表に出ている i 番目の銘柄でチャートを開く。
@@ -1688,6 +1747,7 @@ function stepYear(cur, dir) {
 function closeChart() {
   chartEl.classList.add("hidden");
   chartEl.innerHTML = "";
+  resetChartPan();
 }
 // チャート以外を押したら消す
 chartEl.addEventListener("click", (e) => {
@@ -1704,6 +1764,35 @@ chartEl.addEventListener("wheel", (e) => {
   saveSettings();
   drawChart();
 }, { passive: false });
+
+chartEl.addEventListener("pointerdown", (e) => {
+  if (e.button !== 0 || chartEl.classList.contains("hidden")) return;
+  const box = e.target.closest(".box");
+  if (!box || e.target.closest("input, label, button, select, a")) return;
+  const bound = chartPanBounds(box);
+  if (bound.x <= 0 && bound.y <= 0) return;
+  chartDrag = { id: e.pointerId, startX: e.clientX, startY: e.clientY, panX: chartPan.x, panY: chartPan.y };
+  box.classList.add("is-panning");
+  chartEl.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+
+chartEl.addEventListener("pointermove", (e) => {
+  if (!chartDrag || chartDrag.id !== e.pointerId) return;
+  chartPan.x = chartDrag.panX + e.clientX - chartDrag.startX;
+  chartPan.y = chartDrag.panY + e.clientY - chartDrag.startY;
+  applyChartPan();
+});
+
+function finishChartDrag(e) {
+  if (!chartDrag || chartDrag.id !== e.pointerId) return;
+  chartEl.querySelector(".box")?.classList.remove("is-panning");
+  if (chartEl.hasPointerCapture(e.pointerId)) chartEl.releasePointerCapture(e.pointerId);
+  chartDrag = null;
+}
+chartEl.addEventListener("pointerup", finishChartDrag);
+chartEl.addEventListener("pointercancel", finishChartDrag);
+window.addEventListener("resize", applyChartPan);
 
 /* ---------------------------------------------------------------
    チャート画面。相対と絶対をトグルで切り替える
@@ -2108,6 +2197,9 @@ yearEl.addEventListener("change", () => {
   render();
 });
 themeEl.addEventListener("click", nextTheme);
+document.getElementById("sheet-chart").addEventListener("click", () => {
+  if (curColumns().length) openChartAt(chartState ? chartState.index : 0);
+});
 
 // 終値 ⇄ 四本値。銘柄の並びはそれぞれ別に覚えているので、戻せば元に戻る
 modeEl.addEventListener("click", () => {
@@ -2337,6 +2429,51 @@ const tpickEl = document.getElementById("tpick");
 const tyearEl = document.getElementById("tyear");
 const tstatusEl = document.getElementById("tstatus");
 const tparamsEl = document.getElementById("tparams");
+const technicalWorkspaceEl = document.getElementById("technical-workspace");
+const technicalTopEl = document.getElementById("technical-top");
+const technicalSplitterEl = document.getElementById("technical-splitter");
+let technicalSplitDrag = null;
+
+function setTechnicalSplit(value, persist) {
+  const available = Math.max(1, technicalWorkspaceEl.clientHeight - technicalSplitterEl.offsetHeight);
+  const minPct = Math.max(20, Math.min(50, (120 / available) * 100));
+  const maxPct = Math.min(80, Math.max(50, 100 - (150 / available) * 100));
+  const pct = Math.max(minPct, Math.min(maxPct, Number(value) || 50));
+  settings.technicalSplit = pct;
+  technicalTopEl.style.flexBasis = `${pct}%`;
+  technicalSplitterEl.setAttribute("aria-valuenow", String(Math.round(pct)));
+  if (persist) saveSettings();
+}
+
+function moveTechnicalSplit(clientY) {
+  const rect = technicalWorkspaceEl.getBoundingClientRect();
+  const available = Math.max(1, rect.height - technicalSplitterEl.offsetHeight);
+  setTechnicalSplit(((clientY - rect.top) / available) * 100, false);
+}
+
+technicalSplitterEl.addEventListener("pointerdown", (e) => {
+  if (e.button !== 0) return;
+  technicalSplitDrag = e.pointerId;
+  technicalSplitterEl.setPointerCapture(e.pointerId);
+  moveTechnicalSplit(e.clientY);
+  e.preventDefault();
+});
+technicalSplitterEl.addEventListener("pointermove", (e) => {
+  if (technicalSplitDrag === e.pointerId) moveTechnicalSplit(e.clientY);
+});
+function finishTechnicalSplit(e) {
+  if (technicalSplitDrag !== e.pointerId) return;
+  if (technicalSplitterEl.hasPointerCapture(e.pointerId)) technicalSplitterEl.releasePointerCapture(e.pointerId);
+  technicalSplitDrag = null;
+  setTechnicalSplit(settings.technicalSplit, true);
+}
+technicalSplitterEl.addEventListener("pointerup", finishTechnicalSplit);
+technicalSplitterEl.addEventListener("pointercancel", finishTechnicalSplit);
+technicalSplitterEl.addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+  setTechnicalSplit(settings.technicalSplit + (e.key === "ArrowDown" ? 2 : -2), true);
+  e.preventDefault();
+});
 
 const TECH_SPAN = 5;     // 表に出す年数
 const TECH_WARM = 2;     // そのさらに前。指標の助走に使うだけで表には出さない
@@ -3417,10 +3554,13 @@ techChartEl.addEventListener("wheel", (e) => {
 function openTechnical() {
   titleEl.classList.add("hidden");
   techEl.classList.remove("hidden");
+  setTechnicalSplit(settings.technicalSplit, false);
   drawTechParams();
   drawTechnical();
+  renderCorrelations();
 }
 function backFromTechnical() {
+  closeCorrInfo();
   closeTechChart();
   closeTechCompare();
   closeTechGet();
@@ -4143,7 +4283,7 @@ function drawTechCompChart() {
 /* ---------------------------------------------------------------
    相関分析。ここを開いたときだけ全年度を読み、計算結果を再利用する。
 --------------------------------------------------------------- */
-const corrEl = document.getElementById("correlations");
+const corrEl = techEl;
 const corrMainEl = document.getElementById("rmain");
 const corrPicksEl = document.getElementById("rpicks");
 const corrStatusEl = document.getElementById("rstatus");
@@ -5169,17 +5309,6 @@ async function renderCorrelations() {
   corrStatusEl.textContent = `${state.keys.length}銘柄　${state.pairs.length}ペア（有効 ${usable}）`;
 }
 
-function openCorrelations() {
-  titleEl.classList.add("hidden");
-  corrEl.classList.remove("hidden");
-  renderCorrelations();
-}
-function backFromCorrelations() {
-  corrEl.classList.add("hidden");
-  titleEl.classList.remove("hidden");
-}
-document.getElementById("rback").addEventListener("click", backFromCorrelations);
-document.getElementById("rtheme").addEventListener("click", nextTheme);
 document.querySelectorAll("#rperiods button").forEach((b) => b.addEventListener("click", () => {
   settings.corrPeriod = Number(b.dataset.period); saveSettings();
   if (corrState) {
