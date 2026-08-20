@@ -988,6 +988,8 @@ async function fetchCsv(path) {
 }
 
 function parseCsv(text) {
+  // 先頭の BOM は見出しの1文字目にくっついて、列名が引けなくなる
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   const lines = text.split("\n").filter((l) => l.length);
   if (!lines.length) return [];
   const head = splitLine(lines[0]);
@@ -1179,7 +1181,22 @@ async function buildCatalog(year) {
     const key = "rates:" + r.name;
     if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "債券" }); }
   }
-  cat.forEach((c) => { c.ohlc = !!(last.get(c.key) || {}).ohlc; });
+  // chart0 から写した個別株。1銘柄1ファイルなので、一覧だけ読んで並べる。
+  // その年に足のあるものだけ出す（期間は一覧に書いてある）
+  for (const r of await fetchCsv("data/stocks/list.csv")) {
+    if (!r.code || r.first.slice(0, 4) > year || r.last.slice(0, 4) < year) continue;
+    const key = "stock:" + r.code;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cat.push({
+      key,
+      label: r.name ? `${r.name}（${r.code}）` : r.code,
+      group: "日本個別株",
+      ohlc: true
+    });
+  }
+  // 個別株は四本値があると分かっている。それ以外はその年の最後の日で見る
+  cat.forEach((c) => { if (c.ohlc === undefined) c.ohlc = !!(last.get(c.key) || {}).ohlc; });
   // 分野の順、分野の中は名前順
   cat.sort((a, b) =>
     GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) ||
@@ -1227,6 +1244,11 @@ async function seriesOf(key, year) {
         map.set(r.trade_date, r.value);
       }
     }
+  } else if (src === "stock") {
+    // chart0 から写したもの。列の名前が違う（Date, Close）
+    for (const r of await fetchCsv(`data/stocks/${id}.csv`)) {
+      if ((r.Date || "").startsWith(year) && isNum(r.Close)) map.set(r.Date, r.Close);
+    }
   }
   return map;
 }
@@ -1239,6 +1261,10 @@ async function volumeOf(key, year) {
   if (src === "yahoo") {
     for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
       if (r.symbol === id && Number(r.volume) > 0) map.set(r.trade_date, Number(r.volume));
+    }
+  } else if (src === "stock") {
+    for (const r of await fetchCsv(`data/stocks/${id}.csv`)) {
+      if ((r.Date || "").startsWith(year) && Number(r.Volume) > 0) map.set(r.Date, Number(r.Volume));
     }
   }
   return map;
@@ -1262,6 +1288,12 @@ async function barsOf(key, year) {
     take(await fetchCsv("data/jpx_index.csv"), (r) => r.name === id && r.trade_date.startsWith(year));
   } else if (src === "nikkei") {
     take(await fetchCsv("data/nikkei_ohlc.csv"), (r) => r.name === id && r.trade_date.startsWith(year));
+  } else if (src === "stock") {
+    for (const r of await fetchCsv(`data/stocks/${id}.csv`)) {
+      if (!(r.Date || "").startsWith(year)) continue;
+      if (!isNum(r.Open) || !isNum(r.High) || !isNum(r.Low) || !isNum(r.Close)) continue;
+      map.set(r.Date, { open: r.Open, high: r.High, low: r.Low, close: r.Close });
+    }
   }
   return map;
 }
@@ -1332,6 +1364,13 @@ function makeGrip(key, col) {
     saveSettings();
   });
   return grip;
+}
+
+/* 数字として読めるか。chart0 の個別株は、売買が成立しなかった日
+   （2020-10-01 の東証障害など）に #VALUE! が入っている。
+   読めないものは「その日は無い」として落とす。埋めない */
+function isNum(v) {
+  return v !== undefined && v !== "" && isFinite(Number(v));
 }
 
 function fmt(v) {

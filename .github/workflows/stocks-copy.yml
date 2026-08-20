@@ -1,0 +1,35 @@
+name: 個別株のコピー（chart0）
+
+# chart0 で集めている個別株を、そのままこちらへ写す。
+#
+# chart0 の更新は JST 16:40（あちらの daily_update.yml）。終わってから写したいので
+# JST 17:30 に回す。JST 17:30 = UTC 08:30（同日）。曜日はずれない。
+#
+# 写すのは4桁のコードだけ。3桁は指数で、こちらには同じものが別の取り方で
+# 入っている（しかも古くまで揃っている）。
+on:
+  schedule:
+    - cron: "30 8 * * 1-5" # UTC 月〜金 08:30 = JST 月〜金 17:30
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: chart0 を取る
+        uses: actions/checkout@v4
+        with:
+          repository: keroppa88/chart0
+          path: chart0
+
+      - name: 写す
+        run: python3 src/copy_stocks.py chart0
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "個別株のコピー（chart0） $(date -u +%Y-%m-%d)"
