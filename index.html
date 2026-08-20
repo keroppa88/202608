@@ -266,9 +266,10 @@
   .canvas .cs { stroke: var(--fg); fill: none; stroke-width: 1; }
   .canvas .cs.dn { fill: var(--fg); }
 
-  /* テクニカルのチャート。表の見出しを押すと出る */
+  /* テクニカルのチャート。表の見出しを押すと出る。
+     比較の枠から呼ぶこともあるので、そちらより前に置く */
   #techchart {
-    position: fixed; inset: 0; z-index: 50;
+    position: fixed; inset: 0; z-index: 60;
     background: rgba(0, 0, 0, .55);
     display: flex; align-items: center; justify-content: center;
   }
@@ -304,6 +305,25 @@
   /* 中は場所を取るだけ。動かすのは外の箱 */
   #techchart .tcbody { flex: none; overflow: visible; padding: 0; }
   #techchart .cap { font-weight: normal; }
+
+  /* テクニカルの比較。バーの「比較」で出る */
+  #techcomp {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0, 0, 0, .55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #techcomp .box {
+    display: flex; flex-direction: column;
+    background: var(--bg); color: var(--fg);
+    border: 2px solid var(--line);
+    padding: 8px 8px 6px;
+    width: 96vw; max-height: 94vh;
+  }
+  #techcomp .head { display: flex; gap: 6px 20px; flex-wrap: wrap; margin-bottom: 6px; }
+  #techcomp .head .left { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; min-width: 0; }
+  #techcomp .picks { border: 0; border-bottom: 1px solid var(--line); }
+  /* 表はこの中だけで動かす */
+  #techcomp .tcgrid { flex: 1; min-height: 0; border-top: 1px solid var(--line); }
 
   /* ---- 相関分析画面 ---- */
   #correlations { height: 100%; display: flex; flex-direction: column; }
@@ -572,6 +592,7 @@
     <select id="tpick" title="銘柄を変える"></select>
     <select id="tyear" title="この年までの5年を出す"></select>
     <button id="ttheme" title="押すたびに配色が変わる">Color</button>
+    <button id="tcomp" title="主要指数などとの相関を出す">比較</button>
     <button id="tauto" title="出ている5年で成績のいちばん良かった数字を入れる">自動</button>
     <button id="treset" title="よくある数字に戻す">既定</button>
     <div class="spacer"></div>
@@ -586,6 +607,9 @@
 
 <!-- ============== テクニカルのチャート（ポップアップ） ============== -->
 <div id="techchart" class="hidden"></div>
+
+<!-- ============== テクニカルの比較（ポップアップ） ============== -->
+<div id="techcomp" class="hidden"></div>
 
 <!-- ===================== 擬似スクリーンセーバー ===================== -->
 <div id="saver" class="hidden" aria-hidden="true"></div>
@@ -693,6 +717,7 @@ function loadSettings() {
       techKey: RENAMED[s.techKey] || s.techKey || "yahoo:^N225",
       techYear: s.techYear || 2026,
       techParams: fixTechParams(s.techParams),
+      techComp: Array.isArray(s.techComp) ? fixKeys(s.techComp, []).slice(0, 5) : [],
       techZoom: Number(s.techZoom) > 0 ? Number(s.techZoom) : 1,
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
@@ -710,7 +735,7 @@ function loadSettings() {
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       techKey: "yahoo:^N225", techYear: 2026,
-      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1,
+      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1, techComp: [],
       saverIndex: 0
     };
   }
@@ -812,10 +837,13 @@ document.addEventListener("keydown", (e) => {
   if (!techEl.classList.contains("hidden")) {
     if (e.key === "Escape") {
       if (!techChartEl.classList.contains("hidden")) closeTechChart();
+      else if (!techCompEl.classList.contains("hidden")) closeTechCompare();
       else backFromTechnical();
       return;
     }
-    if (!techChartEl.classList.contains("hidden")) return;   // チャート中は表を動かさない
+    // 前に何か出している間は表を動かさない
+    if (!techChartEl.classList.contains("hidden")) return;
+    if (!techCompEl.classList.contains("hidden")) return;
     if (document.activeElement && document.activeElement.tagName === "INPUT") return;
     const t = {
       ArrowLeft:  [-STEP_X, 0],
@@ -1213,12 +1241,14 @@ const ohlcWidthKey = (key) => "ohlc|" + key;
 
 // テクニカルの表は列が多い。1列ぶんは狭くする
 const TECH_W = 86;
+const COMP_W = 92;
 
 function widthOf(key) {
   if (settings.widths[key]) return settings.widths[key];
   if (DEFAULT_W[key]) return DEFAULT_W[key];
   if (key.startsWith("ohlc|")) return OHLC_W;
   if (key.startsWith("tech|")) return TECH_W;
+  if (key.startsWith("comp|")) return COMP_W;
   return 130;
 }
 
@@ -3082,8 +3112,17 @@ const TECH_SHOWS = [
 // いま出している指標。開くたびに、押した指標ひとつだけに戻す
 let techShow = new Set();
 
+// チャートの箱は指標と比較で使い回す。どちらを出しているか
+let techChartMode = "ind";
+
+function redrawTechChart() {
+  if (techChartMode === "comp") drawTechCompChart();
+  else drawTechChart();
+}
+
 function openTechChart(id) {
   if (!techState) return;
+  techChartMode = "ind";
   techShow = new Set(id && id !== "price" ? [id] : []);
   drawTechChart();
   techChartEl.classList.remove("hidden");
@@ -3218,7 +3257,7 @@ techChartEl.addEventListener("wheel", (e) => {
   const f = e.deltaY < 0 ? 1.1 : 1 / 1.1;
   settings.techZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, settings.techZoom * f));
   saveSettings();
-  drawTechChart();
+  redrawTechChart();
 }, { passive: false });
 
 /* ---- 画面 ----------------------------------------------------- */
@@ -3230,6 +3269,7 @@ function openTechnical() {
 }
 function backFromTechnical() {
   closeTechChart();
+  closeTechCompare();
   techEl.classList.add("hidden");
   titleEl.classList.remove("hidden");
 }
@@ -3253,6 +3293,7 @@ tpickEl.addEventListener("change", () => {
   saveSettings();
   drawTechnical();
 });
+document.getElementById("tcomp").addEventListener("click", openTechCompare);
 document.getElementById("treset").addEventListener("click", () => {
   settings.techParams = JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS));
   saveSettings();
@@ -3310,16 +3351,432 @@ async function drawTechnical() {
     tstatusEl.textContent = name;
     techState = null;
     closeTechChart();
+    closeTechCompare();
     return;
   }
   techState = { rows, at, days, ind, p, name, from: at[0] };
 
   drawTechTable(at, days, ind, p);
-  if (!techChartEl.classList.contains("hidden")) drawTechChart();
+  if (!techCompEl.classList.contains("hidden")) drawTechCompare();
+  if (!techChartEl.classList.contains("hidden")) redrawTechChart();
 
   const have = at.reduce((n, i) => rows[i].h === null ? n : n + 1, 0);
   tstatusEl.textContent = `${name}　${days[0]} 〜 ${days[days.length - 1]}　${days.length}日`
     + (have === days.length ? "" : have ? `　四本値に欠け ${days.length - have}日` : "　四本値なし");
+}
+
+/* ---- 比較 ------------------------------------------------------
+   主要指数などとの相関を出す。毎日ぶんは出さない。相関は窓の長さぶんを
+   まとめた数字なので、1日ずらしただけの値を並べても同じような数字が
+   続くだけになる。最新日を起点に20営業日ごとに遡って並べる。
+
+   相関の計算は相関画面と同じ CorrelationEngine を使う。突き合わせは
+   両方に値のある日だけ。休みの日は埋めない。
+--------------------------------------------------------------- */
+const techCompEl = document.getElementById("techcomp");
+
+// いつも出す銘柄。ここは外せない
+const TECH_BASE = [
+  "yahoo:^N225",                  // 日経平均
+  "jpx:TOPIX",
+  "nikkei:日経半導体株指数",
+  "yahoo:^DJI",                   // NYダウ
+  "yahoo:^IXIC",                  // ナスダック総合
+  "yahoo:^GSPC",                  // S&P500
+  "yahoo:^SOX",
+  "yahoo:USDJPY=X"                // ドル円
+];
+const MAX_TECH_COMP = 5;          // これに足せる数
+
+const TECH_CORR_N = [20, 40, 60, 100, 200];   // 相関を取る日数
+const TECH_GAP_N = [20, 60, 200];             // 騰落率の差を取る日数
+const TECH_RS_MA = 25;                        // 相対力の移動平均
+const TECH_BETA_N = 60;                       // βを取る日数
+const TECH_STEP = 20;                         // 何営業日ごとに出すか
+
+// 表の列。銘柄ごとにこれだけ並ぶ
+function techCompCols() {
+  const out = [];
+  TECH_CORR_N.forEach((n) => out.push({ f: `相関${n}`, d: 3, at: (s, r) => s.corr[n][r] }));
+  TECH_GAP_N.forEach((n) => out.push({ f: `乖離%${n}`, d: 2, at: (s, r) => s.gap[n][r] }));
+  out.push({ f: "相対力乖離%", d: 2, at: (s, r) => s.rs[r] });
+  out.push({ f: `β${TECH_BETA_N}`, d: 2, at: (s, r) => s.beta[r] });
+  return out;
+}
+
+function fmtN(v, d) {
+  const n = Number(v);
+  if (!isFinite(n)) return v;
+  return n.toLocaleString("ja-JP", { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+// 比較に出す銘柄。主銘柄と同じものは外す（自分との相関は always 1）
+function techCompKeys() {
+  const out = [];
+  for (const k of TECH_BASE.concat(settings.techComp)) {
+    if (k !== settings.techKey && !out.includes(k)) out.push(k);
+  }
+  return out;
+}
+
+// 比較銘柄の「日付 → 終値」。主銘柄と同じ年数ぶん読む
+const techCompCache = new Map();
+async function techCompCloses(key, endYear) {
+  const id = `${key}|${endYear}`;
+  if (techCompCache.has(id)) return techCompCache.get(id);
+  const map = new Map();
+  for (let y = Number(endYear) - TECH_SPAN - TECH_WARM + 1; y <= Number(endYear); y++) {
+    const one = await seriesOf(key, String(y));
+    one.forEach((v, d) => {
+      if (!d.startsWith(String(y))) return;
+      const n = Number(v);
+      if (isFinite(n)) map.set(d, n);
+    });
+  }
+  const sorted = new Map([...map].sort((a, b) => a[0] < b[0] ? -1 : 1));
+  techCompCache.set(id, sorted);
+  return sorted;
+}
+
+// β。比較銘柄が1動いたとき主銘柄がどれだけ動いたか
+function betaAt(pts, i, n) {
+  if (i - n + 1 < 0) return null;
+  let sx = 0, sy = 0, syy = 0, sxy = 0;
+  for (let k = i - n + 1; k <= i; k++) {
+    const p = pts[k];
+    sx += p.x; sy += p.y; syy += p.y * p.y; sxy += p.x * p.y;
+  }
+  const vy = n * syy - sy * sy;
+  if (!(vy > 0)) return null;
+  return (n * sxy - sx * sy) / vy;
+}
+
+// 主銘柄と1銘柄ぶんの突き合わせ。出すのは標本の日だけ
+function techPairStats(mainRows, subMap, sampleDates) {
+  const E = CorrelationEngine;
+  const mc = new Map(mainRows.map((r) => [r.d, r.c]));
+  const pts = E.sameDay(
+    E.priceChanges(mainRows.map((r) => [r.d, r.c])),
+    E.priceChanges([...subMap])
+  );
+  const out = { corr: {}, gap: {}, rs: [], beta: [], n: pts.length };
+  TECH_CORR_N.forEach((n) => { out.corr[n] = []; });
+  TECH_GAP_N.forEach((n) => { out.gap[n] = []; });
+
+  // 相対力（主÷比）と、その移動平均
+  const rs = pts.map((p) => {
+    const a = mc.get(p.d), b = subMap.get(p.d);
+    return (a && b) ? a / b : null;
+  });
+  const rsMa = sma(rs, TECH_RS_MA);
+
+  let j = 0;
+  sampleDates.forEach((d) => {
+    while (j + 1 < pts.length && pts[j + 1].d <= d) j++;
+    const i = (pts.length && pts[j].d <= d) ? j : -1;
+    if (i < 0) {
+      TECH_CORR_N.forEach((n) => out.corr[n].push(null));
+      TECH_GAP_N.forEach((n) => out.gap[n].push(null));
+      out.rs.push(null);
+      out.beta.push(null);
+      return;
+    }
+    TECH_CORR_N.forEach((n) => {
+      out.corr[n].push(i - n + 1 >= 0 ? E.pearson(pts.slice(i - n + 1, i + 1)) : null);
+    });
+    TECH_GAP_N.forEach((n) => {
+      const k = i - n;
+      if (k < 0) { out.gap[n].push(null); return; }
+      const m1 = mc.get(pts[i].d), m0 = mc.get(pts[k].d);
+      const s1 = subMap.get(pts[i].d), s0 = subMap.get(pts[k].d);
+      out.gap[n].push((m1 && m0 && s1 && s0)
+        ? ((m1 / m0 - 1) - (s1 / s0 - 1)) * 100 : null);
+    });
+    out.rs.push((rs[i] !== null && rsMa[i]) ? (rs[i] / rsMa[i] - 1) * 100 : null);
+    out.beta.push(betaAt(pts, i, TECH_BETA_N));
+  });
+  // チャートで使う。頭を100にそろえた線も標本の日で拾う
+  out.pts = pts;
+  out.mc = mc;
+  out.sub = subMap;
+  return out;
+}
+
+// 最新日を起点に20営業日ごと。返すのは古い順
+function techSampleDates(days) {
+  const out = [];
+  for (let i = days.length - 1; i >= 0; i -= TECH_STEP) out.push(days[i]);
+  return out.reverse();
+}
+
+/* ---- 比較の枠 ---- */
+let techCompShown = null;      // いま出している中身。チャートで使い回す
+
+function openTechCompare() {
+  if (!techState) return;
+  techCompEl.classList.remove("hidden");
+  drawTechCompare();
+}
+function closeTechCompare() {
+  techCompEl.classList.add("hidden");
+  techCompEl.innerHTML = "";
+}
+
+let tcRendering = 0;
+async function drawTechCompare() {
+  if (!techState) return;
+  const mine = ++tcRendering;
+  const { rows, days, name } = techState;
+  const endYear = Number(settings.techYear);
+  const keys = techCompKeys();
+  const dates = techSampleDates(days);
+
+  if (!techCompEl.querySelector(".box")) {
+    techCompEl.innerHTML = '<div class="box"><div id="loading">読み込み中…</div></div>';
+  }
+
+  const stats = [];
+  for (const key of keys) {
+    const sub = await techCompCloses(key, endYear);
+    if (mine !== tcRendering) return;
+    stats.push(techPairStats(rows, sub, dates));
+  }
+  const catalog = await buildCatalog(String(endYear));
+  if (mine !== tcRendering) return;
+  techCompShown = { keys, dates, stats, catalog };
+
+  const cols = techCompCols();
+  const box = document.createElement("div");
+  box.className = "box";
+
+  const head = document.createElement("div");
+  head.className = "head";
+  head.innerHTML = `<div class="left"><span class="nm">${name}</span>`
+    + `<span class="sub">${dates[0]} 〜 ${dates[dates.length - 1]}　`
+    + `${TECH_STEP}営業日ごと ${dates.length}回</span></div>`;
+
+  // 足した銘柄の選び直し。既定の8つはここには出さない
+  const picks = document.createElement("div");
+  picks.className = "picks";
+  settings.techComp.forEach((key, i) => {
+    const one = document.createElement("div");
+    one.className = "one";
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    nm.textContent = labelOf(key, catalog);
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = "この銘柄を外す";
+    del.addEventListener("click", () => {
+      settings.techComp.splice(i, 1);
+      saveSettings();
+      drawTechCompare();
+    });
+    const sel = document.createElement("select");
+    sel.title = "銘柄を変える";
+    fillPicker(sel, catalog, key, true);
+    sel.addEventListener("change", () => {
+      if (sel.value === DEL_VALUE) settings.techComp.splice(i, 1);
+      else settings.techComp[i] = sel.value;
+      saveSettings();
+      drawTechCompare();
+    });
+    one.append(nm, del, sel);
+    picks.appendChild(one);
+  });
+  if (settings.techComp.length < MAX_TECH_COMP) {
+    const add = document.createElement("button");
+    add.className = "add";
+    add.textContent = "＋";
+    add.title = "比べる銘柄を足す";
+    add.addEventListener("click", () => {
+      const first = catalog.find((c) => !techCompKeys().includes(c.key) && c.key !== settings.techKey);
+      if (!first) return;
+      settings.techComp.push(first.key);
+      saveSettings();
+      drawTechCompare();
+    });
+    picks.appendChild(add);
+  }
+
+  // 表。縦が標本の日、横が銘柄×指標
+  const grid = document.createElement("div");
+  grid.className = "grid tcgrid";
+  const table = document.createElement("table");
+  const colgroup = document.createElement("colgroup");
+  const addCol = (key) => {
+    const c = document.createElement("col");
+    c.style.width = widthOf(key) + "px";
+    colgroup.appendChild(c);
+    return c;
+  };
+  const dateCol = addCol(DATE_COL);
+  const cs = keys.map(() => cols.map((c) => addCol("comp|" + c.f)));
+  table.appendChild(colgroup);
+
+  const thead = document.createElement("thead");
+  const htr = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.className = "corner";
+  corner.textContent = "日付";
+  corner.appendChild(makeGrip(DATE_COL, dateCol));
+  htr.appendChild(corner);
+  keys.forEach((key, ki) => {
+    cols.forEach((c, ci) => {
+      const th = document.createElement("th");
+      const wrap = document.createElement("div");
+      wrap.className = "colhead";
+      wrap.title = "押すとチャート";
+      wrap.addEventListener("click", () => openTechCompChart(ki, c.f));
+      const nm = document.createElement("div");
+      nm.className = "name";
+      nm.textContent = labelOf(key, catalog);
+      const fd = document.createElement("div");
+      fd.className = "field";
+      fd.textContent = c.f;
+      wrap.append(nm, fd);
+      th.appendChild(wrap);
+      th.appendChild(makeGrip("comp|" + c.f, cs[ki][ci]));
+      htr.appendChild(th);
+    });
+  });
+  thead.appendChild(htr);
+
+  const html = [];
+  dates.forEach((d, r) => {
+    html.push("<tr><th>", d, "</th>");
+    keys.forEach((key, ki) => {
+      cols.forEach((c) => {
+        const v = c.at(stats[ki], r);
+        if (v === null || v === undefined || !isFinite(v)) html.push('<td class="na">#N/A</td>');
+        else html.push("<td>", fmtN(v, c.d), "</td>");
+      });
+    });
+    html.push("</tr>");
+  });
+  const tbody = document.createElement("tbody");
+  tbody.innerHTML = html.join("");
+  table.append(thead, tbody);
+  grid.appendChild(table);
+
+  box.append(head, picks, grid);
+  techCompEl.innerHTML = "";
+  techCompEl.appendChild(box);
+  grid.scrollTop = grid.scrollHeight;      // 下（新しい日）を出しておく
+}
+
+techCompEl.addEventListener("click", (e) => {
+  if (!e.target.closest(".box")) closeTechCompare();
+});
+
+/* ---- 比較のチャート ----
+   横軸は表と同じ標本の日。数字と線がずれないようにそろえる */
+const TECH_COMP_SHOWS = [
+  { id: "corr", name: "相関" },
+  { id: "gap",  name: "乖離%" },
+  { id: "rs",   name: "相対力乖離%" },
+  { id: "beta", name: `β${TECH_BETA_N}` }
+];
+let techCompShow = new Set();
+let techCompAt = 0;
+
+function openTechCompChart(ki, field) {
+  if (!techCompShown) return;
+  techChartMode = "comp";
+  techCompAt = ki;
+  const id = field.startsWith("相関") ? "corr"
+    : field.startsWith("乖離") ? "gap"
+    : field.startsWith("相対力") ? "rs" : "beta";
+  techCompShow = new Set([id]);
+  drawTechCompChart();
+  techChartEl.classList.remove("hidden");
+}
+
+function drawTechCompChart() {
+  if (!techCompShown) return;
+  const { keys, dates, stats, catalog } = techCompShown;
+  const st = stats[techCompAt];
+  const subName = labelOf(keys[techCompAt], catalog);
+  const mainName = techState ? techState.name : "";
+  const subs = TECH_COMP_SHOWS.filter((s) => techCompShow.has(s.id));
+
+  const T = 8, B = 24, R = 6, RATIO = 1.62, SUB = 0.4;
+  const avail = window.innerHeight - 190 - subs.length * 30;
+  let ih = Math.round((avail - (subs.length + 1) * (T + B)) / (1 + subs.length * SUB));
+  ih = Math.max(260, Math.round(ih * settings.techZoom));
+  let iw = Math.round(ih * RATIO);
+  const maxIW = Math.round(window.innerWidth * 0.94) - AXIS_L - R - 20;
+  if (iw > maxIW && settings.techZoom <= 1) { iw = maxIW; ih = Math.round(iw / RATIO); }
+  const base = { iw, ih, T, B, R };
+  const small = { iw, ih: Math.max(70, Math.round(ih * SUB)), T, B, R };
+
+  const body = document.createElement("div");
+  body.className = "canvas tcbody";
+  const put = (el) => { if (el) body.appendChild(el); };
+
+  // 頭を100にそろえた2本。拾うのは表と同じ日
+  const pick = (map) => dates.map((d) => (map.get(d) === undefined ? null : Number(map.get(d))));
+  const norm = (vals) => {
+    const first = vals.find((v) => v !== null && v > 0);
+    return first === undefined ? vals : vals.map((v) => v === null ? null : (v / first) * 100);
+  };
+  put(techPanel(
+    techLegend("", [[mainName, seriesColor(0)], [subName, seriesColor(1)]]),
+    dates, {
+      lines: [
+        { vals: norm(pick(st.mc)), color: seriesColor(0) },
+        { vals: norm(pick(st.sub)), color: seriesColor(1) }
+      ],
+      guides: [100]
+    }, base));
+
+  const PANEL = {
+    corr: () => techPanel(
+      techLegend(`${subName}との相関`, TECH_CORR_N.map((n, j) => [String(n), seriesColor(j)])),
+      dates, {
+        lines: TECH_CORR_N.map((n, j) => ({ vals: st.corr[n], color: seriesColor(j) })),
+        guides: [-0.5, 0, 0.5],
+        fix: { bottom: -1, top: 1, step: 0.5 }
+      }, small),
+    gap: () => techPanel(
+      techLegend("乖離%", TECH_GAP_N.map((n, j) => [String(n), seriesColor(j)])),
+      dates, {
+        lines: TECH_GAP_N.map((n, j) => ({ vals: st.gap[n], color: seriesColor(j) })),
+        guides: [0]
+      }, small),
+    rs: () => techPanel("相対力乖離%", dates, {
+      lines: [{ vals: st.rs, color: seriesColor(0) }], guides: [0]
+    }, small),
+    beta: () => techPanel(`β${TECH_BETA_N}`, dates, {
+      lines: [{ vals: st.beta, color: seriesColor(0) }], guides: [0, 1]
+    }, small)
+  };
+  subs.forEach((s) => put(PANEL[s.id]()));
+
+  const picks = TECH_COMP_SHOWS.map((s) =>
+    `<label><input type="checkbox" data-cshow="${s.id}"${techCompShow.has(s.id) ? " checked" : ""}>`
+    + `<span class="bx"></span>${s.name}</label>`).join("");
+
+  const box = document.createElement("div");
+  box.className = "box";
+  box.style.width = (iw + AXIS_L + R + 8 * 2 + 2 * 2) + "px";
+  const head = document.createElement("div");
+  head.className = "head";
+  head.innerHTML = `<div class="left"><span class="nm">${mainName} と ${subName}</span>`
+    + `<span class="sub">${dates[0]} 〜 ${dates[dates.length - 1]}　`
+    + `${TECH_STEP}営業日ごと ${dates.length}回</span></div>`
+    + `<div class="pick">${picks}</div>`;
+  box.append(head, body);
+  techChartEl.innerHTML = "";
+  techChartEl.appendChild(box);
+
+  box.querySelectorAll("input[data-cshow]").forEach((el) => {
+    el.addEventListener("change", () => {
+      if (el.checked) techCompShow.add(el.dataset.cshow);
+      else techCompShow.delete(el.dataset.cshow);
+      drawTechCompChart();
+    });
+  });
 }
 
 /* ---------------------------------------------------------------
