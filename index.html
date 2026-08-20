@@ -4188,7 +4188,7 @@ function corrMeta(key, catalog) {
   const [src, id] = splitKey(key);
   const hit = catalog.find((c) => c.key === key) || {};
   let market = "OTHER", calcType = "return";
-  if (["jpx", "nikkei", "yomiuri", "ratio"].includes(src)) market = "JP";
+  if (["jpx", "nikkei", "yomiuri", "ratio", "stock"].includes(src)) market = "JP";
   if (src === "rates") {
     calcType = "diff";
     if (/^(米|アメリカ)/.test(id)) market = "US";
@@ -4257,6 +4257,18 @@ async function loadCorrelationPrices(keys, progress) {
         if (key && v !== null && r.trade_date) maps.get(key).set(r.trade_date.slice(0, 10), v);
       }
     }
+    // chart0 から写した個別株。1銘柄1ファイルで、全期間がそこに入っている。
+    // 列の名前だけ他と違う（Date, Close）
+    const stocks = missing.filter((key) => splitKey(key)[0] === "stock");
+    for (let i = 0; i < stocks.length; i++) {
+      const code = splitKey(stocks[i])[1];
+      if (progress) progress(`個別株 ${i + 1}/${stocks.length}（${code}）`);
+      for (const r of await fetchCsv(`data/stocks/${code}.csv`)) {
+        const v = CorrelationEngine.finiteNumber(r.Close);
+        if (v !== null && r.Date) maps.get(stocks[i]).set(r.Date.slice(0, 10), v);
+      }
+    }
+
     maps.forEach((map, key) => corrPriceCache.set(key, map));
   }
   return new Map(wanted.map((key) => [key, corrPriceCache.get(key) || new Map()]));
