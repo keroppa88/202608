@@ -306,6 +306,52 @@
   #techchart .tcbody { flex: none; overflow: visible; padding: 0; }
   #techchart .cap { font-weight: normal; }
 
+  /* 銘柄を選ぶ窓。左で分野、右でその中の銘柄 */
+  #techpick {
+    position: fixed; inset: 0; z-index: 60;
+    background: rgba(0, 0, 0, .55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #techpick .box {
+    display: flex; flex-direction: column;
+    background: var(--bg); color: var(--fg);
+    border: 2px solid var(--line);
+    padding: 10px 12px;
+    width: min(760px, 94vw); height: min(560px, 88vh);
+  }
+  #techpick .head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  #techpick .ttl { color: var(--fg2); flex: 1; }
+  #techpick .head button {
+    background: var(--panel); color: var(--fg);
+    border: 1px solid var(--line); font: inherit; padding: 3px 12px; cursor: pointer;
+  }
+  #techpick .panes { display: flex; gap: 10px; flex: 1; min-height: 0; }
+  #techpick .pane {
+    display: flex; flex-direction: column; min-height: 0;
+    border: 1px solid var(--line);
+  }
+  #techpick .pane.left { flex: none; width: 170px; overflow: auto; }
+  #techpick .pane.right { flex: 1; min-width: 0; }
+  #techpick .list { flex: 1; overflow: auto; }
+  /* 一覧の中身。押すと決まる */
+  #techpick .pane button {
+    display: block; width: 100%; text-align: left;
+    background: none; color: var(--fg); border: 0;
+    font: inherit; padding: 3px 8px; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #techpick .pane button:hover { background: var(--panel); }
+  #techpick .pane button[aria-selected="true"] { background: var(--sel-bg); color: var(--sel-fg); }
+  #techpick input {
+    flex: none; margin: 0; border: 0; border-bottom: 1px solid var(--line);
+    background: var(--bg); color: var(--fg); font: inherit; padding: 5px 8px;
+  }
+  #techpick input.hidden { display: none !important; }
+  #techpick .none { padding: 8px; color: var(--dim); }
+  /* 落ちる一覧のスクロール棒も配色に合わせる */
+  #techpick .pane { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
+  #techpick .list { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
+
   /* 個別株の取り寄せ。バーの「取得」で出る */
   #techget {
     position: fixed; inset: 0; z-index: 60;
@@ -617,7 +663,7 @@
 <section id="technical" class="hidden">
   <div class="bar">
     <button id="tback" title="タイトルへ戻る">戻る</button>
-    <select id="tpick" title="銘柄を変える"></select>
+    <button id="tpick" title="銘柄を選ぶ">銘柄</button>
     <select id="tyear" title="この年までの5年を出す"></select>
     <button id="ttheme" title="押すたびに配色が変わる">Color</button>
     <button id="tcomp" title="主要指数などとの相関を出す">比較</button>
@@ -639,6 +685,24 @@
 
 <!-- ============== テクニカルの比較（ポップアップ） ============== -->
 <div id="techcomp" class="hidden"></div>
+
+<!-- ============== 銘柄を選ぶ窓（ポップアップ） ============== -->
+<div id="techpick" class="hidden">
+  <div class="box">
+    <div class="head">
+      <span class="ttl">銘柄を選ぶ</span>
+      <button id="tpclose">閉じる</button>
+    </div>
+    <div class="panes">
+      <div class="pane left" id="tpgroups"></div>
+      <div class="pane right">
+        <input id="tpcode" type="text" placeholder="コードを打つ（例: 7203）"
+               autocomplete="off" spellcheck="false">
+        <div class="list" id="tpitems"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ============== 個別株の取り寄せ（ポップアップ） ============== -->
 <div id="techget" class="hidden">
@@ -882,13 +946,15 @@ document.addEventListener("keydown", (e) => {
   // テクニカル画面。Esc で戻り、矢印で表を寄せる
   if (!techEl.classList.contains("hidden")) {
     if (e.key === "Escape") {
-      if (!techGetEl.classList.contains("hidden")) closeTechGet();
+      if (!techPickEl.classList.contains("hidden")) closeTechPick();
+      else if (!techGetEl.classList.contains("hidden")) closeTechGet();
       else if (!techChartEl.classList.contains("hidden")) closeTechChart();
       else if (!techCompEl.classList.contains("hidden")) closeTechCompare();
       else backFromTechnical();
       return;
     }
     // 前に何か出している間は表を動かさない
+    if (!techPickEl.classList.contains("hidden")) return;
     if (!techGetEl.classList.contains("hidden")) return;
     if (!techChartEl.classList.contains("hidden")) return;
     if (!techCompEl.classList.contains("hidden")) return;
@@ -3358,6 +3424,7 @@ function backFromTechnical() {
   closeTechChart();
   closeTechCompare();
   closeTechGet();
+  closeTechPick();
   techEl.classList.add("hidden");
   titleEl.classList.remove("hidden");
 }
@@ -3373,11 +3440,6 @@ document.getElementById("tback").addEventListener("click", backFromTechnical);
 document.getElementById("ttheme").addEventListener("click", nextTheme);
 tyearEl.addEventListener("change", () => {
   settings.techYear = Number(tyearEl.value);
-  saveSettings();
-  drawTechnical();
-});
-tpickEl.addEventListener("change", () => {
-  settings.techKey = tpickEl.value;
   saveSettings();
   drawTechnical();
 });
@@ -3421,8 +3483,8 @@ async function drawTechnical() {
 
   const catalog = await buildCatalog(String(endYear));
   if (mine !== tRendering) return;
-  tpickEl.innerHTML = "";
-  fillPicker(tpickEl, catalog, settings.techKey, false);
+  techCatalog = catalog;
+  tpickEl.textContent = labelOf(settings.techKey, catalog);
 
   const rows = await techRows(settings.techKey, endYear);
   if (mine !== tRendering) return;
@@ -3452,6 +3514,108 @@ async function drawTechnical() {
   tstatusEl.textContent = `${name}　${days[0]} 〜 ${days[days.length - 1]}　${days.length}日`
     + (have === days.length ? "" : have ? `　四本値に欠け ${days.length - have}日` : "　四本値なし");
 }
+
+/* ---- 銘柄を選ぶ窓 ----------------------------------------------
+   左で分野を選び、右でその中の銘柄を選ぶ。銘柄が1000を超えるので、
+   一本の落ちる一覧では探せない。
+
+   日本個別株のときだけ、右にコードの打ち込み欄を出す。ほかの分野は
+   数が知れているので要らない。
+--------------------------------------------------------------- */
+const techPickEl = document.getElementById("techpick");
+const tpGroupsEl = document.getElementById("tpgroups");
+const tpItemsEl = document.getElementById("tpitems");
+const tpCodeEl = document.getElementById("tpcode");
+
+// コードを打てる分野。ここだけ数が多い
+const TECH_PICK_CODE_GROUP = "日本個別株";
+
+let techCatalog = [];        // いま出している年の銘柄一覧
+let tpGroup = "";            // 左で選んでいる分野
+
+function openTechPick() {
+  if (!techCatalog.length) return;
+  const cur = techCatalog.find((c) => c.key === settings.techKey);
+  tpGroup = cur ? cur.group : (techCatalog[0] || {}).group || "";
+  tpCodeEl.value = "";
+  drawTechPickGroups();
+  drawTechPickItems();
+  techPickEl.classList.remove("hidden");
+  if (tpGroup === TECH_PICK_CODE_GROUP) tpCodeEl.focus();
+}
+function closeTechPick() {
+  techPickEl.classList.add("hidden");
+}
+
+function drawTechPickGroups() {
+  tpGroupsEl.innerHTML = "";
+  const seen = [];
+  techCatalog.forEach((c) => { if (!seen.includes(c.group)) seen.push(c.group); });
+  seen.forEach((g) => {
+    const b = document.createElement("button");
+    b.textContent = g;
+    b.setAttribute("aria-selected", String(g === tpGroup));
+    b.addEventListener("click", () => {
+      tpGroup = g;
+      tpCodeEl.value = "";
+      drawTechPickGroups();
+      drawTechPickItems();
+      if (g === TECH_PICK_CODE_GROUP) tpCodeEl.focus();
+    });
+    tpGroupsEl.appendChild(b);
+  });
+}
+
+// 打ち込んだ字で絞る。コードの頭からと、名前の中のどちらでも当たる
+function tpMatches() {
+  const q = tpCodeEl.value.trim().toUpperCase();
+  const inGroup = techCatalog.filter((c) => c.group === tpGroup);
+  if (!q || tpGroup !== TECH_PICK_CODE_GROUP) return inGroup;
+  return inGroup.filter((c) => {
+    const id = splitKey(c.key)[1].toUpperCase();
+    return id.startsWith(q) || c.label.toUpperCase().includes(q);
+  });
+}
+
+function drawTechPickItems() {
+  // コードを打てるのは日本個別株だけ
+  tpCodeEl.classList.toggle("hidden", tpGroup !== TECH_PICK_CODE_GROUP);
+
+  const hit = tpMatches();
+  const html = hit.map((c) =>
+    `<button data-key="${c.key}"${c.key === settings.techKey ? ' aria-selected="true"' : ""}>${c.label}</button>`
+  ).join("");
+  tpItemsEl.innerHTML = html || '<div class="none">見つからない</div>';
+  tpItemsEl.querySelectorAll("button[data-key]").forEach((b) => {
+    b.addEventListener("click", () => pickTechKey(b.dataset.key));
+  });
+  const at = tpItemsEl.querySelector('button[aria-selected="true"]');
+  if (at) at.scrollIntoView({ block: "center" });
+}
+
+function pickTechKey(key) {
+  closeTechPick();
+  if (key === settings.techKey) return;
+  settings.techKey = key;
+  saveSettings();
+  drawTechnical();
+}
+
+document.getElementById("tpick").addEventListener("click", openTechPick);
+document.getElementById("tpclose").addEventListener("click", closeTechPick);
+tpCodeEl.addEventListener("input", drawTechPickItems);
+tpCodeEl.addEventListener("keydown", (e) => {
+  // Enter で、いちばん上のものに決める
+  if (e.key !== "Enter") return;
+  const first = tpItemsEl.querySelector("button[data-key]");
+  if (first) pickTechKey(first.dataset.key);
+});
+/* 板そのものを押したときだけ閉じる。
+   中の一覧は押すたびに作り直すので、押した相手はもう DOM から外れている。
+   「.box の中か」で見ると、作り直した後は外と区別がつかず閉じてしまう */
+techPickEl.addEventListener("click", (e) => {
+  if (e.target === techPickEl) closeTechPick();
+});
 
 /* ---- 個別株の取り寄せ ------------------------------------------
    株価コードを入れて「取る」を押すと、中継（Cloudflare Worker）に頼む。
