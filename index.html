@@ -761,6 +761,9 @@ const DEFAULT_COLUMNS = [
 ];
 // チャート画面の既定。5銘柄。＋で最大10まで
 const MAX_SERIES = 10;
+// 相関に並べるのは10銘柄まで。ペアの数は銘柄数の2乗で増えるので、
+// 際限なく足せると計算が重くなる
+const MAX_CORR_COLUMNS = 10;
 // AI分析はメイン1銘柄に対してサブを最大10銘柄まで
 const MAX_AI_SUBS = 10;
 const DEFAULT_CHART_COLUMNS = [
@@ -3743,7 +3746,9 @@ function pickTechKey(key) {
 function corrPutFirst(key) {
   if (!key) return false;
   const was = settings.corrColumns.join("\n");
-  settings.corrColumns = [key, ...settings.corrColumns.filter((k) => k !== key)];
+  // 上限を超えたら、いちばん右（古く入れたもの）から落ちる
+  settings.corrColumns = [key, ...settings.corrColumns.filter((k) => k !== key)]
+    .slice(0, MAX_CORR_COLUMNS);
   settings.corrAiMain = key;
   saveSettings();
   return settings.corrColumns.join("\n") !== was;
@@ -4302,6 +4307,9 @@ function correlationChanges(key, prices, meta) {
 }
 
 async function calculateCorrelations(keys, catalog, progress) {
+  // 読んでいる間に×や＋で並びが動くことがある。渡された配列をそのまま
+  // 使うと、途中で増えた銘柄が metas に無いまま組に入って落ちる
+  keys = [...keys];
   const allKeys = [...new Set([...keys, CORR_CALENDAR.JP, CORR_CALENDAR.KR])];
   const prices = await loadCorrelationPrices(allKeys, progress);
   const metas = new Map(allKeys.map((key) => [key, corrMeta(key, catalog)]));
@@ -5358,8 +5366,12 @@ function drawCorrelationPicks(catalog) {
     });
     one.append(nm, del, sel); corrPicksEl.appendChild(one);
   });
-  const add = document.createElement("button"); add.className = "add"; add.textContent = "＋"; add.title = "分析対象を足す";
+  const add = document.createElement("button"); add.className = "add"; add.textContent = "＋";
+  const full = settings.corrColumns.length >= MAX_CORR_COLUMNS;
+  add.disabled = full;
+  add.title = full ? `${MAX_CORR_COLUMNS}銘柄まで。足すには×でどれか外す` : "分析対象を足す";
   add.addEventListener("click", () => {
+    if (settings.corrColumns.length >= MAX_CORR_COLUMNS) return;
     const first = catalog.find((c) => !settings.corrColumns.includes(c.key));
     if (first) { settings.corrColumns.push(first.key); saveSettings(); renderCorrelations(); }
   });
@@ -5371,7 +5383,7 @@ async function renderCorrelations() {
   corrMainEl.innerHTML = '<div id="loading">全期間データを読み込み中…</div>';
   corrStatusEl.textContent = "";
   corrCatalog = corrCatalog || await buildCatalog("2026");
-  settings.corrColumns = [...new Set(settings.corrColumns)].filter(Boolean);
+  settings.corrColumns = [...new Set(settings.corrColumns)].filter(Boolean).slice(0, MAX_CORR_COLUMNS);
   setCorrAiDefaults(corrCatalog);
   drawCorrelationPicks(corrCatalog);
   if (settings.corrColumns.length < 1) {
