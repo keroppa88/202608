@@ -1,0 +1,49 @@
+name: 個別株の取得（J-Quants・手動）
+
+# 株価コードを入れたときだけ取る。定期実行はしない。
+#
+# 取ったものは data/overseas_YYYY.csv に入るので、画面には「日本個別株」として
+# そのまま出る。同じコードでもう一度回せば、その範囲を取り直して穴が埋まる。
+#
+# 必要なもの: Secrets に JQUANTS_API_KEY
+on:
+  workflow_dispatch:
+    inputs:
+      codes:
+        description: "株価コード（4桁。空白かカンマで区切る。例: 7203 6758）"
+        required: true
+        type: string
+      from:
+        description: "この日から（YYYY-MM-DD。空なら5年前）"
+        required: false
+        type: string
+      to:
+        description: "この日まで（YYYY-MM-DD。空なら今日）"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 取得
+        env:
+          JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
+          CODES: ${{ inputs.codes }}
+          FROM: ${{ inputs.from }}
+          TO: ${{ inputs.to }}
+        run: |
+          set -f
+          ARGS=""
+          [ -n "$FROM" ] && ARGS="$ARGS --from $FROM"
+          [ -n "$TO" ] && ARGS="$ARGS --to $TO"
+          python3 src/fetch_jquants.py $ARGS $CODES
+
+      - name: コミット
+        if: always()
+        run: bash .github/scripts/commit.sh "個別株（J-Quants） $(date -u +%Y-%m-%d)"
