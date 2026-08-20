@@ -306,6 +306,34 @@
   #techchart .tcbody { flex: none; overflow: visible; padding: 0; }
   #techchart .cap { font-weight: normal; }
 
+  /* 個別株の取り寄せ。バーの「取得」で出る */
+  #techget {
+    position: fixed; inset: 0; z-index: 60;
+    background: rgba(0, 0, 0, .55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #techget .box {
+    background: var(--bg); color: var(--fg);
+    border: 2px solid var(--line);
+    padding: 12px 14px;
+    width: min(460px, 92vw);
+  }
+  #techget .ttl { color: var(--fg2); margin-bottom: 10px; }
+  #techget .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  #techget .row > span { flex: none; width: 84px; }
+  #techget input {
+    flex: 1; min-width: 0;
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--line); font: inherit; padding: 4px 6px;
+  }
+  #techget .btns { justify-content: flex-end; gap: 10px; margin: 12px 0 0; }
+  #techget button {
+    background: var(--panel); color: var(--fg);
+    border: 1px solid var(--line); font: inherit; padding: 4px 16px; cursor: pointer;
+  }
+  #techget button:disabled { color: var(--dim); border-color: var(--dim); cursor: default; }
+  #techget .note { color: var(--dim); margin-top: 10px; line-height: 1.6; white-space: pre-wrap; }
+
   /* テクニカルの比較。バーの「比較」で出る */
   #techcomp {
     position: fixed; inset: 0; z-index: 50;
@@ -593,6 +621,7 @@
     <select id="tyear" title="この年までの5年を出す"></select>
     <button id="ttheme" title="押すたびに配色が変わる">Color</button>
     <button id="tcomp" title="主要指数などとの相関を出す">比較</button>
+    <button id="tget" title="株価コードを入れて個別株を取り寄せる">取得</button>
     <button id="tauto" title="出ている5年で成績のいちばん良かった数字を入れる">自動</button>
     <button id="treset" title="よくある数字に戻す">既定</button>
     <div class="spacer"></div>
@@ -610,6 +639,22 @@
 
 <!-- ============== テクニカルの比較（ポップアップ） ============== -->
 <div id="techcomp" class="hidden"></div>
+
+<!-- ============== 個別株の取り寄せ（ポップアップ） ============== -->
+<div id="techget" class="hidden">
+  <div class="box">
+    <div class="ttl">個別株を取り寄せる</div>
+    <label class="row"><span>株価コード</span>
+      <input id="tgcodes" type="text" placeholder="7203 6758" autocomplete="off" spellcheck="false"></label>
+    <label class="row"><span>合言葉</span>
+      <input id="tgpass" type="password" autocomplete="off"></label>
+    <div class="row btns">
+      <button id="tgrun">取る</button>
+      <button id="tgclose">閉じる</button>
+    </div>
+    <div class="note" id="tgstat">4桁のコードを空白で区切って入れる。過去5年ぶんを取る。</div>
+  </div>
+</div>
 
 <!-- ===================== 擬似スクリーンセーバー ===================== -->
 <div id="saver" class="hidden" aria-hidden="true"></div>
@@ -718,6 +763,7 @@ function loadSettings() {
       techYear: s.techYear || 2026,
       techParams: fixTechParams(s.techParams),
       techComp: Array.isArray(s.techComp) ? fixKeys(s.techComp, []).slice(0, 5) : [],
+      jqPass: typeof s.jqPass === "string" ? s.jqPass : "",
       techZoom: Number(s.techZoom) > 0 ? Number(s.techZoom) : 1,
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
@@ -735,7 +781,7 @@ function loadSettings() {
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       techKey: "yahoo:^N225", techYear: 2026,
-      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1, techComp: [],
+      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1, techComp: [], jqPass: "",
       saverIndex: 0
     };
   }
@@ -836,12 +882,14 @@ document.addEventListener("keydown", (e) => {
   // テクニカル画面。Esc で戻り、矢印で表を寄せる
   if (!techEl.classList.contains("hidden")) {
     if (e.key === "Escape") {
-      if (!techChartEl.classList.contains("hidden")) closeTechChart();
+      if (!techGetEl.classList.contains("hidden")) closeTechGet();
+      else if (!techChartEl.classList.contains("hidden")) closeTechChart();
       else if (!techCompEl.classList.contains("hidden")) closeTechCompare();
       else backFromTechnical();
       return;
     }
     // 前に何か出している間は表を動かさない
+    if (!techGetEl.classList.contains("hidden")) return;
     if (!techChartEl.classList.contains("hidden")) return;
     if (!techCompEl.classList.contains("hidden")) return;
     if (document.activeElement && document.activeElement.tagName === "INPUT") return;
@@ -3270,6 +3318,7 @@ function openTechnical() {
 function backFromTechnical() {
   closeTechChart();
   closeTechCompare();
+  closeTechGet();
   techEl.classList.add("hidden");
   titleEl.classList.remove("hidden");
 }
@@ -3364,6 +3413,115 @@ async function drawTechnical() {
   tstatusEl.textContent = `${name}　${days[0]} 〜 ${days[days.length - 1]}　${days.length}日`
     + (have === days.length ? "" : have ? `　四本値に欠け ${days.length - have}日` : "　四本値なし");
 }
+
+/* ---- 個別株の取り寄せ ------------------------------------------
+   株価コードを入れて「取る」を押すと、中継（Cloudflare Worker）に頼む。
+   中継は GitHub の Actions を起こすだけで、株価データはそこを通らない。
+   J-Quants の鍵は GitHub の Secrets にあり、ここにも中継にも無い。
+
+   取り込みが終わっても、この画面がすぐ変わるわけではない。GitHub が
+   ページを組み直すまで数分かかる。そこまでは待つしかないので、そう出す。
+--------------------------------------------------------------- */
+const techGetEl = document.getElementById("techget");
+const tgCodesEl = document.getElementById("tgcodes");
+const tgPassEl = document.getElementById("tgpass");
+const tgStatEl = document.getElementById("tgstat");
+const tgRunEl = document.getElementById("tgrun");
+
+// AI分析と同じ中継。パスだけ変える
+function jqEndpoint() {
+  return AI_ENDPOINT ? AI_ENDPOINT.replace(/\/+$/, "") + "/jquants" : "";
+}
+
+function openTechGet() {
+  techGetEl.classList.remove("hidden");
+  tgPassEl.value = settings.jqPass || "";
+  tgStatEl.textContent = "4桁のコードを空白で区切って入れる。過去5年ぶんを取る。";
+  tgCodesEl.focus();
+}
+function closeTechGet() {
+  techGetEl.classList.add("hidden");
+}
+
+// 起こした取り込みの様子を見る。公開リポジトリなので鍵は要らない
+async function watchRun(repo, since) {
+  const url = `https://api.github.com/repos/${repo}/actions/runs`
+    + "?event=repository_dispatch&per_page=1";
+  for (let i = 0; i < 25; i++) {
+    await new Promise((r) => setTimeout(r, 8000));
+    let run = null;
+    try {
+      const res = await fetch(url, { headers: { accept: "application/vnd.github+json" } });
+      if (!res.ok) throw new Error(`GitHub ${res.status}`);
+      run = ((await res.json()).workflow_runs || [])[0];
+    } catch (e) {
+      tgStatEl.textContent = `様子が見られない（${e.message}）。取り込みは走っている。`;
+      return;
+    }
+    if (!run || new Date(run.created_at).getTime() < since - 60000) {
+      tgStatEl.textContent = "順番待ち…";
+      continue;
+    }
+    if (run.status !== "completed") {
+      tgStatEl.textContent = `取り込み中…（${run.status}）\n${run.html_url}`;
+      continue;
+    }
+    if (run.conclusion === "success") {
+      tgStatEl.textContent = "取り込んだ。GitHub がページを組み直すまで数分かかる。"
+        + "しばらくしてから読み込み直すと、日本個別株に出る。";
+    } else {
+      tgStatEl.textContent = `取り込みが失敗した（${run.conclusion}）。中身はここで見られる。\n${run.html_url}`;
+    }
+    return;
+  }
+  tgStatEl.textContent = "見ている間に終わらなかった。GitHub の Actions で確かめる。";
+}
+
+async function runTechGet() {
+  const codes = tgCodesEl.value.trim();
+  if (!codes) { tgStatEl.textContent = "株価コードを入れる。"; return; }
+  const url = jqEndpoint();
+  if (!url) {
+    tgStatEl.textContent = "中継先が設定されていない。worker/ を配ってから、"
+      + "index.html の AI_ENDPOINT に宛先を書く。";
+    return;
+  }
+  // 合言葉は次から入れなくて済むように覚えさせる
+  settings.jqPass = tgPassEl.value;
+  saveSettings();
+
+  tgRunEl.disabled = true;
+  tgStatEl.textContent = "頼んでいる…";
+  const since = Date.now();
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ codes, pass: tgPassEl.value })
+    });
+    const got = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      tgStatEl.textContent = got.error || `断られた（${res.status}）`;
+      return;
+    }
+    tgStatEl.textContent = `頼んだ: ${(got.codes || []).join(" ")}\n順番待ち…`;
+    await watchRun(got.repo, since);
+  } catch (e) {
+    tgStatEl.textContent = `届かなかった: ${e.message}`;
+  } finally {
+    tgRunEl.disabled = false;
+  }
+}
+
+document.getElementById("tget").addEventListener("click", openTechGet);
+document.getElementById("tgclose").addEventListener("click", closeTechGet);
+tgRunEl.addEventListener("click", runTechGet);
+tgCodesEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runTechGet(); });
+tgPassEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runTechGet(); });
+// 枠の外を押したら閉じる
+techGetEl.addEventListener("click", (e) => {
+  if (!e.target.closest(".box")) closeTechGet();
+});
 
 /* ---- 比較 ------------------------------------------------------
    主要指数などとの相関を出す。毎日ぶんは出さない。相関は窓の長さぶんを

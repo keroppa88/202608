@@ -108,6 +108,66 @@ async function callGemini(env, payload) {
   return answer;
 }
 
+/* 個別株の取得を頼む（/jquants）。
+ *
+ * ここは GitHub の Actions を起こすだけ。株価データはここを通らない。
+ * J-Quants の鍵は GitHub の Secrets にあり、この Worker は持たない。
+ *
+ * 必要なもの
+ *   GH_TOKEN   このリポジトリの Contents 読み書きだけを付けた細粒度PAT
+ *   GH_REPO    owner/repo
+ *   JQ_PASS    任意。入れると、合言葉が一致したときだけ通す
+ */
+const MAX_CODES = 10;
+
+async function askJquants(request, env, cors) {
+  if (!env.GH_TOKEN) return reply(500, { error: "GH_TOKEN が入っていない" }, cors);
+  if (!env.GH_REPO) return reply(500, { error: "GH_REPO が入っていない" }, cors);
+
+  let payload;
+  try {
+    payload = JSON.parse(await request.text());
+  } catch (e) {
+    return reply(400, { error: "JSONとして読めない" }, cors);
+  }
+  if (env.JQ_PASS && String(payload.pass || "") !== env.JQ_PASS) {
+    return reply(403, { error: "合言葉が違う" }, cors);
+  }
+
+  const codes = String(payload.codes || "")
+    .toUpperCase()
+    .split(/[,\s]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (!codes.length) return reply(400, { error: "株価コードが要る" }, cors);
+  if (codes.length > MAX_CODES) return reply(400, { error: `一度に${MAX_CODES}銘柄まで` }, cors);
+  const bad = codes.find((c) => !/^[0-9A-Z]{4,5}$/.test(c));
+  if (bad) return reply(400, { error: `株価コードとして読めない: ${bad}` }, cors);
+
+  const date = /^\d{4}-\d{2}-\d{2}$/;
+  const from = date.test(payload.from || "") ? payload.from : "";
+  const to = date.test(payload.to || "") ? payload.to : "";
+
+  const res = await fetch(`https://api.github.com/repos/${env.GH_REPO}/dispatches`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${env.GH_TOKEN}`,
+      accept: "application/vnd.github+json",
+      "content-type": "application/json",
+      "user-agent": "soba-jquants"
+    },
+    body: JSON.stringify({
+      event_type: "jquants",
+      client_payload: { codes: codes.join(" "), from, to }
+    })
+  });
+  if (res.status !== 204) {
+    const text = await res.text();
+    return reply(502, { error: `GitHub が受け取らなかった (${res.status})\n${text.slice(0, 300)}` }, cors);
+  }
+  return reply(200, { ok: true, repo: env.GH_REPO, codes }, cors);
+}
+
 export default {
   async fetch(request, env) {
     const allowed = (env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -119,6 +179,17 @@ export default {
     if (allowed.length && !allowed.includes(origin)) {
       return reply(403, { error: `送り元が許可されていない: ${origin || "（無し）"}` }, cors);
     }
+
+    const ipFirst = request.headers.get("cf-connecting-ip") || "unknown";
+    if (new URL(request.url).pathname.replace(/\/+$/, "") === "/jquants") {
+      if (tooOften(ipFirst)) return reply(429, { error: `混み合っている。1分に${RATE_LIMIT}回まで` }, cors);
+      try {
+        return await askJquants(request, env, cors);
+      } catch (e) {
+        return reply(502, { error: String(e && e.message ? e.message : e) }, cors);
+      }
+    }
+
     if (!env.GEMINI_API_KEY) return reply(500, { error: "GEMINI_API_KEY が入っていない" }, cors);
 
     const ip = request.headers.get("cf-connecting-ip") || "unknown";
