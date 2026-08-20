@@ -1270,17 +1270,19 @@ async function buildCatalog(year) {
     cat.push({
       key,
       label: r.name ? `${r.name}（${r.code}）` : r.code,
+      // 並びはコード順。どれも4文字なので、そのまま比べれば数字の順になる
+      sort: r.code,
       group: "日本個別株",
       ohlc: true
     });
   }
   // 個別株は四本値があると分かっている。それ以外はその年の最後の日で見る
   cat.forEach((c) => { if (c.ohlc === undefined) c.ohlc = !!(last.get(c.key) || {}).ohlc; });
-  // 分野の順、分野の中は名前順
+  // 分野の順、分野の中は名前順。個別株だけはコード順（sort に入れてある）
   cat.sort((a, b) =>
     GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) ||
     subRank(a) - subRank(b) ||
-    a.label.localeCompare(b.label, "ja")
+    (a.sort || a.label).localeCompare(b.sort || b.label, "ja")
   );
   return cat;
 }
