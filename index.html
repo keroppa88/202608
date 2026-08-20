@@ -237,6 +237,38 @@
   .canvas .lab { fill: var(--fg); font-size: 14px; font-weight: bold; }
   .canvas .plot { fill: none; stroke-width: 1.2; }
 
+  /* ---- テクニカル画面 ---- */
+  /* 上が表、下がチャート。それぞれ別に動かす */
+  #technical { height: 100%; display: flex; flex-direction: column; }
+  #technical #tgrid { flex: 0 0 44%; border-bottom: 1px solid var(--line); }
+  #technical #tcanvas { flex: 1; }
+  /* この画面の見出しは押してもチャートは出ない */
+  #technical .colhead .name { cursor: default; }
+  /* 数字の欄。指標ごとに枠で囲う */
+  .tparams {
+    display: flex; flex-wrap: wrap; gap: 5px 8px;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    flex: none;
+  }
+  .tparams .tp {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid var(--line); padding: 1px 6px;
+  }
+  .tparams .tpname { color: var(--fg2); }
+  .tparams .tpone { display: inline-flex; align-items: center; gap: 2px; color: var(--dim); }
+  .tparams input {
+    width: 54px; background: var(--bg); color: var(--fg);
+    border: 1px solid var(--line); font: inherit; padding: 0 2px;
+  }
+  #tcanvas .tguide { stroke: var(--dim); stroke-width: .8; stroke-dasharray: 4 3; }
+  #tcanvas .thist { fill: var(--dim); }
+  #tcanvas .tdot { fill: var(--fg2); }
+  /* ローソク足。上げた日は枠だけ、下げた日は塗りつぶし */
+  #tcanvas .cs { stroke: var(--fg); fill: none; stroke-width: 1; }
+  #tcanvas .cs.dn { fill: var(--fg); }
+
   /* ---- 相関分析画面 ---- */
   #correlations { height: 100%; display: flex; flex-direction: column; }
   .corr-periods { display: inline-flex; gap: 4px; }
@@ -437,6 +469,7 @@
     <button data-go="sheet" aria-selected="true">表</button>
     <button data-go="chart">チャート</button>
     <button data-go="correlation">相関</button>
+    <button data-go="technical">テクニカル</button>
   </div>
   <div class="hint">↑ ↓ で選択　Enter で決定</div>
 </section>
@@ -496,6 +529,23 @@
   <div class="canvas" id="ccanvas"></div>
 </section>
 
+<!-- ===================== テクニカル画面 ===================== -->
+<section id="technical" class="hidden">
+  <div class="bar">
+    <button id="tback" title="タイトルへ戻る">戻る</button>
+    <select id="tpick" title="銘柄を変える"></select>
+    <select id="tyear" title="この年までの5年を出す"></select>
+    <button id="ttheme" title="押すたびに配色が変わる">Color</button>
+    <button id="tauto" title="出ている5年で成績のいちばん良かった数字を入れる">自動</button>
+    <button id="treset" title="よくある数字に戻す">既定</button>
+    <div class="spacer"></div>
+    <div class="note" id="tstatus"></div>
+  </div>
+  <div class="tparams" id="tparams"></div>
+  <div class="grid" id="tgrid"><div id="loading">読み込み中…</div></div>
+  <div class="canvas" id="tcanvas"></div>
+</section>
+
 <!-- ===================== チャート（ポップアップ） ===================== -->
 <div id="chart" class="hidden"></div>
 
@@ -539,6 +589,35 @@ const OHLC_FIELDS = [
   { f: "close", label: "終値" }
 ];
 
+// テクニカルの数字。よくある数字を既定に置く。画面で打ち替えられる
+const DEFAULT_TECH_PARAMS = {
+  ma: [5, 25, 75],
+  bb: { n: 20, k1: 1, k2: 2 },
+  sar: { step: 0.02, max: 0.2 },
+  rsi: 14,
+  stoch: { k: 9, d: 3 },
+  rci: [9, 26],
+  macd: { fast: 12, slow: 26, sig: 9 },
+  atr: 14
+};
+
+// 覚えていた数字に足りないものがあれば既定で埋める
+function fixTechParams(s) {
+  const d = JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS));
+  if (!s || typeof s !== "object") return d;
+  if (Array.isArray(s.ma) && s.ma.length === 3) d.ma = s.ma.map(Number);
+  if (Array.isArray(s.rci) && s.rci.length === 2) d.rci = s.rci.map(Number);
+  ["bb", "sar", "stoch", "macd"].forEach((g) => {
+    if (s[g] && typeof s[g] === "object") {
+      Object.keys(d[g]).forEach((k) => {
+        if (isFinite(Number(s[g][k]))) d[g][k] = Number(s[g][k]);
+      });
+    }
+  });
+  ["rsi", "atr"].forEach((k) => { if (isFinite(Number(s[k]))) d[k] = Number(s[k]); });
+  return d;
+}
+
 // 呼び名を変えた銘柄。前に覚えた並びもここで読み替える
 const RENAMED = { "jpx:TOPIX (東証株価指数)": "jpx:TOPIX" };
 
@@ -573,6 +652,9 @@ function loadSettings() {
       corrAiAt: typeof s.corrAiAt === "string" ? s.corrAiAt : "",
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
+      techKey: RENAMED[s.techKey] || s.techKey || "yahoo:^N225",
+      techYear: s.techYear || 2026,
+      techParams: fixTechParams(s.techParams),
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
   } catch (e) {
@@ -588,6 +670,8 @@ function loadSettings() {
       corrChartHidden: [],
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
+      techKey: "yahoo:^N225", techYear: 2026,
+      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)),
       saverIndex: 0
     };
   }
@@ -613,6 +697,7 @@ function nextTheme() {
   // 相対チャートの線の色は地の明るさで変わる。出ているなら描き直す
   if (!chartsEl.classList.contains("hidden")) drawCharts();
   if (!corrEl.classList.contains("hidden") && corrState) drawCorrelationResults();
+  if (!techEl.classList.contains("hidden")) drawTechnical();
 }
 applyTheme(settings.theme);
 
@@ -633,6 +718,7 @@ function decide() {
   if (b.dataset.go === "sheet") openSheet();
   if (b.dataset.go === "chart") openCharts();
   if (b.dataset.go === "correlation") openCorrelations();
+  if (b.dataset.go === "technical") openTechnical();
 }
 // 表を矢印で動かす幅。1回押すとこれだけ寄る
 const STEP_X = 120;   // 列1つぶんくらい
@@ -679,6 +765,26 @@ document.addEventListener("keydown", (e) => {
     }[e.key];
     if (!m) return;
     canvasEl.scrollBy(m[0], m[1]);
+    e.preventDefault();
+    return;
+  }
+
+  // テクニカル画面。Esc で戻り、矢印で表を寄せる
+  if (!techEl.classList.contains("hidden")) {
+    if (e.key === "Escape") { backFromTechnical(); return; }
+    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    const t = {
+      ArrowLeft:  [-STEP_X, 0],
+      ArrowRight: [STEP_X, 0],
+      ArrowUp:    [0, -STEP_Y],
+      ArrowDown:  [0, STEP_Y],
+      PageUp:     [0, -tgridEl.clientHeight],
+      PageDown:   [0, tgridEl.clientHeight],
+      Home:       [-tgridEl.scrollWidth, 0],
+      End:        [tgridEl.scrollWidth, 0]
+    }[e.key];
+    if (!t) return;
+    tgridEl.scrollBy(t[0], t[1]);
     e.preventDefault();
     return;
   }
@@ -1048,9 +1154,15 @@ const DEFAULT_W = { [DATE_COL]: 110, __plus__: 44 };
 const OHLC_W = 92;
 const ohlcWidthKey = (key) => "ohlc|" + key;
 
+// テクニカルの表は列が多い。1列ぶんは狭くする
+const TECH_W = 86;
+
 function widthOf(key) {
-  return settings.widths[key] || DEFAULT_W[key] ||
-    (key.startsWith("ohlc|") ? OHLC_W : 130);
+  if (settings.widths[key]) return settings.widths[key];
+  if (DEFAULT_W[key]) return DEFAULT_W[key];
+  if (key.startsWith("ohlc|")) return OHLC_W;
+  if (key.startsWith("tech|")) return TECH_W;
+  return 130;
 }
 
 // col は1本でも、まとめて動かす複数本でもよい
@@ -1588,10 +1700,11 @@ function stackTags(tags, y, T, ih) {
 
 /* 描く場所の大きさ。描画部分が 1 : 1.62。
    縦は画面の縦幅の 2/3 までに抑える。横はそれに合わせて決まる */
-function boxSize(rows, rightPad) {
+function boxSize(rows, rightPad, host) {
+  const el = host || canvasEl;
   const RATIO = 1.62;
   const T = 8, B = 24, R = rightPad === undefined ? 6 : rightPad;
-  const avail = canvasEl.clientHeight - 20;
+  const avail = el.clientHeight - 20;
   let ih = rows > 1 ? Math.round(avail / 2) - T - B : avail - T - B;
 
   // 画面の縦幅の 2/3。枠の上下の余白もその中に入れる
@@ -1599,7 +1712,7 @@ function boxSize(rows, rightPad) {
   ih = Math.min(Math.max(150, ih), cap);
 
   let iw = Math.round(ih * RATIO);
-  const maxIW = canvasEl.clientWidth - 34 - AXIS_L - R;
+  const maxIW = el.clientWidth - 34 - AXIS_L - R;
   if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
   return { iw, ih, T, B, R, RATIO };
 }
@@ -1967,6 +2080,901 @@ async function render() {
   gridEl.innerHTML = "";
   gridEl.appendChild(table);
   statusEl.textContent = `${rows.length}日 × ${keys.length}銘柄`;
+}
+
+/* ---------------------------------------------------------------
+   テクニカル画面。銘柄をひとつ選び、価格とそこから出した指標を
+   表に並べる。同じものをチャートにする。
+
+   表の作りは「表」の画面に合わせる。縦が日付で上が過去、見出しは
+   上に指標の名前・下に細目、幅は取っ手で変えられる、無い値は #N/A。
+
+   出すのは5年ぶん。指標はそれより前の価格も読んでから計算する。
+   長期の移動平均は、助走が無いと年の頭が空になるため。
+--------------------------------------------------------------- */
+const techEl = document.getElementById("technical");
+const tgridEl = document.getElementById("tgrid");
+const tcanvasEl = document.getElementById("tcanvas");
+const tpickEl = document.getElementById("tpick");
+const tyearEl = document.getElementById("tyear");
+const tstatusEl = document.getElementById("tstatus");
+const tparamsEl = document.getElementById("tparams");
+
+const TECH_SPAN = 5;     // 表に出す年数
+const TECH_WARM = 2;     // そのさらに前。指標の助走に使うだけで表には出さない
+
+/* 数字の欄。名前・道筋・刻み・上下限。
+   道筋は settings.techParams の中の場所 */
+const TECH_FIELDS = [
+  { g: "移動平均",     items: [["ma.0", "短期"], ["ma.1", "中期"], ["ma.2", "長期"]], min: 2, max: 400, int: true },
+  { g: "ボリンジャー", items: [["bb.n", "期間"]], min: 2, max: 400, int: true,
+    more: { items: [["bb.k1", "σ内"], ["bb.k2", "σ外"]], min: 0.1, max: 5, step: 0.1 } },
+  { g: "パラボリック", items: [["sar.step", "刻み"], ["sar.max", "上限"]], min: 0.001, max: 1, step: 0.005 },
+  { g: "RSI",          items: [["rsi", "期間"]], min: 2, max: 200, int: true },
+  { g: "ストキャス",   items: [["stoch.k", "%K"], ["stoch.d", "%D"]], min: 2, max: 200, int: true },
+  { g: "RCI",          items: [["rci.0", "短期"], ["rci.1", "長期"]], min: 3, max: 200, int: true },
+  { g: "MACD",         items: [["macd.fast", "短期"], ["macd.slow", "長期"], ["macd.sig", "シグナル"]], min: 2, max: 200, int: true },
+  { g: "ATR%",         items: [["atr", "期間"]], min: 2, max: 200, int: true }
+];
+
+// 表の列。g が上の段（指標の名前）、f が下の段（細目）
+function techCols(p) {
+  return [
+    { g: "価格", f: "始値", k: "o" },
+    { g: "価格", f: "高値", k: "h" },
+    { g: "価格", f: "安値", k: "l" },
+    { g: "価格", f: "終値", k: "c" },
+    { g: "移動平均", f: String(p.ma[0]), k: "ma0" },
+    { g: "移動平均", f: String(p.ma[1]), k: "ma1" },
+    { g: "移動平均", f: String(p.ma[2]), k: "ma2" },
+    { g: "移動平均乖離%", f: String(p.ma[0]), k: "dev0" },
+    { g: "移動平均乖離%", f: String(p.ma[1]), k: "dev1" },
+    { g: "移動平均乖離%", f: String(p.ma[2]), k: "dev2" },
+    { g: "ボリンジャー", f: `+${p.bb.k2}σ`, k: "bbU2" },
+    { g: "ボリンジャー", f: `+${p.bb.k1}σ`, k: "bbU1" },
+    { g: "ボリンジャー", f: `-${p.bb.k1}σ`, k: "bbL1" },
+    { g: "ボリンジャー", f: `-${p.bb.k2}σ`, k: "bbL2" },
+    { g: "パラボリック", f: "SAR", k: "sar" },
+    { g: "RSI", f: String(p.rsi), k: "rsi" },
+    { g: "ストキャス", f: "%K", k: "stK" },
+    { g: "ストキャス", f: "%D", k: "stD" },
+    { g: "RCI", f: String(p.rci[0]), k: "rci0" },
+    { g: "RCI", f: String(p.rci[1]), k: "rci1" },
+    { g: "MACD", f: "MACD", k: "macd" },
+    { g: "MACD", f: "シグナル", k: "macdS" },
+    { g: "MACD", f: "ヒスト", k: "macdH" },
+    { g: "ATR%", f: String(p.atr), k: "atr" }
+  ];
+}
+
+/* ---- 指標の計算 ----------------------------------------------
+   どれも配列で受けて配列で返す。出せない日は null。
+   値が欠けている日をまたいだら、そこで助走をやり直す */
+
+// 単純移動平均
+function sma(v, n) {
+  const out = new Array(v.length).fill(null);
+  let s = 0, run = 0;
+  for (let i = 0; i < v.length; i++) {
+    const x = v[i];
+    if (x === null || !isFinite(x)) { s = 0; run = 0; continue; }
+    s += x; run++;
+    if (run > n) s -= v[i - n];
+    if (run >= n) out[i] = s / n;
+  }
+  return out;
+}
+
+// 指数移動平均。頭の n 本は単純平均で始める
+function ema(v, n) {
+  const out = new Array(v.length).fill(null);
+  const k = 2 / (n + 1);
+  let prev = null, run = 0;
+  for (let i = 0; i < v.length; i++) {
+    const x = v[i];
+    if (x === null || !isFinite(x)) { prev = null; run = 0; continue; }
+    run++;
+    if (prev === null) {
+      if (run < n) continue;
+      let s = 0;
+      for (let j = i - n + 1; j <= i; j++) s += v[j];
+      prev = s / n;
+    } else prev = x * k + prev * (1 - k);
+    out[i] = prev;
+  }
+  return out;
+}
+
+// 標準偏差（母集団）
+function stdevArr(v, n) {
+  const out = new Array(v.length).fill(null);
+  let run = 0;
+  for (let i = 0; i < v.length; i++) {
+    const x = v[i];
+    if (x === null || !isFinite(x)) { run = 0; continue; }
+    run++;
+    if (run < n) continue;
+    let s = 0;
+    for (let j = i - n + 1; j <= i; j++) s += v[j];
+    const m = s / n;
+    let q = 0;
+    for (let j = i - n + 1; j <= i; j++) q += (v[j] - m) * (v[j] - m);
+    out[i] = Math.sqrt(q / n);
+  }
+  return out;
+}
+
+// RSI。値幅の平均はワイルダー式でならす
+function rsiArr(v, n) {
+  const out = new Array(v.length).fill(null);
+  let up = 0, dn = 0, run = 0, ready = false;
+  for (let i = 1; i < v.length; i++) {
+    if (v[i] === null || v[i - 1] === null) { run = 0; ready = false; continue; }
+    const d = v[i] - v[i - 1];
+    const u = d > 0 ? d : 0, l = d < 0 ? -d : 0;
+    run++;
+    if (!ready) {
+      up += u; dn += l;
+      if (run < n) continue;
+      up /= n; dn /= n; ready = true;
+    } else {
+      up = (up * (n - 1) + u) / n;
+      dn = (dn * (n - 1) + l) / n;
+    }
+    out[i] = dn === 0 ? 100 : 100 - 100 / (1 + up / dn);
+  }
+  return out;
+}
+
+// ストキャス。%K は高値安値の幅の中で終値がどこにいるか。%D はその平均
+function stochArr(rows, n, m) {
+  const k = new Array(rows.length).fill(null);
+  for (let i = n - 1; i < rows.length; i++) {
+    let hh = -Infinity, ll = Infinity, ok = true;
+    for (let j = i - n + 1; j <= i; j++) {
+      const r = rows[j];
+      if (r.h === null || r.l === null) { ok = false; break; }
+      if (r.h > hh) hh = r.h;
+      if (r.l < ll) ll = r.l;
+    }
+    if (!ok) continue;
+    k[i] = hh === ll ? 100 : ((rows[i].c - ll) / (hh - ll)) * 100;
+  }
+  return { k, d: sma(k, m) };
+}
+
+// RCI。日付の順位と値段の順位のずれ。新しい日ほど順位が1
+function rciArr(v, n) {
+  const out = new Array(v.length).fill(null);
+  const idx = new Array(n);
+  for (let i = n - 1; i < v.length; i++) {
+    let ok = true;
+    for (let j = i - n + 1; j <= i; j++) if (v[j] === null) { ok = false; break; }
+    if (!ok) continue;
+    for (let j = 0; j < n; j++) idx[j] = i - n + 1 + j;
+    const byPrice = idx.slice().sort((a, b) => v[b] - v[a]);
+    let d = 0;
+    byPrice.forEach((pos, rank) => {
+      const t = i - pos + 1;            // 新しい日が1
+      const e = t - (rank + 1);
+      d += e * e;
+    });
+    out[i] = (1 - (6 * d) / (n * n * n - n)) * 100;
+  }
+  return out;
+}
+
+// パラボリック。上げの向きと下げの向きを、当たったところで入れ替える
+function sarArr(rows, step, max) {
+  const out = new Array(rows.length).fill(null);
+  let up = true, sar = null, ep = 0, af = step;
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    if (r.h === null || r.l === null) { sar = null; continue; }
+    if (sar === null) {
+      const p = rows[i - 1];
+      if (!p || p.h === null || p.l === null) continue;   // 助走に前の日が要る
+      up = r.c >= p.c;
+      sar = up ? p.l : p.h;
+      ep = up ? r.h : r.l;
+      af = step;
+      out[i] = sar;
+      continue;
+    }
+    sar = sar + af * (ep - sar);
+    const p1 = rows[i - 1], p2 = rows[i - 2];
+    if (up) {
+      let lo = p1.l;
+      if (p2 && p2.l !== null && p2.l < lo) lo = p2.l;
+      if (sar > lo) sar = lo;
+      if (r.l < sar) { up = false; sar = ep; ep = r.l; af = step; }
+      else if (r.h > ep) { ep = r.h; af = Math.min(max, af + step); }
+    } else {
+      let hi = p1.h;
+      if (p2 && p2.h !== null && p2.h > hi) hi = p2.h;
+      if (sar < hi) sar = hi;
+      if (r.h > sar) { up = true; sar = ep; ep = r.h; af = step; }
+      else if (r.l < ep) { ep = r.l; af = Math.min(max, af + step); }
+    }
+    out[i] = sar;
+  }
+  return out;
+}
+
+// パラボリックの向き。売買の成績を測るときに使う。1が上げ、-1が下げ
+function sarSide(rows, step, max) {
+  const out = new Array(rows.length).fill(0);
+  let up = true, sar = null, ep = 0, af = step;
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    if (r.h === null || r.l === null) { sar = null; continue; }
+    if (sar === null) {
+      const p = rows[i - 1];
+      if (!p || p.h === null || p.l === null) continue;
+      up = r.c >= p.c; sar = up ? p.l : p.h; ep = up ? r.h : r.l; af = step;
+      out[i] = up ? 1 : -1;
+      continue;
+    }
+    sar = sar + af * (ep - sar);
+    const p1 = rows[i - 1], p2 = rows[i - 2];
+    if (up) {
+      let lo = p1.l;
+      if (p2 && p2.l !== null && p2.l < lo) lo = p2.l;
+      if (sar > lo) sar = lo;
+      if (r.l < sar) { up = false; sar = ep; ep = r.l; af = step; }
+      else if (r.h > ep) { ep = r.h; af = Math.min(max, af + step); }
+    } else {
+      let hi = p1.h;
+      if (p2 && p2.h !== null && p2.h > hi) hi = p2.h;
+      if (sar < hi) sar = hi;
+      if (r.h > sar) { up = true; sar = ep; ep = r.h; af = step; }
+      else if (r.l < ep) { ep = r.l; af = Math.min(max, af + step); }
+    }
+    out[i] = up ? 1 : -1;
+  }
+  return out;
+}
+
+// ATR をパーセントで。値幅の平均はワイルダー式
+function atrArr(rows, n) {
+  const out = new Array(rows.length).fill(null);
+  let a = null, run = 0;
+  const tr = new Array(rows.length).fill(null);
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    if (r.h === null || r.l === null) continue;
+    if (i === 0) { tr[i] = r.h - r.l; continue; }
+    const pc = rows[i - 1].c;
+    tr[i] = Math.max(r.h - r.l, Math.abs(r.h - pc), Math.abs(r.l - pc));
+  }
+  for (let i = 0; i < tr.length; i++) {
+    if (tr[i] === null) { a = null; run = 0; continue; }
+    run++;
+    if (a === null) {
+      if (run < n) continue;
+      let s = 0;
+      for (let j = i - n + 1; j <= i; j++) s += tr[j];
+      a = s / n;
+    } else a = (a * (n - 1) + tr[i]) / n;
+    if (rows[i].c) out[i] = (a / rows[i].c) * 100;
+  }
+  return out;
+}
+
+// 全部まとめて出す
+function techIndicators(rows, p) {
+  const c = rows.map((r) => r.c);
+  const out = {
+    o: rows.map((r) => r.o), h: rows.map((r) => r.h),
+    l: rows.map((r) => r.l), c
+  };
+  p.ma.forEach((n, j) => {
+    const m = sma(c, n);
+    out["ma" + j] = m;
+    out["dev" + j] = m.map((v, i) => (v === null || !v) ? null : ((c[i] - v) / v) * 100);
+  });
+  const mid = sma(c, p.bb.n), sd = stdevArr(c, p.bb.n);
+  const band = (k) => mid.map((m, i) => (m === null || sd[i] === null) ? null : m + k * sd[i]);
+  out.bbMid = mid;
+  out.bbU2 = band(p.bb.k2); out.bbU1 = band(p.bb.k1);
+  out.bbL1 = band(-p.bb.k1); out.bbL2 = band(-p.bb.k2);
+  out.sar = sarArr(rows, p.sar.step, p.sar.max);
+  out.rsi = rsiArr(c, p.rsi);
+  const st = stochArr(rows, p.stoch.k, p.stoch.d);
+  out.stK = st.k; out.stD = st.d;
+  out.rci0 = rciArr(c, p.rci[0]);
+  out.rci1 = rciArr(c, p.rci[1]);
+  const ef = ema(c, p.macd.fast), es = ema(c, p.macd.slow);
+  const line = c.map((_, i) => (ef[i] === null || es[i] === null) ? null : ef[i] - es[i]);
+  const sig = ema(line, p.macd.sig);
+  out.macd = line;
+  out.macdS = sig;
+  out.macdH = line.map((v, i) => (v === null || sig[i] === null) ? null : v - sig[i]);
+  out.atr = atrArr(rows, p.atr);
+  return out;
+}
+
+/* ---- 自動で数字を選ぶ ------------------------------------------
+   出ている5年で総当たりして、成績のいちばん良かった数字を入れる。
+   成績は「その日の持ち方 × 次の日までの値動き」の積み上げ（対数）。
+   過去に当てはめた数字であって、先を当てるものではない */
+
+// 持ち方（1が買い持ち、-1が売り持ち、0が何もしない）から成績を出す
+function score(side, ret, from, to) {
+  let s = 0;
+  for (let i = from; i < to; i++) {
+    const p = side[i];
+    if (p && ret[i] !== null) s += p * ret[i];
+  }
+  return s;
+}
+
+// 上と下のしきい値で入って出る形。逆張り
+function sideBand(v, lo, hi) {
+  const out = new Array(v.length).fill(0);
+  let pos = 0;
+  for (let i = 0; i < v.length; i++) {
+    if (v[i] !== null) {
+      if (v[i] <= lo) pos = 1;
+      else if (v[i] >= hi) pos = 0;
+    }
+    out[i] = pos;
+  }
+  return out;
+}
+
+function techAutoFit(rows, from, to, p) {
+  const c = rows.map((r) => r.c);
+  const ret = c.map((v, i) => (i + 1 < c.length && c[i + 1] > 0 && v > 0) ? Math.log(c[i + 1] / v) : null);
+  const best = (list, make) => {
+    let top = null;
+    for (const a of list) {
+      const s = score(make(a), ret, from, to);
+      if (top === null || s > top.s) top = { s, a };
+    }
+    return top ? top.a : null;
+  };
+  const range = (a, b, st) => {
+    const out = [];
+    for (let v = a; v <= b + 1e-9; v += st) out.push(Math.round(v * 1000) / 1000);
+    return out;
+  };
+  const next = JSON.parse(JSON.stringify(p));
+
+  // 移動平均。短期・中期・長期の3つを、それぞれの持ち場で探す
+  //   終値が線の上なら買い持ち、下なら売り持ち
+  const maSide = (n) => {
+    const m = sma(c, n);
+    return m.map((v, i) => v === null ? 0 : (c[i] > v ? 1 : -1));
+  };
+  next.ma = [
+    best(range(3, 30, 1), maSide),
+    best(range(20, 100, 2), maSide),
+    best(range(60, 250, 5), maSide)
+  ];
+
+  // ボリンジャー。下の帯に触れたら買い、上の帯まで持つ
+  {
+    let top = null;
+    for (const n of range(5, 100, 5)) {
+      const m = sma(c, n), sd = stdevArr(c, n);
+      for (const k of range(1, 3, 0.1)) {
+        const side = new Array(c.length).fill(0);
+        let pos = 0;
+        for (let i = 0; i < c.length; i++) {
+          if (m[i] !== null && sd[i] !== null) {
+            if (c[i] <= m[i] - k * sd[i]) pos = 1;
+            else if (c[i] >= m[i] + k * sd[i]) pos = 0;
+          }
+          side[i] = pos;
+        }
+        const s = score(side, ret, from, to);
+        if (top === null || s > top.s) top = { s, n, k };
+      }
+    }
+    if (top) { next.bb.n = top.n; next.bb.k2 = top.k; next.bb.k1 = Math.round(top.k * 50) / 100; }
+  }
+
+  // パラボリック。向きが変わるたびに入れ替える
+  {
+    let top = null;
+    for (const st of range(0.005, 0.05, 0.005)) {
+      for (const mx of range(0.1, 0.5, 0.05)) {
+        const s = score(sarSide(rows, st, mx), ret, from, to);
+        if (top === null || s > top.s) top = { s, st, mx };
+      }
+    }
+    if (top) { next.sar.step = top.st; next.sar.max = top.mx; }
+  }
+
+  // RSI。30割れで買い、70超えで手仕舞い
+  next.rsi = best(range(2, 60, 1), (n) => sideBand(rsiArr(c, n), 30, 70));
+
+  // ストキャス。20割れで買い、80超えで手仕舞い
+  {
+    let top = null;
+    for (const k of range(3, 30, 1)) {
+      const st = stochArr(rows, k, 3);
+      for (const d of range(2, 10, 1)) {
+        const line = d === 3 ? st.d : sma(st.k, d);
+        const s = score(sideBand(line, 20, 80), ret, from, to);
+        if (top === null || s > top.s) top = { s, k, d };
+      }
+    }
+    if (top) { next.stoch.k = top.k; next.stoch.d = top.d; }
+  }
+
+  // RCI。-80割れで買い、+80超えで手仕舞い。短期と長期を別々に探す
+  next.rci = [
+    best(range(5, 30, 1), (n) => sideBand(rciArr(c, n), -80, 80)),
+    best(range(26, 120, 2), (n) => sideBand(rciArr(c, n), -80, 80))
+  ];
+
+  // MACD。シグナルの上なら買い持ち、下なら売り持ち
+  {
+    const memo = new Map();
+    const emaOf = (n) => {
+      if (!memo.has(n)) memo.set(n, ema(c, n));
+      return memo.get(n);
+    };
+    let top = null;
+    for (const f of range(5, 20, 1)) {
+      for (const sl of range(20, 60, 2)) {
+        if (sl <= f) continue;
+        const ef = emaOf(f), es = emaOf(sl);
+        const line = c.map((_, i) => (ef[i] === null || es[i] === null) ? null : ef[i] - es[i]);
+        for (const g of range(5, 15, 1)) {
+          const sig = ema(line, g);
+          const side = line.map((v, i) => (v === null || sig[i] === null) ? 0 : (v > sig[i] ? 1 : -1));
+          const s = score(side, ret, from, to);
+          if (top === null || s > top.s) top = { s, f, sl, g };
+        }
+      }
+    }
+    if (top) { next.macd.fast = top.f; next.macd.slow = top.sl; next.macd.sig = top.g; }
+  }
+
+  // ATR% は売買の形にならないので、ここでは動かさない
+  return next;
+}
+
+/* ---- 数字の欄 ------------------------------------------------- */
+function paramGet(p, path) {
+  return path.split(".").reduce((o, k) => o[k], p);
+}
+function paramSet(p, path, v) {
+  const ks = path.split(".");
+  const last = ks.pop();
+  ks.reduce((o, k) => o[k], p)[last] = v;
+}
+
+function drawTechParams() {
+  tparamsEl.innerHTML = "";
+  const p = settings.techParams;
+  TECH_FIELDS.forEach((g) => {
+    const box = document.createElement("div");
+    box.className = "tp";
+    const lab = document.createElement("span");
+    lab.className = "tpname";
+    lab.textContent = g.g;
+    box.appendChild(lab);
+    const add = (items, min, max, step, int) => {
+      items.forEach(([path, name]) => {
+        const one = document.createElement("label");
+        one.className = "tpone";
+        one.title = name;
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.min = String(min);
+        inp.max = String(max);
+        inp.step = String(step);
+        inp.value = String(paramGet(p, path));
+        inp.addEventListener("change", () => {
+          let v = Number(inp.value);
+          if (!isFinite(v)) v = paramGet(p, path);
+          if (int) v = Math.round(v);
+          v = Math.min(max, Math.max(min, v));
+          inp.value = String(v);
+          paramSet(settings.techParams, path, v);
+          saveSettings();
+          drawTechnical();
+        });
+        one.append(document.createTextNode(name), inp);
+        box.appendChild(one);
+      });
+    };
+    add(g.items, g.min, g.max, g.step || 1, g.int);
+    if (g.more) add(g.more.items, g.more.min, g.more.max, g.more.step, false);
+    tparamsEl.appendChild(box);
+  });
+}
+
+/* ---- 読み込み ------------------------------------------------- */
+// 表に出す5年と、その前の助走ぶんをまとめて読む
+async function techRows(key, endYear) {
+  const seen = new Map();
+  for (let y = Number(endYear) - TECH_SPAN - TECH_WARM + 1; y <= Number(endYear); y++) {
+    const ys = String(y);
+    const close = await seriesOf(key, ys);
+    const bars = await barsOf(key, ys);
+    const days = [...new Set([...close.keys(), ...bars.keys()])];
+    for (const d of days) {
+      if (!d.startsWith(ys)) continue;
+      const b = bars.get(d);
+      const c = b ? Number(b.close) : Number(close.get(d));
+      if (!isFinite(c)) continue;
+      seen.set(d, {
+        d, c,
+        o: b ? Number(b.open) : null,
+        h: b ? Number(b.high) : null,
+        l: b ? Number(b.low) : null
+      });
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.d < b.d ? -1 : 1);
+}
+
+/* ---- 表 ------------------------------------------------------- */
+function drawTechTable(at, days, ind, p) {
+  const cols = techCols(p);
+  const table = document.createElement("table");
+
+  const colgroup = document.createElement("colgroup");
+  const addCol = (key) => {
+    const c = document.createElement("col");
+    c.style.width = widthOf(key) + "px";
+    colgroup.appendChild(c);
+    return c;
+  };
+  const dateCol = addCol(DATE_COL);
+  const cs = cols.map((c) => addCol("tech|" + c.k));
+  table.appendChild(colgroup);
+
+  const thead = document.createElement("thead");
+  const htr = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.className = "corner";
+  corner.textContent = "日付";
+  corner.appendChild(makeGrip(DATE_COL, dateCol));
+  htr.appendChild(corner);
+
+  cols.forEach((c, i) => {
+    const th = document.createElement("th");
+    const wrap = document.createElement("div");
+    wrap.className = "colhead";
+    const nm = document.createElement("div");
+    nm.className = "name";
+    nm.textContent = c.g;
+    const fd = document.createElement("div");
+    fd.className = "field";
+    fd.textContent = c.f;
+    wrap.append(nm, fd);
+    th.appendChild(wrap);
+    th.appendChild(makeGrip("tech|" + c.k, cs[i]));
+    htr.appendChild(th);
+  });
+  thead.appendChild(htr);
+
+  // 5年ぶんはマス目が多い。ここは文字列で組んで一度に入れる
+  const html = [];
+  at.forEach((idx, r) => {
+    html.push("<tr><th>", days[r], "</th>");
+    cols.forEach((c) => {
+      const v = ind[c.k][idx];
+      if (v === null || v === undefined || !isFinite(v)) html.push('<td class="na">#N/A</td>');
+      else html.push("<td>", fmt(v), "</td>");
+    });
+    html.push("</tr>");
+  });
+  const tbody = document.createElement("tbody");
+  tbody.innerHTML = html.join("");
+
+  table.append(thead, tbody);
+  tgridEl.innerHTML = "";
+  tgridEl.appendChild(table);
+}
+
+/* ---- チャート -------------------------------------------------
+   1枚ずつ上から重ねる。横軸は全部そろえてある */
+/* 横軸の目盛。5年ぶんに月の数字を並べると潰れるので、線は月ごと・
+   数字は年の変わり目だけにする。年が2つまでなら月の数字を出す */
+function techAxis(days, x, T, ih) {
+  const out = [];
+  const years = new Set(days.map((d) => d.slice(0, 4))).size;
+  let pm = "", py = "";
+  days.forEach((d, i) => {
+    const m = d.slice(0, 7);
+    if (m === pm) return;
+    pm = m;
+    const px = x(i);
+    out.push(`<line x1="${px}" y1="${T}" x2="${px}" y2="${T + ih}" class="vline"/>`);
+    if (years > 2) {
+      const yy = d.slice(0, 4);
+      if (yy === py) return;
+      py = yy;
+      out.push(`<text x="${px}" y="${T + ih + 18}" class="lab" text-anchor="middle">${yy}</text>`);
+    } else {
+      out.push(`<text x="${px}" y="${T + ih + 18}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}</text>`);
+    }
+  });
+  return out;
+}
+
+function techLegend(cap, items) {
+  const tail = items.map((t) => `<span style="color:${t[1]}">${t[0]}</span>`).join("　");
+  return tail ? `${cap}　${tail}` : cap;
+}
+
+function techPanel(cap, days, spec, size) {
+  const { iw, ih, T, B, R } = size;
+  const vals = [];
+  const push = (v) => { if (v !== null && v !== undefined && isFinite(v)) vals.push(v); };
+  (spec.lines || []).forEach((ln) => ln.vals.forEach(push));
+  (spec.dots || []).forEach(push);
+  (spec.hist || []).forEach(push);
+  (spec.bars || []).forEach((b) => { if (b) { push(b.h); push(b.l); } });
+  if (!vals.length) return null;
+  if (spec.hist) vals.push(0);
+  (spec.guides || []).forEach(push);
+
+  const sc = spec.fix || scaleOf(Math.min(...vals), Math.max(...vals));
+  const W = iw + AXIS_L + R, H = ih + T + B;
+  const x = (i) => AXIS_L + (days.length === 1 ? iw / 2 : (iw * i) / (days.length - 1));
+  const y = (v) => T + ih - (ih * (v - sc.bottom)) / (sc.top - sc.bottom);
+
+  const parts = techAxis(days, x, T, ih).concat(priceLines(sc, y, iw));
+  (spec.guides || []).forEach((g) => {
+    const py = y(g).toFixed(1);
+    parts.push(`<line x1="${AXIS_L}" y1="${py}" x2="${AXIS_L + iw}" y2="${py}" class="tguide"/>`);
+  });
+  parts.push(`<rect x="${AXIS_L}" y="${T}" width="${iw}" height="${ih}" class="axis"/>`);
+
+  if (spec.hist) {
+    const cw = Math.max(1, Math.min(9, (iw / days.length) * 0.7));
+    const y0 = y(0);
+    spec.hist.forEach((v, i) => {
+      if (v === null || !isFinite(v)) return;
+      const py = y(v);
+      parts.push(`<rect x="${(x(i) - cw / 2).toFixed(1)}" y="${Math.min(py, y0).toFixed(1)}"`
+        + ` width="${cw.toFixed(1)}" height="${Math.max(0.6, Math.abs(py - y0)).toFixed(1)}" class="thist"/>`);
+    });
+  }
+
+  if (spec.bars) {
+    const cw = Math.max(1, Math.min(9, (iw / days.length) * 0.7));
+    spec.bars.forEach((b, i) => {
+      if (!b) return;
+      const px = x(i);
+      parts.push(`<line x1="${px.toFixed(1)}" y1="${y(b.h).toFixed(1)}" x2="${px.toFixed(1)}" y2="${y(b.l).toFixed(1)}" class="cs"/>`);
+      const top = y(Math.max(b.o, b.c));
+      const hgt = Math.max(1, Math.abs(y(b.o) - y(b.c)));
+      parts.push(`<rect x="${(px - cw / 2).toFixed(1)}" y="${top.toFixed(1)}"`
+        + ` width="${cw.toFixed(1)}" height="${hgt.toFixed(1)}" class="cs${b.c < b.o ? " dn" : ""}"/>`);
+    });
+  }
+
+  (spec.lines || []).forEach((ln) => {
+    let d = "", pen = false;
+    ln.vals.forEach((v, i) => {
+      if (v === null || v === undefined || !isFinite(v)) { pen = false; return; }
+      d += `${pen ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`;
+      pen = true;
+    });
+    if (d) {
+      parts.push(`<path d="${d}" class="plot" stroke="${ln.color}"`
+        + (ln.dash ? ` stroke-dasharray="${ln.dash}"` : "") + "/>");
+    }
+  });
+
+  const r = days.length > 600 ? 0.8 : 1.4;      // 日数が多いと点が潰れる
+  (spec.dots || []).forEach((v, i) => {
+    if (v === null || !isFinite(v)) return;
+    parts.push(`<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${r}"`
+      + ` class="tdot" fill="${spec.dotColor || "var(--fg2)"}"/>`);
+  });
+
+  const box = document.createElement("div");
+  box.className = "one-chart";
+  box.innerHTML = `<div class="cap">${cap}</div><svg width="${W}" height="${H}">${parts.join("")}</svg>`;
+  return box;
+}
+
+function drawTechCharts(at, days, rows, ind, p, name) {
+  const cut = (arr) => at.map((i) => arr[i]);
+  const base = boxSize(1, 6, tcanvasEl);
+  const small = Object.assign({}, base, { ih: Math.max(90, Math.round(base.ih * 0.5)) });
+  const dim = "var(--dim)";
+  const fg = "var(--fg)";
+  const put = (el) => { if (el) tcanvasEl.appendChild(el); };
+
+  // ① 価格。移動平均・ボリンジャー・パラボリックを重ねる
+  const bars = at.map((i) => rows[i].h === null ? null
+    : { o: rows[i].o, h: rows[i].h, l: rows[i].l, c: rows[i].c });
+  // 5年ぶんだとローソク足は潰れる。1本ぶんの幅が取れるときだけ足にする
+  const hasBars = bars.some(Boolean) && base.iw / days.length >= 3;
+  const priceLinesSpec = [
+    { vals: cut(ind.ma0), color: seriesColor(0) },
+    { vals: cut(ind.ma1), color: seriesColor(1) },
+    { vals: cut(ind.ma2), color: seriesColor(2) },
+    { vals: cut(ind.bbU2), color: dim, dash: "4 3" },
+    { vals: cut(ind.bbU1), color: dim, dash: "2 4" },
+    { vals: cut(ind.bbL1), color: dim, dash: "2 4" },
+    { vals: cut(ind.bbL2), color: dim, dash: "4 3" }
+  ];
+  if (!hasBars) priceLinesSpec.unshift({ vals: cut(ind.c), color: fg });
+  put(techPanel(
+    techLegend(name, [
+      [`${p.ma[0]}MA`, seriesColor(0)], [`${p.ma[1]}MA`, seriesColor(1)], [`${p.ma[2]}MA`, seriesColor(2)],
+      [`ボリンジャー${p.bb.n} ±${p.bb.k1}σ ±${p.bb.k2}σ`, dim],
+      [`パラボリック ${p.sar.step}/${p.sar.max}`, seriesColor(3)]
+    ]),
+    days, {
+      lines: priceLinesSpec, bars: hasBars ? bars : null,
+      dots: cut(ind.sar), dotColor: seriesColor(3)
+    }, base));
+
+  // ② 移動平均乖離
+  put(techPanel(
+    techLegend("移動平均乖離%", [
+      [String(p.ma[0]), seriesColor(0)], [String(p.ma[1]), seriesColor(1)], [String(p.ma[2]), seriesColor(2)]
+    ]),
+    days, {
+      lines: [
+        { vals: cut(ind.dev0), color: seriesColor(0) },
+        { vals: cut(ind.dev1), color: seriesColor(1) },
+        { vals: cut(ind.dev2), color: seriesColor(2) }
+      ],
+      guides: [0]
+    }, small));
+
+  // ③ RSI
+  put(techPanel(`RSI ${p.rsi}`, days, {
+    lines: [{ vals: cut(ind.rsi), color: seriesColor(0) }],
+    guides: [30, 70],
+    fix: { bottom: 0, top: 100, step: 20 }
+  }, small));
+
+  // ④ ストキャス
+  put(techPanel(
+    techLegend(`ストキャス ${p.stoch.k}/${p.stoch.d}`, [["%K", seriesColor(0)], ["%D", seriesColor(1)]]),
+    days, {
+      lines: [
+        { vals: cut(ind.stK), color: seriesColor(0) },
+        { vals: cut(ind.stD), color: seriesColor(1) }
+      ],
+      guides: [20, 80],
+      fix: { bottom: 0, top: 100, step: 20 }
+    }, small));
+
+  // ⑤ RCI
+  put(techPanel(
+    techLegend("RCI", [[String(p.rci[0]), seriesColor(0)], [String(p.rci[1]), seriesColor(1)]]),
+    days, {
+      lines: [
+        { vals: cut(ind.rci0), color: seriesColor(0) },
+        { vals: cut(ind.rci1), color: seriesColor(1) }
+      ],
+      guides: [-80, 0, 80],
+      fix: { bottom: -100, top: 100, step: 50 }
+    }, small));
+
+  // ⑥ MACD
+  put(techPanel(
+    techLegend(`MACD ${p.macd.fast}/${p.macd.slow}/${p.macd.sig}`,
+      [["MACD", seriesColor(0)], ["シグナル", seriesColor(1)], ["ヒスト", dim]]),
+    days, {
+      lines: [
+        { vals: cut(ind.macd), color: seriesColor(0) },
+        { vals: cut(ind.macdS), color: seriesColor(1) }
+      ],
+      hist: cut(ind.macdH),
+      guides: [0]
+    }, small));
+
+  // ⑦ ATR%
+  put(techPanel(`ATR% ${p.atr}`, days, {
+    lines: [{ vals: cut(ind.atr), color: seriesColor(0) }]
+  }, small));
+}
+
+/* ---- 画面 ----------------------------------------------------- */
+function openTechnical() {
+  titleEl.classList.add("hidden");
+  techEl.classList.remove("hidden");
+  drawTechParams();
+  drawTechnical();
+}
+function backFromTechnical() {
+  techEl.classList.add("hidden");
+  titleEl.classList.remove("hidden");
+}
+
+for (let y = 2026; y >= 1999; y--) {
+  const o = document.createElement("option");
+  o.value = String(y);
+  o.textContent = `${y}年まで`;
+  tyearEl.appendChild(o);
+}
+
+document.getElementById("tback").addEventListener("click", backFromTechnical);
+document.getElementById("ttheme").addEventListener("click", nextTheme);
+tyearEl.addEventListener("change", () => {
+  settings.techYear = Number(tyearEl.value);
+  saveSettings();
+  drawTechnical();
+});
+tpickEl.addEventListener("change", () => {
+  settings.techKey = tpickEl.value;
+  saveSettings();
+  drawTechnical();
+});
+document.getElementById("treset").addEventListener("click", () => {
+  settings.techParams = JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS));
+  saveSettings();
+  drawTechParams();
+  drawTechnical();
+});
+document.getElementById("tauto").addEventListener("click", async () => {
+  const btn = document.getElementById("tauto");
+  if (!techState) return;
+  btn.disabled = true;
+  const was = tstatusEl.textContent;
+  tstatusEl.textContent = "自動で探している…";
+  await new Promise((r) => setTimeout(r, 0));      // 先に画面を出す
+  try {
+    settings.techParams = techAutoFit(techState.rows, techState.from, techState.rows.length - 1,
+                                      settings.techParams);
+    saveSettings();
+    drawTechParams();
+    await drawTechnical();
+  } catch (e) {
+    tstatusEl.textContent = was;
+  }
+  btn.disabled = false;
+});
+
+// いま出しているぶん。自動で数字を探すときに使い回す
+let techState = null;
+let tRendering = 0;
+
+async function drawTechnical() {
+  const mine = ++tRendering;
+  const endYear = Number(settings.techYear);
+  const from0 = String(endYear - TECH_SPAN + 1);
+  tyearEl.value = String(endYear);
+  tgridEl.innerHTML = '<div id="loading">読み込み中…</div>';
+  tcanvasEl.innerHTML = "";
+  tstatusEl.textContent = "";
+
+  const catalog = await buildCatalog(String(endYear));
+  if (mine !== tRendering) return;
+  tpickEl.innerHTML = "";
+  fillPicker(tpickEl, catalog, settings.techKey, false);
+
+  const rows = await techRows(settings.techKey, endYear);
+  if (mine !== tRendering) return;
+
+  const p = settings.techParams;
+  const ind = techIndicators(rows, p);
+  const at = [];
+  rows.forEach((r, i) => { if (r.d >= from0) at.push(i); });
+  const days = at.map((i) => rows[i].d);
+  const name = labelOf(settings.techKey, catalog);
+
+  if (!days.length) {
+    tgridEl.innerHTML = '<div id="loading">この期間のデータがない</div>';
+    tstatusEl.textContent = name;
+    techState = null;
+    return;
+  }
+  techState = { rows, from: at[0] };
+
+  drawTechTable(at, days, ind, p);
+  drawTechCharts(at, days, rows, ind, p, name);
+
+  const hasBars = at.some((i) => rows[i].h !== null);
+  tstatusEl.textContent = `${name}　${days[0]} 〜 ${days[days.length - 1]}　${days.length}日`
+    + (hasBars ? "" : "　四本値なし");
 }
 
 /* ---------------------------------------------------------------
