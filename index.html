@@ -240,10 +240,7 @@
   /* ---- テクニカル画面 ---- */
   /* 上が表、下がチャート。それぞれ別に動かす */
   #technical { height: 100%; display: flex; flex-direction: column; }
-  #technical #tgrid { flex: 0 0 44%; border-bottom: 1px solid var(--line); }
-  #technical #tcanvas { flex: 1; }
-  /* この画面の見出しは押してもチャートは出ない */
-  #technical .colhead .name { cursor: default; }
+  #technical #tgrid { flex: 1; }
   /* 数字の欄。指標ごとに枠で囲う */
   .tparams {
     display: flex; flex-wrap: wrap; gap: 5px 8px;
@@ -262,12 +259,51 @@
     width: 54px; background: var(--bg); color: var(--fg);
     border: 1px solid var(--line); font: inherit; padding: 0 2px;
   }
-  #tcanvas .tguide { stroke: var(--dim); stroke-width: .8; stroke-dasharray: 4 3; }
-  #tcanvas .thist { fill: var(--dim); }
-  #tcanvas .tdot { fill: var(--fg2); }
+  .canvas .tguide { stroke: var(--dim); stroke-width: .8; stroke-dasharray: 4 3; }
+  .canvas .thist { fill: var(--dim); }
+  .canvas .tdot { fill: var(--fg2); }
   /* ローソク足。上げた日は枠だけ、下げた日は塗りつぶし */
-  #tcanvas .cs { stroke: var(--fg); fill: none; stroke-width: 1; }
-  #tcanvas .cs.dn { fill: var(--fg); }
+  .canvas .cs { stroke: var(--fg); fill: none; stroke-width: 1; }
+  .canvas .cs.dn { fill: var(--fg); }
+
+  /* テクニカルのチャート。表の見出しを押すと出る */
+  #techchart {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0, 0, 0, .55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #techchart .box {
+    background: var(--bg); color: var(--fg);
+    border: 2px solid var(--line);
+    padding: 8px 8px 6px;
+    max-width: 96vw; max-height: 96vh; overflow: auto;
+  }
+  /* 中の字は表の数字と同じ書体・大きさで、太字 */
+  #techchart .box, #techchart text {
+    font-family: "MS Gothic", "Osaka-Mono", "Courier New", monospace;
+    font-size: 14px; font-weight: bold;
+  }
+  #techchart .head {
+    display: flex; justify-content: space-between; gap: 6px 20px;
+    flex-wrap: wrap; margin-bottom: 6px;
+  }
+  #techchart .head .left { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; min-width: 0; }
+  #techchart .head .nm { word-break: break-all; }
+  #techchart .head .sub { color: var(--fg); }
+  #techchart .pick { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  #techchart .pick label {
+    cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  #techchart .pick input { position: absolute; opacity: 0; width: 0; height: 0; }
+  #techchart .pick .bx {
+    display: inline-block; width: 12px; height: 12px;
+    border: 1px solid var(--fg); background: var(--bg);
+  }
+  #techchart .pick input:checked + .bx { background: var(--fg); }
+  /* 中は場所を取るだけ。動かすのは外の箱 */
+  #techchart .tcbody { flex: none; overflow: visible; padding: 0; }
+  #techchart .cap { font-weight: normal; }
 
   /* ---- 相関分析画面 ---- */
   #correlations { height: 100%; display: flex; flex-direction: column; }
@@ -543,11 +579,13 @@
   </div>
   <div class="tparams" id="tparams"></div>
   <div class="grid" id="tgrid"><div id="loading">読み込み中…</div></div>
-  <div class="canvas" id="tcanvas"></div>
 </section>
 
 <!-- ===================== チャート（ポップアップ） ===================== -->
 <div id="chart" class="hidden"></div>
+
+<!-- ============== テクニカルのチャート（ポップアップ） ============== -->
+<div id="techchart" class="hidden"></div>
 
 <!-- ===================== 擬似スクリーンセーバー ===================== -->
 <div id="saver" class="hidden" aria-hidden="true"></div>
@@ -655,6 +693,7 @@ function loadSettings() {
       techKey: RENAMED[s.techKey] || s.techKey || "yahoo:^N225",
       techYear: s.techYear || 2026,
       techParams: fixTechParams(s.techParams),
+      techZoom: Number(s.techZoom) > 0 ? Number(s.techZoom) : 1,
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
   } catch (e) {
@@ -671,7 +710,7 @@ function loadSettings() {
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       techKey: "yahoo:^N225", techYear: 2026,
-      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)),
+      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1,
       saverIndex: 0
     };
   }
@@ -697,7 +736,7 @@ function nextTheme() {
   // 相対チャートの線の色は地の明るさで変わる。出ているなら描き直す
   if (!chartsEl.classList.contains("hidden")) drawCharts();
   if (!corrEl.classList.contains("hidden") && corrState) drawCorrelationResults();
-  if (!techEl.classList.contains("hidden")) drawTechnical();
+  if (!techEl.classList.contains("hidden")) drawTechnical();   // 中でチャートも描き直す
 }
 applyTheme(settings.theme);
 
@@ -771,7 +810,12 @@ document.addEventListener("keydown", (e) => {
 
   // テクニカル画面。Esc で戻り、矢印で表を寄せる
   if (!techEl.classList.contains("hidden")) {
-    if (e.key === "Escape") { backFromTechnical(); return; }
+    if (e.key === "Escape") {
+      if (!techChartEl.classList.contains("hidden")) closeTechChart();
+      else backFromTechnical();
+      return;
+    }
+    if (!techChartEl.classList.contains("hidden")) return;   // チャート中は表を動かさない
     if (document.activeElement && document.activeElement.tagName === "INPUT") return;
     const t = {
       ArrowLeft:  [-STEP_X, 0],
@@ -1700,11 +1744,10 @@ function stackTags(tags, y, T, ih) {
 
 /* 描く場所の大きさ。描画部分が 1 : 1.62。
    縦は画面の縦幅の 2/3 までに抑える。横はそれに合わせて決まる */
-function boxSize(rows, rightPad, host) {
-  const el = host || canvasEl;
+function boxSize(rows, rightPad) {
   const RATIO = 1.62;
   const T = 8, B = 24, R = rightPad === undefined ? 6 : rightPad;
-  const avail = el.clientHeight - 20;
+  const avail = canvasEl.clientHeight - 20;
   let ih = rows > 1 ? Math.round(avail / 2) - T - B : avail - T - B;
 
   // 画面の縦幅の 2/3。枠の上下の余白もその中に入れる
@@ -1712,7 +1755,7 @@ function boxSize(rows, rightPad, host) {
   ih = Math.min(Math.max(150, ih), cap);
 
   let iw = Math.round(ih * RATIO);
-  const maxIW = el.clientWidth - 34 - AXIS_L - R;
+  const maxIW = canvasEl.clientWidth - 34 - AXIS_L - R;
   if (iw > maxIW) { iw = maxIW; ih = Math.round(iw / RATIO); }
   return { iw, ih, T, B, R, RATIO };
 }
@@ -2094,7 +2137,6 @@ async function render() {
 --------------------------------------------------------------- */
 const techEl = document.getElementById("technical");
 const tgridEl = document.getElementById("tgrid");
-const tcanvasEl = document.getElementById("tcanvas");
 const tpickEl = document.getElementById("tpick");
 const tyearEl = document.getElementById("tyear");
 const tstatusEl = document.getElementById("tstatus");
@@ -2120,30 +2162,30 @@ const TECH_FIELDS = [
 // 表の列。g が上の段（指標の名前）、f が下の段（細目）
 function techCols(p) {
   return [
-    { g: "価格", f: "始値", k: "o" },
-    { g: "価格", f: "高値", k: "h" },
-    { g: "価格", f: "安値", k: "l" },
-    { g: "価格", f: "終値", k: "c" },
-    { g: "移動平均", f: String(p.ma[0]), k: "ma0" },
-    { g: "移動平均", f: String(p.ma[1]), k: "ma1" },
-    { g: "移動平均", f: String(p.ma[2]), k: "ma2" },
-    { g: "移動平均乖離%", f: String(p.ma[0]), k: "dev0" },
-    { g: "移動平均乖離%", f: String(p.ma[1]), k: "dev1" },
-    { g: "移動平均乖離%", f: String(p.ma[2]), k: "dev2" },
-    { g: "ボリンジャー", f: `+${p.bb.k2}σ`, k: "bbU2" },
-    { g: "ボリンジャー", f: `+${p.bb.k1}σ`, k: "bbU1" },
-    { g: "ボリンジャー", f: `-${p.bb.k1}σ`, k: "bbL1" },
-    { g: "ボリンジャー", f: `-${p.bb.k2}σ`, k: "bbL2" },
-    { g: "パラボリック", f: "SAR", k: "sar" },
-    { g: "RSI", f: String(p.rsi), k: "rsi" },
-    { g: "ストキャス", f: "%K", k: "stK" },
-    { g: "ストキャス", f: "%D", k: "stD" },
-    { g: "RCI", f: String(p.rci[0]), k: "rci0" },
-    { g: "RCI", f: String(p.rci[1]), k: "rci1" },
-    { g: "MACD", f: "MACD", k: "macd" },
-    { g: "MACD", f: "シグナル", k: "macdS" },
-    { g: "MACD", f: "ヒスト", k: "macdH" },
-    { g: "ATR%", f: String(p.atr), k: "atr" }
+    { g: "価格", f: "始値", k: "o", grp: "price" },
+    { g: "価格", f: "高値", k: "h", grp: "price" },
+    { g: "価格", f: "安値", k: "l", grp: "price" },
+    { g: "価格", f: "終値", k: "c", grp: "price" },
+    { g: "移動平均", f: String(p.ma[0]), k: "ma0", grp: "ma" },
+    { g: "移動平均", f: String(p.ma[1]), k: "ma1", grp: "ma" },
+    { g: "移動平均", f: String(p.ma[2]), k: "ma2", grp: "ma" },
+    { g: "移動平均乖離%", f: String(p.ma[0]), k: "dev0", grp: "dev" },
+    { g: "移動平均乖離%", f: String(p.ma[1]), k: "dev1", grp: "dev" },
+    { g: "移動平均乖離%", f: String(p.ma[2]), k: "dev2", grp: "dev" },
+    { g: "ボリンジャー", f: `+${p.bb.k2}σ`, k: "bbU2", grp: "bb" },
+    { g: "ボリンジャー", f: `+${p.bb.k1}σ`, k: "bbU1", grp: "bb" },
+    { g: "ボリンジャー", f: `-${p.bb.k1}σ`, k: "bbL1", grp: "bb" },
+    { g: "ボリンジャー", f: `-${p.bb.k2}σ`, k: "bbL2", grp: "bb" },
+    { g: "パラボリック", f: "SAR", k: "sar", grp: "sar" },
+    { g: "RSI", f: String(p.rsi), k: "rsi", grp: "rsi" },
+    { g: "ストキャス", f: "%K", k: "stK", grp: "stoch" },
+    { g: "ストキャス", f: "%D", k: "stD", grp: "stoch" },
+    { g: "RCI", f: String(p.rci[0]), k: "rci0", grp: "rci" },
+    { g: "RCI", f: String(p.rci[1]), k: "rci1", grp: "rci" },
+    { g: "MACD", f: "MACD", k: "macd", grp: "macd" },
+    { g: "MACD", f: "シグナル", k: "macdS", grp: "macd" },
+    { g: "MACD", f: "ヒスト", k: "macdH", grp: "macd" },
+    { g: "ATR%", f: String(p.atr), k: "atr", grp: "atr" }
   ];
 }
 
@@ -2642,6 +2684,8 @@ function drawTechTable(at, days, ind, p) {
     const th = document.createElement("th");
     const wrap = document.createElement("div");
     wrap.className = "colhead";
+    wrap.title = "押すとチャート";
+    wrap.addEventListener("click", () => openTechChart(c.grp));
     const nm = document.createElement("div");
     nm.className = "name";
     nm.textContent = c.g;
@@ -2674,8 +2718,8 @@ function drawTechTable(at, days, ind, p) {
   tgridEl.appendChild(table);
 }
 
-/* ---- チャート -------------------------------------------------
-   1枚ずつ上から重ねる。横軸は全部そろえてある */
+/* ---- チャートの部品 -------------------------------------------
+   枚数が変わっても横軸はそろえてある */
 /* 横軸の目盛。5年ぶんに月の数字を並べると潰れるので、線は月ごと・
    数字は年の変わり目だけにする。年が2つまでなら月の数字を出す */
 function techAxis(days, x, T, ih) {
@@ -2702,7 +2746,8 @@ function techAxis(days, x, T, ih) {
 
 function techLegend(cap, items) {
   const tail = items.map((t) => `<span style="color:${t[1]}">${t[0]}</span>`).join("　");
-  return tail ? `${cap}　${tail}` : cap;
+  if (!tail) return cap;
+  return cap ? `${cap}　${tail}` : tail;
 }
 
 function techPanel(cap, days, spec, size) {
@@ -2775,107 +2820,196 @@ function techPanel(cap, days, spec, size) {
 
   const box = document.createElement("div");
   box.className = "one-chart";
-  box.innerHTML = `<div class="cap">${cap}</div><svg width="${W}" height="${H}">${parts.join("")}</svg>`;
+  box.innerHTML = (cap ? `<div class="cap">${cap}</div>` : "")
+    + `<svg width="${W}" height="${H}">${parts.join("")}</svg>`;
   return box;
 }
 
-function drawTechCharts(at, days, rows, ind, p, name) {
-  const cut = (arr) => at.map((i) => arr[i]);
-  const base = boxSize(1, 6, tcanvasEl);
-  const small = Object.assign({}, base, { ih: Math.max(90, Math.round(base.ih * 0.5)) });
-  const dim = "var(--dim)";
-  const fg = "var(--fg)";
-  const put = (el) => { if (el) tcanvasEl.appendChild(el); };
+/* ---- チャート（ポップアップ）----------------------------------
+   画面に出ているのは表だけ。見出しを押すとここが開く。
 
-  // ① 価格。移動平均・ボリンジャー・パラボリックを重ねる
+   価格を押すとローソク足だけ。終値しか無い銘柄は折れ線。
+   ほかの指標を押すと、その指標とローソク足。
+   枠の上の箱にチェックを入れれば、ほかの指標も足せる。
+
+   描く場所は 1 : 1.62。下に付く指標の枠はその4割の高さで、
+   横幅は価格とそろえる */
+const techChartEl = document.getElementById("techchart");
+
+// 指標のまとまり。over は価格に重ねる、panel は下に別の枠で置く
+const TECH_SHOWS = [
+  { id: "ma",    name: "移動平均",      kind: "over" },
+  { id: "bb",    name: "ボリンジャー",  kind: "over" },
+  { id: "sar",   name: "パラボリック",  kind: "over" },
+  { id: "dev",   name: "移動平均乖離%", kind: "panel" },
+  { id: "rsi",   name: "RSI",           kind: "panel" },
+  { id: "stoch", name: "ストキャス",    kind: "panel" },
+  { id: "rci",   name: "RCI",           kind: "panel" },
+  { id: "macd",  name: "MACD",          kind: "panel" },
+  { id: "atr",   name: "ATR%",          kind: "panel" }
+];
+
+// いま出している指標。開くたびに、押した指標ひとつだけに戻す
+let techShow = new Set();
+
+function openTechChart(id) {
+  if (!techState) return;
+  techShow = new Set(id && id !== "price" ? [id] : []);
+  drawTechChart();
+  techChartEl.classList.remove("hidden");
+}
+function closeTechChart() {
+  techChartEl.classList.add("hidden");
+  techChartEl.innerHTML = "";
+}
+
+function drawTechChart() {
+  if (!techState) return;
+  const { at, days, rows, ind, p, name } = techState;
+  const cut = (arr) => at.map((i) => arr[i]);
+  const dim = "var(--dim)";
+  const subs = TECH_SHOWS.filter((s) => s.kind === "panel" && techShow.has(s.id));
+
+  // 価格の描画部分を 1 : 1.62 にして、下の枠はその4割。
+  // 全部が画面に収まる高さから割り出す。ホイールで伸び縮みする
+  const T = 8, B = 24, R = 6, RATIO = 1.62, SUB = 0.4;
+  // 上の名前と箱の並び、枠ごとの見出しのぶんを先に取っておく
+  const avail = window.innerHeight - 190 - subs.length * 30;
+  // 枠が増えても価格のチャートは痩せさせない。入りきらない分は箱を動かす
+  let ih = Math.round((avail - (subs.length + 1) * (T + B)) / (1 + subs.length * SUB));
+  ih = Math.max(260, Math.round(ih * settings.techZoom));
+  let iw = Math.round(ih * RATIO);
+  const maxIW = Math.round(window.innerWidth * 0.94) - AXIS_L - R - 20;
+  if (iw > maxIW && settings.techZoom <= 1) { iw = maxIW; ih = Math.round(iw / RATIO); }
+  const base = { iw, ih, T, B, R };
+  const small = { iw, ih: Math.max(70, Math.round(ih * SUB)), T, B, R };
+
+  const body = document.createElement("div");
+  body.className = "canvas tcbody";
+  const put = (el) => { if (el) body.appendChild(el); };
+
+  // 価格。四本値があればローソク足、無ければ終値の折れ線
   const bars = at.map((i) => rows[i].h === null ? null
     : { o: rows[i].o, h: rows[i].h, l: rows[i].l, c: rows[i].c });
-  // 5年ぶんだとローソク足は潰れる。1本ぶんの幅が取れるときだけ足にする
-  const hasBars = bars.some(Boolean) && base.iw / days.length >= 3;
-  const priceLinesSpec = [
-    { vals: cut(ind.ma0), color: seriesColor(0) },
-    { vals: cut(ind.ma1), color: seriesColor(1) },
-    { vals: cut(ind.ma2), color: seriesColor(2) },
-    { vals: cut(ind.bbU2), color: dim, dash: "4 3" },
-    { vals: cut(ind.bbU1), color: dim, dash: "2 4" },
-    { vals: cut(ind.bbL1), color: dim, dash: "2 4" },
-    { vals: cut(ind.bbL2), color: dim, dash: "4 3" }
-  ];
-  if (!hasBars) priceLinesSpec.unshift({ vals: cut(ind.c), color: fg });
-  put(techPanel(
-    techLegend(name, [
-      [`${p.ma[0]}MA`, seriesColor(0)], [`${p.ma[1]}MA`, seriesColor(1)], [`${p.ma[2]}MA`, seriesColor(2)],
-      [`ボリンジャー${p.bb.n} ±${p.bb.k1}σ ±${p.bb.k2}σ`, dim],
-      [`パラボリック ${p.sar.step}/${p.sar.max}`, seriesColor(3)]
-    ]),
-    days, {
-      lines: priceLinesSpec, bars: hasBars ? bars : null,
-      dots: cut(ind.sar), dotColor: seriesColor(3)
-    }, base));
+  const hasBars = bars.some(Boolean);
+  const over = [], tags = [];
+  if (!hasBars) over.push({ vals: cut(ind.c), color: "var(--fg)" });
+  if (techShow.has("ma")) {
+    p.ma.forEach((n, j) => {
+      over.push({ vals: cut(ind["ma" + j]), color: seriesColor(j) });
+      tags.push([`${n}MA`, seriesColor(j)]);
+    });
+  }
+  if (techShow.has("bb")) {
+    ["bbU2", "bbU1", "bbL1", "bbL2"].forEach((k, j) => {
+      over.push({ vals: cut(ind[k]), color: dim, dash: j === 1 || j === 2 ? "2 4" : "4 3" });
+    });
+    tags.push([`ボリンジャー${p.bb.n} ±${p.bb.k1}σ ±${p.bb.k2}σ`, dim]);
+  }
+  const sar = techShow.has("sar");
+  if (sar) tags.push([`パラボリック ${p.sar.step}/${p.sar.max}`, seriesColor(3)]);
+  put(techPanel(techLegend("", tags), days, {
+    lines: over,
+    bars: hasBars ? bars : null,
+    dots: sar ? cut(ind.sar) : null,
+    dotColor: seriesColor(3)
+  }, base));
 
-  // ② 移動平均乖離
-  put(techPanel(
-    techLegend("移動平均乖離%", [
-      [String(p.ma[0]), seriesColor(0)], [String(p.ma[1]), seriesColor(1)], [String(p.ma[2]), seriesColor(2)]
-    ]),
-    days, {
-      lines: [
-        { vals: cut(ind.dev0), color: seriesColor(0) },
-        { vals: cut(ind.dev1), color: seriesColor(1) },
-        { vals: cut(ind.dev2), color: seriesColor(2) }
-      ],
-      guides: [0]
-    }, small));
+  // 下に付く指標。押した順ではなく、いつも同じ並びで出す
+  subs.forEach((s) => {
+    if (s.id === "dev") {
+      put(techPanel(
+        techLegend("移動平均乖離%", p.ma.map((n, j) => [String(n), seriesColor(j)])),
+        days, {
+          lines: p.ma.map((n, j) => ({ vals: cut(ind["dev" + j]), color: seriesColor(j) })),
+          guides: [0]
+        }, small));
+    } else if (s.id === "rsi") {
+      put(techPanel(`RSI ${p.rsi}`, days, {
+        lines: [{ vals: cut(ind.rsi), color: seriesColor(0) }],
+        guides: [30, 70],
+        fix: { bottom: 0, top: 100, step: 20 }
+      }, small));
+    } else if (s.id === "stoch") {
+      put(techPanel(
+        techLegend(`ストキャス ${p.stoch.k}/${p.stoch.d}`, [["%K", seriesColor(0)], ["%D", seriesColor(1)]]),
+        days, {
+          lines: [
+            { vals: cut(ind.stK), color: seriesColor(0) },
+            { vals: cut(ind.stD), color: seriesColor(1) }
+          ],
+          guides: [20, 80],
+          fix: { bottom: 0, top: 100, step: 20 }
+        }, small));
+    } else if (s.id === "rci") {
+      put(techPanel(
+        techLegend("RCI", [[String(p.rci[0]), seriesColor(0)], [String(p.rci[1]), seriesColor(1)]]),
+        days, {
+          lines: [
+            { vals: cut(ind.rci0), color: seriesColor(0) },
+            { vals: cut(ind.rci1), color: seriesColor(1) }
+          ],
+          guides: [-80, 0, 80],
+          fix: { bottom: -100, top: 100, step: 50 }
+        }, small));
+    } else if (s.id === "macd") {
+      put(techPanel(
+        techLegend(`MACD ${p.macd.fast}/${p.macd.slow}/${p.macd.sig}`,
+          [["MACD", seriesColor(0)], ["シグナル", seriesColor(1)], ["ヒスト", dim]]),
+        days, {
+          lines: [
+            { vals: cut(ind.macd), color: seriesColor(0) },
+            { vals: cut(ind.macdS), color: seriesColor(1) }
+          ],
+          hist: cut(ind.macdH),
+          guides: [0]
+        }, small));
+    } else if (s.id === "atr") {
+      put(techPanel(`ATR% ${p.atr}`, days, {
+        lines: [{ vals: cut(ind.atr), color: seriesColor(0) }]
+      }, small));
+    }
+  });
 
-  // ③ RSI
-  put(techPanel(`RSI ${p.rsi}`, days, {
-    lines: [{ vals: cut(ind.rsi), color: seriesColor(0) }],
-    guides: [30, 70],
-    fix: { bottom: 0, top: 100, step: 20 }
-  }, small));
+  const picks = TECH_SHOWS.map((s) =>
+    `<label><input type="checkbox" data-show="${s.id}"${techShow.has(s.id) ? " checked" : ""}>`
+    + `<span class="bx"></span>${s.name}</label>`).join("");
 
-  // ④ ストキャス
-  put(techPanel(
-    techLegend(`ストキャス ${p.stoch.k}/${p.stoch.d}`, [["%K", seriesColor(0)], ["%D", seriesColor(1)]]),
-    days, {
-      lines: [
-        { vals: cut(ind.stK), color: seriesColor(0) },
-        { vals: cut(ind.stD), color: seriesColor(1) }
-      ],
-      guides: [20, 80],
-      fix: { bottom: 0, top: 100, step: 20 }
-    }, small));
+  const box = document.createElement("div");
+  box.className = "box";
+  box.style.width = (iw + AXIS_L + R + 8 * 2 + 2 * 2) + "px";
+  const head = document.createElement("div");
+  head.className = "head";
+  head.innerHTML = `<div class="left"><span class="nm">${name}</span>`
+    + `<span class="sub">${days[0]} 〜 ${days[days.length - 1]}　${days.length}日</span></div>`
+    + `<div class="pick">${picks}</div>`;
+  box.append(head, body);
+  techChartEl.innerHTML = "";
+  techChartEl.appendChild(box);
 
-  // ⑤ RCI
-  put(techPanel(
-    techLegend("RCI", [[String(p.rci[0]), seriesColor(0)], [String(p.rci[1]), seriesColor(1)]]),
-    days, {
-      lines: [
-        { vals: cut(ind.rci0), color: seriesColor(0) },
-        { vals: cut(ind.rci1), color: seriesColor(1) }
-      ],
-      guides: [-80, 0, 80],
-      fix: { bottom: -100, top: 100, step: 50 }
-    }, small));
-
-  // ⑥ MACD
-  put(techPanel(
-    techLegend(`MACD ${p.macd.fast}/${p.macd.slow}/${p.macd.sig}`,
-      [["MACD", seriesColor(0)], ["シグナル", seriesColor(1)], ["ヒスト", dim]]),
-    days, {
-      lines: [
-        { vals: cut(ind.macd), color: seriesColor(0) },
-        { vals: cut(ind.macdS), color: seriesColor(1) }
-      ],
-      hist: cut(ind.macdH),
-      guides: [0]
-    }, small));
-
-  // ⑦ ATR%
-  put(techPanel(`ATR% ${p.atr}`, days, {
-    lines: [{ vals: cut(ind.atr), color: seriesColor(0) }]
-  }, small));
+  box.querySelectorAll("input[data-show]").forEach((el) => {
+    el.addEventListener("change", () => {
+      if (el.checked) techShow.add(el.dataset.show);
+      else techShow.delete(el.dataset.show);
+      drawTechChart();
+    });
+  });
 }
+
+// 枠の外を押したら閉じる
+techChartEl.addEventListener("click", (e) => {
+  if (!e.target.closest(".box")) closeTechChart();
+});
+
+// ホイールで大きさを変える。縦横の比は 1 : 1.62 のまま
+techChartEl.addEventListener("wheel", (e) => {
+  if (techChartEl.classList.contains("hidden")) return;
+  e.preventDefault();
+  const f = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  settings.techZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, settings.techZoom * f));
+  saveSettings();
+  drawTechChart();
+}, { passive: false });
 
 /* ---- 画面 ----------------------------------------------------- */
 function openTechnical() {
@@ -2885,6 +3019,7 @@ function openTechnical() {
   drawTechnical();
 }
 function backFromTechnical() {
+  closeTechChart();
   techEl.classList.add("hidden");
   titleEl.classList.remove("hidden");
 }
@@ -2943,7 +3078,6 @@ async function drawTechnical() {
   const from0 = String(endYear - TECH_SPAN + 1);
   tyearEl.value = String(endYear);
   tgridEl.innerHTML = '<div id="loading">読み込み中…</div>';
-  tcanvasEl.innerHTML = "";
   tstatusEl.textContent = "";
 
   const catalog = await buildCatalog(String(endYear));
@@ -2965,12 +3099,13 @@ async function drawTechnical() {
     tgridEl.innerHTML = '<div id="loading">この期間のデータがない</div>';
     tstatusEl.textContent = name;
     techState = null;
+    closeTechChart();
     return;
   }
-  techState = { rows, from: at[0] };
+  techState = { rows, at, days, ind, p, name, from: at[0] };
 
   drawTechTable(at, days, ind, p);
-  drawTechCharts(at, days, rows, ind, p, name);
+  if (!techChartEl.classList.contains("hidden")) drawTechChart();
 
   const hasBars = at.some((i) => rows[i].h !== null);
   tstatusEl.textContent = `${name}　${days[0]} 〜 ${days[days.length - 1]}　${days.length}日`
