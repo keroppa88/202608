@@ -1155,6 +1155,19 @@ async function seriesOf(key, year) {
   return map;
 }
 
+// 1銘柄ぶんの「日付 → 出来高」を返す。0は無いものとして扱う。
+// 出来高が載っているのは Yahoo から取った銘柄だけ
+async function volumeOf(key, year) {
+  const [src, id] = splitKey(key);
+  const map = new Map();
+  if (src === "yahoo") {
+    for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
+      if (r.symbol === id && Number(r.volume) > 0) map.set(r.trade_date, Number(r.volume));
+    }
+  }
+  return map;
+}
+
 // 1銘柄ぶんの「日付 → 四本値」を返す。4つとも揃っている日だけ
 async function barsOf(key, year) {
   const [src, id] = splitKey(key);
@@ -2145,6 +2158,13 @@ const tparamsEl = document.getElementById("tparams");
 const TECH_SPAN = 5;     // 表に出す年数
 const TECH_WARM = 2;     // そのさらに前。指標の助走に使うだけで表には出さない
 
+// 比べられる形に直した数字の設定値
+const TECH_CHG = [5, 10, 20, 60, 100, 200];   // 騰落率を出す日数
+const TECH_SLOPE = 5;                          // 移動平均の傾きは何日前と比べるか
+const TECH_HV = 20;                            // ヒストリカルボラティリティの日数
+const TECH_YEAR_N = 250;                       // 1年ぶんの営業日。高安の幅に使う
+const TECH_YEAR_DAYS = 252;                    // 年率に直すときの営業日数
+
 /* 数字の欄。名前・道筋・刻み・上下限。
    道筋は settings.techParams の中の場所 */
 const TECH_FIELDS = [
@@ -2161,17 +2181,31 @@ const TECH_FIELDS = [
 
 // 表の列。g が上の段（指標の名前）、f が下の段（細目）
 function techCols(p) {
+  const m = p.ma;
   return [
     { g: "価格", f: "始値", k: "o", grp: "price" },
     { g: "価格", f: "高値", k: "h", grp: "price" },
     { g: "価格", f: "安値", k: "l", grp: "price" },
     { g: "価格", f: "終値", k: "c", grp: "price" },
-    { g: "移動平均", f: String(p.ma[0]), k: "ma0", grp: "ma" },
-    { g: "移動平均", f: String(p.ma[1]), k: "ma1", grp: "ma" },
-    { g: "移動平均", f: String(p.ma[2]), k: "ma2", grp: "ma" },
-    { g: "移動平均乖離%", f: String(p.ma[0]), k: "dev0", grp: "dev" },
-    { g: "移動平均乖離%", f: String(p.ma[1]), k: "dev1", grp: "dev" },
-    { g: "移動平均乖離%", f: String(p.ma[2]), k: "dev2", grp: "dev" },
+    { g: "出来高", f: "出来高", k: "vol", grp: "volume", int: true },
+    { g: "出来高", f: "20日平均比%", k: "volR", grp: "volume" },
+    { g: "騰落率%", f: "5", k: "chg5", grp: "chg" },
+    { g: "騰落率%", f: "10", k: "chg10", grp: "chg" },
+    { g: "騰落率%", f: "20", k: "chg20", grp: "chg" },
+    { g: "騰落率%", f: "60", k: "chg60", grp: "chg" },
+    { g: "騰落率%", f: "100", k: "chg100", grp: "chg" },
+    { g: "騰落率%", f: "200", k: "chg200", grp: "chg" },
+    { g: "騰落率%", f: "連騰連落", k: "run", grp: "chg", int: true },
+    { g: "移動平均", f: String(m[0]), k: "ma0", grp: "ma" },
+    { g: "移動平均", f: String(m[1]), k: "ma1", grp: "ma" },
+    { g: "移動平均", f: String(m[2]), k: "ma2", grp: "ma" },
+    { g: "移動平均", f: `${m[0]}傾き%`, k: "slope0", grp: "ma" },
+    { g: "移動平均", f: `${m[1]}傾き%`, k: "slope1", grp: "ma" },
+    { g: "移動平均", f: `${m[2]}傾き%`, k: "slope2", grp: "ma" },
+    { g: "移動平均", f: "並び", k: "order", grp: "ma", int: true },
+    { g: "移動平均乖離%", f: String(m[0]), k: "dev0", grp: "dev" },
+    { g: "移動平均乖離%", f: String(m[1]), k: "dev1", grp: "dev" },
+    { g: "移動平均乖離%", f: String(m[2]), k: "dev2", grp: "dev" },
     { g: "ボリンジャー", f: `+${p.bb.k2}σ`, k: "bbU2", grp: "bb" },
     { g: "ボリンジャー", f: `+${p.bb.k1}σ`, k: "bbU1", grp: "bb" },
     { g: "ボリンジャー", f: `-${p.bb.k1}σ`, k: "bbL1", grp: "bb" },
@@ -2185,10 +2219,25 @@ function techCols(p) {
     { g: "MACD", f: "MACD", k: "macd", grp: "macd" },
     { g: "MACD", f: "シグナル", k: "macdS", grp: "macd" },
     { g: "MACD", f: "ヒスト", k: "macdH", grp: "macd" },
-    { g: "ATR%", f: String(p.atr), k: "atr", grp: "atr" }
+    { g: "MACD", f: "ヒスト/株価%", k: "macdHR", grp: "macd" },
+    { g: "ばらつき%", f: `ATR${p.atr}`, k: "atr", grp: "risk" },
+    { g: "ばらつき%", f: `HV${TECH_HV}`, k: "hv", grp: "risk" },
+    { g: "ばらつき%", f: "バンド幅", k: "bbW", grp: "risk" },
+    { g: "位置", f: "%B", k: "bbB", grp: "pos" },
+    { g: "位置", f: `${TECH_YEAR_N}日レンジ`, k: "pos52", grp: "pos" },
+    { g: "位置", f: "その日", k: "posDay", grp: "pos" },
+    { g: "高安から%", f: `${TECH_YEAR_N}日高値`, k: "fromHi", grp: "hilo" },
+    { g: "高安から%", f: `${TECH_YEAR_N}日安値`, k: "fromLo", grp: "hilo" },
+    { g: "経過日数", f: `移動平均${m[0]}×${m[1]}`, k: "dMaS", grp: "days", int: true },
+    { g: "経過日数", f: `移動平均${m[1]}×${m[2]}`, k: "dMaL", grp: "days", int: true },
+    { g: "経過日数", f: "MACD", k: "dMacd", grp: "days", int: true },
+    { g: "経過日数", f: "パラボリック", k: "dSar", grp: "days", int: true },
+    { g: "経過日数", f: "ストキャス", k: "dStoch", grp: "days", int: true },
+    { g: "経過日数", f: "RSI", k: "dRsi", grp: "days", int: true },
+    { g: "その日", f: "ギャップ%", k: "gap", grp: "day" },
+    { g: "その日", f: "値幅%", k: "range", grp: "day" }
   ];
 }
-
 /* ---- 指標の計算 ----------------------------------------------
    どれも配列で受けて配列で返す。出せない日は null。
    値が欠けている日をまたいだら、そこで助走をやり直す */
@@ -2403,36 +2452,209 @@ function atrArr(rows, n) {
   return out;
 }
 
+// 日数や向き、出来高は整数。小数は出さない
+function fmtInt(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return v;
+  return Math.round(n).toLocaleString("ja-JP");
+}
+
+/* ---- 比べられる形に直した数字 ---------------------------------
+   値段の桁は銘柄ごとに違う。%・比・日数・±1 にそろえておくと、
+   桁の違う銘柄を並べたまま読める */
+
+// n日前と比べて何%動いたか
+function chgPct(v, n) {
+  return v.map((x, i) => {
+    const p = v[i - n];
+    return (i < n || x === null || p === null || !p) ? null : (x / p - 1) * 100;
+  });
+}
+
+// 連騰・連落。上げ続けなら +、下げ続けなら −
+function runLength(v) {
+  const out = new Array(v.length).fill(null);
+  let n = 0;
+  for (let i = 1; i < v.length; i++) {
+    if (v[i] === null || v[i - 1] === null) { n = 0; out[i] = null; continue; }
+    const d = Math.sign(v[i] - v[i - 1]);
+    if (d === 0) n = 0;
+    else if (Math.sign(n) === d) n += d;
+    else n = d;
+    out[i] = n;
+  }
+  return out;
+}
+
+// 向きが変わってから何日たったか。上向きなら +、下向きなら −
+function sinceFlip(side) {
+  const out = new Array(side.length).fill(null);
+  let cur = 0, n = 0;
+  for (let i = 0; i < side.length; i++) {
+    const s = side[i];
+    if (!s) { out[i] = null; continue; }
+    if (s !== cur) { cur = s; n = 0; }
+    n++;
+    out[i] = cur * n;
+  }
+  return out;
+}
+
+// 2本の線のどちらが上か。上なら +1、下なら −1、出せない日は 0
+function sideOf(a, b) {
+  return a.map((v, i) => (v === null || b[i] === null) ? 0 : (v > b[i] ? 1 : -1));
+}
+
+// 上下のしきい値で向きを決め、次のしきい値まで持ち越す
+function sideHold(v, lo, hi) {
+  const out = new Array(v.length).fill(0);
+  let s = 0;
+  for (let i = 0; i < v.length; i++) {
+    if (v[i] !== null) {
+      if (v[i] <= lo) s = 1;
+      else if (v[i] >= hi) s = -1;
+    }
+    out[i] = s;
+  }
+  return out;
+}
+
+// n日の高値・安値。終値で見る。四本値の無い銘柄でも出せる
+function rollHi(v, n) {
+  const out = new Array(v.length).fill(null);
+  for (let i = n - 1; i < v.length; i++) {
+    let hi = -Infinity, ok = true;
+    for (let j = i - n + 1; j <= i; j++) {
+      if (v[j] === null) { ok = false; break; }
+      if (v[j] > hi) hi = v[j];
+    }
+    if (ok) out[i] = hi;
+  }
+  return out;
+}
+function rollLo(v, n) {
+  const out = new Array(v.length).fill(null);
+  for (let i = n - 1; i < v.length; i++) {
+    let lo = Infinity, ok = true;
+    for (let j = i - n + 1; j <= i; j++) {
+      if (v[j] === null) { ok = false; break; }
+      if (v[j] < lo) lo = v[j];
+    }
+    if (ok) out[i] = lo;
+  }
+  return out;
+}
+
+// ヒストリカルボラティリティ。日々の値動きのばらつきを年率の%にする
+function hvPct(v, n) {
+  const r = v.map((x, i) => (i === 0 || x === null || v[i - 1] === null || x <= 0 || v[i - 1] <= 0)
+    ? null : Math.log(x / v[i - 1]));
+  const out = new Array(v.length).fill(null);
+  let run = 0;
+  for (let i = 0; i < r.length; i++) {
+    if (r[i] === null) { run = 0; continue; }
+    run++;
+    if (run < n) continue;
+    let s = 0;
+    for (let j = i - n + 1; j <= i; j++) s += r[j];
+    const m = s / n;
+    let q = 0;
+    for (let j = i - n + 1; j <= i; j++) q += (r[j] - m) * (r[j] - m);
+    out[i] = Math.sqrt(q / (n - 1)) * Math.sqrt(TECH_YEAR_DAYS) * 100;
+  }
+  return out;
+}
+
 // 全部まとめて出す
 function techIndicators(rows, p) {
   const c = rows.map((r) => r.c);
   const out = {
     o: rows.map((r) => r.o), h: rows.map((r) => r.h),
-    l: rows.map((r) => r.l), c
+    l: rows.map((r) => r.l), c,
+    vol: rows.map((r) => r.v)
   };
+
+  // 出来高。20日平均と比べる
+  {
+    const av = sma(out.vol, 20);
+    out.volR = out.vol.map((v, i) => (v === null || av[i] === null || !av[i]) ? null : (v / av[i]) * 100);
+  }
+
+  // 騰落率と連騰連落
+  TECH_CHG.forEach((n) => { out["chg" + n] = chgPct(c, n); });
+  out.run = runLength(c);
+
+  // 移動平均・乖離・傾き・並び
   p.ma.forEach((n, j) => {
     const m = sma(c, n);
     out["ma" + j] = m;
     out["dev" + j] = m.map((v, i) => (v === null || !v) ? null : ((c[i] - v) / v) * 100);
+    out["slope" + j] = chgPct(m, TECH_SLOPE);
   });
+  out.order = c.map((_, i) => {
+    const a = out.ma0[i], b = out.ma1[i], d = out.ma2[i];
+    if (a === null || b === null || d === null) return null;
+    if (a > b && b > d) return 1;
+    if (a < b && b < d) return -1;
+    return 0;
+  });
+
+  // ボリンジャー。帯そのものと、帯の中の位置・帯の広さ
   const mid = sma(c, p.bb.n), sd = stdevArr(c, p.bb.n);
   const band = (k) => mid.map((m, i) => (m === null || sd[i] === null) ? null : m + k * sd[i]);
   out.bbMid = mid;
   out.bbU2 = band(p.bb.k2); out.bbU1 = band(p.bb.k1);
   out.bbL1 = band(-p.bb.k1); out.bbL2 = band(-p.bb.k2);
+  out.bbB = c.map((v, i) => {
+    const u = out.bbU2[i], d = out.bbL2[i];
+    return (u === null || d === null || u === d) ? null : ((v - d) / (u - d)) * 100;
+  });
+  out.bbW = mid.map((m, i) => {
+    const u = out.bbU2[i], d = out.bbL2[i];
+    return (m === null || u === null || d === null || !m) ? null : ((u - d) / m) * 100;
+  });
+
   out.sar = sarArr(rows, p.sar.step, p.sar.max);
   out.rsi = rsiArr(c, p.rsi);
   const st = stochArr(rows, p.stoch.k, p.stoch.d);
   out.stK = st.k; out.stD = st.d;
   out.rci0 = rciArr(c, p.rci[0]);
   out.rci1 = rciArr(c, p.rci[1]);
+
   const ef = ema(c, p.macd.fast), es = ema(c, p.macd.slow);
   const line = c.map((_, i) => (ef[i] === null || es[i] === null) ? null : ef[i] - es[i]);
   const sig = ema(line, p.macd.sig);
   out.macd = line;
   out.macdS = sig;
   out.macdH = line.map((v, i) => (v === null || sig[i] === null) ? null : v - sig[i]);
+  out.macdHR = out.macdH.map((v, i) => (v === null || !c[i]) ? null : (v / c[i]) * 100);
+
+  // ばらつき
   out.atr = atrArr(rows, p.atr);
+  out.hv = hvPct(c, TECH_HV);
+
+  // 位置。1年の高安の中でどこにいるか、その日の高安の中でどこで引けたか
+  const hi = rollHi(c, TECH_YEAR_N), lo = rollLo(c, TECH_YEAR_N);
+  out.pos52 = c.map((v, i) => (hi[i] === null || lo[i] === null || hi[i] === lo[i])
+    ? null : ((v - lo[i]) / (hi[i] - lo[i])) * 100);
+  out.fromHi = c.map((v, i) => (hi[i] === null || !hi[i]) ? null : (v / hi[i] - 1) * 100);
+  out.fromLo = c.map((v, i) => (lo[i] === null || !lo[i]) ? null : (v / lo[i] - 1) * 100);
+  out.posDay = rows.map((r) => (r.h === null || r.l === null || r.h === r.l)
+    ? null : ((r.c - r.l) / (r.h - r.l)) * 100);
+
+  // その日の形
+  out.gap = rows.map((r, i) => (r.o === null || i === 0 || !rows[i - 1].c)
+    ? null : (r.o / rows[i - 1].c - 1) * 100);
+  out.range = rows.map((r) => (r.h === null || r.l === null || !r.c)
+    ? null : ((r.h - r.l) / r.c) * 100);
+
+  // 向きが変わってからの日数。上向きが +、下向きが −
+  out.dMaS = sinceFlip(sideOf(out.ma0, out.ma1));
+  out.dMaL = sinceFlip(sideOf(out.ma1, out.ma2));
+  out.dMacd = sinceFlip(sideOf(out.macd, out.macdS));
+  out.dSar = sinceFlip(sarSide(rows, p.sar.step, p.sar.max));
+  out.dStoch = sinceFlip(sideOf(out.stK, out.stD));
+  out.dRsi = sinceFlip(sideHold(out.rsi, 30, 70));
   return out;
 }
 
@@ -2639,6 +2861,7 @@ async function techRows(key, endYear) {
     const ys = String(y);
     const close = await seriesOf(key, ys);
     const bars = await barsOf(key, ys);
+    const vols = await volumeOf(key, ys);
     const days = [...new Set([...close.keys(), ...bars.keys()])];
     for (const d of days) {
       if (!d.startsWith(ys)) continue;
@@ -2649,7 +2872,8 @@ async function techRows(key, endYear) {
         d, c,
         o: b ? Number(b.open) : null,
         h: b ? Number(b.high) : null,
-        l: b ? Number(b.low) : null
+        l: b ? Number(b.low) : null,
+        v: vols.has(d) ? vols.get(d) : null
       });
     }
   }
@@ -2706,7 +2930,7 @@ function drawTechTable(at, days, ind, p) {
     cols.forEach((c) => {
       const v = ind[c.k][idx];
       if (v === null || v === undefined || !isFinite(v)) html.push('<td class="na">#N/A</td>');
-      else html.push("<td>", fmt(v), "</td>");
+      else html.push("<td>", c.int ? fmtInt(v) : fmt(v), "</td>");
     });
     html.push("</tr>");
   });
@@ -2838,15 +3062,21 @@ const techChartEl = document.getElementById("techchart");
 
 // 指標のまとまり。over は価格に重ねる、panel は下に別の枠で置く
 const TECH_SHOWS = [
-  { id: "ma",    name: "移動平均",      kind: "over" },
-  { id: "bb",    name: "ボリンジャー",  kind: "over" },
-  { id: "sar",   name: "パラボリック",  kind: "over" },
-  { id: "dev",   name: "移動平均乖離%", kind: "panel" },
-  { id: "rsi",   name: "RSI",           kind: "panel" },
-  { id: "stoch", name: "ストキャス",    kind: "panel" },
-  { id: "rci",   name: "RCI",           kind: "panel" },
-  { id: "macd",  name: "MACD",          kind: "panel" },
-  { id: "atr",   name: "ATR%",          kind: "panel" }
+  { id: "ma",     name: "移動平均",      kind: "over" },
+  { id: "bb",     name: "ボリンジャー",  kind: "over" },
+  { id: "sar",    name: "パラボリック",  kind: "over" },
+  { id: "volume", name: "出来高",        kind: "panel" },
+  { id: "chg",    name: "騰落率%",       kind: "panel" },
+  { id: "dev",    name: "移動平均乖離%", kind: "panel" },
+  { id: "rsi",    name: "RSI",           kind: "panel" },
+  { id: "stoch",  name: "ストキャス",    kind: "panel" },
+  { id: "rci",    name: "RCI",           kind: "panel" },
+  { id: "macd",   name: "MACD",          kind: "panel" },
+  { id: "risk",   name: "ばらつき%",     kind: "panel" },
+  { id: "pos",    name: "位置",          kind: "panel" },
+  { id: "hilo",   name: "高安から%",     kind: "panel" },
+  { id: "days",   name: "経過日数",      kind: "panel" },
+  { id: "day",    name: "その日",        kind: "panel" }
 ];
 
 // いま出している指標。開くたびに、押した指標ひとつだけに戻す
@@ -2888,12 +3118,15 @@ function drawTechChart() {
   body.className = "canvas tcbody";
   const put = (el) => { if (el) body.appendChild(el); };
 
-  // 価格。四本値があればローソク足、無ければ終値の折れ線
+  /* 価格。四本値が全部そろっていればローソク足だけ。
+     1日でも欠けていると足が飛び飛びになって形が読めないので、
+     そのときは終値の線を通す。足のある日はその上に重ねる。
+     四本値が1日も無ければ線だけ */
   const bars = at.map((i) => rows[i].h === null ? null
     : { o: rows[i].o, h: rows[i].h, l: rows[i].l, c: rows[i].c });
-  const hasBars = bars.some(Boolean);
+  const have = bars.reduce((n, b) => b ? n + 1 : n, 0);
   const over = [], tags = [];
-  if (!hasBars) over.push({ vals: cut(ind.c), color: "var(--fg)" });
+  if (have < days.length) over.push({ vals: cut(ind.c), color: "var(--fg)" });
   if (techShow.has("ma")) {
     p.ma.forEach((n, j) => {
       over.push({ vals: cut(ind["ma" + j]), color: seriesColor(j) });
@@ -2910,66 +3143,43 @@ function drawTechChart() {
   if (sar) tags.push([`パラボリック ${p.sar.step}/${p.sar.max}`, seriesColor(3)]);
   put(techPanel(techLegend("", tags), days, {
     lines: over,
-    bars: hasBars ? bars : null,
+    bars: have ? bars : null,
     dots: sar ? cut(ind.sar) : null,
     dotColor: seriesColor(3)
   }, base));
 
-  // 下に付く指標。押した順ではなく、いつも同じ並びで出す
-  subs.forEach((s) => {
-    if (s.id === "dev") {
-      put(techPanel(
-        techLegend("移動平均乖離%", p.ma.map((n, j) => [String(n), seriesColor(j)])),
-        days, {
-          lines: p.ma.map((n, j) => ({ vals: cut(ind["dev" + j]), color: seriesColor(j) })),
-          guides: [0]
-        }, small));
-    } else if (s.id === "rsi") {
-      put(techPanel(`RSI ${p.rsi}`, days, {
-        lines: [{ vals: cut(ind.rsi), color: seriesColor(0) }],
-        guides: [30, 70],
-        fix: { bottom: 0, top: 100, step: 20 }
-      }, small));
-    } else if (s.id === "stoch") {
-      put(techPanel(
-        techLegend(`ストキャス ${p.stoch.k}/${p.stoch.d}`, [["%K", seriesColor(0)], ["%D", seriesColor(1)]]),
-        days, {
-          lines: [
-            { vals: cut(ind.stK), color: seriesColor(0) },
-            { vals: cut(ind.stD), color: seriesColor(1) }
-          ],
-          guides: [20, 80],
-          fix: { bottom: 0, top: 100, step: 20 }
-        }, small));
-    } else if (s.id === "rci") {
-      put(techPanel(
-        techLegend("RCI", [[String(p.rci[0]), seriesColor(0)], [String(p.rci[1]), seriesColor(1)]]),
-        days, {
-          lines: [
-            { vals: cut(ind.rci0), color: seriesColor(0) },
-            { vals: cut(ind.rci1), color: seriesColor(1) }
-          ],
-          guides: [-80, 0, 80],
-          fix: { bottom: -100, top: 100, step: 50 }
-        }, small));
-    } else if (s.id === "macd") {
-      put(techPanel(
-        techLegend(`MACD ${p.macd.fast}/${p.macd.slow}/${p.macd.sig}`,
-          [["MACD", seriesColor(0)], ["シグナル", seriesColor(1)], ["ヒスト", dim]]),
-        days, {
-          lines: [
-            { vals: cut(ind.macd), color: seriesColor(0) },
-            { vals: cut(ind.macdS), color: seriesColor(1) }
-          ],
-          hist: cut(ind.macdH),
-          guides: [0]
-        }, small));
-    } else if (s.id === "atr") {
-      put(techPanel(`ATR% ${p.atr}`, days, {
-        lines: [{ vals: cut(ind.atr), color: seriesColor(0) }]
-      }, small));
-    }
-  });
+  // 下に付く枠。押した順ではなく、いつも同じ並びで出す
+  const line = (k, j) => ({ vals: cut(ind[k]), color: seriesColor(j) });
+  const many = (cap, keys, names, more) => {
+    const spec = { lines: keys.map(line) };
+    Object.assign(spec, more || {});
+    return techPanel(techLegend(cap, names.map((n, j) => [n, seriesColor(j)])), days, spec, small);
+  };
+  const PANEL = {
+    volume: () => techPanel("出来高", days, { hist: cut(ind.vol) }, small),
+    chg: () => many("騰落率%", TECH_CHG.map((n) => "chg" + n), TECH_CHG.map(String), { guides: [0] }),
+    dev: () => many("移動平均乖離%", ["dev0", "dev1", "dev2"], p.ma.map(String), { guides: [0] }),
+    rsi: () => techPanel(`RSI ${p.rsi}`, days, {
+      lines: [line("rsi", 0)], guides: [30, 70], fix: { bottom: 0, top: 100, step: 20 }
+    }, small),
+    stoch: () => many(`ストキャス ${p.stoch.k}/${p.stoch.d}`, ["stK", "stD"], ["%K", "%D"],
+      { guides: [20, 80], fix: { bottom: 0, top: 100, step: 20 } }),
+    rci: () => many("RCI", ["rci0", "rci1"], p.rci.map(String),
+      { guides: [-80, 0, 80], fix: { bottom: -100, top: 100, step: 50 } }),
+    macd: () => many(`MACD ${p.macd.fast}/${p.macd.slow}/${p.macd.sig}`, ["macd", "macdS"],
+      ["MACD", "シグナル"], { hist: cut(ind.macdH), guides: [0] }),
+    risk: () => many("ばらつき%", ["atr", "hv", "bbW"],
+      [`ATR${p.atr}`, `HV${TECH_HV}`, "バンド幅"]),
+    pos: () => many("位置", ["bbB", "pos52", "posDay"],
+      ["%B", `${TECH_YEAR_N}日レンジ`, "その日"], { guides: [0, 50, 100] }),
+    hilo: () => many("高安から%", ["fromHi", "fromLo"],
+      [`${TECH_YEAR_N}日高値`, `${TECH_YEAR_N}日安値`], { guides: [0] }),
+    days: () => many("経過日数", ["dMaS", "dMaL", "dMacd", "dSar", "dStoch", "dRsi"],
+      [`移動平均${p.ma[0]}×${p.ma[1]}`, `移動平均${p.ma[1]}×${p.ma[2]}`,
+       "MACD", "パラボリック", "ストキャス", "RSI"], { guides: [0] }),
+    day: () => many("その日", ["gap", "range"], ["ギャップ%", "値幅%"], { guides: [0] })
+  };
+  subs.forEach((s) => put(PANEL[s.id]()));
 
   const picks = TECH_SHOWS.map((s) =>
     `<label><input type="checkbox" data-show="${s.id}"${techShow.has(s.id) ? " checked" : ""}>`
@@ -3107,9 +3317,9 @@ async function drawTechnical() {
   drawTechTable(at, days, ind, p);
   if (!techChartEl.classList.contains("hidden")) drawTechChart();
 
-  const hasBars = at.some((i) => rows[i].h !== null);
+  const have = at.reduce((n, i) => rows[i].h === null ? n : n + 1, 0);
   tstatusEl.textContent = `${name}　${days[0]} 〜 ${days[days.length - 1]}　${days.length}日`
-    + (hasBars ? "" : "　四本値なし");
+    + (have === days.length ? "" : have ? `　四本値に欠け ${days.length - have}日` : "　四本値なし");
 }
 
 /* ---------------------------------------------------------------
