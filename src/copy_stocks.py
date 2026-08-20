@@ -17,6 +17,10 @@ chart0 は JST 16:40 に更新される。その後にこれを回す。
 開いて回るわけにいかないので、名前と期間と行数をここでまとめておく。
 名前は chart0 の allchartlist.csv から引く。
 
+allchartlist.csv に無いコードは一覧に載せない。上場廃止などで名前が引けなく
+なったものなので、画面の選択肢には出さない。ファイル自体は消さずに置いておく。
+あちらの一覧が直れば、次に写したときからまた出る。
+
 chart0 から消えた銘柄は、こちらでは消さない。向こうの都合で消えても、
 こちらに残っている値は残しておく。
 """
@@ -88,16 +92,20 @@ def main(argv):
 
     # 一覧は、いまこちらにあるファイルから作る。載っているものは必ず開ける
     rows = []
+    skipped = []
     for name in sorted(os.listdir(dst_dir)):
         if name == "list.csv" or not name.endswith(".csv"):
             continue
         code = name[:-4]
+        if code not in names:
+            skipped.append(code)
+            continue
         first, last, n = span(os.path.join(dst_dir, name))
         if not n:
             print(f"  {code}: 中身が無い。一覧に入れない")
             continue
         rows.append(
-            {"code": code, "name": names.get(code, ""), "first": first, "last": last, "rows": n}
+            {"code": code, "name": names[code], "first": first, "last": last, "rows": n}
         )
 
     with open(os.path.join(dst_dir, "list.csv"), "w", encoding="utf-8", newline="\n") as f:
@@ -105,12 +113,10 @@ def main(argv):
         w.writeheader()
         for r in rows:
             w.writerow(r)
-    print(f"一覧: {len(rows)}銘柄（名前あり {sum(1 for r in rows if r['name'])}）")
-
-    noname = [r["code"] for r in rows if not r["name"]]
-    if noname:
-        print(f"  名前が引けなかった: {' '.join(noname[:20])}"
-              + (f" ほか{len(noname) - 20}" if len(noname) > 20 else ""))
+    print(f"一覧: {len(rows)}銘柄")
+    if skipped:
+        print(f"  allchartlist.csv に無いので一覧から外した: {' '.join(skipped[:20])}"
+              + (f" ほか{len(skipped) - 20}" if len(skipped) > 20 else ""))
     return 0
 
 
