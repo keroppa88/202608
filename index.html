@@ -370,9 +370,10 @@
   #techpick .pane { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
   #techpick .list { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
 
-  /* AIコメント。出来上がるとバーのボタンが点滅する */
+  /* AIコメント。作っている間は点滅、出来上がると点灯する */
   @keyframes tai-blink { 50% { background: var(--sel-bg); color: var(--sel-fg); } }
-  .bar button.blink { animation: tai-blink 1.1s steps(1, end) infinite; }
+  .bar button.blink { animation: tai-blink 1.1s steps(1, end) infinite; cursor: progress; }
+  .bar button.on { background: var(--sel-bg); color: var(--sel-fg); }
   #techai {
     position: fixed; inset: 0; z-index: 60;
     background: rgba(0, 0, 0, .55);
@@ -760,6 +761,9 @@ const DEFAULT_COLUMNS = [
 ];
 // チャート画面の既定。5銘柄。＋で最大10まで
 const MAX_SERIES = 10;
+// 相関に並べるのは10銘柄まで。ペアの数は銘柄数の2乗で増えるので、
+// 際限なく足せると計算が重くなる
+const MAX_CORR_COLUMNS = 10;
 // AI分析はメイン1銘柄に対してサブを最大10銘柄まで
 const MAX_AI_SUBS = 10;
 const DEFAULT_CHART_COLUMNS = [
@@ -1270,17 +1274,19 @@ async function buildCatalog(year) {
     cat.push({
       key,
       label: r.name ? `${r.name}（${r.code}）` : r.code,
+      // 並びはコード順。どれも4文字なので、そのまま比べれば数字の順になる
+      sort: r.code,
       group: "日本個別株",
       ohlc: true
     });
   }
   // 個別株は四本値があると分かっている。それ以外はその年の最後の日で見る
   cat.forEach((c) => { if (c.ohlc === undefined) c.ohlc = !!(last.get(c.key) || {}).ohlc; });
-  // 分野の順、分野の中は名前順
+  // 分野の順、分野の中は名前順。個別株だけはコード順（sort に入れてある）
   cat.sort((a, b) =>
     GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) ||
     subRank(a) - subRank(b) ||
-    a.label.localeCompare(b.label, "ja")
+    (a.sort || a.label).localeCompare(b.sort || b.label, "ja")
   );
   return cat;
 }
@@ -3546,6 +3552,7 @@ function openTechnical() {
   techEl.classList.remove("hidden");
   setTechnicalSplit(settings.technicalSplit, false);
   drawTechParams();
+  corrPutFirst(settings.techKey);
   drawTechnical();
   renderCorrelations();
 }
@@ -3729,6 +3736,22 @@ function pickTechKey(key) {
   settings.techKey = key;
   saveSettings();
   drawTechnical();
+  if (corrPutFirst(key)) renderCorrelations();
+}
+
+/* テクニカルで選んだ銘柄を、相関のいちばん左（筆頭）に置く。
+   もう並んでいる銘柄なら、そこから抜いて先頭へ動かす。
+   相関のAIのメイン銘柄も、これに合わせる。
+   並びが変わったときだけ true を返す（変わらなければ引き直さない） */
+function corrPutFirst(key) {
+  if (!key) return false;
+  const was = settings.corrColumns.join("\n");
+  // 上限を超えたら、いちばん右（古く入れたもの）から落ちる
+  settings.corrColumns = [key, ...settings.corrColumns.filter((k) => k !== key)]
+    .slice(0, MAX_CORR_COLUMNS);
+  settings.corrAiMain = key;
+  saveSettings();
+  return settings.corrColumns.join("\n") !== was;
 }
 
 document.getElementById("tpick").addEventListener("click", openTechPick);
@@ -4186,7 +4209,7 @@ function corrMeta(key, catalog) {
   const [src, id] = splitKey(key);
   const hit = catalog.find((c) => c.key === key) || {};
   let market = "OTHER", calcType = "return";
-  if (["jpx", "nikkei", "yomiuri", "ratio"].includes(src)) market = "JP";
+  if (["jpx", "nikkei", "yomiuri", "ratio", "stock"].includes(src)) market = "JP";
   if (src === "rates") {
     calcType = "diff";
     if (/^(米|アメリカ)/.test(id)) market = "US";
@@ -4255,6 +4278,18 @@ async function loadCorrelationPrices(keys, progress) {
         if (key && v !== null && r.trade_date) maps.get(key).set(r.trade_date.slice(0, 10), v);
       }
     }
+    // chart0 から写した個別株。1銘柄1ファイルで、全期間がそこに入っている。
+    // 列の名前だけ他と違う（Date, Close）
+    const stocks = missing.filter((key) => splitKey(key)[0] === "stock");
+    for (let i = 0; i < stocks.length; i++) {
+      const code = splitKey(stocks[i])[1];
+      if (progress) progress(`個別株 ${i + 1}/${stocks.length}（${code}）`);
+      for (const r of await fetchCsv(`data/stocks/${code}.csv`)) {
+        const v = CorrelationEngine.finiteNumber(r.Close);
+        if (v !== null && r.Date) maps.get(stocks[i]).set(r.Date.slice(0, 10), v);
+      }
+    }
+
     maps.forEach((map, key) => corrPriceCache.set(key, map));
   }
   return new Map(wanted.map((key) => [key, corrPriceCache.get(key) || new Map()]));
@@ -4272,6 +4307,9 @@ function correlationChanges(key, prices, meta) {
 }
 
 async function calculateCorrelations(keys, catalog, progress) {
+  // 読んでいる間に×や＋で並びが動くことがある。渡された配列をそのまま
+  // 使うと、途中で増えた銘柄が metas に無いまま組に入って落ちる
+  keys = [...keys];
   const allKeys = [...new Set([...keys, CORR_CALENDAR.JP, CORR_CALENDAR.KR])];
   const prices = await loadCorrelationPrices(allKeys, progress);
   const metas = new Map(allKeys.map((key) => [key, corrMeta(key, catalog)]));
@@ -5227,8 +5265,14 @@ function techAiReady() {
 }
 
 function drawTechAiButton() {
-  taiBtn.classList.toggle("blink", techAiReady());
+  const ready = techAiReady();
+  taiBtn.classList.toggle("blink", techAiBusy);      // 作っている間は点滅
+  taiBtn.classList.toggle("on", !techAiBusy && ready);   // 出来たら点灯
   taiBtn.disabled = techAiBusy;
+  taiBtn.textContent = techAiBusy ? "思考中…" : "AIコメント";
+  taiBtn.title = techAiBusy ? "数字を作って中継へ送っている"
+    : ready ? "出来ている。押すと出る"
+      : "指標と相関をまとめてAIに述べさせる";
 }
 
 function openTechAi() {
@@ -5237,7 +5281,6 @@ function openTechAi() {
   techAiEl.querySelector(".when").textContent =
     a.at ? `${a.name || ""}　${a.at}　${a.span || ""}` : "";
   techAiEl.classList.remove("hidden");
-  taiBtn.classList.remove("blink");
 }
 function closeTechAi() {
   techAiEl.classList.add("hidden");
@@ -5323,8 +5366,12 @@ function drawCorrelationPicks(catalog) {
     });
     one.append(nm, del, sel); corrPicksEl.appendChild(one);
   });
-  const add = document.createElement("button"); add.className = "add"; add.textContent = "＋"; add.title = "分析対象を足す";
+  const add = document.createElement("button"); add.className = "add"; add.textContent = "＋";
+  const full = settings.corrColumns.length >= MAX_CORR_COLUMNS;
+  add.disabled = full;
+  add.title = full ? `${MAX_CORR_COLUMNS}銘柄まで。足すには×でどれか外す` : "分析対象を足す";
   add.addEventListener("click", () => {
+    if (settings.corrColumns.length >= MAX_CORR_COLUMNS) return;
     const first = catalog.find((c) => !settings.corrColumns.includes(c.key));
     if (first) { settings.corrColumns.push(first.key); saveSettings(); renderCorrelations(); }
   });
@@ -5336,7 +5383,7 @@ async function renderCorrelations() {
   corrMainEl.innerHTML = '<div id="loading">全期間データを読み込み中…</div>';
   corrStatusEl.textContent = "";
   corrCatalog = corrCatalog || await buildCatalog("2026");
-  settings.corrColumns = [...new Set(settings.corrColumns)].filter(Boolean);
+  settings.corrColumns = [...new Set(settings.corrColumns)].filter(Boolean).slice(0, MAX_CORR_COLUMNS);
   setCorrAiDefaults(corrCatalog);
   drawCorrelationPicks(corrCatalog);
   if (settings.corrColumns.length < 1) {
