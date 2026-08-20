@@ -1,4 +1,4 @@
-/* 相関ページの「AI分析開始」を受けて Gemini に投げ、文章を返すだけの中継。
+/* サイトの「AIコメント」を受けて Gemini に投げ、文章を返すだけの中継。
  *
  * ここでやること
  *   - 送り元の確認と回数制限
@@ -15,7 +15,8 @@
  *   ALLOWED_ORIGINS   カンマ区切り。空なら送り元を見ない
  */
 
-const MAX_BODY = 64 * 1024;   // これより大きい体は受けない
+// テクニカルと相関をまとめて受けるようになったぶん、前の1.5倍まで通す
+const MAX_BODY = 96 * 1024;   // これより大きい体は受けない
 const MAX_SUBS = 10;
 const RATE_LIMIT = 6;         // 1分あたり
 const RATE_WINDOW = 60 * 1000;
@@ -75,14 +76,53 @@ const RULES = `次のJSONは、ある銘柄（main）と、その相関の相手
   0 が同時で、これと比べて大きいずらし方があるかを見る
 - r60Path … [年月, 60日相関] を古い順に間引いたもの`;
 
-async function callGemini(env, payload) {
+const TECH_RULES = `次のJSONは、ある銘柄（name）について、プログラムが計算した
+テクニカル指標と、主要指数などとの相関です。この数字だけを使って日本語で述べてください。
+
+守ること
+- JSONに無いことは書かない。会社の事情や出来事は知らないものとして扱う
+- 過去に似た局面があったという話を、これからそうなるという話にしない
+- 材料が足りない項目は、足りないと書く
+- 使った期間（span）に必ず触れる。何年ぶんを見て言っているのかを最初に書く
+- 見出しと箇条書きで、全体で1200字程度
+
+書く順
+1. 何年ぶんを見たか（span）。params.base が既定の数字、params.tuned が
+   この銘柄に合わせて選び直した数字。両方を並べて、違いが大きい指標があれば触れる
+2. 長期のトレンド … base と tuned の移動平均・移動平均乖離、slope2 / order /
+   chg100 / chg200 / pos52 / dev2。いま上か下か、いつからそうなのか
+3. 短期のトレンド … 直近10日（tuned.recent）の動き。chg5 / chg10 / dev0 /
+   rsi / stK / stD / macdH / macdHR / bbB / run / gap / range
+4. 指標ごとの状態と経緯 … tuned.back の 20/40/60/100/200日前と今を比べて、
+   どの指標がいつ変わったか。dMaS / dMaL / dMacd / dSar / dStoch / dRsi は
+   その向きになってからの日数（符号が向き）
+5. 似た局面（like.short と like.long）… いつのことか、そのとき指標がどうで、
+   その後どうだったか（after の median と win）。件数（n）が少なければ弱いと書く
+6. 相関（corr）… 連動している相手と、その相関が今は強いのか弱いのか。
+   相関を因果として書かない
+7. 長期と短期で向きが食い違っているなら、そのことをはっきり書く
+
+数字の読み方
+- 単位は % が主。dev は移動平均からの乖離%、slope は移動平均の傾き%
+- order は移動平均の並び（＋が短期→長期の順、−が逆）
+- bbB は %B、bbW はバンド幅%。pos52 は52週レンジの中の位置%、posDay はその日の値幅の中の位置%
+- macdHR は MACDヒストグラム÷株価%。atr は ATR%、hv は年率換算のばらつき%
+- volR は出来高÷20日平均%。無い銘柄では null
+- run は連騰連落の日数（＋が連騰、−が連落）
+- like.hits の dist は今との近さ（0 に近いほど似ている）。fwd はその日から
+  5/10/20/60日後の騰落率%
+- corr の中身は相関の計算結果。r が相関、r60Ago は60日前の値、
+  regime はメインが上げていた局面と下げていた局面で分けた相関
+- null は計算できなかったところ`;
+
+async function callGemini(env, payload, rules) {
   const model = env.GEMINI_MODEL || "gemini-3.1-pro-preview";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: `${RULES}\n\n${JSON.stringify(payload)}` }] }],
+      contents: [{ role: "user", parts: [{ text: `${rules}\n\n${JSON.stringify(payload)}` }] }],
       generationConfig: {
         temperature: 0.2,
         // 考えた分も出力として数えられ、料金もそこにかかる。
@@ -205,15 +245,21 @@ export default {
     } catch (e) {
       return reply(400, { error: "JSONとして読めない" }, cors);
     }
-    if (!payload || !payload.main || !Array.isArray(payload.subs) || !payload.subs.length) {
+    // テクニカルページからは指標と相関がまとまって来る。相関だけのものも通す
+    let rules = RULES;
+    if (payload && payload.kind === "tech") {
+      if (!payload.tuned || !payload.span) {
+        return reply(400, { error: "tuned と span が要る" }, cors);
+      }
+      rules = TECH_RULES;
+    } else if (!payload || !payload.main || !Array.isArray(payload.subs) || !payload.subs.length) {
       return reply(400, { error: "main と subs が要る" }, cors);
-    }
-    if (payload.subs.length > MAX_SUBS) {
+    } else if (payload.subs.length > MAX_SUBS) {
       return reply(400, { error: `サブは${MAX_SUBS}銘柄まで` }, cors);
     }
 
     try {
-      return reply(200, { text: await callGemini(env, payload) }, cors);
+      return reply(200, { text: await callGemini(env, payload, rules) }, cors);
     } catch (e) {
       return reply(502, { error: String(e && e.message ? e.message : e) }, cors);
     }

@@ -370,33 +370,34 @@
   #techpick .pane { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
   #techpick .list { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
 
-  /* 個別株の取り寄せ。バーの「取得」で出る */
-  #techget {
+  /* AIコメント。出来上がるとバーのボタンが点滅する */
+  @keyframes tai-blink { 50% { background: var(--sel-bg); color: var(--sel-fg); } }
+  .bar button.blink { animation: tai-blink 1.1s steps(1, end) infinite; }
+  #techai {
     position: fixed; inset: 0; z-index: 60;
     background: rgba(0, 0, 0, .55);
     display: flex; align-items: center; justify-content: center;
   }
-  #techget .box {
+  #techai .box {
+    display: flex; flex-direction: column;
     background: var(--bg); color: var(--fg);
     border: 2px solid var(--line);
-    padding: 12px 14px;
-    width: min(460px, 92vw);
+    padding: 10px 14px 14px;
+    width: min(820px, 94vw); max-height: 88vh;
   }
-  #techget .ttl { color: var(--fg2); margin-bottom: 10px; }
-  #techget .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  #techget .row > span { flex: none; width: 84px; }
-  #techget input {
-    flex: 1; min-width: 0;
-    background: var(--bg); color: var(--fg);
-    border: 1px solid var(--line); font: inherit; padding: 4px 6px;
-  }
-  #techget .btns { justify-content: flex-end; gap: 10px; margin: 12px 0 0; }
-  #techget button {
+  #techai .head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  #techai .ttl { color: var(--fg2); }
+  #techai .when { color: var(--dim); }
+  #techai .head .spacer { flex: 1; }
+  #techai .head button {
     background: var(--panel); color: var(--fg);
-    border: 1px solid var(--line); font: inherit; padding: 4px 16px; cursor: pointer;
+    border: 1px solid var(--line); font: inherit; padding: 3px 12px; cursor: pointer;
   }
-  #techget button:disabled { color: var(--dim); border-color: var(--dim); cursor: default; }
-  #techget .note { color: var(--dim); margin-top: 10px; line-height: 1.6; white-space: pre-wrap; }
+  #techai .body {
+    flex: 1; overflow: auto; white-space: pre-wrap; line-height: 1.8;
+    border-top: 1px solid var(--line); padding-top: 10px;
+    scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin;
+  }
 
   /* テクニカルの比較。バーの「比較」で出る */
   #techcomp {
@@ -465,16 +466,6 @@
   .corr-cards { display: flex; flex-wrap: wrap; gap: 8px; }
   .corr-card { border: 1px solid var(--line); padding: 8px 14px; min-width: 130px; }
   .corr-card .v { display: block; margin-top: 3px; font-size: 20px; }
-  .corr-ai-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
-  .corr-ai-row > .lab { flex: none; padding: 3px 0; color: var(--fg2); min-width: 46px; }
-  .corr-ai-row .picks { border: 0; background: none; padding: 0; }
-  .corr-ai-run { border: 1px solid var(--line); padding: 3px 14px; }
-  .corr-ai-run:disabled { color: var(--dim); cursor: default; }
-  .corr-ai-out {
-    border: 1px solid var(--line); padding: 8px 10px; margin-top: 8px;
-    min-height: 44px; line-height: 1.7; white-space: pre-wrap;
-  }
-  .corr-ai-out.empty { color: var(--dim); }
   .corr-chart { position: relative; }
   .corr-chart-range {
     display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-bottom: 6px;
@@ -676,9 +667,9 @@
     <select id="tyear" title="この年までの5年を出す"></select>
     <button id="ttheme" title="押すたびに配色が変わる">Color</button>
     <button id="tcomp" title="主要指数などとの相関を出す">比較</button>
-    <button id="tget" title="株価コードを入れて個別株を取り寄せる">取得</button>
     <button id="tauto" title="出ている5年で成績のいちばん良かった数字を入れる">自動</button>
     <button id="treset" title="よくある数字に戻す">既定</button>
+    <button id="tai" title="指標と相関をまとめてAIに述べさせる">AIコメント</button>
     <div class="spacer"></div>
     <div class="note" id="tstatus"></div>
   </div>
@@ -733,19 +724,17 @@
   </div>
 </div>
 
-<!-- ============== 個別株の取り寄せ（ポップアップ） ============== -->
-<div id="techget" class="hidden">
+<!-- ============== AIコメント（ポップアップ） ============== -->
+<div id="techai" class="hidden">
   <div class="box">
-    <div class="ttl">個別株を取り寄せる</div>
-    <label class="row"><span>株価コード</span>
-      <input id="tgcodes" type="text" placeholder="7203 6758" autocomplete="off" spellcheck="false"></label>
-    <label class="row"><span>合言葉</span>
-      <input id="tgpass" type="password" autocomplete="off"></label>
-    <div class="row btns">
-      <button id="tgrun">取る</button>
-      <button id="tgclose">閉じる</button>
+    <div class="head">
+      <span class="ttl">AIコメント</span>
+      <span class="when"></span>
+      <div class="spacer"></div>
+      <button id="tairun" title="いまの数字で作り直す">作り直す</button>
+      <button id="taiclose">閉じる</button>
     </div>
-    <div class="note" id="tgstat">4桁のコードを空白で区切って入れる。過去5年ぶんを取る。</div>
+    <div class="body"></div>
   </div>
 </div>
 
@@ -856,8 +845,8 @@ function loadSettings() {
       techKey: RENAMED[s.techKey] || s.techKey || "yahoo:^N225",
       techYear: s.techYear || 2026,
       techParams: fixTechParams(s.techParams),
+      techAi: (s.techAi && typeof s.techAi === "object") ? s.techAi : null,
       techComp: Array.isArray(s.techComp) ? fixKeys(s.techComp, []).slice(0, 5) : [],
-      jqPass: typeof s.jqPass === "string" ? s.jqPass : "",
       techZoom: Number(s.techZoom) > 0 ? Number(s.techZoom) : 1,
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
@@ -876,7 +865,7 @@ function loadSettings() {
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
       sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       techKey: "yahoo:^N225", techYear: 2026,
-      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1, techComp: [], jqPass: "",
+      techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1, techComp: [], techAi: null,
       saverIndex: 0
     };
   }
@@ -969,16 +958,16 @@ document.addEventListener("keydown", (e) => {
   if (!techEl.classList.contains("hidden")) {
     if (e.key === "Escape") {
       if (!corrInfoModal.classList.contains("hidden")) closeCorrInfo();
+      else if (!techAiEl.classList.contains("hidden")) closeTechAi();
       else if (!techPickEl.classList.contains("hidden")) closeTechPick();
-      else if (!techGetEl.classList.contains("hidden")) closeTechGet();
       else if (!techChartEl.classList.contains("hidden")) closeTechChart();
       else if (!techCompEl.classList.contains("hidden")) closeTechCompare();
       else backFromTechnical();
       return;
     }
     // 前に何か出している間は表を動かさない
+    if (!techAiEl.classList.contains("hidden")) return;
     if (!techPickEl.classList.contains("hidden")) return;
-    if (!techGetEl.classList.contains("hidden")) return;
     if (!techChartEl.classList.contains("hidden")) return;
     if (!techCompEl.classList.contains("hidden")) return;
     if (document.activeElement === technicalSplitterEl) return;
@@ -3175,9 +3164,10 @@ function drawTechParams() {
 
 /* ---- 読み込み ------------------------------------------------- */
 // 表に出す5年と、その前の助走ぶんをまとめて読む
-async function techRows(key, endYear) {
+async function techRows(key, endYear, span) {
   const seen = new Map();
-  for (let y = Number(endYear) - TECH_SPAN - TECH_WARM + 1; y <= Number(endYear); y++) {
+  const years = span === undefined ? TECH_SPAN : span;
+  for (let y = Number(endYear) - years - TECH_WARM + 1; y <= Number(endYear); y++) {
     const ys = String(y);
     const close = await seriesOf(key, ys);
     const bars = await barsOf(key, ys);
@@ -3563,7 +3553,6 @@ function backFromTechnical() {
   closeCorrInfo();
   closeTechChart();
   closeTechCompare();
-  closeTechGet();
   closeTechPick();
   techEl.classList.add("hidden");
   titleEl.classList.remove("hidden");
@@ -3645,6 +3634,7 @@ async function drawTechnical() {
     return;
   }
   techState = { rows, at, days, ind, p, name, from: at[0] };
+  drawTechAiButton();      // 銘柄が変われば、その銘柄のコメントがあるかで見た目も変わる
 
   drawTechTable(at, days, ind, p);
   if (!techCompEl.classList.contains("hidden")) drawTechCompare();
@@ -3755,115 +3745,6 @@ tpCodeEl.addEventListener("keydown", (e) => {
    「.box の中か」で見ると、作り直した後は外と区別がつかず閉じてしまう */
 techPickEl.addEventListener("click", (e) => {
   if (e.target === techPickEl) closeTechPick();
-});
-
-/* ---- 個別株の取り寄せ ------------------------------------------
-   株価コードを入れて「取る」を押すと、中継（Cloudflare Worker）に頼む。
-   中継は GitHub の Actions を起こすだけで、株価データはそこを通らない。
-   J-Quants の鍵は GitHub の Secrets にあり、ここにも中継にも無い。
-
-   取り込みが終わっても、この画面がすぐ変わるわけではない。GitHub が
-   ページを組み直すまで数分かかる。そこまでは待つしかないので、そう出す。
---------------------------------------------------------------- */
-const techGetEl = document.getElementById("techget");
-const tgCodesEl = document.getElementById("tgcodes");
-const tgPassEl = document.getElementById("tgpass");
-const tgStatEl = document.getElementById("tgstat");
-const tgRunEl = document.getElementById("tgrun");
-
-// AI分析と同じ中継。パスだけ変える
-function jqEndpoint() {
-  return AI_ENDPOINT ? AI_ENDPOINT.replace(/\/+$/, "") + "/jquants" : "";
-}
-
-function openTechGet() {
-  techGetEl.classList.remove("hidden");
-  tgPassEl.value = settings.jqPass || "";
-  tgStatEl.textContent = "4桁のコードを空白で区切って入れる。過去5年ぶんを取る。";
-  tgCodesEl.focus();
-}
-function closeTechGet() {
-  techGetEl.classList.add("hidden");
-}
-
-// 起こした取り込みの様子を見る。公開リポジトリなので鍵は要らない
-async function watchRun(repo, since) {
-  const url = `https://api.github.com/repos/${repo}/actions/runs`
-    + "?event=repository_dispatch&per_page=1";
-  for (let i = 0; i < 25; i++) {
-    await new Promise((r) => setTimeout(r, 8000));
-    let run = null;
-    try {
-      const res = await fetch(url, { headers: { accept: "application/vnd.github+json" } });
-      if (!res.ok) throw new Error(`GitHub ${res.status}`);
-      run = ((await res.json()).workflow_runs || [])[0];
-    } catch (e) {
-      tgStatEl.textContent = `様子が見られない（${e.message}）。取り込みは走っている。`;
-      return;
-    }
-    if (!run || new Date(run.created_at).getTime() < since - 60000) {
-      tgStatEl.textContent = "順番待ち…";
-      continue;
-    }
-    if (run.status !== "completed") {
-      tgStatEl.textContent = `取り込み中…（${run.status}）\n${run.html_url}`;
-      continue;
-    }
-    if (run.conclusion === "success") {
-      tgStatEl.textContent = "取り込んだ。GitHub がページを組み直すまで数分かかる。"
-        + "しばらくしてから読み込み直すと、日本個別株に出る。";
-    } else {
-      tgStatEl.textContent = `取り込みが失敗した（${run.conclusion}）。中身はここで見られる。\n${run.html_url}`;
-    }
-    return;
-  }
-  tgStatEl.textContent = "見ている間に終わらなかった。GitHub の Actions で確かめる。";
-}
-
-async function runTechGet() {
-  const codes = tgCodesEl.value.trim();
-  if (!codes) { tgStatEl.textContent = "株価コードを入れる。"; return; }
-  const url = jqEndpoint();
-  if (!url) {
-    tgStatEl.textContent = "中継先が設定されていない。worker/ を配ってから、"
-      + "index.html の AI_ENDPOINT に宛先を書く。";
-    return;
-  }
-  // 合言葉は次から入れなくて済むように覚えさせる
-  settings.jqPass = tgPassEl.value;
-  saveSettings();
-
-  tgRunEl.disabled = true;
-  tgStatEl.textContent = "頼んでいる…";
-  const since = Date.now();
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ codes, pass: tgPassEl.value })
-    });
-    const got = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      tgStatEl.textContent = got.error || `断られた（${res.status}）`;
-      return;
-    }
-    tgStatEl.textContent = `頼んだ: ${(got.codes || []).join(" ")}\n順番待ち…`;
-    await watchRun(got.repo, since);
-  } catch (e) {
-    tgStatEl.textContent = `届かなかった: ${e.message}`;
-  } finally {
-    tgRunEl.disabled = false;
-  }
-}
-
-document.getElementById("tget").addEventListener("click", openTechGet);
-document.getElementById("tgclose").addEventListener("click", closeTechGet);
-tgRunEl.addEventListener("click", runTechGet);
-tgCodesEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runTechGet(); });
-tgPassEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runTechGet(); });
-// 枠の外を押したら閉じる
-techGetEl.addEventListener("click", (e) => {
-  if (!e.target.closest(".box")) closeTechGet();
 });
 
 /* ---- 比較 ------------------------------------------------------
@@ -4290,7 +4171,7 @@ const corrStatusEl = document.getElementById("rstatus");
 const CORR_PERIODS = [20, 60, 120];
 const CORR_YEARS = Array.from({ length: 2026 - 1999 + 1 }, (_, i) => 1999 + i);
 const CORR_CALENDAR = { JP: "yahoo:^N225", KR: "yahoo:^KS11" };
-const CORR_BLOCK_ORDER = ["ai", "matrix", "pairs", "pairChart", "concentration", "centrality", "concentrationChart", "securitiesChart"];
+const CORR_BLOCK_ORDER = ["matrix", "pairs", "pairChart", "concentration", "centrality", "concentrationChart", "securitiesChart"];
 const corrPriceCache = new Map();
 const corrChangeCache = new Map();
 const corrPairCache = new Map();
@@ -4561,10 +4442,7 @@ let corrPointerDrag = null;
 function normalizedCorrBlockOrder() {
   const saved = Array.isArray(settings.corrBlockOrder) ? settings.corrBlockOrder : [];
   const kept = saved.filter((key) => CORR_BLOCK_ORDER.includes(key));
-  const merged = [...new Set([...kept, ...CORR_BLOCK_ORDER])];
-  // 後から足した枠は、覚えている並びに入っていない。AI分析は最上段に置く
-  if (!kept.includes("ai")) return ["ai", ...merged.filter((key) => key !== "ai")];
-  return merged;
+  return [...new Set([...kept, ...CORR_BLOCK_ORDER])];
 }
 
 function moveCorrBlock(fromKey, toKey, after) {
@@ -4980,7 +4858,6 @@ function drawCorrelationResults() {
     CORR_PERIODS.map((n) => ({ label: `相関集中度 ${n}日`, data: concentrationTimeline[n] })),
     "concentrationTrend", { blockKey: "concentrationChart" }));
   blocks.set("securitiesChart", makeSecuritiesChart(keys, catalog, prices));
-  blocks.set("ai", makeCorrAiBlock(catalog));
   appendCorrelationBlocks(blocks);
 }
 
@@ -4997,7 +4874,6 @@ const AI_REGIME_WINDOW = 20;   // 局面を分ける窓
 const AI_FORWARD = 20;         // その後どうなったかを見る長さ
 const AI_LEAD_SHIFTS = [-5, -1, 0, 1, 5];   // 0 は同時。ずらした値と比べる元になる
 const AI_PATH_POINTS = 12;     // 相関の推移として渡す点の数
-let corrAiBusy = false;
 
 function aiRound(v, digits) {
   return (v === null || v === undefined || !Number.isFinite(v)) ? null : Number(v.toFixed(digits));
@@ -5126,36 +5002,275 @@ async function buildCorrAiPayload(catalog, progress) {
   };
 }
 
-async function runCorrAi(catalog, ui) {
-  if (corrAiBusy) return;
-  const subs = settings.corrAiSubs.filter((k) => k && k !== settings.corrAiMain);
-  if (!settings.corrAiMain || !subs.length) {
-    ui.note.textContent = "メイン銘柄とサブ銘柄を選んでください";
-    return;
+/* ---------------------------------------------------------------
+   AIコメント。テクニカル指標と相関を、ひとつの文章にまとめて返す。
+
+   数字はすべてこちら側で作る。AIは文章にするだけ。
+
+   指標は2通りで出す。
+     既定  … よくある数字（5/25/75 など）での移動平均と乖離
+     自動  … その銘柄・その期間で成績のいちばん良かった数字での指標一式
+   両方を渡すのは、「普通に見たらこう、その銘柄に合わせて見たらこう」を
+   突き合わせて述べさせるため。自動は押していなくても、ここで走らせる。
+
+   期間は10年。足りなければあるだけ。何年ぶんで見たかは payload に入れて、
+   文章の中で触れさせる。
+
+   似た局面は、指標を z 化した状態ベクトルの距離で探す。銘柄ごとの癖を
+   打ち消すため、平均と標準偏差はその銘柄自身の分布から取る。
+--------------------------------------------------------------- */
+const techAiEl = document.getElementById("techai");
+const taiBtn = document.getElementById("tai");
+
+const AI_TECH_YEARS = 10;          // 読みにいく年数。足りなければあるだけ
+const AI_TECH_RECENT = 10;         // 直近何日ぶんを渡すか
+const AI_TECH_BACK = [20, 40, 60, 100, 200];   // 経緯として見る「何日前」
+
+// 送る指標。値段そのものは送らない。比べられる形の数字だけ
+const AI_TECH_FIELDS = [
+  "c",
+  "chg5", "chg10", "chg20", "chg60", "chg100", "chg200", "run",
+  "dev0", "dev1", "dev2", "slope0", "slope1", "slope2", "order",
+  "bbB", "bbW", "pos52", "posDay", "fromHi", "fromLo",
+  "rsi", "stK", "stD", "rci0", "rci1",
+  "macd", "macdS", "macdH", "macdHR",
+  "atr", "hv", "gap", "range", "volR",
+  "dMaS", "dMaL", "dMacd", "dSar", "dStoch", "dRsi"
+];
+
+// 既定の数字で見るのは移動平均と乖離だけ
+const AI_BASE_FIELDS = ["ma0", "ma1", "ma2", "dev0", "dev1", "dev2"];
+
+// 似た局面を探すときの状態ベクトル
+const AI_LIKE_SHORT = ["dev0", "rsi", "stK", "stD", "macdHR"];
+const AI_LIKE_LONG = ["dev2", "pos52", "chg200", "slope2"];
+const AI_LIKE_SKIP = 60;      // 直近この日数は「似ている」に決まっているので外す
+const AI_LIKE_GAP = 20;       // 選んだ日の前後この日数は同じ局面とみなす
+const AI_LIKE_TOP = 10;       // 上位何件を渡すか
+const AI_LIKE_FWD = [5, 10, 20, 60];   // その後の騰落率を見る日数
+
+let techAiBusy = false;
+
+// 1日ぶんを送る形に切り出す
+function aiTechRow(ind, rows, i, fields) {
+  const out = { d: rows[i].d };
+  fields.forEach((k) => {
+    const v = (ind[k] || [])[i];
+    out[k] = (v === null || v === undefined || !isFinite(v)) ? null : aiRound(v, 2);
+  });
+  return out;
+}
+
+function aiMedian(v) {
+  const a = v.filter((x) => x !== null && isFinite(x)).sort((x, y) => x - y);
+  if (!a.length) return null;
+  const at = (a.length - 1) / 2;
+  return aiRound(a.length % 2 ? a[at] : (a[Math.floor(at)] + a[Math.ceil(at)]) / 2, 2);
+}
+
+/* 似た局面を探す。
+   平均と標準偏差はその銘柄自身の分布から取り、z 化して距離を測る。
+   近すぎる日は同じ局面なので間引く。その後どうなったかも一緒に返す */
+function aiLike(ind, rows, keys, at) {
+  const stats = keys.map((k) => {
+    const v = (ind[k] || []).filter((x) => x !== null && isFinite(x));
+    if (v.length < 60) return null;
+    const m = v.reduce((a, b) => a + b, 0) / v.length;
+    const sd = Math.sqrt(v.reduce((a, b) => a + (b - m) * (b - m), 0) / v.length);
+    return sd > 0 ? { m, sd } : null;
+  });
+  if (stats.some((x) => !x)) return null;
+
+  const z = (i) => keys.map((k, j) => {
+    const v = (ind[k] || [])[i];
+    return (v === null || v === undefined || !isFinite(v)) ? null : (v - stats[j].m) / stats[j].sd;
+  });
+  const now = z(at);
+  if (now.some((x) => x === null)) return null;
+
+  const all = [];
+  for (let i = 0; i < at - AI_LIKE_SKIP; i++) {
+    const p = z(i);
+    if (p.some((x) => x === null)) continue;
+    let q = 0;
+    for (let j = 0; j < now.length; j++) q += (now[j] - p[j]) * (now[j] - p[j]);
+    all.push({ i, dist: Math.sqrt(q / now.length) });
   }
-  corrAiBusy = true;
-  ui.run.disabled = true;
-  ui.out.classList.add("empty");
-  ui.out.textContent = "数字をそろえています…";
-  ui.note.textContent = "";
+  all.sort((a, b) => a.dist - b.dist);
+
+  const picked = [];
+  for (const h of all) {
+    if (picked.some((p) => Math.abs(p.i - h.i) < AI_LIKE_GAP)) continue;
+    picked.push(h);
+    if (picked.length >= AI_LIKE_TOP) break;
+  }
+  if (!picked.length) return null;
+
+  const hits = picked.map((h) => {
+    const fwd = {};
+    AI_LIKE_FWD.forEach((n) => {
+      const to = rows[h.i + n];
+      fwd[n] = (to && rows[h.i].c > 0) ? aiRound((to.c / rows[h.i].c - 1) * 100, 2) : null;
+    });
+    return {
+      d: rows[h.i].d,
+      dist: aiRound(h.dist, 2),
+      state: Object.fromEntries(keys.map((k) => [k, aiRound((ind[k] || [])[h.i], 2)])),
+      fwd
+    };
+  });
+
+  const after = {};
+  AI_LIKE_FWD.forEach((n) => {
+    const v = hits.map((h) => h.fwd[n]).filter((x) => x !== null);
+    after[n] = {
+      n: v.length,
+      median: aiMedian(v),
+      win: v.length ? aiRound((v.filter((x) => x > 0).length / v.length) * 100, 0) : null
+    };
+  });
+
+  return {
+    keys,
+    now: Object.fromEntries(keys.map((k) => [k, aiRound((ind[k] || [])[at], 2)])),
+    hits,
+    after
+  };
+}
+
+// 送る数字をぜんぶ作る
+async function buildTechAiPayload(progress) {
+  const key = settings.techKey;
+  const endYear = Number(settings.techYear);
+
+  progress("価格を読んでいます…");
+  const rows = await techRows(key, endYear, AI_TECH_YEARS);
+  if (rows.length < 250) throw new Error(`足が ${rows.length}日しかない`);
+  const at = rows.length - 1;
+
+  const catalog = await buildCatalog(String(endYear));
+  const name = labelOf(key, catalog);
+
+  // 助走ぶんを外したところから最適化する。頭の250日は指標が出そろわない
+  const from = Math.min(250, Math.floor(rows.length / 4));
+
+  progress("既定の数字で見ています…");
+  const base = JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS));
+  const indBase = techIndicators(rows, base);
+
+  progress("いちばん合う数字を探しています…");
+  const tuned = techAutoFit(rows, from, rows.length - 1, base);
+  const indTuned = techIndicators(rows, tuned);
+
+  progress("似た局面を探しています…");
+  const like = {
+    short: aiLike(indTuned, rows, AI_LIKE_SHORT, at),
+    long: aiLike(indTuned, rows, AI_LIKE_LONG, at)
+  };
+
+  const backRow = (ind, fields) => {
+    const out = {};
+    AI_TECH_BACK.forEach((n) => {
+      const i = at - n;
+      out[n] = i >= 0 ? aiTechRow(ind, rows, i, fields) : null;
+    });
+    return out;
+  };
+
+  const recent = [];
+  for (let i = Math.max(0, at - AI_TECH_RECENT + 1); i <= at; i++) {
+    recent.push(aiTechRow(indTuned, rows, i, AI_TECH_FIELDS));
+  }
+
+  progress("相関を計算しています…");
+  // 相関のメイン銘柄はテクニカルの銘柄。サブは比較に出している銘柄
+  settings.corrAiMain = key;
+  settings.corrAiSubs = techCompKeys().filter((k) => k !== key).slice(0, MAX_AI_SUBS);
+  saveSettings();
+  let corr = null;
   try {
-    const payload = await buildCorrAiPayload(catalog, (t) => { ui.note.textContent = t; });
+    corr = await buildCorrAiPayload(catalog, progress);
+  } catch (e) {
+    corr = { error: String(e && e.message ? e.message : e) };
+  }
+
+  return {
+    kind: "tech",
+    name,
+    asOf: rows[at].d,
+    span: {
+      from: rows[0].d,
+      to: rows[at].d,
+      rows: rows.length,
+      years: aiRound((rows.length / 250), 1)
+    },
+    params: { base, tuned },
+    base: {
+      now: aiTechRow(indBase, rows, at, AI_BASE_FIELDS),
+      back: backRow(indBase, AI_BASE_FIELDS)
+    },
+    tuned: {
+      recent,
+      back: backRow(indTuned, AI_TECH_FIELDS)
+    },
+    like,
+    corr
+  };
+}
+
+/* ---- ボタンと窓 ---- */
+
+// いまの銘柄のコメントが出来ているか
+function techAiReady() {
+  const a = settings.techAi;
+  return !!(a && a.text && a.key === settings.techKey);
+}
+
+function drawTechAiButton() {
+  taiBtn.classList.toggle("blink", techAiReady());
+  taiBtn.disabled = techAiBusy;
+}
+
+function openTechAi() {
+  const a = settings.techAi || {};
+  techAiEl.querySelector(".body").textContent = a.text || "";
+  techAiEl.querySelector(".when").textContent =
+    a.at ? `${a.name || ""}　${a.at}　${a.span || ""}` : "";
+  techAiEl.classList.remove("hidden");
+  taiBtn.classList.remove("blink");
+}
+function closeTechAi() {
+  techAiEl.classList.add("hidden");
+}
+
+async function runTechAi() {
+  if (techAiBusy || !techState) return;
+  techAiBusy = true;
+  drawTechAiButton();
+  const note = (t) => { tstatusEl.textContent = t; };
+  const was = tstatusEl.textContent;
+  try {
+    const payload = await buildTechAiPayload(note);
     const body = JSON.stringify(payload);
-    ui.note.textContent = `送信 ${(body.length / 1024).toFixed(1)}KB`;
+    note(`送信 ${(body.length / 1024).toFixed(1)}KB`);
     if (!AI_ENDPOINT) {
-      ui.out.textContent = "AIの中継先が設定されていません。worker/ を配ってから、"
-        + "index.html の AI_ENDPOINT にその宛先を書いてください。\n\n"
-        + `※ 数字は作れています（${body.length.toLocaleString()}バイト）`;
+      note("AIの中継先が設定されていない（index.html の AI_ENDPOINT）");
       return;
     }
-    ui.out.textContent = "AIに問い合わせ中…";
     const res = await fetch(AI_ENDPOINT, {
       method: "POST", headers: { "content-type": "application/json" }, body
     });
     const text = await res.text();
     if (!res.ok) {
       // 返ってきたものをそのまま出す。それらしい文章で埋めない
-      ui.out.textContent = `失敗（HTTP ${res.status}）\n${text}`;
+      note(`AIが失敗（HTTP ${res.status}）`);
+      settings.techAi = {
+        key: settings.techKey, name: payload.name,
+        at: new Date().toISOString().slice(0, 16).replace("T", " "),
+        span: `${payload.span.from} 〜 ${payload.span.to}`,
+        text: `失敗（HTTP ${res.status}）\n${text}`
+      };
+      saveSettings();
       return;
     }
     let answer = text;
@@ -5163,98 +5278,35 @@ async function runCorrAi(catalog, ui) {
       const j = JSON.parse(text);
       answer = j.text || j.error || text;
     } catch (_) { /* JSONで返らなければ本文をそのまま出す */ }
-    ui.out.classList.remove("empty");
-    ui.out.textContent = answer;
-    settings.corrAiText = answer;
-    settings.corrAiAt = new Date().toISOString().slice(0, 16).replace("T", " ");
+    settings.techAi = {
+      key: settings.techKey, name: payload.name,
+      at: new Date().toISOString().slice(0, 16).replace("T", " "),
+      span: `${payload.span.from} 〜 ${payload.span.to}（${payload.span.years}年）`,
+      text: answer
+    };
     saveSettings();
-    ui.note.textContent = settings.corrAiAt;
+    note(was);
   } catch (e) {
-    ui.out.textContent = `失敗\n${e && e.message ? e.message : e}`;
+    note(`AIコメントを作れなかった: ${e && e.message ? e.message : e}`);
   } finally {
-    corrAiBusy = false;
-    ui.run.disabled = false;
+    techAiBusy = false;
+    drawTechAiButton();
   }
 }
 
-function makeCorrAiBlock(catalog) {
-  const box = makeCorrBlock("AI分析", "ai", { blockKey: "ai" });
-
-  const mainRow = document.createElement("div");
-  mainRow.className = "corr-ai-row";
-  const mainLab = document.createElement("span");
-  mainLab.className = "lab"; mainLab.textContent = "メイン";
-  // 見た目はサブと同じ札にする。メインは外せないので × は付けない
-  const mainPicks = document.createElement("div");
-  mainPicks.className = "picks";
-  const mainOne = document.createElement("div");
-  mainOne.className = "one";
-  const mainNm = document.createElement("span");
-  mainNm.className = "nm"; mainNm.textContent = labelOf(settings.corrAiMain, catalog);
-  const mainSel = document.createElement("select");
-  mainSel.title = "分析の中心にする銘柄";
-  fillPicker(mainSel, catalog, settings.corrAiMain, false);
-  mainSel.addEventListener("change", () => {
-    settings.corrAiMain = mainSel.value;
-    settings.corrAiSubs = settings.corrAiSubs.filter((k) => k !== mainSel.value);
-    saveSettings(); drawCorrelationResults();
-  });
-  mainOne.append(mainNm, mainSel);
-  mainPicks.appendChild(mainOne);
-  mainRow.append(mainLab, mainPicks);
-
-  const subRow = document.createElement("div");
-  subRow.className = "corr-ai-row";
-  const subLab = document.createElement("span");
-  subLab.className = "lab"; subLab.textContent = "サブ";
-  const picks = document.createElement("div");
-  picks.className = "picks";
-  settings.corrAiSubs.forEach((key, i) => {
-    const one = document.createElement("div"); one.className = "one";
-    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = labelOf(key, catalog);
-    const del = document.createElement("button"); del.textContent = "×"; del.title = "サブから外す";
-    del.addEventListener("click", () => {
-      settings.corrAiSubs.splice(i, 1); saveSettings(); drawCorrelationResults();
-    });
-    const sel = document.createElement("select"); sel.title = "銘柄を変える";
-    fillPicker(sel, catalog, key, true);
-    sel.addEventListener("change", () => {
-      if (sel.value === DEL_VALUE) settings.corrAiSubs.splice(i, 1);
-      else if (sel.value !== settings.corrAiMain && !settings.corrAiSubs.includes(sel.value)) {
-        settings.corrAiSubs[i] = sel.value;
-      }
-      saveSettings(); drawCorrelationResults();
-    });
-    one.append(nm, del, sel); picks.appendChild(one);
-  });
-  if (settings.corrAiSubs.length < MAX_AI_SUBS) {
-    const add = document.createElement("button");
-    add.className = "add"; add.textContent = "＋"; add.title = `サブを足す（最大${MAX_AI_SUBS}）`;
-    add.addEventListener("click", () => {
-      const first = catalog.find((c) => c.key !== settings.corrAiMain && !settings.corrAiSubs.includes(c.key));
-      if (first) { settings.corrAiSubs.push(first.key); saveSettings(); drawCorrelationResults(); }
-    });
-    picks.appendChild(add);
-  }
-  subRow.append(subLab, picks);
-
-  const runRow = document.createElement("div");
-  runRow.className = "corr-ai-row";
-  const run = document.createElement("button");
-  run.className = "corr-ai-run"; run.textContent = "AI分析開始";
-  const note = document.createElement("span");
-  note.className = "note"; note.textContent = settings.corrAiAt || "";
-  runRow.append(run, note);
-
-  const out = document.createElement("div");
-  out.className = "corr-ai-out";
-  if (settings.corrAiText) out.textContent = settings.corrAiText;
-  else { out.classList.add("empty"); out.textContent = "メインとサブを選んで「AI分析開始」を押す"; }
-
-  run.addEventListener("click", () => runCorrAi(catalog, { run, note, out }));
-  box.body.append(mainRow, subRow, runRow, out);
-  return box.block;
-}
+// 出来ていれば見せる。無ければ作る
+taiBtn.addEventListener("click", () => {
+  if (techAiReady()) openTechAi();
+  else runTechAi();
+});
+document.getElementById("taiclose").addEventListener("click", closeTechAi);
+document.getElementById("tairun").addEventListener("click", () => {
+  closeTechAi();
+  runTechAi();
+});
+techAiEl.addEventListener("click", (e) => {
+  if (e.target === techAiEl) closeTechAi();
+});
 
 function drawCorrelationPicks(catalog) {
   corrPicksEl.innerHTML = "";
