@@ -1,12 +1,19 @@
-name: 個別株の取得（J-Quants・手動）
+name: 個別株の取得（J-Quants）
 
 # 株価コードを入れたときだけ取る。定期実行はしない。
+#
+# 起こし方は2つ。どちらも同じ処理が動く。
+#   1. この画面の Run workflow に直接入れる
+#   2. サイトの「取得」から（Cloudflare Worker が repository_dispatch を投げる）
 #
 # 取ったものは data/overseas_YYYY.csv に入るので、画面には「日本個別株」として
 # そのまま出る。同じコードでもう一度回せば、その範囲を取り直して穴が埋まる。
 #
 # 必要なもの: Secrets に JQUANTS_API_KEY
 on:
+  # サイトの「取得」から起こされる口。中身は client_payload に入って来る
+  repository_dispatch:
+    types: [jquants]
   workflow_dispatch:
     inputs:
       codes:
@@ -34,9 +41,9 @@ jobs:
       - name: 取得
         env:
           JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
-          CODES: ${{ inputs.codes }}
-          FROM: ${{ inputs.from }}
-          TO: ${{ inputs.to }}
+          CODES: ${{ github.event.inputs.codes || github.event.client_payload.codes }}
+          FROM: ${{ github.event.inputs.from || github.event.client_payload.from }}
+          TO: ${{ github.event.inputs.to || github.event.client_payload.to }}
         run: |
           set -f
           ARGS=""
