@@ -9,3 +9,9 @@ GEMINI_MODEL = "gemini-3.1-pro-preview"
 ALLOWED_ORIGINS = "https://keroppa88.github.io"
 # 個別株の取り寄せを頼む先。owner/repo
 GH_REPO = "keroppa88/202608"
+
+# プロンプトの文面は tech_prompt.txt に置き、そのまま文字列として包む。
+# ページの「テキスト出力」も同じファイルを読むので、文面は1つしかない
+rules = [
+  { type = "Text", globs = ["**/*.txt"] }
+]

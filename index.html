@@ -671,6 +671,7 @@
     <button id="tauto" title="出ている5年で成績のいちばん良かった数字を入れる">自動</button>
     <button id="treset" title="よくある数字に戻す">既定</button>
     <button id="tai" title="指標と相関をまとめてAIに述べさせる">AIコメント</button>
+    <button id="ttxt" title="AI用プロンプト・価格・各種テクニカル指標・相関係数をテキスト出力します。これを各自のAIに投げたら予想が返ってきます。">AI分析用テキスト出力</button>
     <div class="spacer"></div>
     <div class="note" id="tstatus"></div>
   </div>
@@ -5350,6 +5351,72 @@ document.getElementById("tairun").addEventListener("click", () => {
 techAiEl.addEventListener("click", (e) => {
   if (e.target === techAiEl) closeTechAi();
 });
+
+/* テキスト出力。AIコメントが中継へ送るのと同じものを、そのまま .txt に落とす。
+   中継は通らないので、手元のAIに貼って好きに読ませられる。
+
+   中身は「プロンプト、空行、JSON」。中継が Gemini に渡している形と同じ。
+   プロンプトは worker/tech_prompt.txt を読む。中継が包んでいるのも同じ
+   ファイルなので、文面は1つしかない。読めなければ、読めなかったと書いて
+   JSONだけを落とす。それらしい文面で埋めない */
+const TECH_PROMPT_FILE = "worker/tech_prompt.txt";
+const ttxtBtn = document.getElementById("ttxt");
+let techTxtBusy = false;
+
+/* ファイル名は英数字だけにする。銘柄名をそのまま使うと、環境によっては
+   名前が落ちて download になる（Chromium で確かめた）。銘柄名は JSON の
+   name に入っているので、ファイル名からは落としてよい。
+   英数字が1つも残らない銘柄（日経半導体株指数など）は、取り違えないよう
+   数字を添える */
+function fileBase(key) {
+  const [src, id] = splitKey(key);
+  const a = id.replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (a) return `${src}_${a}`;
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffff;
+  return `${src}_${h.toString(16).padStart(4, "0")}`;
+}
+
+function saveText(name, text) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function runTechText() {
+  if (techTxtBusy || techAiBusy || !techState) return;
+  techTxtBusy = true;
+  ttxtBtn.disabled = true;
+  ttxtBtn.textContent = "作成中…";
+  const note = (t) => { tstatusEl.textContent = t; };
+  const was = tstatusEl.textContent;
+  try {
+    const payload = await buildTechAiPayload(note);
+    note("プロンプトを読んでいます…");
+    let prompt = "";
+    try {
+      const r = await fetch(TECH_PROMPT_FILE);
+      if (r.ok) prompt = (await r.text()).trim();
+      else prompt = `（プロンプトを読めなかった: ${TECH_PROMPT_FILE} HTTP ${r.status}）`;
+    } catch (e) {
+      prompt = `（プロンプトを読めなかった: ${e && e.message ? e.message : e}）`;
+    }
+    const body = `${prompt}\n\n${JSON.stringify(payload)}`;
+    const file = `${fileBase(settings.techKey)}_${payload.asOf}.txt`;
+    saveText(file, body);
+    note(`${file} を落とした（${(body.length / 1024).toFixed(1)}KB）`);
+  } catch (e) {
+    note(`テキストを作れなかった: ${e && e.message ? e.message : e}`);
+  } finally {
+    techTxtBusy = false;
+    ttxtBtn.disabled = false;
+    ttxtBtn.textContent = "テキスト出力";
+  }
+}
+
+ttxtBtn.addEventListener("click", runTechText);
 
 function drawCorrelationPicks(catalog) {
   corrPicksEl.innerHTML = "";
