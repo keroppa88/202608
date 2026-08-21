@@ -667,11 +667,11 @@
     <button id="tpick" title="銘柄を選ぶ">銘柄</button>
     <select id="tyear" title="この年までの5年を出す"></select>
     <button id="ttheme" title="押すたびに配色が変わる">Color</button>
-    <button id="tcomp" title="主要指数などとの相関を出す">比較</button>
-    <button id="tauto" title="出ている5年で成績のいちばん良かった数字を入れる">自動</button>
-    <button id="treset" title="よくある数字に戻す">既定</button>
-    <button id="tai" title="指標と相関をまとめてAIに述べさせる">AIコメント</button>
-    <button id="ttxt" title="AI用プロンプト・価格・各種テクニカル指標・相関係数をテキスト出力します。これを各自のAIに投げたら予想が返ってきます。">AI分析用テキスト出力</button>
+    <button id="tcomp" title="各種相関係数数値表。">相関係数表</button>
+    <button id="tauto" title="各種テクニカル指標の調整数値をパフォーマンス最大になるよう最適化した数値で設定する。">自動</button>
+    <button id="treset" title="各種テクニカル指標の調整数値を一般的に使われている数値で設定する。">既定</button>
+    <button id="tai" title="AIによる分析コメントを出力する。※1回ごとにKeroppaのお小遣いが10円ほど消費される（月上限あり）。">AIコメント</button>
+    <button id="ttxt" title="AI用プロンプト・価格・各種テクニカル指標・相関係数をテキスト出力する。各自のAIに投げることで分析を得ることができる。">AI分析用テキスト出力</button>
     <div class="spacer"></div>
     <div class="note" id="tstatus"></div>
   </div>
@@ -3771,10 +3771,11 @@ techPickEl.addEventListener("click", (e) => {
   if (e.target === techPickEl) closeTechPick();
 });
 
-/* ---- 比較 ------------------------------------------------------
-   主要指数などとの相関を出す。毎日ぶんは出さない。相関は窓の長さぶんを
-   まとめた数字なので、1日ずらしただけの値を並べても同じような数字が
-   続くだけになる。最新日を起点に20営業日ごとに遡って並べる。
+/* ---- 相関係数表 ------------------------------------------------
+   主要指数などとの相関を出す。日次で並べる。相関は窓の長さぶんを
+   まとめた数字なので、隣り合う日は似た値が続く。それでも間引かないのは、
+   どこで変わったかを日付で追えるようにするため。間引きたくなったら
+   TECH_STEP を戻す。
 
    相関の計算は相関画面と同じ CorrelationEngine を使う。突き合わせは
    両方に値のある日だけ。休みの日は埋めない。
@@ -3798,7 +3799,7 @@ const TECH_CORR_N = [20, 40, 60, 100, 200];   // 相関を取る日数
 const TECH_GAP_N = [20, 60, 200];             // 騰落率の差を取る日数
 const TECH_RS_MA = 25;                        // 相対力の移動平均
 const TECH_BETA_N = 60;                       // βを取る日数
-const TECH_STEP = 20;                         // 何営業日ごとに出すか
+const TECH_STEP = 1;                          // 何営業日ごとに出すか（1で日次）
 
 // 表の列。銘柄ごとにこれだけ並ぶ
 function techCompCols() {
@@ -3908,7 +3909,7 @@ function techPairStats(mainRows, subMap, sampleDates) {
   return out;
 }
 
-// 最新日を起点に20営業日ごと。返すのは古い順
+// 最新日を起点に TECH_STEP 営業日ごと。返すのは古い順
 function techSampleDates(days) {
   const out = [];
   for (let i = days.length - 1; i >= 0; i -= TECH_STEP) out.push(days[i]);
@@ -3959,7 +3960,7 @@ async function drawTechCompare() {
   head.className = "head";
   head.innerHTML = `<div class="left"><span class="nm">${name}</span>`
     + `<span class="sub">${dates[0]} 〜 ${dates[dates.length - 1]}　`
-    + `${TECH_STEP}営業日ごと ${dates.length}回</span></div>`;
+    + `${TECH_STEP > 1 ? `${TECH_STEP}営業日ごと ` : "日次 "}${dates.length}日</span></div>`;
 
   // 足した銘柄の選び直し。既定の8つはここには出さない
   const picks = document.createElement("div");
@@ -4170,7 +4171,7 @@ function drawTechCompChart() {
   head.className = "head";
   head.innerHTML = `<div class="left"><span class="nm">${mainName} と ${subName}</span>`
     + `<span class="sub">${dates[0]} 〜 ${dates[dates.length - 1]}　`
-    + `${TECH_STEP}営業日ごと ${dates.length}回</span></div>`
+    + `${TECH_STEP > 1 ? `${TECH_STEP}営業日ごと ` : "日次 "}${dates.length}日</span></div>`
     + `<div class="pick">${picks}</div>`;
   box.append(head, body);
   techChartEl.innerHTML = "";
@@ -5060,6 +5061,8 @@ async function buildCorrAiPayload(catalog, progress) {
 --------------------------------------------------------------- */
 const techAiEl = document.getElementById("techai");
 const taiBtn = document.getElementById("tai");
+// 帯の吹き出し。作っている間・出来た後は別の文言に差し替わる
+const AI_COMMENT_TITLE = taiBtn.title;
 
 const AI_TECH_YEARS = 10;          // 読みにいく年数。足りなければあるだけ
 const AI_TECH_RECENT = 10;         // 直近何日ぶんを渡すか
@@ -5273,7 +5276,7 @@ function drawTechAiButton() {
   taiBtn.textContent = techAiBusy ? "思考中…" : "AIコメント";
   taiBtn.title = techAiBusy ? "数字を作って中継へ送っている"
     : ready ? "出来ている。押すと出る"
-      : "指標と相関をまとめてAIに述べさせる";
+      : AI_COMMENT_TITLE;
 }
 
 function openTechAi() {
