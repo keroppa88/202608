@@ -5359,10 +5359,9 @@ techAiEl.addEventListener("click", (e) => {
    中継は通らないので、手元のAIに貼って好きに読ませられる。
 
    中身は「プロンプト、空行、JSON」。中継が Gemini に渡している形と同じ。
-   プロンプトは worker/tech_prompt.txt を読む。中継が包んでいるのも同じ
-   ファイルなので、文面は1つしかない。読めなければ、読めなかったと書いて
-   JSONだけを落とす。それらしい文面で埋めない */
-const TECH_PROMPT_FILE = "worker/tech_prompt.txt";
+   プロンプトは中継の /prompt から読む。中継が Gemini に渡している文面
+   そのものなので、文面は1箇所にしかない。読めなければ、読めなかったと
+   書いてJSONだけを落とす。それらしい文面で埋めない */
 const ttxtBtn = document.getElementById("ttxt");
 let techTxtBusy = false;
 
@@ -5399,12 +5398,16 @@ async function runTechText() {
     const payload = await buildTechAiPayload(note);
     note("プロンプトを読んでいます…");
     let prompt = "";
-    try {
-      const r = await fetch(TECH_PROMPT_FILE);
-      if (r.ok) prompt = (await r.text()).trim();
-      else prompt = `（プロンプトを読めなかった: ${TECH_PROMPT_FILE} HTTP ${r.status}）`;
-    } catch (e) {
-      prompt = `（プロンプトを読めなかった: ${e && e.message ? e.message : e}）`;
+    if (!AI_ENDPOINT) {
+      prompt = "（プロンプトを読めなかった: AIの中継先が設定されていない）";
+    } else {
+      try {
+        const r = await fetch(`${AI_ENDPOINT}/prompt`);
+        if (r.ok) prompt = (await r.text()).trim();
+        else prompt = `（プロンプトを読めなかった: /prompt HTTP ${r.status}）`;
+      } catch (e) {
+        prompt = `（プロンプトを読めなかった: ${e && e.message ? e.message : e}）`;
+      }
     }
     const body = `${prompt}\n\n${JSON.stringify(payload)}`;
     const file = `${fileBase(settings.techKey)}_${payload.asOf}.txt`;

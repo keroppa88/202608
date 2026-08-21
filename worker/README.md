@@ -46,9 +46,15 @@ const AI_ENDPOINT = "";
 | `wrangler.toml` の `GEMINI_MODEL` | 使うモデル |
 | `wrangler.toml` の `ALLOWED_ORIGINS` | 受け付ける送り元。カンマ区切り |
 | `index.js` の `RATE_LIMIT` | 1分あたりの回数 |
-| `index.js` の `RULES` | AIへの指示 |
+| `index.js` の `RULES` | 相関だけを渡したときのAIへの指示 |
+| `index.js` の `TECH_RULES` | テクニカル＋相関を渡したときのAIへの指示 |
 
-直したら `npx wrangler deploy` をもう一度。
+直したら `npx wrangler deploy` をもう一度。1ファイルなので、
+ダッシュボードの Edit code に `index.js` を貼っても上がる。
+
+`TECH_RULES` はページからも使う。サイトの「AI分析用テキスト出力」は
+`GET /prompt` でこの文面を読み、落とす .txt の頭に付ける。文面はここに
+1つしか無いので、直せば両方に効く。
 
 ## 動きを見る
 
