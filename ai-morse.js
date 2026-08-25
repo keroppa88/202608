@@ -23,10 +23,10 @@
     "..-"    // ウ
   ];
 
-  const UNIT = 0.05;       // binary の和文モールス推奨値: 50ms
-  const FREQ = 500;        // binary の既定ベース周波数
+  const UNIT = 0.05;
+  const FREQ = 500;
   const VOLUME = 0.075;
-  const LOOP_GAP = 0.8;    // 文を言い切ってから次の反復まで
+  const LOOP_GAP = 0.8;
   const RAMP = 0.003;
 
   let ctx = null;
@@ -68,16 +68,14 @@
       gain.gain.linearRampToValueAtTime(VOLUME, t + RAMP);
       gain.gain.setValueAtTime(VOLUME, Math.max(t + RAMP, t + dur - RAMP));
       gain.gain.linearRampToValueAtTime(0, t + dur);
-      t += dur + UNIT; // 符号要素間 = 1単位
+      t += dur + UNIT;
     }
 
     CODES.forEach((code, codeIndex) => {
       for (const symbol of code) tone(symbol === "." ? 1 : 3);
-      // tone() の末尾ですでに1単位空けているので、文字間3単位にするため+2。
       if (codeIndex < CODES.length - 1) t += UNIT * 2;
     });
 
-    // 末尾に反復間隔を置く。
     t += LOOP_GAP;
     osc.start(start);
     osc.stop(t);
@@ -126,8 +124,6 @@
     phraseGain = null;
   }
 
-  // 分析成功時の「チーン」。録音ファイルは使わず、複数の正弦波を
-  // 少しずつ違う速さで減衰させて金属的な余韻を合成する。
   function playCompletionChime() {
     const ac = audioContext();
     if (!ac) return;
@@ -139,7 +135,7 @@
       master.connect(ac.destination);
 
       const partials = [
-        { freq: 880.0,  gain: 0.115, decay: 2.2 },
+        { freq: 880.0, gain: 0.115, decay: 2.2 },
         { freq: 1186.7, gain: 0.055, decay: 1.8 },
         { freq: 1567.2, gain: 0.038, decay: 1.45 },
         { freq: 2093.0, gain: 0.022, decay: 1.1 }
@@ -197,7 +193,6 @@
     const run = document.getElementById("ai-run");
     if (!run) return;
 
-    // capture で先に AudioContext を起こす。iPhone/Safari のユーザー操作制限対策。
     run.addEventListener("click", () => {
       if (run.disabled) return;
       startAnalysisMorse();
@@ -208,7 +203,6 @@
     if (back) back.addEventListener("click", stopAnalysisMorse);
     window.addEventListener("pagehide", stopAnalysisMorse);
 
-    // デバッグ時にコンソールから確認できるよう最小限だけ公開。
     window.AiAnalysisMorse = {
       message: MESSAGE,
       start: startAnalysisMorse,
@@ -217,6 +211,21 @@
     };
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
-  else init();
+  function loadSnowSaver() {
+    if (document.querySelector('script[data-snow-saver="1"]')) return;
+    const script = document.createElement("script");
+    script.src = "saver-snow.js";
+    script.dataset.snowSaver = "1";
+    document.body.appendChild(script);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      init();
+      loadSnowSaver();
+    }, { once: true });
+  } else {
+    init();
+    loadSnowSaver();
+  }
 })();
