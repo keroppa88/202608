@@ -163,14 +163,6 @@
     return result;
   }
 
-  /* -----------------------------------------------------------------
-     ここから下は AI に渡す数字を作るための計算。
-     どれも「対応の取れた観測」の上で動く。points は alignPair の返り値で、
-     x がメイン銘柄、y がサブ銘柄。日付が飛んでいても隣り合う観測を
-     1日として数える。休場日をゼロで埋めることはしない。
-  ----------------------------------------------------------------- */
-
-  // 直近 size 観測（自分を含む）の累積。差分の系列は足し算、騰落率は複利
   function trailingSeries(values, size, calcType) {
     const out = new Array(values.length).fill(null);
     if (size < 1) return out;
@@ -184,7 +176,6 @@
     return out;
   }
 
-  // 次の size 観測（自分は含まない）の累積。この先どうなったかを見る
   function forwardSeries(values, size, calcType) {
     const out = new Array(values.length).fill(null);
     if (size < 1) return out;
@@ -213,7 +204,6 @@
     return Math.sqrt(s / (values.length - 1));
   }
 
-  // 昇順に並べたときの p（0〜1）の位置の値
   function quantile(values, p) {
     if (!values.length) return null;
     const sorted = [...values].sort((a, b) => a - b);
@@ -223,7 +213,6 @@
     return sorted[lo] + (sorted[hi] - sorted[lo]) * (at - lo);
   }
 
-  // v が values の中で下から何割の位置にあるか（0〜1）
   function quantileRank(values, v) {
     if (!values.length || v === null || v === undefined) return null;
     let below = 0;
@@ -231,8 +220,6 @@
     return below / values.length;
   }
 
-  // メインの局面ごとの相関。局面は「前の観測までの累積」で決める。
-  // その日の値動きを局面の判定に混ぜると、答えを見てから分けることになる
   function regimeCorrelation(points, size, mainCalcType) {
     const trail = trailingSeries(points.map((p) => p.x), size, mainCalcType);
     const up = [], down = [];
@@ -247,7 +234,6 @@
     };
   }
 
-  // サブが上がった日／下がった日に、メインはどうだったか
   function conditionalReturns(points) {
     const up = [], down = [];
     for (const p of points) {
@@ -262,8 +248,6 @@
     return { subUp: side(up), subDown: side(down), base: { main: mean(points.map((p) => p.x)), n: points.length } };
   }
 
-  // サブの直近 lookback 観測の累積が上位25%／下位25%だったとき、
-  // メインはその後 forward 観測でどうだったか
   function forwardAfterExtreme(points, lookback, forward, subCalcType, mainCalcType) {
     const back = trailingSeries(points.map((p) => p.y), lookback, subCalcType);
     const ahead = forwardSeries(points.map((p) => p.x), forward, mainCalcType);
@@ -290,7 +274,6 @@
     };
   }
 
-  // サブを k 観測ずらしたときの相関。k が正なら「サブが先、メインが後」
   function leadLag(points, shifts) {
     return shifts.map((k) => {
       const paired = [];
@@ -303,7 +286,6 @@
     });
   }
 
-  // 系列から count 点を等間隔に抜く。推移の形だけ渡すため
   function sampleEvenly(series, count) {
     if (!series.length) return [];
     if (series.length <= count) return series.slice();
@@ -314,7 +296,6 @@
     return out;
   }
 
-  // 値そのものの並び（[{d,v}] 昇順）から、値動きの様子をまとめる
   function summarizeSeries(series, calcType) {
     const rows = series.filter((p) => finiteNumber(p.v) !== null);
     if (!rows.length) return null;
@@ -327,7 +308,6 @@
     const ret = {};
     [5, 20, 60, 250].forEach((n) => { ret[n] = move(back(n)); });
 
-    // 年初来。その年の最初の観測の、ひとつ前の値を起点にする
     const year = String(lastDate).slice(0, 4);
     let at = -1;
     for (let i = 0; i < rows.length; i++) {
@@ -382,3 +362,11 @@
     summarizeSeries
   };
 });
+
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => {
+    const script = document.createElement("script");
+    script.src = "ui-separation.js";
+    document.body.appendChild(script);
+  }, { once: true });
+}
