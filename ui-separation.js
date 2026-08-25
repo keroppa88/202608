@@ -334,7 +334,7 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  const initSeparatedUi = () => {
     const bottom = document.getElementById("technical-bottom");
     if (bottom) corrPage.appendChild(bottom);
 
@@ -409,7 +409,9 @@
       clearAiResult();
       drawAiControls();
     });
-  });
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initSeparatedUi, { once: true });
+  else initSeparatedUi();
 
   document.addEventListener("keydown", (e) => {
     if (!titleEl.classList.contains("hidden")) {
