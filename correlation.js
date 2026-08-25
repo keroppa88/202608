@@ -367,6 +367,11 @@ if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     const script = document.createElement("script");
     script.src = "ui-separation.js";
+    script.addEventListener("load", () => {
+      const morse = document.createElement("script");
+      morse.src = "ai-morse.js";
+      document.body.appendChild(morse);
+    }, { once: true });
     document.body.appendChild(script);
   }, { once: true });
 }
