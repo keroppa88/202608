@@ -40,7 +40,7 @@
     #ai-analysis .ai-label { color:var(--fg2); }
     #ai-analysis select,
     #ai-analysis .ai-add,
-    #ai-analysis .ai-run,
+    #ai-analysis .ai-top-action,
     #ai-analysis .ai-sub button {
       background:var(--panel); color:var(--fg); border:1px solid var(--line);
       font:inherit; padding:5px 8px;
@@ -50,17 +50,47 @@
     #ai-analysis .ai-sub { display:flex; gap:6px; align-items:center; }
     #ai-analysis .ai-sub select { flex:1; }
     #ai-analysis .ai-sub button { cursor:pointer; padding:5px 10px; }
-    #ai-analysis .ai-actions { display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
-    #ai-analysis .ai-add, #ai-analysis .ai-run { cursor:pointer; }
-    #ai-analysis .ai-run { padding:7px 24px; border-width:2px; }
-    #ai-analysis .ai-run:disabled, #ai-analysis .ai-add:disabled { color:var(--dim); border-color:var(--dim); cursor:default; }
+    #ai-analysis .ai-add { cursor:pointer; margin-top:2px; }
+    #ai-analysis .ai-top-action { cursor:pointer; padding:5px 12px; }
+    #ai-analysis .ai-top-action:disabled,
+    #ai-analysis .ai-add:disabled { color:var(--dim); border-color:var(--dim); cursor:default; }
     #ai-analysis .ai-result {
-      min-height:160px; border-top:1px solid var(--line); padding-top:12px;
+      min-height:160px; border-top:1px solid var(--line); margin-top:14px; padding-top:12px;
       white-space:pre-wrap; line-height:1.8;
     }
     #ai-analysis .ai-empty { color:var(--dim); }
+    #ai-prompt-modal {
+      position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,.72);
+      display:flex; align-items:center; justify-content:center; padding:16px;
+    }
+    #ai-prompt-modal.hidden { display:none !important; }
+    #ai-prompt-box {
+      width:min(1100px, 96vw); height:min(86vh, 900px); background:var(--bg); color:var(--fg);
+      border:2px solid var(--line); display:flex; flex-direction:column; min-height:240px;
+    }
+    #ai-prompt-head {
+      display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid var(--line);
+      background:var(--panel); flex:none;
+    }
+    #ai-prompt-head .title { color:var(--fg2); }
+    #ai-prompt-head .spacer { flex:1; }
+    #ai-prompt-head button {
+      background:var(--panel); color:var(--fg); border:1px solid var(--line); font:inherit;
+      padding:4px 12px; cursor:pointer;
+    }
+    #ai-prompt-copy-status { color:var(--dim); font-size:12px; }
+    #ai-prompt-text {
+      flex:1; margin:0; padding:12px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere;
+      font:inherit; line-height:1.55; user-select:text;
+    }
+    @media (max-width:760px) {
+      #ai-analysis .bar { flex-wrap:wrap; }
+      #ai-analysis .bar .spacer { display:none; }
+      #ai-analysis #aistatus { width:100%; }
+    }
     @media (max-width:640px) {
       #ai-analysis .ai-row { grid-template-columns:1fr; gap:5px; }
+      #ai-analysis .ai-top-action { padding:5px 8px; }
     }
   `;
   document.head.appendChild(style);
@@ -72,6 +102,8 @@
     <div class="bar">
       <button id="aiback" title="タイトルへ戻る">戻る</button>
       <button id="aitheme" title="押すたびに配色が変わる">Color</button>
+      <button id="ai-run" class="ai-top-action" title="APIでAI分析する">APIによるAI分析</button>
+      <button id="ai-prompt" class="ai-top-action" title="他のAIへ貼り付ける分析用プロンプトを出力する">AI分析用プロンプト出力</button>
       <div class="spacer"></div>
       <div class="note" id="aistatus"></div>
     </div>
@@ -82,13 +114,27 @@
       </div>
       <div class="ai-row">
         <div class="ai-label">分析用比較銘柄 <span id="ai-sub-count">0/10</span></div>
-        <div id="ai-subs" class="ai-subs"></div>
+        <div>
+          <div id="ai-subs" class="ai-subs"></div>
+          <button id="ai-add" class="ai-add">＋ 比較銘柄</button>
+        </div>
       </div>
-      <div class="ai-actions">
-        <button id="ai-add" class="ai-add">＋ 比較銘柄</button>
-        <button id="ai-run" class="ai-run">分析する</button>
+      <div id="ai-result" class="ai-result"><span class="ai-empty">銘柄を選び、上部の「APIによるAI分析」または「AI分析用プロンプト出力」を押す。</span></div>
+    </div>`;
+
+  const promptModal = document.createElement("div");
+  promptModal.id = "ai-prompt-modal";
+  promptModal.className = "hidden";
+  promptModal.innerHTML = `
+    <div id="ai-prompt-box" role="dialog" aria-modal="true" aria-label="AI分析用プロンプト">
+      <div id="ai-prompt-head">
+        <span class="title">AI分析用プロンプト</span>
+        <span id="ai-prompt-copy-status"></span>
+        <div class="spacer"></div>
+        <button id="ai-prompt-copy">コピー</button>
+        <button id="ai-prompt-close">×</button>
       </div>
-      <div id="ai-result" class="ai-result"><span class="ai-empty">銘柄を選んで「分析する」を押す。</span></div>
+      <pre id="ai-prompt-text"></pre>
     </div>`;
 
   const corrPage = document.createElement("section");
@@ -105,25 +151,72 @@
   if (saver) {
     document.body.insertBefore(aiPage, saver);
     document.body.insertBefore(corrPage, saver);
+    document.body.insertBefore(promptModal, saver);
   } else {
-    document.body.append(aiPage, corrPage);
+    document.body.append(aiPage, corrPage, promptModal);
   }
 
   let aiCatalog = [];
   let aiBusy = false;
   const MAX_SUBS = 10;
 
+  const FALLBACK_TECH_RULES = `次のJSONは、ある銘柄（name）について、プログラムが計算した
+テクニカル指標と、主要指数などとの相関です。この数字だけを使って日本語で述べてください。
+
+守ること
+- JSONに無いことは書かない。会社の事情や出来事は知らないものとして扱う
+- 過去に似た局面があったという話を、これからそうなるという話にしない
+- 材料が足りない項目は、足りないと書く
+- 使った期間（span）に必ず触れる。何年ぶんを見て言っているのかを最初に書く
+- 見出しと箇条書きで、本文は1200字程度。そのあとに点数を付ける
+
+書く順
+1. 何年ぶんを見たか（span）。params.base が既定の数字、params.tuned がこの銘柄に合わせて選び直した数字。両方を並べて、違いが大きい指標があれば触れる
+2. 長期のトレンド … base と tuned の移動平均・移動平均乖離、slope2 / order / chg100 / chg200 / pos52 / dev2。いま上か下か、いつからそうなのか
+3. 短期のトレンド … tuned.recent の chg5 / chg10 / dev0 / rsi / stK / stD / macdH / macdHR / bbB / run / gap / range
+4. 指標ごとの状態と経緯 … tuned.back の 20/40/60/80/100/150/200日前と今を比べる。dMaS / dMaL / dMacd / dSar / dStoch / dRsi はその向きになってからの日数（符号が向き）
+5. 似た局面（like.short と like.long）… いつのことか、そのとき指標がどうで、その後どうだったか（after の median と win）。件数（n）が少なければ弱いと書く
+6. 相関（corr）… 連動している相手と、その相関が今は強いのか弱いのか。相関を因果として書かない
+7. 長期と短期で向きが食い違っているなら、そのことをはっきり書く
+8. 最後に「AI主観コメント」として点数を付ける
+
+点数の付け方
+50が中立、100が超ストロングバイ、0がストロングセル。「○○/100」の形で次の9つを出し、各行に理由を添える。
+
+AI主観コメント
+トレンド系      長期 ○○/100  短期 ○○/100  超短期 ○○/100
+オシレーター系  長期 ○○/100  短期 ○○/100  超短期 ○○/100
+総合            長期 ○○/100  短期 ○○/100  超短期 ○○/100
+
+- 長期 … 200日前後　短期 … 60日以内　超短期 … 20日以内
+- トレンド系 … 移動平均・乖離・並び（order）・傾き（slope）・パラボリック・MACD・騰落率
+- オシレーター系 … RSI・ストキャス・RCI・%B（bbB）
+- 材料が足りない期間は点を付けず「材料が足りない」と書く
+
+数字の読み方
+- 単位は % が主。dev は移動平均からの乖離%、slope は移動平均の傾き%
+- order は移動平均の並び（＋が短期→長期の順、−が逆）
+- bbB は %B、bbW はバンド幅%。pos52 は52週レンジの中の位置%、posDay はその日の値幅の中の位置%
+- macdHR は MACDヒストグラム÷株価%。atr は ATR%、hv は年率換算のばらつき%
+- volR は出来高÷20日平均%。無い銘柄では null
+- run は連騰連落の日数（＋が連騰、−が連落）
+- like.hits の dist は今との近さ（0 に近いほど似ている）。fwd はその日から5/10/20/60日後の騰落率%。同じ年からは3件までしか入れていない
+- corr の中身は相関の計算結果。r が相関、r60Ago は60日前の値、regime はメインが上げていた局面と下げていた局面で分けた相関
+- null は計算できなかったところ`;
+
   function signature() {
-    return [settings.corrAiMain, ...settings.corrAiSubs].join("\n");
+    return [settings.corrAiMain, ...(settings.corrAiSubs || [])].join("\n");
   }
 
   function clearAiResult() {
     const result = document.getElementById("ai-result");
-    if (result) result.innerHTML = '<span class="ai-empty">条件を選んで「分析する」を押す。</span>';
+    if (result) result.innerHTML = '<span class="ai-empty">条件を選び、上部の分析ボタンを押す。</span>';
   }
 
   function setAiEnabled(enabled) {
     document.getElementById("ai-main").disabled = !enabled;
+    document.getElementById("ai-run").disabled = !enabled;
+    document.getElementById("ai-prompt").disabled = !enabled;
     document.getElementById("ai-add").disabled = !enabled || settings.corrAiSubs.length >= MAX_SUBS;
     document.querySelectorAll("#ai-subs select, #ai-subs button").forEach((el) => { el.disabled = !enabled; });
   }
@@ -193,13 +286,18 @@
     corrPage.classList.add("hidden");
     aiPage.classList.remove("hidden");
     document.getElementById("aistatus").textContent = "銘柄一覧を読み込み中…";
-    if (!aiCatalog.length) aiCatalog = await buildCatalog(String(new Date().getFullYear()));
-    normalizeAiSelection();
-    drawAiControls();
-    document.getElementById("aistatus").textContent = "";
+    try {
+      if (!aiCatalog.length) aiCatalog = await buildCatalog(String(new Date().getFullYear()));
+      normalizeAiSelection();
+      drawAiControls();
+      document.getElementById("aistatus").textContent = "";
+    } catch (e) {
+      document.getElementById("aistatus").textContent = `銘柄一覧を読めなかった: ${e && e.message ? e.message : e}`;
+    }
   }
 
   function closeAiPage() {
+    closePromptModal();
     aiPage.classList.add("hidden");
     titleEl.classList.remove("hidden");
   }
@@ -288,6 +386,74 @@
     };
   }
 
+  function openPromptModal(text) {
+    document.getElementById("ai-prompt-text").textContent = text;
+    document.getElementById("ai-prompt-copy-status").textContent = "";
+    promptModal.classList.remove("hidden");
+  }
+
+  function closePromptModal() {
+    promptModal.classList.add("hidden");
+  }
+
+  async function copyPrompt() {
+    const text = document.getElementById("ai-prompt-text").textContent;
+    const note = document.getElementById("ai-prompt-copy-status");
+    try {
+      await navigator.clipboard.writeText(text);
+      note.textContent = "コピー済み";
+    } catch (_) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        note.textContent = "コピー済み";
+      } catch (e) {
+        note.textContent = "コピーできなかった";
+      }
+    }
+  }
+
+  async function runAiPromptOutput() {
+    if (aiBusy || !settings.corrAiMain) return;
+    aiBusy = true;
+    setAiEnabled(false);
+    const button = document.getElementById("ai-prompt");
+    const status = document.getElementById("aistatus");
+    button.textContent = "作成中…";
+    const progress = (text) => { status.textContent = text; };
+    try {
+      const payload = await buildStandaloneAiPayload(progress);
+      const prompt = `${FALLBACK_TECH_RULES}\n\n${JSON.stringify(payload)}`;
+      openPromptModal(prompt);
+      status.textContent = `${payload.name}　${payload.asOf}　プロンプト ${(prompt.length / 1024).toFixed(1)}KB`;
+    } catch (e) {
+      document.getElementById("ai-result").textContent = `プロンプトを作れなかった\n${e && e.message ? e.message : e}`;
+      status.textContent = "プロンプト出力に失敗";
+    } finally {
+      aiBusy = false;
+      button.textContent = "AI分析用プロンプト出力";
+      setAiEnabled(true);
+      drawAiControls();
+    }
+  }
+
+  async function diagnoseLoadFailure(original) {
+    if (!AI_ENDPOINT) return "AIの中継先が設定されていない";
+    try {
+      const r = await fetch(`${AI_ENDPOINT}/prompt`, { method: "GET", cache: "no-store", mode: "cors" });
+      if (!r.ok) return `AI中継には到達したが /prompt が HTTP ${r.status}`;
+      return `AI中継の /prompt には到達できた。POST送信側で失敗している可能性がある。\n元のエラー: ${original}`;
+    } catch (e) {
+      return `AI中継にブラウザから接続できない。Cloudflare Worker の稼働状態と CORS（ALLOWED_ORIGINS）を確認。\n${AI_ENDPOINT}\n元のエラー: ${original}`;
+    }
+  }
+
   async function runAiAnalysis() {
     if (aiBusy || !settings.corrAiMain) return;
     aiBusy = true;
@@ -295,7 +461,6 @@
     const run = document.getElementById("ai-run");
     const status = document.getElementById("aistatus");
     const result = document.getElementById("ai-result");
-    run.disabled = true;
     run.textContent = "分析中…";
     const requested = signature();
     const progress = (text) => { status.textContent = text; };
@@ -306,6 +471,7 @@
       if (!AI_ENDPOINT) throw new Error("AIの中継先が設定されていない");
       const res = await fetch(AI_ENDPOINT, {
         method: "POST",
+        mode: "cors",
         headers: { "content-type": "application/json" },
         body
       });
@@ -323,12 +489,16 @@
       result.textContent = answer;
       status.textContent = `${payload.name}　${payload.asOf}　比較 ${settings.corrAiSubs.length}銘柄`;
     } catch (e) {
-      result.textContent = `分析できなかった\n${e && e.message ? e.message : e}`;
+      const message = String(e && e.message ? e.message : e);
+      if (/load failed|failed to fetch|networkerror/i.test(message)) {
+        result.textContent = `分析できなかった\n${await diagnoseLoadFailure(message)}\n\n※「AI分析用プロンプト出力」はAPIを使わないため利用できる。`;
+      } else {
+        result.textContent = `分析できなかった\n${message}`;
+      }
       status.textContent = "AI分析に失敗";
     } finally {
       aiBusy = false;
-      run.disabled = false;
-      run.textContent = "分析する";
+      run.textContent = "APIによるAI分析";
       setAiEnabled(true);
       drawAiControls();
     }
@@ -340,6 +510,7 @@
 
     const oldBackToTitle = backToTitle;
     backToTitle = function () {
+      closePromptModal();
       aiPage.classList.add("hidden");
       corrPage.classList.add("hidden");
       oldBackToTitle();
@@ -400,6 +571,10 @@
       if (corrState) drawCorrelationResults();
     });
     document.getElementById("ai-run").addEventListener("click", runAiAnalysis);
+    document.getElementById("ai-prompt").addEventListener("click", runAiPromptOutput);
+    document.getElementById("ai-prompt-copy").addEventListener("click", copyPrompt);
+    document.getElementById("ai-prompt-close").addEventListener("click", closePromptModal);
+    promptModal.addEventListener("click", (e) => { if (e.target === promptModal) closePromptModal(); });
     document.getElementById("ai-add").addEventListener("click", () => {
       if (settings.corrAiSubs.length >= MAX_SUBS) return;
       const first = aiCatalog.find((c) => c.key !== settings.corrAiMain && !settings.corrAiSubs.includes(c.key));
@@ -414,6 +589,14 @@
   else initSeparatedUi();
 
   document.addEventListener("keydown", (e) => {
+    if (!promptModal.classList.contains("hidden")) {
+      if (e.key === "Escape") {
+        closePromptModal();
+        e.preventDefault();
+      }
+      e.stopImmediatePropagation();
+      return;
+    }
     if (!titleEl.classList.contains("hidden")) {
       if (e.key === "ArrowDown") {
         menuCursor = (menuCursor + 1) % newItems.length;
