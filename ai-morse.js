@@ -126,6 +126,50 @@
     phraseGain = null;
   }
 
+  // 分析成功時の「チーン」。録音ファイルは使わず、複数の正弦波を
+  // 少しずつ違う速さで減衰させて金属的な余韻を合成する。
+  function playCompletionChime() {
+    const ac = audioContext();
+    if (!ac) return;
+
+    const play = () => {
+      const start = ac.currentTime + 0.035;
+      const master = ac.createGain();
+      master.gain.value = 0.7;
+      master.connect(ac.destination);
+
+      const partials = [
+        { freq: 880.0,  gain: 0.115, decay: 2.2 },
+        { freq: 1186.7, gain: 0.055, decay: 1.8 },
+        { freq: 1567.2, gain: 0.038, decay: 1.45 },
+        { freq: 2093.0, gain: 0.022, decay: 1.1 }
+      ];
+
+      let latest = start;
+      partials.forEach((part) => {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(part.freq, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(part.gain, start + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + part.decay);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(start);
+        osc.stop(start + part.decay + 0.03);
+        latest = Math.max(latest, start + part.decay + 0.03);
+      });
+
+      window.setTimeout(() => {
+        try { master.disconnect(); } catch (_) { }
+      }, Math.max(100, Math.round((latest - ac.currentTime + 0.1) * 1000)));
+    };
+
+    if (ac.state === "suspended") ac.resume().then(play).catch(() => {});
+    else play();
+  }
+
   function watchAnalysisEnd(button) {
     if (stopObserver) stopObserver.disconnect();
     let sawBusy = false;
@@ -134,7 +178,10 @@
       const busy = button.disabled || text === "分析中…" || text === "分析中...";
       if (busy) sawBusy = true;
       if (sawBusy && !button.disabled && text === "APIによるAI分析") {
+        const status = document.getElementById("aistatus");
+        const failed = status && status.textContent.trim() === "AI分析に失敗";
         stopAnalysisMorse();
+        if (!failed) playCompletionChime();
         if (stopObserver) {
           stopObserver.disconnect();
           stopObserver = null;
@@ -165,7 +212,8 @@
     window.AiAnalysisMorse = {
       message: MESSAGE,
       start: startAnalysisMorse,
-      stop: stopAnalysisMorse
+      stop: stopAnalysisMorse,
+      chime: playCompletionChime
     };
   }
 
