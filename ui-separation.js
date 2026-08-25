@@ -12,6 +12,11 @@
       '<button data-go="technical">テクニカル</button>'
     ].join("");
   }
+  const newItems = menu ? [...menu.querySelectorAll("button")] : [];
+  let menuCursor = 0;
+  function drawMenuCursor() {
+    newItems.forEach((button, i) => button.setAttribute("aria-selected", String(i === menuCursor)));
+  }
 
   const style = document.createElement("style");
   style.textContent = `
@@ -106,7 +111,6 @@
 
   let aiCatalog = [];
   let aiBusy = false;
-  let aiLastSignature = "";
   const MAX_SUBS = 10;
 
   function signature() {
@@ -114,7 +118,6 @@
   }
 
   function clearAiResult() {
-    aiLastSignature = "";
     const result = document.getElementById("ai-result");
     if (result) result.innerHTML = '<span class="ai-empty">条件を選んで「分析する」を押す。</span>';
   }
@@ -312,12 +315,11 @@
       try {
         const json = JSON.parse(raw);
         answer = json.text || json.error || raw;
-      } catch (_) { /* 本文のまま使う */ }
+      } catch (_) { }
       if (requested !== signature()) {
         status.textContent = "分析中に条件が変わったため結果を破棄した";
         return;
       }
-      aiLastSignature = requested;
       result.textContent = answer;
       status.textContent = `${payload.name}　${payload.asOf}　比較 ${settings.corrAiSubs.length}銘柄`;
     } catch (e) {
@@ -335,15 +337,6 @@
   document.addEventListener("DOMContentLoaded", () => {
     const bottom = document.getElementById("technical-bottom");
     if (bottom) corrPage.appendChild(bottom);
-
-    const oldDecide = decide;
-    decide = function () {
-      const b = items[cursor];
-      if (!b || b.disabled) return;
-      if (b.dataset.go === "ai") { openAiPage(); return; }
-      if (b.dataset.go === "correlation") { openCorrelationPage(); return; }
-      oldDecide();
-    };
 
     const oldBackToTitle = backToTitle;
     backToTitle = function () {
@@ -384,6 +377,21 @@
       saveSettings();
     };
 
+    const openMenuItem = (button) => {
+      if (!button || button.disabled) return;
+      const go = button.dataset.go;
+      if (go === "ai") openAiPage();
+      else if (go === "sheet") openSheet();
+      else if (go === "chart") openCharts();
+      else if (go === "correlation") openCorrelationPage();
+      else if (go === "technical") openTechnical();
+    };
+    newItems.forEach((button, i) => {
+      button.addEventListener("mouseenter", () => { menuCursor = i; drawMenuCursor(); });
+      button.addEventListener("click", () => { menuCursor = i; drawMenuCursor(); openMenuItem(button); });
+    });
+    drawMenuCursor();
+
     document.getElementById("aiback").addEventListener("click", closeAiPage);
     document.getElementById("aitheme").addEventListener("click", nextTheme);
     document.getElementById("rcback").addEventListener("click", closeCorrelationPage);
@@ -404,6 +412,25 @@
   });
 
   document.addEventListener("keydown", (e) => {
+    if (!titleEl.classList.contains("hidden")) {
+      if (e.key === "ArrowDown") {
+        menuCursor = (menuCursor + 1) % newItems.length;
+        drawMenuCursor();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      } else if (e.key === "ArrowUp") {
+        menuCursor = (menuCursor - 1 + newItems.length) % newItems.length;
+        drawMenuCursor();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      } else if (e.key === "Enter") {
+        const button = newItems[menuCursor];
+        if (button) button.click();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+      return;
+    }
     const active = !aiPage.classList.contains("hidden") || !corrPage.classList.contains("hidden");
     if (!active) return;
     if (e.key === "Escape") {
@@ -413,5 +440,5 @@
       e.preventDefault();
     }
     e.stopImmediatePropagation();
-  });
+  }, true);
 })();
