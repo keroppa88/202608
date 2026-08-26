@@ -21,13 +21,14 @@ JavaScript を実行して初めて中身が表示されるため、ブラウザ
 
 注意:
     Cloudflare のチャレンジは接続元IPで難易度が変わる。
-    自宅回線からはほぼ通るが、データセンターIP（GitHub Actions など）からは
-    弾かれることがある。通るかどうかはまだ確認できていない。
+    日経平均サマリーのPER等が動的取得前の「-」なら待って再取得する。
+    最終的に一部ページの抽出に失敗しても、他ページから取れた指数は保存する。
 """
 
 import csv
 import os
 import sys
+import time
 
 import nikkei_index_text as N
 from common import now_jst, report, repo_root, save_raw
@@ -75,9 +76,23 @@ RENAME = {
     "日経平均カバードコールATMインデックス": "日経カバードコールATM",
 }
 
+SUMMARY_RETRIES = 3
+SUMMARY_RETRY_WAIT = 5
+SUMMARY_PLACEHOLDERS = ("-%", "-倍", "- 兆円", "- 億円")
+
 
 def our_name(name):
     return RENAME.get(name, name)
+
+
+def _summary_details_incomplete(text):
+    """PER等の動的データ部分に「-」が残っているかを見る。"""
+    start = text.find("配当利回り")
+    end = text.find("通貨建て日経平均", start + 1)
+    if start < 0 or end < 0:
+        return True
+    block = text[start:end]
+    return any(token in block for token in SUMMARY_PLACEHOLDERS)
 
 
 OHLC_HEADER = ["trade_date", "name", "open", "high", "low", "close", "fetched_at"]
@@ -104,9 +119,14 @@ def _merge(path, header, keys, rows):
 
 
 def extract(texts, root, fetched_at):
-    """保存済みテキストから3つのCSVを作る。戻り値は書いた行数の内訳。"""
+    """保存済みテキストから3つのCSVを作る。
+
+    各ページを独立して抽出する。一部が失敗しても、他ページで取れた行は保存する。
+    戻り値は (四本値件数, 時刻件数, 詳細件数, 抽出エラー一覧)。
+    """
     stamp = fetched_at.isoformat(timespec="seconds")
     ohlc, times, detail = [], [], []
+    failures = []
 
     def add_ohlc(name, d, bars):
         ohlc.append(
@@ -117,41 +137,57 @@ def extract(texts, root, fetched_at):
         )
 
     if "nk225_summary" in texts:
-        s = N.parse_summary(texts["nk225_summary"])
-        add_ohlc("日経平均", s["trade_date"], s["ohlc"])
-        times.append(
-            {
-                "trade_date": s["trade_date"], "name": "日経平均", "fetched_at": stamp,
-                **{f"{k}_time": s["times"].get(k, "") for k in ("open", "high", "low")},
-            }
-        )
-        for group, key, sub, value, unit in s["detail"]:
-            detail.append(
+        try:
+            s = N.parse_summary(texts["nk225_summary"])
+            add_ohlc("日経平均", s["trade_date"], s["ohlc"])
+            times.append(
                 {
-                    "trade_date": s["trade_date"], "group": group, "key": key,
-                    "sub": sub, "value": value, "unit": unit, "fetched_at": stamp,
+                    "trade_date": s["trade_date"], "name": "日経平均", "fetched_at": stamp,
+                    **{f"{k}_time": s["times"].get(k, "") for k in ("open", "high", "low")},
                 }
             )
+            for group, key, sub, value, unit in s["detail"]:
+                detail.append(
+                    {
+                        "trade_date": s["trade_date"], "group": group, "key": key,
+                        "sub": sub, "value": value, "unit": unit, "fetched_at": stamp,
+                    }
+                )
+        except Exception as e:
+            failures.append(("日経平均サマリー抽出", str(e).splitlines()[0]))
 
-    for tag in ("nk225vi_profile", "nkscd_profile"):
+    for tag, label in (
+        ("nk225vi_profile", "日経VIプロフィル抽出"),
+        ("nkscd_profile", "日経半導体株指数プロフィル抽出"),
+    ):
         if tag not in texts:
             continue
-        p = N.parse_profile(texts[tag])
-        add_ohlc(p["name"], p["trade_date"], p["ohlc"])
-        times.append(
-            {
-                "trade_date": p["trade_date"], "name": our_name(p["name"]), "fetched_at": stamp,
-                **{f"{k}_time": p["times"].get(k, "") for k in ("open", "high", "low")},
-            }
-        )
+        try:
+            p = N.parse_profile(texts[tag])
+            add_ohlc(p["name"], p["trade_date"], p["ohlc"])
+            times.append(
+                {
+                    "trade_date": p["trade_date"], "name": our_name(p["name"]), "fetched_at": stamp,
+                    **{f"{k}_time": p["times"].get(k, "") for k in ("open", "high", "low")},
+                }
+            )
+        except Exception as e:
+            failures.append((label, str(e).splitlines()[0]))
 
     if "index_list" in texts:
-        found = N.parse_index_list(
-            texts["index_list"], LIST_TARGETS, today=fetched_at.date()
-        )
-        for name, v in found.items():
-            add_ohlc(name, v["trade_date"], {"close": v["close"]})
+        try:
+            found = N.parse_index_list(
+                texts["index_list"], LIST_TARGETS, today=fetched_at.date(), strict=False
+            )
+            missing = [name for name in LIST_TARGETS if name not in found]
+            if missing:
+                failures.append(("指数一覧抽出", f"一覧に見つからない: {', '.join(missing)}"))
+            for name, v in found.items():
+                add_ohlc(name, v["trade_date"], {"close": v["close"]})
+        except Exception as e:
+            failures.append(("指数一覧抽出", str(e).splitlines()[0]))
 
+    # ここまでに一部失敗があっても、集められた行は必ず保存する。
     data = os.path.join(root, "data")
     _merge(os.path.join(data, "nikkei_ohlc.csv"), OHLC_HEADER,
            ["trade_date", "name"], ohlc)
@@ -159,7 +195,7 @@ def extract(texts, root, fetched_at):
            ["trade_date", "name"], times)
     _merge(os.path.join(data, "nikkei225_detail.csv"), DETAIL_HEADER,
            ["trade_date", "group", "key", "sub"], detail)
-    return len(ohlc), len(times), len(detail)
+    return len(ohlc), len(times), len(detail), failures
 
 
 def main(argv):
@@ -188,12 +224,32 @@ def main(argv):
     started = now_jst()
     raw_dir = os.path.join(root, "data", "raw", started.strftime("%Y-%m-%d"))
 
-    ok, errors, texts = [], [], {}
+    ok, errors, warnings, texts = [], [], [], {}
     with browser_session() as read:
         for key in keys:
             label, url = TARGETS[key]
             try:
                 text = read(url)
+
+                # 日経平均サマリーはPER/PBR等が後から埋まることがある。
+                # 「-」のままなら少し待ってページを取り直す。
+                if key == "nk225_summary" and _summary_details_incomplete(text):
+                    for attempt in range(1, SUMMARY_RETRIES + 1):
+                        print(
+                            f"WAIT {key:<16} 詳細データが未反映。"
+                            f"{SUMMARY_RETRY_WAIT}秒待って再取得 {attempt}/{SUMMARY_RETRIES}"
+                        )
+                        time.sleep(SUMMARY_RETRY_WAIT)
+                        text = read(url)
+                        if not _summary_details_incomplete(text):
+                            print(f"OK   {key:<16} 詳細データ再取得成功")
+                            break
+                    if _summary_details_incomplete(text):
+                        warnings.append(
+                            "日経平均サマリー: PER/PBR/利回り等が「-」のまま。"
+                            "rawは保存し、取得できた価格・他指数は保存する"
+                        )
+
                 # テキストは小さく、GitHub 上でそのまま読めるので圧縮しない
                 path = os.path.join(raw_dir, f"nkindex_{key}.txt")
                 save_raw(path, text)
@@ -210,13 +266,19 @@ def main(argv):
 
     if texts:
         try:
-            n_ohlc, n_time, n_detail = extract(texts, root, started)
+            n_ohlc, n_time, n_detail, extract_errors = extract(texts, root, started)
+            errors.extend(extract_errors)
             print(
                 f"\n抽出: 四本値 {n_ohlc}件 / 時刻 {n_time}件 / 日経平均詳細 {n_detail}件"
             )
         except Exception as e:
-            errors.append(("抽出", str(e).splitlines()[0]))
-            print(f"FAIL 抽出  {str(e).splitlines()[0][:80]}")
+            errors.append(("CSV保存", str(e).splitlines()[0]))
+            print(f"FAIL CSV保存  {str(e).splitlines()[0][:80]}")
+
+    if warnings:
+        print("\n警告:")
+        for msg in warnings:
+            print(f"  - {msg}")
 
     return report(ok, errors, "日経指数ページ取得")
 
