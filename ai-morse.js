@@ -219,13 +219,23 @@
     document.body.appendChild(script);
   }
 
+  function loadAiHelp() {
+    if (document.querySelector('script[data-ai-help="1"]')) return;
+    const script = document.createElement("script");
+    script.src = "ai-help.js";
+    script.dataset.aiHelp = "1";
+    document.body.appendChild(script);
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       init();
       loadSnowSaver();
+      loadAiHelp();
     }, { once: true });
   } else {
     init();
     loadSnowSaver();
+    loadAiHelp();
   }
 })();
