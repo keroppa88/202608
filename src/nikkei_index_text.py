@@ -129,7 +129,8 @@ def _summary_detail(lines, divisor):
     if divisor is not None:
         rows.append(("基本", "除数", "", divisor, ""))
 
-    # 「配当利回り / 単純平均 / 1.62% / 指数ベース / 1.37%」の形
+    # 「配当利回り / 単純平均 / 1.62% / 指数ベース / 1.37%」の形。
+    # 動的データが未反映だと「-%」「-倍」になるため、その項目だけ飛ばす。
     labels = {
         "配当利回り": ("配当利回り", "%"),
         "株価収益率(PER)": ("PER", "倍"),
@@ -143,7 +144,9 @@ def _summary_detail(lines, divisor):
         for j in range(i + 1, min(i + 6, len(lines) - 1)):
             sub = lines[j].strip()
             if sub in ("単純平均", "加重平均", "指数ベース"):
-                rows.append((name, name, sub, _num(lines[j + 1]), unit))
+                value = lines[j + 1].strip()
+                if re.match(r"^-?[\d,.]+(?:%|倍)$", value):
+                    rows.append((name, name, sub, _num(value), unit))
 
     # 「時価総額合計 / 1,049.08 兆円 / (対市場占有率 77.00%)」の形
     for i, ln in enumerate(lines):
@@ -245,8 +248,11 @@ def parse_profile(text):
 # 指数一覧ページ
 # --------------------------------------------------------------------------
 
-def parse_index_list(text, wanted, today=None):
-    """一覧から指定の指数の大引け値を拾う。「名称 / 値 / 前日比 / 日付」の4行1組。"""
+def parse_index_list(text, wanted, today=None, strict=True):
+    """一覧から指定の指数の大引け値を拾う。「名称 / 値 / 前日比 / 日付」の4行1組。
+
+    strict=False なら一部の指数が見つからなくても、見つかったものを返す。
+    """
     today = today or date.today()
     lines = _lines(text)
     found = {}
@@ -268,6 +274,6 @@ def parse_index_list(text, wanted, today=None):
         }
 
     missing = [w for w in wanted if w not in found]
-    if missing:
+    if strict and missing:
         raise ExtractError(f"一覧に見つからない: {', '.join(missing)}")
     return found
