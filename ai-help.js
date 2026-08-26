@@ -33,9 +33,18 @@
       #ai-analysis .ai-row:first-child {
         margin-bottom:24px;
       }
+      /* 比較銘柄の見出しは、長いリストの縦中央ではなく枠の左上に置く。 */
+      #ai-analysis .ai-row:nth-child(2) {
+        align-items:start;
+      }
+      #ai-analysis .ai-row:nth-child(2) .ai-label {
+        align-self:start;
+        padding-top:5px;
+      }
       @media (max-width:640px) {
         #ai-analysis .ai-row { padding:8px; }
         #ai-analysis .ai-row:first-child { margin-bottom:16px; }
+        #ai-analysis .ai-row:nth-child(2) .ai-label { padding-top:0; }
       }
 
       #ai-help-modal {
