@@ -5,9 +5,16 @@
   "classified": 492,
   "available": 489,
   "missingFile": 3,
+  "missingCodes": [
+    "1969",
+    "6368",
+    "8341"
+  ],
   "unreadable": 0,
+  "unreadableCodes": [],
   "stale": 0,
-  "generatedAt": "2026-08-26T20:47:46+09:00",
+  "staleCodes": [],
+  "generatedAt": "2026-08-26T20:55:05+09:00",
   "demand": [
     {
       "name": "内需",
