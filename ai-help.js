@@ -24,8 +24,8 @@
 
     const style = document.createElement("style");
     style.textContent = `
-      /* タイトル画面。見出しは元の大きさ、期間表示は大きいまま通常色にする。 */
-      #title h1 { font-size:22px; }
+      /* タイトル画面。見出しは26px、期間表示は大きいまま通常色にする。 */
+      #title h1 { font-size:26px; }
       #title .sub { color:var(--fg); font-size:24px; }
       #title .hint { display:none !important; }
 
