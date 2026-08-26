@@ -110,6 +110,21 @@
     window.AiAnalysisHelp = { open, close };
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once:true });
-  else init();
+  function loadSectorView() {
+    if (document.querySelector('script[data-sector-view="1"]')) return;
+    const script = document.createElement("script");
+    script.src = "sector-view.js";
+    script.dataset.sectorView = "1";
+    document.body.appendChild(script);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      init();
+      loadSectorView();
+    }, { once:true });
+  } else {
+    init();
+    loadSectorView();
+  }
 })();
