@@ -24,6 +24,10 @@
 
     const style = document.createElement("style");
     style.textContent = `
+      /* タイトル画面の見出しと期間表示だけ2倍にする。 */
+      #title h1 { font-size:44px; }
+      #title .sub { font-size:24px; }
+
       /* 予測対象と比較銘柄を明確に分ける。 */
       #ai-analysis .ai-row {
         border:1px solid var(--fg2);
