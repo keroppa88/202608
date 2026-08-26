@@ -26,6 +26,7 @@ from datetime import datetime, timezone, timedelta
 
 from common import repo_root
 
+# 分類・計算式を更新したときも workflow の push トリガーで当日分を作り直す。
 JST = timezone(timedelta(hours=9))
 MAJOR_ORDER = {
     "外需・グローバル景気": 0,
