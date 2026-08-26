@@ -1,0 +1,1786 @@
+{
+  "date": "2026-08-26",
+  "method": "equal_weight",
+  "demandMethod": "strong_1_normal_0.5",
+  "classified": 492,
+  "available": 489,
+  "missingFile": 3,
+  "unreadable": 0,
+  "stale": 0,
+  "generatedAt": "2026-08-26T20:47:46+09:00",
+  "demand": [
+    {
+      "name": "内需",
+      "change": 0.22,
+      "count": 251,
+      "weightSum": 218.0,
+      "breakdown": {
+        "内需": 66,
+        "強内需": 185
+      }
+    },
+    {
+      "name": "外需",
+      "change": 0.036,
+      "count": 203,
+      "weightSum": 156.5,
+      "breakdown": {
+        "強外需": 110,
+        "外需": 93
+      }
+    }
+  ],
+  "major": [
+    {
+      "name": "外需・グローバル景気",
+      "change": 0.0909,
+      "count": 170
+    },
+    {
+      "name": "資源・市況",
+      "change": -0.0043,
+      "count": 40
+    },
+    {
+      "name": "内需・国内景気",
+      "change": 0.098,
+      "count": 173
+    },
+    {
+      "name": "金融・金利敏感",
+      "change": 1.1206,
+      "count": 45
+    },
+    {
+      "name": "ディフェンシブ・公共",
+      "change": 0.195,
+      "count": 61
+    }
+  ],
+  "sector": [
+    {
+      "name": "コンテンツ",
+      "change": 0.3449,
+      "count": 13,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "ハイテク・コンテンツ",
+      "change": 1.2004,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "ハイテク・ヘルスケア",
+      "change": 1.5697,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "ハイテク・電子",
+      "change": 0.4313,
+      "count": 16,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "ヘルスケア",
+      "change": -0.4937,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "半導体",
+      "change": -0.2028,
+      "count": 22,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "卸売",
+      "change": 0.5273,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "建設・不動産",
+      "change": -0.2194,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "情報通信",
+      "change": 0.0649,
+      "count": 2,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "投資・ハイテク",
+      "change": 1.494,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "機械",
+      "change": -0.0169,
+      "count": 24,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "消費",
+      "change": -1.3708,
+      "count": 4,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "消費・機械",
+      "change": -1.4944,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "精密・医療",
+      "change": -0.7975,
+      "count": 8,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "精密・計測",
+      "change": 0.327,
+      "count": 3,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "素材",
+      "change": 0.0327,
+      "count": 23,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "自動車",
+      "change": 0.3047,
+      "count": 23,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "自動車・機械",
+      "change": 0.0578,
+      "count": 4,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "自動車・電子",
+      "change": 0.2383,
+      "count": 4,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "重工・造船",
+      "change": 0.8966,
+      "count": 1,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "重工・防衛",
+      "change": -1.1385,
+      "count": 4,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "電機",
+      "change": 0.9842,
+      "count": 12,
+      "major": "外需・グローバル景気"
+    },
+    {
+      "name": "エネルギー",
+      "change": -1.0837,
+      "count": 4,
+      "major": "資源・市況"
+    },
+    {
+      "name": "機械",
+      "change": -1.5709,
+      "count": 1,
+      "major": "資源・市況"
+    },
+    {
+      "name": "素材",
+      "change": 0.9212,
+      "count": 20,
+      "major": "資源・市況"
+    },
+    {
+      "name": "総合商社",
+      "change": -0.4361,
+      "count": 7,
+      "major": "資源・市況"
+    },
+    {
+      "name": "資源開発",
+      "change": -1.0572,
+      "count": 1,
+      "major": "資源・市況"
+    },
+    {
+      "name": "運輸・物流",
+      "change": -2.5936,
+      "count": 3,
+      "major": "資源・市況"
+    },
+    {
+      "name": "非鉄・半導体",
+      "change": 0.7853,
+      "count": 1,
+      "major": "資源・市況"
+    },
+    {
+      "name": "非鉄・電線",
+      "change": -0.5279,
+      "count": 3,
+      "major": "資源・市況"
+    },
+    {
+      "name": "サービス",
+      "change": 0.0286,
+      "count": 14,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "ハイテク・電子",
+      "change": -0.3984,
+      "count": 1,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "ヘルスケア",
+      "change": 0.123,
+      "count": 8,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "メディア",
+      "change": 0.1192,
+      "count": 3,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "公共・金融",
+      "change": 0.9462,
+      "count": 1,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "卸売",
+      "change": 0.2421,
+      "count": 2,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "建設・不動産",
+      "change": 0.4635,
+      "count": 38,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "情報通信",
+      "change": -0.0921,
+      "count": 25,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "機械",
+      "change": 0.4367,
+      "count": 2,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "消費",
+      "change": 0.1829,
+      "count": 43,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "消費・コンテンツ",
+      "change": 0.4231,
+      "count": 1,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "素材",
+      "change": 1.3951,
+      "count": 1,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "運輸・不動産",
+      "change": 0.2565,
+      "count": 1,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "運輸・物流",
+      "change": -0.4002,
+      "count": 31,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "食品",
+      "change": 0.2303,
+      "count": 2,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "金融",
+      "change": 1.1206,
+      "count": 45,
+      "major": "金融・金利敏感"
+    },
+    {
+      "name": "ヘルスケア",
+      "change": 0.8418,
+      "count": 16,
+      "major": "ディフェンシブ・公共"
+    },
+    {
+      "name": "公益",
+      "change": 0.8735,
+      "count": 14,
+      "major": "ディフェンシブ・公共"
+    },
+    {
+      "name": "消費",
+      "change": -0.4452,
+      "count": 31,
+      "major": "ディフェンシブ・公共"
+    }
+  ],
+  "industry": [
+    {
+      "name": "キャラクターIP",
+      "change": -0.3705,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "コンテンツ"
+    },
+    {
+      "name": "ゲーム・コンテンツ",
+      "change": 0.2839,
+      "count": 8,
+      "major": "外需・グローバル景気",
+      "sector": "コンテンツ"
+    },
+    {
+      "name": "ゲーム・玩具・IP",
+      "change": 0.6736,
+      "count": 3,
+      "major": "外需・グローバル景気",
+      "sector": "コンテンツ"
+    },
+    {
+      "name": "ゲーム・遊技機",
+      "change": 0.5625,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "コンテンツ"
+    },
+    {
+      "name": "エンタメ・半導体",
+      "change": 1.2004,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・コンテンツ"
+    },
+    {
+      "name": "医療・電子材料・画像",
+      "change": 1.5697,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・ヘルスケア"
+    },
+    {
+      "name": "光センサー",
+      "change": -0.2551,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "光源・産業機器",
+      "change": 0.9231,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "半導体・IT商社",
+      "change": 1.5659,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "印刷・半導体材料",
+      "change": 1.1229,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "水処理装置",
+      "change": 1.5193,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "電子・産業用セラミックス",
+      "change": 0.0083,
+      "count": 3,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "電子部品",
+      "change": -0.2462,
+      "count": 5,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "電機・電子部品",
+      "change": 0.5427,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "創薬基盤",
+      "change": -0.4937,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "シリコンウエハ",
+      "change": -3.895,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体デバイス",
+      "change": 0.2337,
+      "count": 4,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体メモリ",
+      "change": -2.4581,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体・電子材料",
+      "change": -0.0893,
+      "count": 5,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体基板・パッケージ",
+      "change": 0.5005,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体搬送装置",
+      "change": 0.3203,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体材料・石油化学",
+      "change": -1.1434,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体検査・計測装置",
+      "change": 1.3421,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体製造装置",
+      "change": -0.2916,
+      "count": 5,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体製造装置・精密計測",
+      "change": 0.4997,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "複合専門商社",
+      "change": 0.5273,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "卸売"
+    },
+    {
+      "name": "建築用シャッター",
+      "change": -0.2194,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "ITサービス・通信設備",
+      "change": 0.0649,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "グローバル投資持株",
+      "change": 1.494,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "投資・ハイテク"
+    },
+    {
+      "name": "FA・制御機器",
+      "change": -0.4938,
+      "count": 4,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "FA部品・機械部品",
+      "change": 0.0546,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "プラント・エンジニアリング",
+      "change": 0.332,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "ボイラー・熱機器",
+      "change": 0.1856,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "ポンプ・半導体装置",
+      "change": 0.5678,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "制御・計測機器",
+      "change": 0.3794,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "工作機械",
+      "change": 0.1461,
+      "count": 3,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "建設・鉱山機械",
+      "change": -0.7834,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "業務用厨房機器",
+      "change": 0.105,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "物流自動化設備",
+      "change": -0.1365,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "産業・建設機械",
+      "change": -0.2051,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "空圧制御機器",
+      "change": -0.7907,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "空調機器",
+      "change": 0.7441,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "精密減速機・制御",
+      "change": 0.966,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "農業・建設機械",
+      "change": -0.3211,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "電動工具",
+      "change": -0.339,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "電子部品実装・工作機械",
+      "change": 0.7757,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "アパレル",
+      "change": -0.5653,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "消費"
+    },
+    {
+      "name": "スポーツアパレル",
+      "change": -0.8467,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "消費"
+    },
+    {
+      "name": "スポーツ用品",
+      "change": -3.3866,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "消費"
+    },
+    {
+      "name": "楽器・音響機器",
+      "change": -0.6847,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "消費"
+    },
+    {
+      "name": "自転車部品・釣具",
+      "change": -1.4944,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "消費・機械"
+    },
+    {
+      "name": "光学・半導体装置",
+      "change": -0.5329,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "精密・医療"
+    },
+    {
+      "name": "分析・計測機器",
+      "change": -0.2185,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "精密・医療"
+    },
+    {
+      "name": "医療機器",
+      "change": -0.9381,
+      "count": 6,
+      "major": "外需・グローバル景気",
+      "sector": "精密・医療"
+    },
+    {
+      "name": "通信・分析計測",
+      "change": 0.1894,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "精密・計測"
+    },
+    {
+      "name": "電子顕微鏡・分析装置",
+      "change": 0.6022,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "精密・計測"
+    },
+    {
+      "name": "ガラス・電子材料",
+      "change": -0.1885,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "化学・機能材料",
+      "change": 0.145,
+      "count": 8,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "化学品専門商社",
+      "change": -1.3634,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "塗料",
+      "change": -0.005,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "機能性化学",
+      "change": 0.5947,
+      "count": 6,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "機能性化学・農薬",
+      "change": -0.2077,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "産業ガス",
+      "change": -1.0437,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "高機能繊維・素材",
+      "change": -0.4875,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "タイヤ・ゴム",
+      "change": 0.367,
+      "count": 4,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "二輪・船外機",
+      "change": -0.4075,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "完成車",
+      "change": 0.304,
+      "count": 8,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "自動車樹脂部品",
+      "change": 0.7538,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "自動車部品",
+      "change": 0.6045,
+      "count": 6,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "自動車部品・ばね",
+      "change": -0.2893,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "自動車部品・照明",
+      "change": -0.2876,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "軸受・機械部品",
+      "change": 0.0578,
+      "count": 4,
+      "major": "外需・グローバル景気",
+      "sector": "自動車・機械"
+    },
+    {
+      "name": "車載機器・音響",
+      "change": 1.0848,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "自動車・電子"
+    },
+    {
+      "name": "電子部品・モーター",
+      "change": -0.0439,
+      "count": 3,
+      "major": "外需・グローバル景気",
+      "sector": "自動車・電子"
+    },
+    {
+      "name": "舶用機器・産業機械",
+      "change": 0.8966,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "重工・造船"
+    },
+    {
+      "name": "原子力・防衛・産業機械",
+      "change": -0.3649,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "重工・防衛"
+    },
+    {
+      "name": "重工・防衛・航空宇宙",
+      "change": -1.4051,
+      "count": 2,
+      "major": "外需・グローバル景気",
+      "sector": "重工・防衛"
+    },
+    {
+      "name": "重工・防衛・鉄道車両",
+      "change": -1.3788,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "重工・防衛"
+    },
+    {
+      "name": "事務・民生機器",
+      "change": 1.3735,
+      "count": 6,
+      "major": "外需・グローバル景気",
+      "sector": "電機"
+    },
+    {
+      "name": "民生電機",
+      "change": 2.9228,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "電機"
+    },
+    {
+      "name": "総合電機・電池",
+      "change": 0.7655,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "電機"
+    },
+    {
+      "name": "蓄電池",
+      "change": -0.0187,
+      "count": 1,
+      "major": "外需・グローバル景気",
+      "sector": "電機"
+    },
+    {
+      "name": "重電・電力設備",
+      "change": -0.0334,
+      "count": 3,
+      "major": "外需・グローバル景気",
+      "sector": "電機"
+    },
+    {
+      "name": "産業・LPガス",
+      "change": 0.0,
+      "count": 1,
+      "major": "資源・市況",
+      "sector": "エネルギー"
+    },
+    {
+      "name": "石油元売り",
+      "change": -1.445,
+      "count": 3,
+      "major": "資源・市況",
+      "sector": "エネルギー"
+    },
+    {
+      "name": "海洋資源開発設備",
+      "change": -1.5709,
+      "count": 1,
+      "major": "資源・市況",
+      "sector": "機械"
+    },
+    {
+      "name": "炭素製品",
+      "change": -0.2126,
+      "count": 1,
+      "major": "資源・市況",
+      "sector": "素材"
+    },
+    {
+      "name": "紙・包装材",
+      "change": 0.8439,
+      "count": 2,
+      "major": "資源・市況",
+      "sector": "素材"
+    },
+    {
+      "name": "総合・基礎化学",
+      "change": 0.0336,
+      "count": 7,
+      "major": "資源・市況",
+      "sector": "素材"
+    },
+    {
+      "name": "鉄鋼",
+      "change": 0.317,
+      "count": 6,
+      "major": "資源・市況",
+      "sector": "素材"
+    },
+    {
+      "name": "非鉄金属・機能材料",
+      "change": 2.4532,
+      "count": 1,
+      "major": "資源・市況",
+      "sector": "素材"
+    },
+    {
+      "name": "非鉄金属・資源",
+      "change": 4.1193,
+      "count": 3,
+      "major": "資源・市況",
+      "sector": "素材"
+    },
+    {
+      "name": "総合商社",
+      "change": -0.4361,
+      "count": 7,
+      "major": "資源・市況",
+      "sector": "総合商社"
+    },
+    {
+      "name": "石油・天然ガス開発",
+      "change": -1.0572,
+      "count": 1,
+      "major": "資源・市況",
+      "sector": "資源開発"
+    },
+    {
+      "name": "海運",
+      "change": -2.5936,
+      "count": 3,
+      "major": "資源・市況",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "銅・半導体材料",
+      "change": 0.7853,
+      "count": 1,
+      "major": "資源・市況",
+      "sector": "非鉄・半導体"
+    },
+    {
+      "name": "電線・光ファイバー",
+      "change": -0.5279,
+      "count": 3,
+      "major": "資源・市況",
+      "sector": "非鉄・電線"
+    },
+    {
+      "name": "M&A仲介",
+      "change": 0.3499,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "エレベーター保守",
+      "change": -0.9795,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "コンサルティング",
+      "change": -0.4994,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "中古車オークション",
+      "change": 1.0628,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "人材",
+      "change": 1.0887,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "人材プラットフォーム",
+      "change": -1.525,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "広告",
+      "change": -0.1851,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "業務・生活サービス",
+      "change": -0.3173,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "警備",
+      "change": -0.1351,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "サービス"
+    },
+    {
+      "name": "IT機器販売・SI",
+      "change": -0.3984,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "ハイテク・電子"
+    },
+    {
+      "name": "医療情報サービス",
+      "change": 0.1429,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "医療機器・病院支援",
+      "change": -0.5226,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "医薬品卸",
+      "change": 0.4393,
+      "count": 4,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "研究機器・消耗品",
+      "change": 0.447,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "臨床検査",
+      "change": -0.8401,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "テレビ・放送",
+      "change": 0.1192,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "メディア"
+    },
+    {
+      "name": "郵便・金融持株",
+      "change": 0.9462,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "公共・金融"
+    },
+    {
+      "name": "専門商社・卸売",
+      "change": 0.2421,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "卸売"
+    },
+    {
+      "name": "インフラ補修",
+      "change": 0.5892,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "セメント",
+      "change": 0.6625,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "不動産開発・賃貸",
+      "change": 0.5062,
+      "count": 10,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "住宅・不動産開発",
+      "change": 0.0994,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "住宅・木材",
+      "change": 0.4474,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "住宅設備",
+      "change": 0.0038,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "建築化学材",
+      "change": 0.8751,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "断熱・シール材",
+      "change": 0.1488,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "海洋土木",
+      "change": 1.0464,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "空調・設備工事",
+      "change": 0.2671,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "総合建設・設備工事",
+      "change": 0.2694,
+      "count": 9,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "通信設備工事",
+      "change": 0.9149,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "電力設備工事",
+      "change": 1.0745,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "駐車場",
+      "change": 0.3217,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "建設・不動産"
+    },
+    {
+      "name": "EC・通信・金融",
+      "change": 0.4942,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "SI・システム開発",
+      "change": -0.2294,
+      "count": 7,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "SaaS",
+      "change": -0.603,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "インターネットインフラ・金融",
+      "change": -0.4916,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "インターネットサービス",
+      "change": 0.1368,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "インターネットサービス・EC",
+      "change": 3.1094,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "インターネット広告・メディア",
+      "change": -0.2605,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "サイバーセキュリティ",
+      "change": 0.2701,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "ソフトウェアテスト・DX",
+      "change": -1.5164,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "フリマ・EC",
+      "change": 2.5135,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "企業向けソフトウェア",
+      "change": -0.6257,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "決済プラットフォーム",
+      "change": -0.8529,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "通信キャリア",
+      "change": -0.0308,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "通信・クラウド基盤",
+      "change": -1.8946,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "通信販売代理・投資",
+      "change": 0.3233,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "情報通信"
+    },
+    {
+      "name": "業務自動化機器",
+      "change": 0.4367,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "機械"
+    },
+    {
+      "name": "B2B・EC",
+      "change": 0.2154,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "スーパー",
+      "change": 0.0803,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "テーマパーク",
+      "change": 1.2333,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "ディスカウントストア",
+      "change": 1.2531,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "ドラッグストア・調剤",
+      "change": -0.3053,
+      "count": 7,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "ファッションEC",
+      "change": -0.566,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "ホテル・宿泊",
+      "change": 0.7664,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "レジャー・娯楽",
+      "change": 0.334,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "化粧品",
+      "change": 0.2695,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "外食",
+      "change": -0.5367,
+      "count": 4,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "小売",
+      "change": 0.1574,
+      "count": 6,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "文具・オフィス用品",
+      "change": 1.1443,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "生活雑貨・衣料",
+      "change": 0.1865,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "百貨店",
+      "change": 1.5196,
+      "count": 4,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "総合小売",
+      "change": -0.6155,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "菓子・土産",
+      "change": -0.3853,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "衣料・インナー",
+      "change": 0.4903,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "衣料・家具専門店",
+      "change": -0.6695,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "遊技機",
+      "change": 0.812,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "靴・専門店",
+      "change": -0.5882,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費"
+    },
+    {
+      "name": "業務用カラオケ",
+      "change": 0.4231,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "消費・コンテンツ"
+    },
+    {
+      "name": "包装容器",
+      "change": 1.3951,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "素材"
+    },
+    {
+      "name": "空港施設・免税店",
+      "change": 0.2565,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "運輸・不動産"
+    },
+    {
+      "name": "倉庫・物流不動産",
+      "change": 0.1004,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "宅配・陸運",
+      "change": -0.6432,
+      "count": 3,
+      "major": "内需・国内景気",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "港湾物流",
+      "change": 0.2055,
+      "count": 1,
+      "major": "内需・国内景気",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "総合物流",
+      "change": -0.5959,
+      "count": 4,
+      "major": "内需・国内景気",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "航空",
+      "change": 0.7734,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "鉄道",
+      "change": -0.5287,
+      "count": 19,
+      "major": "内需・国内景気",
+      "sector": "運輸・物流"
+    },
+    {
+      "name": "水産・食品原料",
+      "change": 0.2303,
+      "count": 2,
+      "major": "内需・国内景気",
+      "sector": "食品"
+    },
+    {
+      "name": "ATM銀行",
+      "change": 0.7156,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "クレジット・消費者金融",
+      "change": 0.702,
+      "count": 3,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "ネット証券・総合金融",
+      "change": 5.0124,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "ネット銀行",
+      "change": -1.3938,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "ベンチャーキャピタル",
+      "change": 0.5585,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "メガバンク",
+      "change": 1.4003,
+      "count": 3,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "リース",
+      "change": 0.7603,
+      "count": 3,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "住宅ローン保証",
+      "change": 0.7196,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "信託銀行",
+      "change": 0.9516,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "取引所",
+      "change": 1.1492,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "損害保険",
+      "change": 1.4163,
+      "count": 3,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "生命保険",
+      "change": 0.8678,
+      "count": 4,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "総合証券",
+      "change": 1.0319,
+      "count": 2,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "総合金融",
+      "change": 0.7326,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "郵貯銀行",
+      "change": 1.7571,
+      "count": 1,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "銀行",
+      "change": 1.2141,
+      "count": 18,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "医療機器・医薬品",
+      "change": -0.2537,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "医薬品",
+      "change": 0.9148,
+      "count": 15,
+      "major": "ディフェンシブ・公共",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "都市ガス",
+      "change": -0.1204,
+      "count": 3,
+      "major": "ディフェンシブ・公共",
+      "sector": "公益"
+    },
+    {
+      "name": "都市ガス・LPガス",
+      "change": -0.084,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "公益"
+    },
+    {
+      "name": "電力",
+      "change": 1.2673,
+      "count": 10,
+      "major": "ディフェンシブ・公共",
+      "sector": "公益"
+    },
+    {
+      "name": "たばこ",
+      "change": -0.0429,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "ビール・飲料",
+      "change": -0.3477,
+      "count": 2,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "日用品・ヘルスケア",
+      "change": -0.3409,
+      "count": 3,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "育児用品",
+      "change": -0.3025,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "衛生用品",
+      "change": -0.74,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "調味料",
+      "change": 0.1366,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "調味料・食品素材",
+      "change": -1.4735,
+      "count": 1,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    },
+    {
+      "name": "食品・飲料",
+      "change": -0.46,
+      "count": 21,
+      "major": "ディフェンシブ・公共",
+      "sector": "消費"
+    }
+  ]
+}
