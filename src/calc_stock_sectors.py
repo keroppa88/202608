@@ -4,10 +4,15 @@
 分類マスターにある銘柄だけを対象にし、各銘柄の前回終値→最新終値の騰落率を
 単純平均（等ウェイト）して大分類・セクター・業種別にまとめる。
 
+需要地域の合成指数だけは次の寄与度を使う。
+    内需指数: 強内需=1.0 / 内需=0.5
+    外需指数: 強外需=1.0 / 外需=0.5
+    内外均衡はどちらにも入れない。
+
 出力:
     data/sector_today.json
 
-時価総額は使わない。これは「構成銘柄が平均して今日は何％動いたか」を見るための
+時価総額は使わない。セクター内は「構成銘柄が平均して今日は何％動いたか」を見る
 等ウェイト指標である。最新日まで更新されていない銘柄は当日の集計から除外する。
 """
 
@@ -78,6 +83,7 @@ def latest_pair(path):
 
 
 def average_rows(rows, key_fn, extra_fn=None):
+    """セクター・業種用。各銘柄を完全に同じ1票として単純平均する。"""
     groups = defaultdict(list)
     extras = {}
     for r in rows:
@@ -99,6 +105,31 @@ def average_rows(rows, key_fn, extra_fn=None):
             row.update(extras[key])
         out.append(row)
     return out
+
+
+def demand_index(rows, name, weights):
+    """需要地域指数。強=1、通常=0.5の寄与度で加重平均する。"""
+    selected = []
+    numerator = 0.0
+    denominator = 0.0
+    by_tag = defaultdict(int)
+    for r in rows:
+        weight = weights.get(r["demand"])
+        if weight is None:
+            continue
+        numerator += r["change"] * weight
+        denominator += weight
+        selected.append(r)
+        by_tag[r["demand"]] += 1
+    if not denominator:
+        return None
+    return {
+        "name": name,
+        "change": round(numerator / denominator, 4),
+        "count": len(selected),
+        "weightSum": round(denominator, 1),
+        "breakdown": dict(by_tag),
+    }
 
 
 def main():
@@ -158,6 +189,12 @@ def main():
         lambda r: {"major": r["major"], "sector": r["sector"]},
     )
 
+    demand = [
+        demand_index(today, "内需", {"強内需": 1.0, "内需": 0.5}),
+        demand_index(today, "外需", {"強外需": 1.0, "外需": 0.5}),
+    ]
+    demand = [r for r in demand if r is not None]
+
     major.sort(key=lambda r: (MAJOR_ORDER.get(r["name"], 99), r["name"]))
     sector.sort(key=lambda r: (MAJOR_ORDER.get(r["major"], 99), r["major"], r["name"]))
     industry.sort(
@@ -167,12 +204,14 @@ def main():
     doc = {
         "date": latest_date,
         "method": "equal_weight",
+        "demandMethod": "strong_1_normal_0.5",
         "classified": len(classes),
         "available": len(today),
         "missingFile": missing_file,
         "unreadable": unreadable,
         "stale": stale,
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
+        "demand": demand,
         "major": major,
         "sector": sector,
         "industry": industry,
@@ -186,6 +225,8 @@ def main():
         f"セクター騰落率 {latest_date}: 使用 {len(today)}/{len(classes)}銘柄 / "
         f"大分類 {len(major)} / セクター {len(sector)} / 業種 {len(industry)}"
     )
+    if demand:
+        print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
     if missing_file or unreadable or stale:
         print(
             f"  除外: ファイルなし {missing_file} / 読取不可 {unreadable} / "
