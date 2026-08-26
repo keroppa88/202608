@@ -60,6 +60,12 @@
     #sector-page td.sector-change { font-weight:bold; font-size:15px; text-align:right; }
     #sector-page td.sector-count { color:var(--dim); text-align:right; }
     #sector-page .sector-major { color:var(--dim); text-align:left; }
+    #sector-page .sector-sort-button {
+      display:inline; margin:0; padding:0; border:0; background:none;
+      color:inherit; font:inherit; cursor:pointer; white-space:nowrap;
+    }
+    #sector-page .sector-sort-button:hover,
+    #sector-page .sector-sort-button:focus-visible { color:var(--fg2); text-decoration:underline; }
     #sector-page .pct-graphic {
       display:grid; grid-template-columns:11ch 0 11ch; align-items:center;
       width:22ch; line-height:1; white-space:nowrap;
@@ -105,6 +111,12 @@
 
   let previousSelected = null;
   let cache = null;
+  const sortState = {
+    demand: null,
+    major: null,
+    sector: null,
+    industry: { key: "name", dir: "asc", source: "name" }
+  };
 
   function fmt(v) {
     const n = Number(v);
@@ -120,17 +132,64 @@
       .replaceAll('"', "&quot;");
   }
 
+  function jaCompare(a, b) {
+    return String(a || "").localeCompare(String(b || ""), "ja", {
+      sensitivity: "base",
+      numeric: true
+    });
+  }
+
+  function sortedRows(rows, kind) {
+    const out = Array.from(rows || []);
+    const state = sortState[kind];
+    if (!state) return out;
+
+    if (state.key === "change") {
+      const sign = state.dir === "asc" ? 1 : -1;
+      out.sort((a, b) => {
+        const av = Number(a.change);
+        const bv = Number(b.change);
+        if (Number.isFinite(av) && Number.isFinite(bv) && av !== bv) return (av - bv) * sign;
+        if (Number.isFinite(av) !== Number.isFinite(bv)) return Number.isFinite(av) ? -1 : 1;
+        return jaCompare(a.name, b.name);
+      });
+      return out;
+    }
+
+    if (state.key === "name") {
+      const sign = state.dir === "asc" ? 1 : -1;
+      out.sort((a, b) => jaCompare(a.name, b.name) * sign);
+    }
+    return out;
+  }
+
+  function sortMark(kind, source) {
+    const state = sortState[kind];
+    if (!state || state.key !== "change" || state.source !== source) return "";
+    return state.dir === "asc" ? " ▲" : " ▼";
+  }
+
   // 固定スケール。中央が0、左端が-10%以上、右端が+10%以上。
   // 0～0.49%=1個、0.5～1.49%=2個、以後1%ごとに1個増やす。
-  // マイナスは■を中央から左、プラスは□を中央から右へ伸ばす。
+  // ±10%以上で端まで到達する。マイナスは■、プラスは□。
   function pctGraphic(v) {
     const n = Number(v);
     if (!Number.isFinite(n)) return '<span class="pct-graphic pct-empty">-</span>';
-    const cells = Math.min(11, Math.floor(Math.abs(n) + 0.5) + 1);
+    const a = Math.abs(n);
+    let cells;
+    if (a >= 10) cells = 11;
+    else if (a < 0.5) cells = 1;
+    else cells = Math.min(10, Math.floor(a - 0.5) + 2);
     const neg = n < 0 ? "■".repeat(cells) : "";
     const pos = n >= 0 ? "□".repeat(cells) : "";
     return `<span class="pct-graphic" title="${esc(fmt(n))}">` +
       `<span class="pct-neg">${neg}</span><span class="pct-zero"></span><span class="pct-pos">${pos}</span></span>`;
+  }
+
+  function sortHeader(kind, source, label, cls) {
+    return `<th class="${cls}"><button type="button" class="sector-sort-button" ` +
+      `data-sector-sort="${kind}" data-sort-source="${source}" ` +
+      `title="クリックで騰落率順を昇順・降順切替">${label}${sortMark(kind, source)}</button></th>`;
   }
 
   function rowsTable(rows, kind) {
@@ -139,17 +198,18 @@
     const showCount = kind !== "industry";
     const showMajor = kind === "sector" || kind === "industry";
     const showSector = kind === "industry";
+    const displayRows = sortedRows(rows, kind);
 
     const head = [
       '<th class="sector-name">名称</th>',
-      '<th class="sector-graphic-cell">％graphic</th>',
-      '<th class="sector-change-col">騰落率</th>',
+      sortHeader(kind, "graphic", "％graphic", "sector-graphic-cell"),
+      sortHeader(kind, "change", "騰落率", "sector-change-col"),
       showCount ? '<th class="sector-count-col">銘柄数</th>' : '',
       showSector ? '<th class="sector-parent-col">セクター</th>' : '',
       showMajor ? '<th class="sector-parent-col">大分類</th>' : ''
     ].join("");
 
-    const body = rows.map((r) => {
+    const body = displayRows.map((r) => {
       const extra = kind === "demand" && r.breakdown
         ? ` title="${esc(Object.entries(r.breakdown).map(([k, n]) => `${k}:${n}`).join(" / "))}"`
         : "";
@@ -171,6 +231,8 @@
     const body = document.getElementById("sector-body");
     const status = document.getElementById("sector-status");
     if (!body) return;
+    const scrollTop = body.scrollTop;
+    const scrollLeft = body.scrollLeft;
     const available = Number(data.available) || 0;
     const classified = Number(data.classified) || 0;
     if (status) status.textContent = data.date ? `${data.date}` : "";
@@ -197,6 +259,8 @@
         <h2>業種別</h2>
         ${rowsTable(data.industry || [], "industry")}
       </section>`;
+    body.scrollTop = scrollTop;
+    body.scrollLeft = scrollLeft;
   }
 
   async function load() {
@@ -243,6 +307,19 @@
   document.getElementById("sector-theme").addEventListener("click", () => {
     if (typeof nextTheme === "function") nextTheme();
     if (cache) render(cache);
+  });
+
+  document.getElementById("sector-body").addEventListener("click", (e) => {
+    const button = e.target.closest("[data-sector-sort]");
+    if (!button || !cache) return;
+    const kind = button.dataset.sectorSort;
+    const source = button.dataset.sortSource || "change";
+    if (!Object.prototype.hasOwnProperty.call(sortState, kind)) return;
+
+    const current = sortState[kind];
+    const dir = current && current.key === "change" && current.dir === "desc" ? "asc" : "desc";
+    sortState[kind] = { key: "change", dir, source };
+    render(cache);
   });
 
   document.addEventListener("keydown", (e) => {
