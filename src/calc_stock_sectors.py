@@ -39,6 +39,56 @@ MAJOR_ORDER = {
 HISTORY_LEVEL_ORDER = {"demand": 0, "major": 1, "sector": 2, "industry": 3}
 HISTORY_FIELDS = ["date", "level", "major", "sector", "name", "change", "count", "weight_sum"]
 
+# 大分類をまたいで同じセクター名を使わない。
+# 重複した場合だけ大分類の性格を短く付けて一意化する。
+MAJOR_SECTOR_PREFIX = {
+    "外需・グローバル景気": "グローバル",
+    "資源・市況": "市況",
+    "内需・国内景気": "国内",
+    "金融・金利敏感": "金融",
+    "ディフェンシブ・公共": "ディフェンシブ",
+}
+
+# 複合型で、旧名称だけでは中身が分かりにくかったものを整理する。
+SPECIAL_SECTOR_NAMES = {
+    ("外需・グローバル景気", "ハイテク・コンテンツ"): "エンタメ・電子",
+    ("外需・グローバル景気", "ハイテク・ヘルスケア"): "医療・画像・電子材料",
+}
+
+
+def normalize_sector_names(rows):
+    """セクター名を中身が判別できる一意な名称にする。"""
+    prepared = []
+    for r in rows:
+        item = dict(r)
+        key = (item["major"], item["sector"])
+        item["sector"] = SPECIAL_SECTOR_NAMES.get(key, item["sector"])
+        prepared.append(item)
+
+    majors_by_sector = defaultdict(set)
+    for r in prepared:
+        if r["sector"]:
+            majors_by_sector[r["sector"]].add(r["major"])
+
+    duplicate_names = {name for name, majors in majors_by_sector.items() if len(majors) > 1}
+    for r in prepared:
+        if r["sector"] in duplicate_names:
+            prefix = MAJOR_SECTOR_PREFIX.get(r["major"], r["major"])
+            r["sector"] = f"{prefix}{r['sector']}"
+
+    # 将来分類を追加しても、異なる大分類で同名が復活した場合は必ず識別できるようにする。
+    check = defaultdict(set)
+    for r in prepared:
+        if r["sector"]:
+            check[r["sector"]].add(r["major"])
+    still_duplicate = {name for name, majors in check.items() if len(majors) > 1}
+    if still_duplicate:
+        for r in prepared:
+            if r["sector"] in still_duplicate:
+                r["sector"] = f"{r['sector']}（{MAJOR_SECTOR_PREFIX.get(r['major'], r['major'])}）"
+
+    return prepared
+
 
 def load_classes(path):
     with open(path, encoding="utf-8-sig", newline="") as f:
@@ -56,7 +106,7 @@ def load_classes(path):
                     "demand": (r.get("demand") or "").strip(),
                 }
             )
-    return rows
+    return normalize_sector_names(rows)
 
 
 def latest_pair(path):
@@ -296,6 +346,12 @@ def main():
         key=lambda r: (MAJOR_ORDER.get(r["major"], 99), r["major"], r["sector"], r["name"])
     )
 
+    # セクター表の名称は大分類をまたいでも一意であることを保証する。
+    sector_names = [r["name"] for r in sector]
+    if len(sector_names) != len(set(sector_names)):
+        print("セクター名称の重複が残っています", file=sys.stderr)
+        return 3
+
     history_today, history_total = update_history(
         history_path, latest_date, demand, major, sector, industry
     )
@@ -304,6 +360,7 @@ def main():
         "date": latest_date,
         "method": "equal_weight",
         "demandMethod": "strong_1_normal_0.5",
+        "sectorNaming": "unique_by_market_driver",
         "classified": len(classes),
         "available": len(today),
         "missingFile": len(missing_codes),
