@@ -10,7 +10,8 @@
     内外均衡はどちらにも入れない。
 
 出力:
-    data/sector_today.json
+    data/sector_today.json   当日表示用
+    data/sector_history.csv 日々の履歴（同日は差し替え）
 
 時価総額は使わない。セクター内は「構成銘柄が平均して今日は何％動いたか」を見る
 等ウェイト指標である。最新日まで更新されていない銘柄は当日の集計から除外する。
@@ -35,6 +36,8 @@ MAJOR_ORDER = {
     "金融・金利敏感": 3,
     "ディフェンシブ・公共": 4,
 }
+HISTORY_LEVEL_ORDER = {"demand": 0, "major": 1, "sector": 2, "industry": 3}
+HISTORY_FIELDS = ["date", "level", "major", "sector", "name", "change", "count", "weight_sum"]
 
 
 def load_classes(path):
@@ -133,11 +136,102 @@ def demand_index(rows, name, weights):
     }
 
 
+def make_history_rows(date, demand, major, sector, industry):
+    """当日の集計を時系列保存用のロング形式にする。"""
+    rows = []
+    for r in demand:
+        rows.append(
+            {
+                "date": date,
+                "level": "demand",
+                "major": "",
+                "sector": "",
+                "name": r["name"],
+                "change": r["change"],
+                "count": r["count"],
+                "weight_sum": r.get("weightSum", ""),
+            }
+        )
+    for r in major:
+        rows.append(
+            {
+                "date": date,
+                "level": "major",
+                "major": "",
+                "sector": "",
+                "name": r["name"],
+                "change": r["change"],
+                "count": r["count"],
+                "weight_sum": "",
+            }
+        )
+    for r in sector:
+        rows.append(
+            {
+                "date": date,
+                "level": "sector",
+                "major": r.get("major", ""),
+                "sector": "",
+                "name": r["name"],
+                "change": r["change"],
+                "count": r["count"],
+                "weight_sum": "",
+            }
+        )
+    for r in industry:
+        rows.append(
+            {
+                "date": date,
+                "level": "industry",
+                "major": r.get("major", ""),
+                "sector": r.get("sector", ""),
+                "name": r["name"],
+                "change": r["change"],
+                "count": r["count"],
+                "weight_sum": "",
+            }
+        )
+    return rows
+
+
+def update_history(path, date, demand, major, sector, industry):
+    """履歴を蓄積する。同一日を再計算した場合はその日の行だけ全置換する。"""
+    kept = []
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8-sig", newline="") as f:
+                for r in csv.DictReader(f):
+                    if (r.get("date") or "") != date:
+                        kept.append({k: r.get(k, "") for k in HISTORY_FIELDS})
+        except (OSError, csv.Error) as e:
+            print(f"履歴CSV読取警告: {e}", file=sys.stderr)
+
+    current = make_history_rows(date, demand, major, sector, industry)
+    rows = kept + current
+    rows.sort(
+        key=lambda r: (
+            r.get("date", ""),
+            HISTORY_LEVEL_ORDER.get(r.get("level", ""), 99),
+            MAJOR_ORDER.get(r.get("major", ""), 99),
+            r.get("major", ""),
+            r.get("sector", ""),
+            r.get("name", ""),
+        )
+    )
+
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=HISTORY_FIELDS, lineterminator="\n")
+        w.writeheader()
+        w.writerows(rows)
+    return len(current), len(rows)
+
+
 def main():
     root = repo_root()
     class_path = os.path.join(root, "data", "stock-sectors.csv")
     stocks_dir = os.path.join(root, "data", "stocks")
     out_path = os.path.join(root, "data", "sector_today.json")
+    history_path = os.path.join(root, "data", "sector_history.csv")
 
     if not os.path.exists(class_path):
         print(f"分類マスターがない: {class_path}", file=sys.stderr)
@@ -202,6 +296,10 @@ def main():
         key=lambda r: (MAJOR_ORDER.get(r["major"], 99), r["major"], r["sector"], r["name"])
     )
 
+    history_today, history_total = update_history(
+        history_path, latest_date, demand, major, sector, industry
+    )
+
     doc = {
         "date": latest_date,
         "method": "equal_weight",
@@ -214,6 +312,7 @@ def main():
         "unreadableCodes": unreadable_codes,
         "stale": len(stale_codes),
         "staleCodes": stale_codes,
+        "historyFile": "data/sector_history.csv",
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
         "demand": demand,
         "major": major,
@@ -229,6 +328,7 @@ def main():
         f"セクター騰落率 {latest_date}: 使用 {len(today)}/{len(classes)}銘柄 / "
         f"大分類 {len(major)} / セクター {len(sector)} / 業種 {len(industry)}"
     )
+    print(f"  履歴: 当日 {history_today}行 / 累計 {history_total}行")
     if demand:
         print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
     if missing_codes or unreadable_codes or stale_codes:
