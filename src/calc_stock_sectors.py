@@ -148,17 +148,17 @@ def main():
 
     classes = load_classes(class_path)
     observed = []
-    missing_file = 0
-    unreadable = 0
+    missing_codes = []
+    unreadable_codes = []
 
     for c in classes:
         path = os.path.join(stocks_dir, f"{c['code']}.csv")
         if not os.path.exists(path):
-            missing_file += 1
+            missing_codes.append(c["code"])
             continue
         pair = latest_pair(path)
         if not pair:
-            unreadable += 1
+            unreadable_codes.append(c["code"])
             continue
         prev_d, prev, d, close = pair
         observed.append(
@@ -176,7 +176,7 @@ def main():
 
     latest_date = max(r["date"] for r in observed)
     today = [r for r in observed if r["date"] == latest_date]
-    stale = len(observed) - len(today)
+    stale_codes = [r["code"] for r in observed if r["date"] != latest_date]
 
     major = average_rows(today, lambda r: r["major"])
     sector = average_rows(
@@ -208,9 +208,12 @@ def main():
         "demandMethod": "strong_1_normal_0.5",
         "classified": len(classes),
         "available": len(today),
-        "missingFile": missing_file,
-        "unreadable": unreadable,
-        "stale": stale,
+        "missingFile": len(missing_codes),
+        "missingCodes": missing_codes,
+        "unreadable": len(unreadable_codes),
+        "unreadableCodes": unreadable_codes,
+        "stale": len(stale_codes),
+        "staleCodes": stale_codes,
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
         "demand": demand,
         "major": major,
@@ -228,11 +231,17 @@ def main():
     )
     if demand:
         print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
-    if missing_file or unreadable or stale:
+    if missing_codes or unreadable_codes or stale_codes:
         print(
-            f"  除外: ファイルなし {missing_file} / 読取不可 {unreadable} / "
-            f"最新日未到達 {stale}"
+            f"  除外: ファイルなし {len(missing_codes)} / 読取不可 {len(unreadable_codes)} / "
+            f"最新日未到達 {len(stale_codes)}"
         )
+        if missing_codes:
+            print("  ファイルなしコード: " + " ".join(missing_codes))
+        if unreadable_codes:
+            print("  読取不可コード: " + " ".join(unreadable_codes))
+        if stale_codes:
+            print("  最新日未到達コード: " + " ".join(stale_codes))
     return 0
 
 
