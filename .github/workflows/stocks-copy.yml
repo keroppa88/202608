@@ -14,6 +14,11 @@ on:
   schedule:
     - cron: "30 9 * * 1-5" # UTC 月〜金 09:30 = JST 月〜金 18:30
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/calc_stock_sectors.py"
+      - "data/stock-sectors.csv"
 
 permissions:
   contents: write
