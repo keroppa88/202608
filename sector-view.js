@@ -30,18 +30,46 @@
     #sector-page .sector-title { color:var(--fg2); font-size:18px; }
     #sector-page .sector-meta { color:var(--dim); }
     #sector-page .sector-note { color:var(--dim); font-size:12px; margin-left:auto; }
-    #sector-page .sector-section { width:min(1180px, 100%); margin:0 auto 22px; }
+    #sector-page .sector-section { width:min(1180px, 100%); margin:0 auto 22px; overflow-x:auto; }
     #sector-page .sector-section h2 {
       margin:0; padding:5px 8px; border:1px solid var(--line); border-bottom:0;
       color:var(--fg2); font-size:14px; font-weight:normal;
     }
-    #sector-page table { width:100%; table-layout:auto; }
+    #sector-page table.sector-table { width:auto; table-layout:fixed; }
     #sector-page th, #sector-page td { padding:5px 8px; }
     #sector-page thead th { position:static; }
     #sector-page tbody th { position:static; }
-    #sector-page td.sector-change { font-weight:bold; font-size:15px; }
-    #sector-page td.sector-count { color:var(--dim); }
+    #sector-page .sector-name {
+      width:11em; min-width:11em; max-width:11em;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left;
+    }
+    #sector-page .sector-graphic-cell {
+      width:24ch; min-width:24ch; max-width:24ch;
+      padding-left:5px; padding-right:5px;
+    }
+    #sector-page .sector-change-col {
+      width:7em; min-width:7em; max-width:7em; text-align:right;
+    }
+    #sector-page .sector-count-col {
+      width:5em; min-width:5em; max-width:5em; text-align:right;
+    }
+    #sector-page .sector-parent-col {
+      width:12em; min-width:12em; max-width:12em;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left;
+    }
+    #sector-page td.sector-change { font-weight:bold; font-size:15px; text-align:right; }
+    #sector-page td.sector-count { color:var(--dim); text-align:right; }
     #sector-page .sector-major { color:var(--dim); text-align:left; }
+    #sector-page .pct-graphic {
+      display:grid; grid-template-columns:11ch 0 11ch; align-items:center;
+      width:22ch; line-height:1; white-space:nowrap;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:13px;
+    }
+    #sector-page .pct-neg { text-align:right; overflow:hidden; }
+    #sector-page .pct-pos { text-align:left; overflow:hidden; }
+    #sector-page .pct-zero { height:1.25em; border-left:1px solid var(--dim); }
+    #sector-page .pct-empty { color:var(--dim); }
     #sector-page .sector-error {
       width:min(1180px, 100%); margin:24px auto; border:1px solid var(--line);
       padding:14px; color:var(--fg2); white-space:pre-wrap;
@@ -52,6 +80,7 @@
       #sector-page .sector-note { width:100%; margin-left:0; }
       #sector-page th, #sector-page td { padding:5px 5px; font-size:12px; }
       #sector-page td.sector-change { font-size:13px; }
+      #sector-page .pct-graphic { font-size:12px; }
     }
   `;
   document.head.appendChild(style);
@@ -91,26 +120,50 @@
       .replaceAll('"', "&quot;");
   }
 
+  // 固定スケール。中央が0、左端が-10%以上、右端が+10%以上。
+  // 0～0.49%=1個、0.5～1.49%=2個、以後1%ごとに1個増やす。
+  // マイナスは■を中央から左、プラスは□を中央から右へ伸ばす。
+  function pctGraphic(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return '<span class="pct-graphic pct-empty">-</span>';
+    const cells = Math.min(11, Math.floor(Math.abs(n) + 0.5) + 1);
+    const neg = n < 0 ? "■".repeat(cells) : "";
+    const pos = n >= 0 ? "□".repeat(cells) : "";
+    return `<span class="pct-graphic" title="${esc(fmt(n))}">` +
+      `<span class="pct-neg">${neg}</span><span class="pct-zero"></span><span class="pct-pos">${pos}</span></span>`;
+  }
+
   function rowsTable(rows, kind) {
     if (!rows || !rows.length) return '<div class="sector-error">該当データなし</div>';
-    const showMajor = kind !== "demand" && kind !== "major";
+
+    const showCount = kind !== "industry";
+    const showMajor = kind === "sector" || kind === "industry";
     const showSector = kind === "industry";
+
     const head = [
-      showMajor ? "<th>大分類</th>" : "",
-      showSector ? "<th>セクター</th>" : "",
-      "<th>名称</th><th>当日騰落率</th><th>銘柄数</th>"
+      '<th class="sector-name">名称</th>',
+      '<th class="sector-graphic-cell">％graphic</th>',
+      '<th class="sector-change-col">騰落率</th>',
+      showCount ? '<th class="sector-count-col">銘柄数</th>' : '',
+      showSector ? '<th class="sector-parent-col">セクター</th>' : '',
+      showMajor ? '<th class="sector-parent-col">大分類</th>' : ''
     ].join("");
+
     const body = rows.map((r) => {
       const extra = kind === "demand" && r.breakdown
         ? ` title="${esc(Object.entries(r.breakdown).map(([k, n]) => `${k}:${n}`).join(" / "))}"`
         : "";
-      return `<tr>${showMajor ? `<td class="sector-major">${esc(r.major)}</td>` : ""}` +
-        `${showSector ? `<td class="sector-major">${esc(r.sector)}</td>` : ""}` +
-        `<th>${esc(r.name)}</th>` +
-        `<td class="sector-change">${fmt(r.change)}</td>` +
-        `<td class="sector-count"${extra}>${Number(r.count) || 0}</td></tr>`;
+      return `<tr>` +
+        `<th class="sector-name" title="${esc(r.name)}">${esc(r.name)}</th>` +
+        `<td class="sector-graphic-cell">${pctGraphic(r.change)}</td>` +
+        `<td class="sector-change sector-change-col">${fmt(r.change)}</td>` +
+        `${showCount ? `<td class="sector-count sector-count-col"${extra}>${Number(r.count) || 0}</td>` : ""}` +
+        `${showSector ? `<td class="sector-major sector-parent-col" title="${esc(r.sector)}">${esc(r.sector)}</td>` : ""}` +
+        `${showMajor ? `<td class="sector-major sector-parent-col" title="${esc(r.major)}">${esc(r.major)}</td>` : ""}` +
+        `</tr>`;
     }).join("");
-    return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+
+    return `<table class="sector-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
   }
 
   function render(data) {
