@@ -33,6 +33,9 @@ jobs:
       - name: 写す
         run: python3 src/copy_stocks.py chart0
 
+      - name: セクター騰落率を計算
+        run: python3 src/calc_stock_sectors.py
+
       - name: コミット
         if: always()
         run: bash .github/scripts/commit.sh "個別株のコピー（chart0） $(date -u +%Y-%m-%d)"
