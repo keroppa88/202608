@@ -3,7 +3,7 @@
   if (typeof document === "undefined") return;
 
   const API_HELP = "価格データと最適化されたテクニカル指標に基づいてGeminiの高級AIが分析を行う。\n※一回10円ほどのAPI利用料金はKeroppaの自腹である。";
-  const PROMPT_HELP = "価格データと最適化されたテクニカル指標、それに基づいた分析用のプロンプトを出力する。コピーして各自のAIチャットに貼ると分析が出力される。";
+  const PROMPT_HELP = "価格データと最適化されたテクニカル指標、それに基づいた分析用のプロンプトを出力する。コピーして各自のAIチャットに貼ると分析が出力される。※Keroppaのお財布にノーダメージという利点がある。";
 
   function init() {
     const run = document.getElementById("ai-run");
