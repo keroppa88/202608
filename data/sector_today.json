@@ -4,17 +4,18 @@
   "demandMethod": "strong_1_normal_0.5",
   "classified": 492,
   "available": 489,
-  "missingFile": 3,
-  "missingCodes": [
+  "missingFile": 0,
+  "missingCodes": [],
+  "unreadable": 3,
+  "unreadableCodes": [
     "1969",
     "6368",
     "8341"
   ],
-  "unreadable": 0,
-  "unreadableCodes": [],
   "stale": 0,
   "staleCodes": [],
-  "generatedAt": "2026-08-26T20:55:05+09:00",
+  "historyFile": "data/sector_history.csv",
+  "generatedAt": "2026-08-26T20:59:56+09:00",
   "demand": [
     {
       "name": "内需",
