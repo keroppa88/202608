@@ -24,6 +24,20 @@
 
     const style = document.createElement("style");
     style.textContent = `
+      /* 予測対象と比較銘柄を明確に分ける。 */
+      #ai-analysis .ai-row {
+        border:1px solid var(--fg2);
+        padding:8px 10px;
+        margin-bottom:18px;
+      }
+      #ai-analysis .ai-row:first-child {
+        margin-bottom:24px;
+      }
+      @media (max-width:640px) {
+        #ai-analysis .ai-row { padding:8px; }
+        #ai-analysis .ai-row:first-child { margin-bottom:16px; }
+      }
+
       #ai-help-modal {
         position:fixed; inset:0; z-index:10020; background:rgba(0,0,0,.72);
         display:flex; align-items:center; justify-content:center; padding:16px;
