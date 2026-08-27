@@ -159,11 +159,11 @@
     const state = sortState[kind];
     if (!state) return out;
 
-    if (state.key === "change") {
+    if (["change", "count", "marketCapTrillion", "avgMarketCapTrillion"].includes(state.key)) {
       const sign = state.dir === "asc" ? 1 : -1;
       out.sort((a, b) => {
-        const av = Number(a.change);
-        const bv = Number(b.change);
+        const av = Number(a[state.key]);
+        const bv = Number(b[state.key]);
         if (Number.isFinite(av) && Number.isFinite(bv) && av !== bv) return (av - bv) * sign;
         if (Number.isFinite(av) !== Number.isFinite(bv)) return Number.isFinite(av) ? -1 : 1;
         return jaCompare(a.name, b.name);
@@ -180,7 +180,7 @@
 
   function sortMark(kind, source) {
     const state = sortState[kind];
-    if (!state || state.key !== "change" || state.source !== source) return "";
+    if (!state || state.source !== source) return "";
     return state.dir === "asc" ? " ▲" : " ▼";
   }
 
@@ -198,10 +198,10 @@
       `<span class="pct-neg">${neg}</span><span class="pct-zero"></span><span class="pct-pos">${pos}</span></span>`;
   }
 
-  function sortHeader(kind, source, label, cls) {
+  function sortHeader(kind, source, key, label, cls) {
     return `<th class="${cls}"><button type="button" class="sector-sort-button" ` +
-      `data-sector-sort="${kind}" data-sort-source="${source}" ` +
-      `title="クリックで騰落率順を昇順・降順切替">${label}${sortMark(kind, source)}</button></th>`;
+      `data-sector-sort="${kind}" data-sort-source="${source}" data-sort-key="${key}" ` +
+      `title="クリックで昇順・降順切替">${label}${sortMark(kind, source)}</button></th>`;
   }
 
   function rowsTable(rows, kind) {
@@ -213,11 +213,11 @@
 
     const head = [
       '<th class="sector-name">名称</th>',
-      sortHeader(kind, "graphic", "％graphic", "sector-graphic-cell"),
-      sortHeader(kind, "change", "騰落率", "sector-change-col"),
-      '<th class="sector-count-col">銘柄数</th>',
-      '<th class="sector-cap-col">時価総額</th>',
-      '<th class="sector-avg-cap-col">1社平均時価総額</th>',
+      sortHeader(kind, "graphic", "change", "％graphic", "sector-graphic-cell"),
+      sortHeader(kind, "change", "change", "騰落率", "sector-change-col"),
+      sortHeader(kind, "count", "count", "銘柄数", "sector-count-col"),
+      sortHeader(kind, "marketCap", "marketCapTrillion", "時価総額", "sector-cap-col"),
+      sortHeader(kind, "avgMarketCap", "avgMarketCapTrillion", "1社平均時価総額", "sector-avg-cap-col"),
       showSector ? '<th class="sector-parent-col">セクター</th>' : '',
       showMajor ? '<th class="sector-parent-col">大分類</th>' : ''
     ].join("");
@@ -335,11 +335,13 @@
     if (!button || !cache) return;
     const kind = button.dataset.sectorSort;
     const source = button.dataset.sortSource || "change";
+    const key = button.dataset.sortKey || "change";
     if (!Object.prototype.hasOwnProperty.call(sortState, kind)) return;
 
     const current = sortState[kind];
-    const dir = current && current.key === "change" && current.dir === "desc" ? "asc" : "desc";
-    sortState[kind] = { key: "change", dir, source };
+    const sameColumn = current && current.key === key && current.source === source;
+    const dir = sameColumn && current.dir === "desc" ? "asc" : "desc";
+    sortState[kind] = { key, dir, source };
     render(cache);
   });
 
