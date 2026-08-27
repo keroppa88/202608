@@ -9,12 +9,12 @@
     外需指数: 強外需=1.0 / 外需=0.5
     内外均衡はどちらにも入れない。
 
+時価総額は data/market_cap.csv をコードで突き合わせる。
+騰落率の計算には使わず、各分類の合計時価総額・1社平均時価総額を表示用に集計する。
+
 出力:
     data/sector_today.json   当日表示用
     data/sector_history.csv 日々の履歴（同日は差し替え）
-
-時価総額は使わない。セクター内は「構成銘柄が平均して今日は何％動いたか」を見る
-等ウェイト指標である。最新日まで更新されていない銘柄は当日の集計から除外する。
 """
 
 import csv
@@ -27,8 +27,8 @@ from datetime import datetime, timezone, timedelta
 
 from common import repo_root
 
-# 分類・計算式を更新したときも workflow の push トリガーで当日分を作り直す。
 JST = timezone(timedelta(hours=9))
+MARKET_CAP_AS_OF = "2026-08-27"
 MAJOR_ORDER = {
     "外需・グローバル景気": 0,
     "資源・市況": 1,
@@ -37,10 +37,20 @@ MAJOR_ORDER = {
     "ディフェンシブ・公共": 4,
 }
 HISTORY_LEVEL_ORDER = {"demand": 0, "major": 1, "sector": 2, "industry": 3}
-HISTORY_FIELDS = ["date", "level", "major", "sector", "name", "change", "count", "weight_sum"]
+HISTORY_FIELDS = [
+    "date",
+    "level",
+    "major",
+    "sector",
+    "name",
+    "change",
+    "count",
+    "weight_sum",
+    "market_cap_trillion",
+    "avg_market_cap_trillion",
+    "market_cap_count",
+]
 
-# 大分類をまたいで同じセクター名を使わない。
-# 重複した場合だけ大分類の性格を短く付けて一意化する。
 MAJOR_SECTOR_PREFIX = {
     "外需・グローバル景気": "グローバル",
     "資源・市況": "市況",
@@ -49,7 +59,6 @@ MAJOR_SECTOR_PREFIX = {
     "ディフェンシブ・公共": "ディフェンシブ",
 }
 
-# 複合型で、旧名称だけでは中身が分かりにくかったものを整理する。
 SPECIAL_SECTOR_NAMES = {
     ("外需・グローバル景気", "ハイテク・コンテンツ"): "エンタメ・電子",
     ("外需・グローバル景気", "ハイテク・ヘルスケア"): "医療・画像・電子材料",
@@ -76,7 +85,6 @@ def normalize_sector_names(rows):
             prefix = MAJOR_SECTOR_PREFIX.get(r["major"], r["major"])
             r["sector"] = f"{prefix}{r['sector']}"
 
-    # 将来分類を追加しても、異なる大分類で同名が復活した場合は必ず識別できるようにする。
     check = defaultdict(set)
     for r in prepared:
         if r["sector"]:
@@ -109,6 +117,45 @@ def load_classes(path):
     return normalize_sector_names(rows)
 
 
+def load_market_caps(path):
+    """コード -> 時価総額(百万円) を返す。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            code = (r.get("code") or "").strip().upper()
+            raw = (r.get("market_cap_million") or "").replace(",", "").strip()
+            if not code or not raw:
+                continue
+            try:
+                value = float(raw)
+            except ValueError:
+                continue
+            if math.isfinite(value) and value > 0:
+                out[code] = value
+    return out
+
+
+def market_cap_band(million):
+    if million is None:
+        return ""
+    trillion = million / 1_000_000.0
+    if trillion < 0.2:
+        return "<0.2兆"
+    if trillion < 0.5:
+        return "0.2–0.5兆"
+    if trillion < 1:
+        return "0.5–1兆"
+    if trillion < 2:
+        return "1–2兆"
+    if trillion < 5:
+        return "2–5兆"
+    if trillion < 10:
+        return "5–10兆"
+    return "10兆+"
+
+
 def latest_pair(path):
     """最後の2取引日の (日付, 終値) を返す。読めなければ None。"""
     last_by_date = {}
@@ -136,6 +183,19 @@ def latest_pair(path):
     return prev_d, last_by_date[prev_d], last_d, last_by_date[last_d]
 
 
+def add_market_cap_summary(row, members):
+    caps = [r["market_cap_million"] for r in members if r.get("market_cap_million") is not None]
+    row["marketCapCount"] = len(caps)
+    if caps:
+        total_trillion = sum(caps) / 1_000_000.0
+        row["marketCapTrillion"] = round(total_trillion, 4)
+        row["avgMarketCapTrillion"] = round(total_trillion / len(caps), 4)
+    else:
+        row["marketCapTrillion"] = None
+        row["avgMarketCapTrillion"] = None
+    return row
+
+
 def average_rows(rows, key_fn, extra_fn=None):
     """セクター・業種用。各銘柄を完全に同じ1票として単純平均する。"""
     groups = defaultdict(list)
@@ -144,17 +204,19 @@ def average_rows(rows, key_fn, extra_fn=None):
         key = key_fn(r)
         if not key or (isinstance(key, tuple) and not all(key)):
             continue
-        groups[key].append(r["change"])
+        groups[key].append(r)
         if extra_fn:
             extras[key] = extra_fn(r)
 
     out = []
-    for key, vals in groups.items():
+    for key, members in groups.items():
+        vals = [r["change"] for r in members]
         row = {
             "name": key[-1] if isinstance(key, tuple) else key,
             "change": round(sum(vals) / len(vals), 4),
             "count": len(vals),
         }
+        add_market_cap_summary(row, members)
         if extra_fn:
             row.update(extras[key])
         out.append(row)
@@ -177,69 +239,49 @@ def demand_index(rows, name, weights):
         by_tag[r["demand"]] += 1
     if not denominator:
         return None
-    return {
+    row = {
         "name": name,
         "change": round(numerator / denominator, 4),
         "count": len(selected),
         "weightSum": round(denominator, 1),
         "breakdown": dict(by_tag),
     }
+    return add_market_cap_summary(row, selected)
+
+
+def history_row(date, level, row, major="", sector=""):
+    return {
+        "date": date,
+        "level": level,
+        "major": major,
+        "sector": sector,
+        "name": row["name"],
+        "change": row["change"],
+        "count": row["count"],
+        "weight_sum": row.get("weightSum", ""),
+        "market_cap_trillion": row.get("marketCapTrillion", ""),
+        "avg_market_cap_trillion": row.get("avgMarketCapTrillion", ""),
+        "market_cap_count": row.get("marketCapCount", ""),
+    }
 
 
 def make_history_rows(date, demand, major, sector, industry):
-    """当日の集計を時系列保存用のロング形式にする。"""
     rows = []
     for r in demand:
-        rows.append(
-            {
-                "date": date,
-                "level": "demand",
-                "major": "",
-                "sector": "",
-                "name": r["name"],
-                "change": r["change"],
-                "count": r["count"],
-                "weight_sum": r.get("weightSum", ""),
-            }
-        )
+        rows.append(history_row(date, "demand", r))
     for r in major:
-        rows.append(
-            {
-                "date": date,
-                "level": "major",
-                "major": "",
-                "sector": "",
-                "name": r["name"],
-                "change": r["change"],
-                "count": r["count"],
-                "weight_sum": "",
-            }
-        )
+        rows.append(history_row(date, "major", r))
     for r in sector:
-        rows.append(
-            {
-                "date": date,
-                "level": "sector",
-                "major": r.get("major", ""),
-                "sector": "",
-                "name": r["name"],
-                "change": r["change"],
-                "count": r["count"],
-                "weight_sum": "",
-            }
-        )
+        rows.append(history_row(date, "sector", r, major=r.get("major", "")))
     for r in industry:
         rows.append(
-            {
-                "date": date,
-                "level": "industry",
-                "major": r.get("major", ""),
-                "sector": r.get("sector", ""),
-                "name": r["name"],
-                "change": r["change"],
-                "count": r["count"],
-                "weight_sum": "",
-            }
+            history_row(
+                date,
+                "industry",
+                r,
+                major=r.get("major", ""),
+                sector=r.get("sector", ""),
+            )
         )
     return rows
 
@@ -279,6 +321,7 @@ def update_history(path, date, demand, major, sector, industry):
 def main():
     root = repo_root()
     class_path = os.path.join(root, "data", "stock-sectors.csv")
+    market_cap_path = os.path.join(root, "data", "market_cap.csv")
     stocks_dir = os.path.join(root, "data", "stocks")
     out_path = os.path.join(root, "data", "sector_today.json")
     history_path = os.path.join(root, "data", "sector_history.csv")
@@ -291,6 +334,7 @@ def main():
         return 2
 
     classes = load_classes(class_path)
+    market_caps = load_market_caps(market_cap_path)
     observed = []
     missing_codes = []
     unreadable_codes = []
@@ -305,12 +349,15 @@ def main():
             unreadable_codes.append(c["code"])
             continue
         prev_d, prev, d, close = pair
+        cap = market_caps.get(c["code"])
         observed.append(
             {
                 **c,
                 "date": d,
                 "prev_date": prev_d,
                 "change": (close / prev - 1.0) * 100.0,
+                "market_cap_million": cap,
+                "market_cap_band": market_cap_band(cap),
             }
         )
 
@@ -342,11 +389,8 @@ def main():
 
     major.sort(key=lambda r: (MAJOR_ORDER.get(r["name"], 99), r["name"]))
     sector.sort(key=lambda r: (MAJOR_ORDER.get(r["major"], 99), r["major"], r["name"]))
-    industry.sort(
-        key=lambda r: (MAJOR_ORDER.get(r["major"], 99), r["major"], r["sector"], r["name"])
-    )
+    industry.sort(key=lambda r: r["name"])
 
-    # セクター表の名称は大分類をまたいでも一意であることを保証する。
     sector_names = [r["name"] for r in sector]
     if len(sector_names) != len(set(sector_names)):
         print("セクター名称の重複が残っています", file=sys.stderr)
@@ -355,6 +399,9 @@ def main():
     history_today, history_total = update_history(
         history_path, latest_date, demand, major, sector, industry
     )
+
+    matched_market_cap = sum(1 for c in classes if c["code"] in market_caps)
+    missing_market_cap_codes = [c["code"] for c in classes if c["code"] not in market_caps]
 
     doc = {
         "date": latest_date,
@@ -369,6 +416,11 @@ def main():
         "unreadableCodes": unreadable_codes,
         "stale": len(stale_codes),
         "staleCodes": stale_codes,
+        "marketCapAsOf": MARKET_CAP_AS_OF,
+        "marketCapSourceCount": len(market_caps),
+        "marketCapMatched": matched_market_cap,
+        "missingMarketCapCodes": missing_market_cap_codes,
+        "marketCapBands": ["<0.2兆", "0.2–0.5兆", "0.5–1兆", "1–2兆", "2–5兆", "5–10兆", "10兆+"],
         "historyFile": "data/sector_history.csv",
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
         "demand": demand,
@@ -385,9 +437,15 @@ def main():
         f"セクター騰落率 {latest_date}: 使用 {len(today)}/{len(classes)}銘柄 / "
         f"大分類 {len(major)} / セクター {len(sector)} / 業種 {len(industry)}"
     )
+    print(
+        f"  時価総額: {MARKET_CAP_AS_OF} / ランキング {len(market_caps)}銘柄 / "
+        f"分類一致 {matched_market_cap}/{len(classes)}銘柄"
+    )
     print(f"  履歴: 当日 {history_today}行 / 累計 {history_total}行")
     if demand:
         print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
+    if missing_market_cap_codes:
+        print("  時価総額なしコード: " + " ".join(missing_market_cap_codes))
     if missing_codes or unreadable_codes or stale_codes:
         print(
             f"  除外: ファイルなし {len(missing_codes)} / 読取不可 {len(unreadable_codes)} / "
