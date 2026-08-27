@@ -12,10 +12,19 @@
   const originalStepSaver = stepSaver;
   const originalStopSaver = stopSaver;
 
+  // 雪の太鼓：4/4、四分音符=80。
+  // 8分音符グリッドでは
+  //   ボン / 休 / ボ / ボ / ボン / 休 / ボン / 休
+  // を繰り返す。ボボだけ少し高く、拍子木っぽい短い音にする。
+  const DRUM_BPM = 80;
+  const DRUM_EIGHTH_MS = (60_000 / DRUM_BPM) / 2; // 375ms
+  const DRUM_PATTERN = ["bon", null, "bo", "bo", "bon", null, "bon", null];
+
   let drumCtx = null;
   let drumTimer = 0;
   let drumMaster = null;
   let drumRunning = false;
+  let drumStep = 0;
 
   function getDrumContext() {
     if (drumCtx) return drumCtx;
@@ -106,19 +115,86 @@
     noise.stop(t + 0.13);
   }
 
+  // 「ボボ」用。大太鼓より少し高く、短く硬い拍子木寄りの打撃音。
+  function playDrumBo() {
+    if (!drumRunning || !drumMaster) return;
+    const ac = getDrumContext();
+    if (!ac || ac.state !== "running") return;
+
+    const t = ac.currentTime + 0.008;
+
+    // 木の芯を感じる短い2音。高すぎないよう中低域に置く。
+    const wood1 = ac.createOscillator();
+    const wood1Gain = ac.createGain();
+    wood1.type = "triangle";
+    wood1.frequency.setValueAtTime(235, t);
+    wood1.frequency.exponentialRampToValueAtTime(205, t + 0.07);
+    wood1Gain.gain.setValueAtTime(0.0001, t);
+    wood1Gain.gain.exponentialRampToValueAtTime(0.22, t + 0.004);
+    wood1Gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    wood1.connect(wood1Gain);
+    wood1Gain.connect(drumMaster);
+    wood1.start(t);
+    wood1.stop(t + 0.12);
+
+    const wood2 = ac.createOscillator();
+    const wood2Gain = ac.createGain();
+    wood2.type = "sine";
+    wood2.frequency.setValueAtTime(470, t);
+    wood2Gain.gain.setValueAtTime(0.0001, t);
+    wood2Gain.gain.exponentialRampToValueAtTime(0.09, t + 0.003);
+    wood2Gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
+    wood2.connect(wood2Gain);
+    wood2Gain.connect(drumMaster);
+    wood2.start(t);
+    wood2.stop(t + 0.085);
+
+    // 拍子木の「カッ」という輪郭。高域ノイズを非常に短く足す。
+    const length = Math.max(1, Math.floor(ac.sampleRate * 0.035));
+    const noiseBuffer = ac.createBuffer(1, length, ac.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < length; i++) {
+      const env = 1 - i / length;
+      data[i] = (Math.random() * 2 - 1) * env;
+    }
+    const noise = ac.createBufferSource();
+    const filter = ac.createBiquadFilter();
+    const noiseGain = ac.createGain();
+    noise.buffer = noiseBuffer;
+    filter.type = "bandpass";
+    filter.frequency.value = 920;
+    filter.Q.value = 1.15;
+    noiseGain.gain.setValueAtTime(0.075, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(drumMaster);
+    noise.start(t);
+    noise.stop(t + 0.055);
+  }
+
+  function playDrumPatternStep() {
+    if (!drumRunning) return;
+    const hit = DRUM_PATTERN[drumStep];
+    if (hit === "bon") playDrumBon();
+    else if (hit === "bo") playDrumBo();
+    drumStep = (drumStep + 1) % DRUM_PATTERN.length;
+  }
+
   function startSnowDrum() {
     stopSnowDrum();
     const ac = getDrumContext();
     if (!ac) return;
     drumRunning = true;
+    drumStep = 0;
     drumMaster = ac.createGain();
     drumMaster.gain.value = 0.55;
     drumMaster.connect(ac.destination);
 
     const begin = () => {
       if (!drumRunning) return;
-      playDrumBon();
-      drumTimer = window.setInterval(playDrumBon, 1500);
+      playDrumPatternStep();
+      drumTimer = window.setInterval(playDrumPatternStep, DRUM_EIGHTH_MS);
     };
     if (ac.state === "suspended") ac.resume().then(begin).catch(() => {});
     else begin();
@@ -126,6 +202,7 @@
 
   function stopSnowDrum() {
     drumRunning = false;
+    drumStep = 0;
     if (drumTimer) {
       clearInterval(drumTimer);
       drumTimer = 0;
@@ -239,6 +316,7 @@
 
   window.SnowSaver = {
     playDrum: playDrumBon,
+    playClack: playDrumBo,
     stopDrum: stopSnowDrum
   };
 })();
