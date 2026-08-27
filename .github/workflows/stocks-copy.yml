@@ -19,6 +19,7 @@ on:
     paths:
       - "src/calc_stock_sectors.py"
       - "data/stock-sectors.csv"
+      - "data/market_cap.csv"
 
 permissions:
   contents: write
