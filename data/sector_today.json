@@ -1,18 +1,14 @@
 {
-  "date": "2026-08-26",
+  "date": "2026-08-27",
   "method": "equal_weight",
   "demandMethod": "strong_1_normal_0.5",
   "sectorNaming": "unique_by_market_driver",
   "classified": 492,
-  "available": 489,
+  "available": 492,
   "missingFile": 0,
   "missingCodes": [],
-  "unreadable": 3,
-  "unreadableCodes": [
-    "1969",
-    "6368",
-    "8341"
-  ],
+  "unreadable": 0,
+  "unreadableCodes": [],
   "stale": 0,
   "staleCodes": [],
   "marketCapAsOf": "2026-08-27",
@@ -38,47 +34,47 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-28T01:41:31+09:00",
+  "generatedAt": "2026-08-28T04:56:06+09:00",
   "demand": [
     {
       "name": "内需",
-      "change": 0.22,
-      "count": 251,
-      "weightSum": 218.0,
+      "change": -0.1213,
+      "count": 253,
+      "weightSum": 220.0,
       "breakdown": {
         "内需": 66,
-        "強内需": 185
+        "強内需": 187
       },
-      "marketCapCount": 246,
-      "marketCapTrillion": 359.4144,
-      "avgMarketCapTrillion": 1.461
+      "marketCapCount": 248,
+      "marketCapTrillion": 360.9214,
+      "avgMarketCapTrillion": 1.4553
     },
     {
       "name": "外需",
-      "change": 0.036,
-      "count": 203,
-      "weightSum": 156.5,
+      "change": 0.1365,
+      "count": 204,
+      "weightSum": 157.0,
       "breakdown": {
         "強外需": 110,
-        "外需": 93
+        "外需": 94
       },
-      "marketCapCount": 200,
-      "marketCapTrillion": 737.5664,
-      "avgMarketCapTrillion": 3.6878
+      "marketCapCount": 201,
+      "marketCapTrillion": 738.1779,
+      "avgMarketCapTrillion": 3.6725
     }
   ],
   "major": [
     {
       "name": "外需・グローバル景気",
-      "change": 0.0909,
-      "count": 170,
-      "marketCapCount": 167,
-      "marketCapTrillion": 573.4066,
-      "avgMarketCapTrillion": 3.4336
+      "change": 0.108,
+      "count": 171,
+      "marketCapCount": 168,
+      "marketCapTrillion": 574.0181,
+      "avgMarketCapTrillion": 3.4168
     },
     {
       "name": "資源・市況",
-      "change": -0.0043,
+      "change": 0.2926,
       "count": 40,
       "marketCapCount": 40,
       "marketCapTrillion": 136.664,
@@ -86,23 +82,23 @@
     },
     {
       "name": "内需・国内景気",
-      "change": 0.098,
-      "count": 173,
-      "marketCapCount": 170,
-      "marketCapTrillion": 230.1385,
-      "avgMarketCapTrillion": 1.3538
+      "change": -0.0676,
+      "count": 174,
+      "marketCapCount": 171,
+      "marketCapTrillion": 230.7511,
+      "avgMarketCapTrillion": 1.3494
     },
     {
       "name": "金融・金利敏感",
-      "change": 1.1206,
-      "count": 45,
-      "marketCapCount": 44,
-      "marketCapTrillion": 200.3228,
-      "avgMarketCapTrillion": 4.5528
+      "change": 0.0932,
+      "count": 46,
+      "marketCapCount": 45,
+      "marketCapTrillion": 201.2171,
+      "avgMarketCapTrillion": 4.4715
     },
     {
       "name": "ディフェンシブ・公共",
-      "change": 0.195,
+      "change": -0.5464,
       "count": 61,
       "marketCapCount": 60,
       "marketCapTrillion": 106.7444,
@@ -112,7 +108,7 @@
   "sector": [
     {
       "name": "エンタメ・電子",
-      "change": 1.2004,
+      "change": -0.2063,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 23.0858,
@@ -121,16 +117,16 @@
     },
     {
       "name": "グローバルハイテク・電子",
-      "change": 0.4313,
-      "count": 16,
-      "marketCapCount": 16,
-      "marketCapTrillion": 37.7447,
-      "avgMarketCapTrillion": 2.359,
+      "change": 0.1163,
+      "count": 17,
+      "marketCapCount": 17,
+      "marketCapTrillion": 38.3562,
+      "avgMarketCapTrillion": 2.2562,
       "major": "外需・グローバル景気"
     },
     {
       "name": "グローバルヘルスケア",
-      "change": -0.4937,
+      "change": -0.0902,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -139,7 +135,7 @@
     },
     {
       "name": "グローバル卸売",
-      "change": 0.5273,
+      "change": 1.9384,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3777,
@@ -148,7 +144,7 @@
     },
     {
       "name": "グローバル建設・不動産",
-      "change": -0.2194,
+      "change": -0.4948,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7928,
@@ -157,7 +153,7 @@
     },
     {
       "name": "グローバル情報通信",
-      "change": 0.0649,
+      "change": 1.1829,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 12.9891,
@@ -166,7 +162,7 @@
     },
     {
       "name": "グローバル機械",
-      "change": -0.0169,
+      "change": -0.1244,
       "count": 24,
       "marketCapCount": 24,
       "marketCapTrillion": 65.1604,
@@ -175,7 +171,7 @@
     },
     {
       "name": "グローバル消費",
-      "change": -1.3708,
+      "change": -0.2058,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 26.9679,
@@ -184,7 +180,7 @@
     },
     {
       "name": "グローバル素材",
-      "change": 0.0327,
+      "change": 0.4651,
       "count": 23,
       "marketCapCount": 23,
       "marketCapTrillion": 20.4896,
@@ -193,7 +189,7 @@
     },
     {
       "name": "コンテンツ",
-      "change": 0.3449,
+      "change": -1.0151,
       "count": 13,
       "marketCapCount": 13,
       "marketCapTrillion": 29.0333,
@@ -202,7 +198,7 @@
     },
     {
       "name": "医療・画像・電子材料",
-      "change": 1.5697,
+      "change": -0.1212,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 4.0678,
@@ -211,7 +207,7 @@
     },
     {
       "name": "半導体",
-      "change": -0.2028,
+      "change": 1.1482,
       "count": 22,
       "marketCapCount": 21,
       "marketCapTrillion": 131.8522,
@@ -220,7 +216,7 @@
     },
     {
       "name": "投資・ハイテク",
-      "change": 1.494,
+      "change": 0.7166,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 29.7016,
@@ -229,7 +225,7 @@
     },
     {
       "name": "消費・機械",
-      "change": -1.4944,
+      "change": 0.4804,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.7194,
@@ -238,7 +234,7 @@
     },
     {
       "name": "精密・医療",
-      "change": -0.7975,
+      "change": -0.9662,
       "count": 8,
       "marketCapCount": 8,
       "marketCapTrillion": 18.7185,
@@ -247,7 +243,7 @@
     },
     {
       "name": "精密・計測",
-      "change": 0.327,
+      "change": -0.064,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 1.831,
@@ -256,7 +252,7 @@
     },
     {
       "name": "自動車",
-      "change": 0.3047,
+      "change": -0.7293,
       "count": 23,
       "marketCapCount": 23,
       "marketCapTrillion": 83.8574,
@@ -265,7 +261,7 @@
     },
     {
       "name": "自動車・機械",
-      "change": 0.0578,
+      "change": -0.0599,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 2.2438,
@@ -274,7 +270,7 @@
     },
     {
       "name": "自動車・電子",
-      "change": 0.2383,
+      "change": 0.6191,
       "count": 4,
       "marketCapCount": 3,
       "marketCapTrillion": 2.3678,
@@ -283,7 +279,7 @@
     },
     {
       "name": "重工・造船",
-      "change": 0.8966,
+      "change": 2.8064,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4532,
@@ -292,7 +288,7 @@
     },
     {
       "name": "重工・防衛",
-      "change": -1.1385,
+      "change": 1.8878,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 19.266,
@@ -301,7 +297,7 @@
     },
     {
       "name": "電機",
-      "change": 0.9842,
+      "change": 0.4205,
       "count": 12,
       "marketCapCount": 12,
       "marketCapTrillion": 60.6867,
@@ -310,7 +306,7 @@
     },
     {
       "name": "エネルギー",
-      "change": -1.0837,
+      "change": 1.1273,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 6.4905,
@@ -319,7 +315,7 @@
     },
     {
       "name": "市況機械",
-      "change": -1.5709,
+      "change": 0.4633,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6668,
@@ -328,7 +324,7 @@
     },
     {
       "name": "市況素材",
-      "change": 0.9212,
+      "change": 0.0518,
       "count": 20,
       "marketCapCount": 20,
       "marketCapTrillion": 20.5939,
@@ -337,7 +333,7 @@
     },
     {
       "name": "市況運輸・物流",
-      "change": -2.5936,
+      "change": -0.6692,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 7.4536,
@@ -346,7 +342,7 @@
     },
     {
       "name": "総合商社",
-      "change": -0.4361,
+      "change": -0.2341,
       "count": 7,
       "marketCapCount": 7,
       "marketCapTrillion": 73.1902,
@@ -355,7 +351,7 @@
     },
     {
       "name": "資源開発",
-      "change": -1.0572,
+      "change": 0.4952,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 4.8552,
@@ -364,7 +360,7 @@
     },
     {
       "name": "非鉄・半導体",
-      "change": 0.7853,
+      "change": -1.5065,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 3.5993,
@@ -373,7 +369,7 @@
     },
     {
       "name": "非鉄・電線",
-      "change": -0.5279,
+      "change": 3.4516,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 19.8144,
@@ -382,7 +378,7 @@
     },
     {
       "name": "サービス",
-      "change": 0.0286,
+      "change": -0.3108,
       "count": 14,
       "marketCapCount": 14,
       "marketCapTrillion": 34.5634,
@@ -391,7 +387,7 @@
     },
     {
       "name": "メディア",
-      "change": 0.1192,
+      "change": -1.3501,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 2.4142,
@@ -400,7 +396,7 @@
     },
     {
       "name": "公共・金融",
-      "change": 0.9462,
+      "change": 1.0206,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 6.8099,
@@ -409,7 +405,7 @@
     },
     {
       "name": "国内ハイテク・電子",
-      "change": -0.3984,
+      "change": 2.2286,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7949,
@@ -418,7 +414,7 @@
     },
     {
       "name": "国内ヘルスケア",
-      "change": 0.123,
+      "change": -0.6478,
       "count": 8,
       "marketCapCount": 7,
       "marketCapTrillion": 3.3522,
@@ -427,7 +423,7 @@
     },
     {
       "name": "国内卸売",
-      "change": 0.2421,
+      "change": -0.0425,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.1147,
@@ -436,16 +432,16 @@
     },
     {
       "name": "国内建設・不動産",
-      "change": 0.4635,
-      "count": 38,
-      "marketCapCount": 37,
-      "marketCapTrillion": 44.791,
-      "avgMarketCapTrillion": 1.2106,
+      "change": 0.1131,
+      "count": 39,
+      "marketCapCount": 38,
+      "marketCapTrillion": 45.4036,
+      "avgMarketCapTrillion": 1.1948,
       "major": "内需・国内景気"
     },
     {
       "name": "国内情報通信",
-      "change": -0.0921,
+      "change": 0.8419,
       "count": 25,
       "marketCapCount": 25,
       "marketCapTrillion": 61.8996,
@@ -454,7 +450,7 @@
     },
     {
       "name": "国内機械",
-      "change": 0.4367,
+      "change": -0.1641,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.5492,
@@ -463,7 +459,7 @@
     },
     {
       "name": "国内消費",
-      "change": 0.1829,
+      "change": -0.6323,
       "count": 43,
       "marketCapCount": 43,
       "marketCapTrillion": 43.6039,
@@ -472,7 +468,7 @@
     },
     {
       "name": "国内素材",
-      "change": 1.3951,
+      "change": 0.0,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6901,
@@ -481,7 +477,7 @@
     },
     {
       "name": "国内運輸・物流",
-      "change": -0.4002,
+      "change": 0.0065,
       "count": 31,
       "marketCapCount": 31,
       "marketCapTrillion": 28.408,
@@ -490,7 +486,7 @@
     },
     {
       "name": "消費・コンテンツ",
-      "change": 0.4231,
+      "change": -0.7372,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -499,7 +495,7 @@
     },
     {
       "name": "運輸・不動産",
-      "change": 0.2565,
+      "change": 1.3304,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5534,
@@ -508,7 +504,7 @@
     },
     {
       "name": "食品",
-      "change": 0.2303,
+      "change": -0.0389,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.5941,
@@ -517,16 +513,16 @@
     },
     {
       "name": "金融",
-      "change": 1.1206,
-      "count": 45,
-      "marketCapCount": 44,
-      "marketCapTrillion": 200.3228,
-      "avgMarketCapTrillion": 4.5528,
+      "change": 0.0932,
+      "count": 46,
+      "marketCapCount": 45,
+      "marketCapTrillion": 201.2171,
+      "avgMarketCapTrillion": 4.4715,
       "major": "金融・金利敏感"
     },
     {
       "name": "ディフェンシブヘルスケア",
-      "change": 0.8418,
+      "change": -0.4892,
       "count": 16,
       "marketCapCount": 15,
       "marketCapTrillion": 46.6685,
@@ -535,7 +531,7 @@
     },
     {
       "name": "ディフェンシブ消費",
-      "change": -0.4452,
+      "change": -0.628,
       "count": 31,
       "marketCapCount": 31,
       "marketCapTrillion": 45.6431,
@@ -544,7 +540,7 @@
     },
     {
       "name": "公益",
-      "change": 0.8735,
+      "change": -0.4312,
       "count": 14,
       "marketCapCount": 14,
       "marketCapTrillion": 14.4327,
@@ -555,7 +551,7 @@
   "industry": [
     {
       "name": "ATM銀行",
-      "change": 0.7156,
+      "change": -0.5329,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3962,
@@ -565,7 +561,7 @@
     },
     {
       "name": "B2B・EC",
-      "change": 0.2154,
+      "change": 0.6179,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.9291,
@@ -575,7 +571,7 @@
     },
     {
       "name": "EC・通信・金融",
-      "change": 0.4942,
+      "change": 0.7247,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.6982,
@@ -585,7 +581,7 @@
     },
     {
       "name": "FA・制御機器",
-      "change": -0.4938,
+      "change": 0.1448,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 28.5441,
@@ -595,7 +591,7 @@
     },
     {
       "name": "FA部品・機械部品",
-      "change": 0.0546,
+      "change": 0.0273,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.0462,
@@ -605,7 +601,7 @@
     },
     {
       "name": "ITサービス・通信設備",
-      "change": 0.0649,
+      "change": 1.1829,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 12.9891,
@@ -615,7 +611,7 @@
     },
     {
       "name": "IT機器販売・SI",
-      "change": -0.3984,
+      "change": 2.2286,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7949,
@@ -625,7 +621,7 @@
     },
     {
       "name": "M&A仲介",
-      "change": 0.3499,
+      "change": 0.0726,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2321,
@@ -635,7 +631,7 @@
     },
     {
       "name": "SI・システム開発",
-      "change": -0.2294,
+      "change": 0.4229,
       "count": 7,
       "marketCapCount": 7,
       "marketCapTrillion": 8.8624,
@@ -645,7 +641,7 @@
     },
     {
       "name": "SaaS",
-      "change": -0.603,
+      "change": 3.6572,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 1.4019,
@@ -655,7 +651,7 @@
     },
     {
       "name": "たばこ",
-      "change": -0.0429,
+      "change": 0.2578,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 14.002,
@@ -665,7 +661,7 @@
     },
     {
       "name": "アパレル",
-      "change": -0.5653,
+      "change": -0.8042,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 22.7655,
@@ -675,7 +671,7 @@
     },
     {
       "name": "インターネットインフラ・金融",
-      "change": -0.4916,
+      "change": 2.001,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4432,
@@ -685,7 +681,7 @@
     },
     {
       "name": "インターネットサービス",
-      "change": 0.1368,
+      "change": 0.3552,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7281,
@@ -695,7 +691,7 @@
     },
     {
       "name": "インターネットサービス・EC",
-      "change": 3.1094,
+      "change": -1.2745,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 3.7874,
@@ -705,7 +701,7 @@
     },
     {
       "name": "インターネット広告・メディア",
-      "change": -0.2605,
+      "change": -0.9328,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6732,
@@ -715,7 +711,7 @@
     },
     {
       "name": "インフラ補修",
-      "change": 0.5892,
+      "change": -0.6638,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2785,
@@ -725,7 +721,7 @@
     },
     {
       "name": "エレベーター保守",
-      "change": -0.9795,
+      "change": -0.5105,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2787,
@@ -735,7 +731,7 @@
     },
     {
       "name": "エンタメ・半導体",
-      "change": 1.2004,
+      "change": -0.2063,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 23.0858,
@@ -745,7 +741,7 @@
     },
     {
       "name": "ガラス・電子材料",
-      "change": -0.1885,
+      "change": 0.9092,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.6814,
@@ -755,7 +751,7 @@
     },
     {
       "name": "キャラクターIP",
-      "change": -0.3705,
+      "change": 3.1818,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.5944,
@@ -765,7 +761,7 @@
     },
     {
       "name": "クレジット・消費者金融",
-      "change": 0.702,
+      "change": -1.0291,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 1.8975,
@@ -775,7 +771,7 @@
     },
     {
       "name": "グローバル投資持株",
-      "change": 1.494,
+      "change": 0.7166,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 29.7016,
@@ -785,7 +781,7 @@
     },
     {
       "name": "ゲーム・コンテンツ",
-      "change": 0.2839,
+      "change": -1.4766,
       "count": 8,
       "marketCapCount": 8,
       "marketCapTrillion": 11.5968,
@@ -795,7 +791,7 @@
     },
     {
       "name": "ゲーム・玩具・IP",
-      "change": 0.6736,
+      "change": -1.2693,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 15.1981,
@@ -805,7 +801,7 @@
     },
     {
       "name": "ゲーム・遊技機",
-      "change": 0.5625,
+      "change": -0.7568,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6441,
@@ -815,7 +811,7 @@
     },
     {
       "name": "コンサルティング",
-      "change": -0.4994,
+      "change": 2.4321,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.2371,
@@ -825,7 +821,7 @@
     },
     {
       "name": "サイバーセキュリティ",
-      "change": 0.2701,
+      "change": 2.5498,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.8047,
@@ -835,7 +831,7 @@
     },
     {
       "name": "シリコンウエハ",
-      "change": -3.895,
+      "change": 0.8517,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.2025,
@@ -845,7 +841,7 @@
     },
     {
       "name": "スポーツアパレル",
-      "change": -0.8467,
+      "change": 0.1616,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3089,
@@ -855,7 +851,7 @@
     },
     {
       "name": "スポーツ用品",
-      "change": -3.3866,
+      "change": -1.5212,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 3.2809,
@@ -865,7 +861,7 @@
     },
     {
       "name": "スーパー",
-      "change": 0.0803,
+      "change": -0.8019,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3887,
@@ -875,7 +871,7 @@
     },
     {
       "name": "セメント",
-      "change": 0.6625,
+      "change": 1.3724,
       "count": 2,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5022,
@@ -885,7 +881,7 @@
     },
     {
       "name": "ソフトウェアテスト・DX",
-      "change": -1.5164,
+      "change": 4.1025,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2586,
@@ -895,7 +891,7 @@
     },
     {
       "name": "タイヤ・ゴム",
-      "change": 0.367,
+      "change": -1.0161,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 7.9342,
@@ -905,7 +901,7 @@
     },
     {
       "name": "テレビ・放送",
-      "change": 0.1192,
+      "change": -1.3501,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 2.4142,
@@ -915,7 +911,7 @@
     },
     {
       "name": "テーマパーク",
-      "change": 1.2333,
+      "change": -0.7573,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 5.4266,
@@ -925,7 +921,7 @@
     },
     {
       "name": "ディスカウントストア",
-      "change": 1.2531,
+      "change": -1.3832,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.5825,
@@ -935,7 +931,7 @@
     },
     {
       "name": "ドラッグストア・調剤",
-      "change": -0.3053,
+      "change": -1.0516,
       "count": 7,
       "marketCapCount": 7,
       "marketCapTrillion": 4.2287,
@@ -945,7 +941,7 @@
     },
     {
       "name": "ネット証券・総合金融",
-      "change": 5.0124,
+      "change": 0.3241,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.2513,
@@ -955,7 +951,7 @@
     },
     {
       "name": "ネット銀行",
-      "change": -1.3938,
+      "change": 2.136,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.1349,
@@ -965,7 +961,7 @@
     },
     {
       "name": "ビール・飲料",
-      "change": -0.3477,
+      "change": -0.9339,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 5.0189,
@@ -975,7 +971,7 @@
     },
     {
       "name": "ファッションEC",
-      "change": -0.566,
+      "change": 0.0876,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.0196,
@@ -985,7 +981,7 @@
     },
     {
       "name": "フリマ・EC",
-      "change": 2.5135,
+      "change": 0.5473,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7592,
@@ -995,7 +991,7 @@
     },
     {
       "name": "プラント・エンジニアリング",
-      "change": 0.332,
+      "change": 1.1692,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5602,
@@ -1005,7 +1001,7 @@
     },
     {
       "name": "ベンチャーキャピタル",
-      "change": 0.5585,
+      "change": 0.1068,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -1015,7 +1011,7 @@
     },
     {
       "name": "ホテル・宿泊",
-      "change": 0.7664,
+      "change": -0.7065,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.7211,
@@ -1025,7 +1021,7 @@
     },
     {
       "name": "ボイラー・熱機器",
-      "change": 0.1856,
+      "change": -0.4941,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4037,
@@ -1035,7 +1031,7 @@
     },
     {
       "name": "ポンプ・半導体装置",
-      "change": 0.5678,
+      "change": -2.7828,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.2053,
@@ -1045,7 +1041,7 @@
     },
     {
       "name": "メガバンク",
-      "change": 1.4003,
+      "change": 0.6813,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 89.2071,
@@ -1055,7 +1051,7 @@
     },
     {
       "name": "リース",
-      "change": 0.7603,
+      "change": -0.3307,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 3.7386,
@@ -1065,7 +1061,7 @@
     },
     {
       "name": "レジャー・娯楽",
-      "change": 0.334,
+      "change": -2.4038,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3815,
@@ -1075,7 +1071,7 @@
     },
     {
       "name": "不動産開発・賃貸",
-      "change": 0.5062,
+      "change": -0.3873,
       "count": 10,
       "marketCapCount": 10,
       "marketCapTrillion": 18.4998,
@@ -1085,7 +1081,7 @@
     },
     {
       "name": "中古車オークション",
-      "change": 1.0628,
+      "change": -0.8262,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.9388,
@@ -1095,7 +1091,7 @@
     },
     {
       "name": "事務・民生機器",
-      "change": 1.3735,
+      "change": 0.063,
       "count": 6,
       "marketCapCount": 6,
       "marketCapTrillion": 10.4672,
@@ -1105,7 +1101,7 @@
     },
     {
       "name": "二輪・船外機",
-      "change": -0.4075,
+      "change": -2.4808,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.9411,
@@ -1115,7 +1111,7 @@
     },
     {
       "name": "人材",
-      "change": 1.0887,
+      "change": -0.6048,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 25.9225,
@@ -1125,7 +1121,7 @@
     },
     {
       "name": "人材プラットフォーム",
-      "change": -1.525,
+      "change": 0.4332,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3755,
@@ -1135,7 +1131,7 @@
     },
     {
       "name": "企業向けソフトウェア",
-      "change": -0.6257,
+      "change": 0.6188,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.1893,
@@ -1145,7 +1141,7 @@
     },
     {
       "name": "住宅ローン保証",
-      "change": 0.7196,
+      "change": -0.2175,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4424,
@@ -1155,7 +1151,7 @@
     },
     {
       "name": "住宅・不動産開発",
-      "change": 0.0994,
+      "change": -0.025,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 5.3662,
@@ -1165,7 +1161,7 @@
     },
     {
       "name": "住宅・木材",
-      "change": 0.4474,
+      "change": -0.2227,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.8314,
@@ -1175,7 +1171,7 @@
     },
     {
       "name": "住宅設備",
-      "change": 0.0038,
+      "change": 0.3371,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 2.0944,
@@ -1185,7 +1181,7 @@
     },
     {
       "name": "信託銀行",
-      "change": 0.9516,
+      "change": 0.5998,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 4.9224,
@@ -1195,7 +1191,7 @@
     },
     {
       "name": "倉庫・物流不動産",
-      "change": 0.1004,
+      "change": 0.0383,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.8108,
@@ -1205,7 +1201,7 @@
     },
     {
       "name": "光センサー",
-      "change": -0.2551,
+      "change": 1.2788,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7586,
@@ -1215,7 +1211,7 @@
     },
     {
       "name": "光学・半導体装置",
-      "change": -0.5329,
+      "change": -0.1531,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6528,
@@ -1225,7 +1221,7 @@
     },
     {
       "name": "光源・産業機器",
-      "change": 0.9231,
+      "change": 0.6352,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3307,
@@ -1235,7 +1231,7 @@
     },
     {
       "name": "分析・計測機器",
-      "change": -0.2185,
+      "change": -0.2433,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.2139,
@@ -1245,7 +1241,7 @@
     },
     {
       "name": "制御・計測機器",
-      "change": 0.3794,
+      "change": -0.2757,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 2.1467,
@@ -1255,7 +1251,7 @@
     },
     {
       "name": "創薬基盤",
-      "change": -0.4937,
+      "change": -0.0902,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -1265,7 +1261,7 @@
     },
     {
       "name": "包装容器",
-      "change": 1.3951,
+      "change": 0.0,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6901,
@@ -1275,7 +1271,7 @@
     },
     {
       "name": "化学・機能材料",
-      "change": 0.145,
+      "change": 0.6247,
       "count": 8,
       "marketCapCount": 8,
       "marketCapTrillion": 5.4075,
@@ -1285,7 +1281,7 @@
     },
     {
       "name": "化学品専門商社",
-      "change": -1.3634,
+      "change": 1.0367,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5142,
@@ -1295,7 +1291,7 @@
     },
     {
       "name": "化粧品",
-      "change": 0.2695,
+      "change": -1.1203,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 2.1509,
@@ -1305,7 +1301,7 @@
     },
     {
       "name": "医療・電子材料・画像",
-      "change": 1.5697,
+      "change": -0.1212,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 4.0678,
@@ -1315,7 +1311,7 @@
     },
     {
       "name": "医療情報サービス",
-      "change": 0.1429,
+      "change": 1.4836,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.2078,
@@ -1325,7 +1321,7 @@
     },
     {
       "name": "医療機器",
-      "change": -0.9381,
+      "change": -1.2222,
       "count": 6,
       "marketCapCount": 6,
       "marketCapTrillion": 16.8518,
@@ -1335,7 +1331,7 @@
     },
     {
       "name": "医療機器・医薬品",
-      "change": -0.2537,
+      "change": -2.5755,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2627,
@@ -1345,7 +1341,7 @@
     },
     {
       "name": "医療機器・病院支援",
-      "change": -0.5226,
+      "change": -1.3868,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2214,
@@ -1355,7 +1351,7 @@
     },
     {
       "name": "医薬品",
-      "change": 0.9148,
+      "change": -0.3501,
       "count": 15,
       "marketCapCount": 14,
       "marketCapTrillion": 46.4058,
@@ -1365,7 +1361,7 @@
     },
     {
       "name": "医薬品卸",
-      "change": 0.4393,
+      "change": -1.1967,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 1.7136,
@@ -1375,7 +1371,7 @@
     },
     {
       "name": "半導体デバイス",
-      "change": 0.2337,
+      "change": 1.7532,
       "count": 4,
       "marketCapCount": 3,
       "marketCapTrillion": 8.6436,
@@ -1385,7 +1381,7 @@
     },
     {
       "name": "半導体メモリ",
-      "change": -2.4581,
+      "change": 5.0,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 28.7909,
@@ -1395,7 +1391,7 @@
     },
     {
       "name": "半導体・IT商社",
-      "change": 1.5659,
+      "change": 1.1897,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.9726,
@@ -1405,7 +1401,7 @@
     },
     {
       "name": "半導体・電子材料",
-      "change": -0.0893,
+      "change": 0.7635,
       "count": 5,
       "marketCapCount": 5,
       "marketCapTrillion": 16.4327,
@@ -1415,7 +1411,7 @@
     },
     {
       "name": "半導体基板・パッケージ",
-      "change": 0.5005,
+      "change": 2.3157,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 5.826,
@@ -1425,7 +1421,7 @@
     },
     {
       "name": "半導体搬送装置",
-      "change": 0.3203,
+      "change": 0.8104,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7241,
@@ -1435,7 +1431,7 @@
     },
     {
       "name": "半導体材料・石油化学",
-      "change": -1.1434,
+      "change": 2.4695,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 3.133,
@@ -1445,7 +1441,7 @@
     },
     {
       "name": "半導体検査・計測装置",
-      "change": 1.3421,
+      "change": -1.5411,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 28.5978,
@@ -1455,7 +1451,7 @@
     },
     {
       "name": "半導体製造装置",
-      "change": -0.2916,
+      "change": 1.0031,
       "count": 5,
       "marketCapCount": 5,
       "marketCapTrillion": 37.7283,
@@ -1465,7 +1461,7 @@
     },
     {
       "name": "半導体製造装置・精密計測",
-      "change": 0.4997,
+      "change": 1.0497,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7734,
@@ -1475,7 +1471,7 @@
     },
     {
       "name": "印刷・半導体材料",
-      "change": 1.1229,
+      "change": -0.9406,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 2.8371,
@@ -1485,7 +1481,7 @@
     },
     {
       "name": "原子力・防衛・産業機械",
-      "change": -0.3649,
+      "change": 0.7847,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5735,
@@ -1495,7 +1491,7 @@
     },
     {
       "name": "取引所",
-      "change": 1.1492,
+      "change": -0.1748,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.3571,
@@ -1505,7 +1501,7 @@
     },
     {
       "name": "塗料",
-      "change": -0.005,
+      "change": -0.4665,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 3.3345,
@@ -1515,7 +1511,7 @@
     },
     {
       "name": "外食",
-      "change": -0.5367,
+      "change": -0.1735,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 1.6145,
@@ -1525,7 +1521,7 @@
     },
     {
       "name": "宅配・陸運",
-      "change": -0.6432,
+      "change": -0.2951,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 2.1984,
@@ -1535,7 +1531,7 @@
     },
     {
       "name": "完成車",
-      "change": 0.304,
+      "change": -0.8324,
       "count": 8,
       "marketCapCount": 8,
       "marketCapTrillion": 62.4777,
@@ -1545,7 +1541,7 @@
     },
     {
       "name": "専門商社・卸売",
-      "change": 0.2421,
+      "change": -0.0425,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.1147,
@@ -1555,7 +1551,7 @@
     },
     {
       "name": "小売",
-      "change": 0.1574,
+      "change": -0.4956,
       "count": 6,
       "marketCapCount": 6,
       "marketCapTrillion": 5.1162,
@@ -1565,7 +1561,7 @@
     },
     {
       "name": "工作機械",
-      "change": 0.1461,
+      "change": 0.0172,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 1.6149,
@@ -1575,7 +1571,7 @@
     },
     {
       "name": "広告",
-      "change": -0.1851,
+      "change": -1.65,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.423,
@@ -1585,7 +1581,7 @@
     },
     {
       "name": "建築化学材",
-      "change": 0.8751,
+      "change": -1.1566,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2773,
@@ -1595,7 +1591,7 @@
     },
     {
       "name": "建築用シャッター",
-      "change": -0.2194,
+      "change": -0.4948,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7928,
@@ -1605,7 +1601,7 @@
     },
     {
       "name": "建設・鉱山機械",
-      "change": -0.7834,
+      "change": 0.6078,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 8.2861,
@@ -1615,7 +1611,7 @@
     },
     {
       "name": "損害保険",
-      "change": 1.4163,
+      "change": -0.3214,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 28.6943,
@@ -1625,7 +1621,7 @@
     },
     {
       "name": "文具・オフィス用品",
-      "change": 1.1443,
+      "change": -0.73,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.6236,
@@ -1635,7 +1631,7 @@
     },
     {
       "name": "断熱・シール材",
-      "change": 0.1488,
+      "change": 1.4557,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6522,
@@ -1645,7 +1641,7 @@
     },
     {
       "name": "日用品・ヘルスケア",
-      "change": -0.3409,
+      "change": 0.4077,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 4.2551,
@@ -1655,7 +1651,7 @@
     },
     {
       "name": "業務・生活サービス",
-      "change": -0.3173,
+      "change": -0.3024,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.5555,
@@ -1665,7 +1661,7 @@
     },
     {
       "name": "業務用カラオケ",
-      "change": 0.4231,
+      "change": -0.7372,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -1675,7 +1671,7 @@
     },
     {
       "name": "業務用厨房機器",
-      "change": 0.105,
+      "change": -0.2448,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.8266,
@@ -1685,7 +1681,7 @@
     },
     {
       "name": "業務自動化機器",
-      "change": 0.4367,
+      "change": -0.1641,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.5492,
@@ -1695,7 +1691,7 @@
     },
     {
       "name": "楽器・音響機器",
-      "change": -0.6847,
+      "change": 1.3405,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6125,
@@ -1705,7 +1701,7 @@
     },
     {
       "name": "機能性化学",
-      "change": 0.5947,
+      "change": 0.4167,
       "count": 6,
       "marketCapCount": 6,
       "marketCapTrillion": 3.7404,
@@ -1715,7 +1711,7 @@
     },
     {
       "name": "機能性化学・農薬",
-      "change": -0.2077,
+      "change": -1.4079,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.0855,
@@ -1725,7 +1721,7 @@
     },
     {
       "name": "民生電機",
-      "change": 2.9228,
+      "change": 0.3433,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4183,
@@ -1735,17 +1731,17 @@
     },
     {
       "name": "水処理装置",
-      "change": 1.5193,
-      "count": 1,
-      "marketCapCount": 1,
-      "marketCapTrillion": 0.9563,
-      "avgMarketCapTrillion": 0.9563,
+      "change": -0.7717,
+      "count": 2,
+      "marketCapCount": 2,
+      "marketCapTrillion": 1.5678,
+      "avgMarketCapTrillion": 0.7839,
       "major": "外需・グローバル景気",
       "sector": "グローバルハイテク・電子"
     },
     {
       "name": "水産・食品原料",
-      "change": 0.2303,
+      "change": -0.0389,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 0.5941,
@@ -1755,7 +1751,7 @@
     },
     {
       "name": "決済プラットフォーム",
-      "change": -0.8529,
+      "change": 2.0178,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7354,
@@ -1765,7 +1761,7 @@
     },
     {
       "name": "海洋土木",
-      "change": 1.0464,
+      "change": 0.4833,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4163,
@@ -1775,7 +1771,7 @@
     },
     {
       "name": "海洋資源開発設備",
-      "change": -1.5709,
+      "change": 0.4633,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6668,
@@ -1785,7 +1781,7 @@
     },
     {
       "name": "海運",
-      "change": -2.5936,
+      "change": -0.6692,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 7.4536,
@@ -1795,7 +1791,7 @@
     },
     {
       "name": "港湾物流",
-      "change": 0.2055,
+      "change": -0.3282,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5179,
@@ -1805,7 +1801,7 @@
     },
     {
       "name": "炭素製品",
-      "change": -0.2126,
+      "change": 1.6738,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3758,
@@ -1815,7 +1811,7 @@
     },
     {
       "name": "物流自動化設備",
-      "change": -0.1365,
+      "change": -0.9397,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.2023,
@@ -1825,7 +1821,7 @@
     },
     {
       "name": "生命保険",
-      "change": 0.8678,
+      "change": -0.0958,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 11.8571,
@@ -1835,7 +1831,7 @@
     },
     {
       "name": "生活雑貨・衣料",
-      "change": 0.1865,
+      "change": 0.0,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.413,
@@ -1845,7 +1841,7 @@
     },
     {
       "name": "産業ガス",
-      "change": -1.0437,
+      "change": 1.6625,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.463,
@@ -1855,7 +1851,7 @@
     },
     {
       "name": "産業・LPガス",
-      "change": 0.0,
+      "change": 2.0267,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5189,
@@ -1865,7 +1861,7 @@
     },
     {
       "name": "産業・建設機械",
-      "change": -0.2051,
+      "change": -0.4281,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7147,
@@ -1875,7 +1871,7 @@
     },
     {
       "name": "百貨店",
-      "change": 1.5196,
+      "change": -0.5584,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 3.2915,
@@ -1885,7 +1881,7 @@
     },
     {
       "name": "石油・天然ガス開発",
-      "change": -1.0572,
+      "change": 0.4952,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 4.8552,
@@ -1895,7 +1891,7 @@
     },
     {
       "name": "石油元売り",
-      "change": -1.445,
+      "change": 0.8275,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 5.9717,
@@ -1905,7 +1901,7 @@
     },
     {
       "name": "研究機器・消耗品",
-      "change": 0.447,
+      "change": 0.0,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -1915,7 +1911,7 @@
     },
     {
       "name": "空圧制御機器",
-      "change": -0.7907,
+      "change": -0.6991,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 4.536,
@@ -1925,7 +1921,7 @@
     },
     {
       "name": "空港施設・免税店",
-      "change": 0.2565,
+      "change": 1.3304,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5534,
@@ -1935,17 +1931,17 @@
     },
     {
       "name": "空調・設備工事",
-      "change": 0.2671,
-      "count": 1,
-      "marketCapCount": 1,
-      "marketCapTrillion": 0.585,
-      "avgMarketCapTrillion": 0.585,
+      "change": 0.5032,
+      "count": 2,
+      "marketCapCount": 2,
+      "marketCapTrillion": 1.1976,
+      "avgMarketCapTrillion": 0.5988,
       "major": "内需・国内景気",
       "sector": "国内建設・不動産"
     },
     {
       "name": "空調機器",
-      "change": 0.7441,
+      "change": -0.691,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 6.1085,
@@ -1955,7 +1951,7 @@
     },
     {
       "name": "精密減速機・制御",
-      "change": 0.966,
+      "change": -0.3914,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5409,
@@ -1965,7 +1961,7 @@
     },
     {
       "name": "紙・包装材",
-      "change": 0.8439,
+      "change": 0.2343,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.2332,
@@ -1975,7 +1971,7 @@
     },
     {
       "name": "総合・基礎化学",
-      "change": 0.0336,
+      "change": 0.8374,
       "count": 7,
       "marketCapCount": 7,
       "marketCapTrillion": 5.3098,
@@ -1985,7 +1981,7 @@
     },
     {
       "name": "総合商社",
-      "change": -0.4361,
+      "change": -0.2341,
       "count": 7,
       "marketCapCount": 7,
       "marketCapTrillion": 73.1902,
@@ -1995,7 +1991,7 @@
     },
     {
       "name": "総合小売",
-      "change": -0.6155,
+      "change": -1.3732,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 8.4396,
@@ -2005,7 +2001,7 @@
     },
     {
       "name": "総合建設・設備工事",
-      "change": 0.2694,
+      "change": 0.4765,
       "count": 9,
       "marketCapCount": 9,
       "marketCapTrillion": 11.149,
@@ -2015,7 +2011,7 @@
     },
     {
       "name": "総合物流",
-      "change": -0.5959,
+      "change": 0.2054,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 2.9191,
@@ -2025,7 +2021,7 @@
     },
     {
       "name": "総合証券",
-      "change": 1.0319,
+      "change": 0.4975,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 7.8382,
@@ -2035,7 +2031,7 @@
     },
     {
       "name": "総合金融",
-      "change": 0.7326,
+      "change": 0.3162,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 7.1325,
@@ -2045,7 +2041,7 @@
     },
     {
       "name": "総合電機・電池",
-      "change": 0.7655,
+      "change": 0.7136,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 10.7395,
@@ -2055,7 +2051,7 @@
     },
     {
       "name": "育児用品",
-      "change": -0.3025,
+      "change": -0.9335,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2582,
@@ -2065,7 +2061,7 @@
     },
     {
       "name": "臨床検査",
-      "change": -0.8401,
+      "change": -0.4919,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2093,
@@ -2075,7 +2071,7 @@
     },
     {
       "name": "自動車樹脂部品",
-      "change": 0.7538,
+      "change": -0.3544,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5073,
@@ -2085,7 +2081,7 @@
     },
     {
       "name": "自動車部品",
-      "change": 0.6045,
+      "change": -0.3433,
       "count": 6,
       "marketCapCount": 6,
       "marketCapTrillion": 8.9335,
@@ -2095,7 +2091,7 @@
     },
     {
       "name": "自動車部品・ばね",
-      "change": -0.2893,
+      "change": -0.9574,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7889,
@@ -2105,7 +2101,7 @@
     },
     {
       "name": "自動車部品・照明",
-      "change": -0.2876,
+      "change": -0.0986,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.2748,
@@ -2115,7 +2111,7 @@
     },
     {
       "name": "自転車部品・釣具",
-      "change": -1.4944,
+      "change": 0.4804,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.7194,
@@ -2125,7 +2121,7 @@
     },
     {
       "name": "航空",
-      "change": 0.7734,
+      "change": -0.2102,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 2.8138,
@@ -2135,7 +2131,7 @@
     },
     {
       "name": "舶用機器・産業機械",
-      "change": 0.8966,
+      "change": 2.8064,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4532,
@@ -2145,7 +2141,7 @@
     },
     {
       "name": "菓子・土産",
-      "change": -0.3853,
+      "change": -0.3499,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4211,
@@ -2155,7 +2151,7 @@
     },
     {
       "name": "蓄電池",
-      "change": -0.0187,
+      "change": 0.3361,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5398,
@@ -2165,7 +2161,7 @@
     },
     {
       "name": "衛生用品",
-      "change": -0.74,
+      "change": -1.0075,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.8301,
@@ -2175,7 +2171,7 @@
     },
     {
       "name": "衣料・インナー",
-      "change": 0.4903,
+      "change": 0.1394,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.2263,
@@ -2185,7 +2181,7 @@
     },
     {
       "name": "衣料・家具専門店",
-      "change": -0.6695,
+      "change": 0.3806,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 2.487,
@@ -2195,7 +2191,7 @@
     },
     {
       "name": "複合専門商社",
-      "change": 0.5273,
+      "change": 1.9384,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3777,
@@ -2205,7 +2201,7 @@
     },
     {
       "name": "調味料",
-      "change": 0.1366,
+      "change": -2.1822,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.7382,
@@ -2215,7 +2211,7 @@
     },
     {
       "name": "調味料・食品素材",
-      "change": -1.4735,
+      "change": 0.4616,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 5.3199,
@@ -2225,7 +2221,7 @@
     },
     {
       "name": "警備",
-      "change": -0.1351,
+      "change": -0.1167,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 3.6002,
@@ -2235,7 +2231,7 @@
     },
     {
       "name": "車載機器・音響",
-      "change": 1.0848,
+      "change": 0.7317,
       "count": 1,
       "marketCapCount": 0,
       "marketCapTrillion": null,
@@ -2245,7 +2241,7 @@
     },
     {
       "name": "軸受・機械部品",
-      "change": 0.0578,
+      "change": -0.0599,
       "count": 4,
       "marketCapCount": 4,
       "marketCapTrillion": 2.2438,
@@ -2255,7 +2251,7 @@
     },
     {
       "name": "農業・建設機械",
-      "change": -0.3211,
+      "change": 1.6288,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 3.2328,
@@ -2265,7 +2261,7 @@
     },
     {
       "name": "通信キャリア",
-      "change": -0.0308,
+      "change": -0.7491,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 38.1809,
@@ -2275,7 +2271,7 @@
     },
     {
       "name": "通信・クラウド基盤",
-      "change": -1.8946,
+      "change": -1.5691,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.5985,
@@ -2285,7 +2281,7 @@
     },
     {
       "name": "通信・分析計測",
-      "change": 0.1894,
+      "change": 0.2242,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 1.4632,
@@ -2295,7 +2291,7 @@
     },
     {
       "name": "通信設備工事",
-      "change": 0.9149,
+      "change": 0.1235,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 1.5123,
@@ -2305,7 +2301,7 @@
     },
     {
       "name": "通信販売代理・投資",
-      "change": 0.3233,
+      "change": 0.2231,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.7785,
@@ -2315,7 +2311,7 @@
     },
     {
       "name": "遊技機",
-      "change": 0.812,
+      "change": -0.4279,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.4549,
@@ -2325,7 +2321,7 @@
     },
     {
       "name": "郵便・金融持株",
-      "change": 0.9462,
+      "change": 1.0206,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 6.8099,
@@ -2335,7 +2331,7 @@
     },
     {
       "name": "郵貯銀行",
-      "change": 1.7571,
+      "change": 1.7885,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 11.804,
@@ -2345,7 +2341,7 @@
     },
     {
       "name": "都市ガス",
-      "change": -0.1204,
+      "change": -0.1933,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 4.6336,
@@ -2355,7 +2351,7 @@
     },
     {
       "name": "都市ガス・LPガス",
-      "change": -0.084,
+      "change": 0.4036,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3222,
@@ -2365,7 +2361,7 @@
     },
     {
       "name": "重工・防衛・航空宇宙",
-      "change": -1.4051,
+      "change": 2.3833,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 16.3891,
@@ -2375,7 +2371,7 @@
     },
     {
       "name": "重工・防衛・鉄道車両",
-      "change": -1.3788,
+      "change": 2.0,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 2.3033,
@@ -2385,7 +2381,7 @@
     },
     {
       "name": "重電・電力設備",
-      "change": -0.0334,
+      "change": 1.0917,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 38.5219,
@@ -2395,7 +2391,7 @@
     },
     {
       "name": "鉄道",
-      "change": -0.5287,
+      "change": 0.0493,
       "count": 19,
       "marketCapCount": 19,
       "marketCapTrillion": 19.1481,
@@ -2405,7 +2401,7 @@
     },
     {
       "name": "鉄鋼",
-      "change": 0.317,
+      "change": -0.6522,
       "count": 6,
       "marketCapCount": 6,
       "marketCapTrillion": 7.2779,
@@ -2415,17 +2411,17 @@
     },
     {
       "name": "銀行",
-      "change": 1.2141,
-      "count": 18,
-      "marketCapCount": 18,
-      "marketCapTrillion": 26.6492,
-      "avgMarketCapTrillion": 1.4805,
+      "change": 0.1225,
+      "count": 19,
+      "marketCapCount": 19,
+      "marketCapTrillion": 27.5435,
+      "avgMarketCapTrillion": 1.4497,
       "major": "金融・金利敏感",
       "sector": "金融"
     },
     {
       "name": "銅・半導体材料",
-      "change": 0.7853,
+      "change": -1.5065,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 3.5993,
@@ -2435,7 +2431,7 @@
     },
     {
       "name": "電力",
-      "change": 1.2673,
+      "change": -0.5861,
       "count": 10,
       "marketCapCount": 10,
       "marketCapTrillion": 9.4769,
@@ -2445,7 +2441,7 @@
     },
     {
       "name": "電力設備工事",
-      "change": 1.0745,
+      "change": 0.5196,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 2.2866,
@@ -2455,7 +2451,7 @@
     },
     {
       "name": "電動工具",
-      "change": -0.339,
+      "change": 0.1701,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.4841,
@@ -2465,7 +2461,7 @@
     },
     {
       "name": "電子・産業用セラミックス",
-      "change": 0.0083,
+      "change": -0.85,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 3.9012,
@@ -2475,7 +2471,7 @@
     },
     {
       "name": "電子部品",
-      "change": -0.2462,
+      "change": 0.5955,
       "count": 5,
       "marketCapCount": 5,
       "marketCapTrillion": 27.6249,
@@ -2485,7 +2481,7 @@
     },
     {
       "name": "電子部品・モーター",
-      "change": -0.0439,
+      "change": 0.5815,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 2.3678,
@@ -2495,7 +2491,7 @@
     },
     {
       "name": "電子部品実装・工作機械",
-      "change": 0.7757,
+      "change": -0.6048,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.7074,
@@ -2505,7 +2501,7 @@
     },
     {
       "name": "電子顕微鏡・分析装置",
-      "change": 0.6022,
+      "change": -0.6404,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3678,
@@ -2515,7 +2511,7 @@
     },
     {
       "name": "電機・電子部品",
-      "change": 0.5427,
+      "change": 0.6806,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3633,
@@ -2525,7 +2521,7 @@
     },
     {
       "name": "電線・光ファイバー",
-      "change": -0.5279,
+      "change": 3.4516,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 19.8144,
@@ -2535,7 +2531,7 @@
     },
     {
       "name": "非鉄金属・機能材料",
-      "change": 2.4532,
+      "change": -0.6029,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 1.6566,
@@ -2545,7 +2541,7 @@
     },
     {
       "name": "非鉄金属・資源",
-      "change": 4.1193,
+      "change": -0.8175,
       "count": 3,
       "marketCapCount": 3,
       "marketCapTrillion": 4.7406,
@@ -2555,7 +2551,7 @@
     },
     {
       "name": "靴・専門店",
-      "change": -0.5882,
+      "change": -0.4303,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.6875,
@@ -2565,7 +2561,7 @@
     },
     {
       "name": "食品・飲料",
-      "change": -0.46,
+      "change": -0.7343,
       "count": 21,
       "marketCapCount": 21,
       "marketCapTrillion": 13.2207,
@@ -2575,7 +2571,7 @@
     },
     {
       "name": "駐車場",
-      "change": 0.3217,
+      "change": -2.0227,
       "count": 1,
       "marketCapCount": 1,
       "marketCapTrillion": 0.3397,
@@ -2585,7 +2581,7 @@
     },
     {
       "name": "高機能繊維・素材",
-      "change": -0.4875,
+      "change": 0.5111,
       "count": 2,
       "marketCapCount": 2,
       "marketCapTrillion": 2.2629,
