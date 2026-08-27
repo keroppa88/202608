@@ -25,12 +25,12 @@
     }
     #sector-page .sector-head {
       display:flex; flex-wrap:wrap; gap:7px 18px; align-items:baseline;
-      width:min(1180px, 100%); margin:0 auto 14px;
+      width:min(1380px, 100%); margin:0 auto 14px;
     }
     #sector-page .sector-title { color:var(--fg2); font-size:18px; }
     #sector-page .sector-meta { color:var(--dim); }
     #sector-page .sector-note { color:var(--dim); font-size:12px; margin-left:auto; }
-    #sector-page .sector-section { width:min(1180px, 100%); margin:0 auto 22px; overflow-x:auto; }
+    #sector-page .sector-section { width:min(1380px, 100%); margin:0 auto 22px; overflow-x:auto; }
     #sector-page .sector-section h2 {
       margin:0; padding:5px 8px; border:1px solid var(--line); border-bottom:0;
       color:var(--fg2); font-size:14px; font-weight:normal;
@@ -53,12 +53,21 @@
     #sector-page .sector-count-col {
       width:5em; min-width:5em; max-width:5em; text-align:right;
     }
+    #sector-page .sector-cap-col {
+      width:8em; min-width:8em; max-width:8em; text-align:right;
+      white-space:nowrap;
+    }
+    #sector-page .sector-avg-cap-col {
+      width:10em; min-width:10em; max-width:10em; text-align:right;
+      white-space:nowrap;
+    }
     #sector-page .sector-parent-col {
       width:12em; min-width:12em; max-width:12em;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left;
     }
     #sector-page td.sector-change { font-weight:bold; font-size:15px; text-align:right; }
-    #sector-page td.sector-count { color:var(--dim); text-align:right; }
+    #sector-page td.sector-count,
+    #sector-page td.sector-cap { color:var(--dim); text-align:right; }
     #sector-page .sector-major { color:var(--dim); text-align:left; }
     #sector-page .sector-sort-button {
       display:inline; margin:0; padding:0; border:0; background:none;
@@ -77,7 +86,7 @@
     #sector-page .pct-zero { height:1.25em; border-left:1px solid var(--dim); }
     #sector-page .pct-empty { color:var(--dim); }
     #sector-page .sector-error {
-      width:min(1180px, 100%); margin:24px auto; border:1px solid var(--line);
+      width:min(1380px, 100%); margin:24px auto; border:1px solid var(--line);
       padding:14px; color:var(--fg2); white-space:pre-wrap;
     }
     @media (max-width:700px) {
@@ -122,6 +131,12 @@
     const n = Number(v);
     if (!Number.isFinite(n)) return "-";
     return `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+  }
+
+  function fmtCap(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "-";
+    return `${n.toFixed(2)}兆`;
   }
 
   function esc(v) {
@@ -169,9 +184,6 @@
     return state.dir === "asc" ? " ▲" : " ▼";
   }
 
-  // 固定スケール。中央が0、左端が-10%以上、右端が+10%以上。
-  // 0～0.49%=1個、0.5～1.49%=2個、以後1%ごとに1個増やす。
-  // ±10%以上で端まで到達する。マイナスは■、プラスは□。
   function pctGraphic(v) {
     const n = Number(v);
     if (!Number.isFinite(n)) return '<span class="pct-graphic pct-empty">-</span>';
@@ -195,7 +207,6 @@
   function rowsTable(rows, kind) {
     if (!rows || !rows.length) return '<div class="sector-error">該当データなし</div>';
 
-    const showCount = kind !== "industry";
     const showMajor = kind === "sector" || kind === "industry";
     const showSector = kind === "industry";
     const displayRows = sortedRows(rows, kind);
@@ -204,20 +215,29 @@
       '<th class="sector-name">名称</th>',
       sortHeader(kind, "graphic", "％graphic", "sector-graphic-cell"),
       sortHeader(kind, "change", "騰落率", "sector-change-col"),
-      showCount ? '<th class="sector-count-col">銘柄数</th>' : '',
+      '<th class="sector-count-col">銘柄数</th>',
+      '<th class="sector-cap-col">時価総額</th>',
+      '<th class="sector-avg-cap-col">1社平均時価総額</th>',
       showSector ? '<th class="sector-parent-col">セクター</th>' : '',
       showMajor ? '<th class="sector-parent-col">大分類</th>' : ''
     ].join("");
 
     const body = displayRows.map((r) => {
-      const extra = kind === "demand" && r.breakdown
-        ? ` title="${esc(Object.entries(r.breakdown).map(([k, n]) => `${k}:${n}`).join(" / "))}"`
+      const breakdown = kind === "demand" && r.breakdown
+        ? Object.entries(r.breakdown).map(([k, n]) => `${k}:${n}`).join(" / ")
         : "";
+      const capCount = Number(r.marketCapCount) || 0;
+      const count = Number(r.count) || 0;
+      const countTitle = [breakdown, capCount !== count ? `時価総額取得:${capCount}/${count}` : ""]
+        .filter(Boolean).join(" / ");
+      const titleAttr = countTitle ? ` title="${esc(countTitle)}"` : "";
       return `<tr>` +
         `<th class="sector-name" title="${esc(r.name)}">${esc(r.name)}</th>` +
         `<td class="sector-graphic-cell">${pctGraphic(r.change)}</td>` +
         `<td class="sector-change sector-change-col">${fmt(r.change)}</td>` +
-        `${showCount ? `<td class="sector-count sector-count-col"${extra}>${Number(r.count) || 0}</td>` : ""}` +
+        `<td class="sector-count sector-count-col"${titleAttr}>${count}</td>` +
+        `<td class="sector-cap sector-cap-col"${titleAttr}>${fmtCap(r.marketCapTrillion)}</td>` +
+        `<td class="sector-cap sector-avg-cap-col"${titleAttr}>${fmtCap(r.avgMarketCapTrillion)}</td>` +
         `${showSector ? `<td class="sector-major sector-parent-col" title="${esc(r.sector)}">${esc(r.sector)}</td>` : ""}` +
         `${showMajor ? `<td class="sector-major sector-parent-col" title="${esc(r.major)}">${esc(r.major)}</td>` : ""}` +
         `</tr>`;
@@ -241,7 +261,8 @@
         <span class="sector-title">日本株 セクター別</span>
         <span class="sector-meta">${esc(data.date || "-")}</span>
         <span class="sector-meta">使用 ${available}/${classified}銘柄</span>
-        <span class="sector-note">セクター・業種＝単純平均 ／ 内需・外需＝強1.0・通常0.5</span>
+        ${data.marketCapAsOf ? `<span class="sector-meta">時価総額 ${esc(data.marketCapAsOf)}</span>` : ""}
+        <span class="sector-note">セクター・業種＝単純平均 ／ 内需・外需＝強1.0・通常0.5 ／ 時価総額は騰落率の加重に不使用</span>
       </div>
       <section class="sector-section">
         <h2>需要地域</h2>
