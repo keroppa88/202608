@@ -15,7 +15,7 @@
   // 雪の太鼓：4/4、四分音符=80。
   // 8分音符グリッドでは
   //   ボン / 休 / ボ / ボ / ボン / 休 / ボン / 休
-  // を繰り返す。ボボだけ少し高く、拍子木っぽい短い音にする。
+  // を繰り返す。ボボも普通の太鼓音で、ボンより少し高く短めにする。
   const DRUM_BPM = 80;
   const DRUM_EIGHTH_MS = (60_000 / DRUM_BPM) / 2; // 375ms
   const DRUM_PATTERN = ["bon", null, "bo", "bo", "bon", null, "bon", null];
@@ -115,7 +115,7 @@
     noise.stop(t + 0.13);
   }
 
-  // 「ボボ」用。大太鼓より少し高く、短く硬い拍子木寄りの打撃音。
+  // 「ボボ」用。普通の太鼓のまま、ボンより少し高く短くする。
   function playDrumBo() {
     if (!drumRunning || !drumMaster) return;
     const ac = getDrumContext();
@@ -123,34 +123,34 @@
 
     const t = ac.currentTime + 0.008;
 
-    // 木の芯を感じる短い2音。高すぎないよう中低域に置く。
-    const wood1 = ac.createOscillator();
-    const wood1Gain = ac.createGain();
-    wood1.type = "triangle";
-    wood1.frequency.setValueAtTime(235, t);
-    wood1.frequency.exponentialRampToValueAtTime(205, t + 0.07);
-    wood1Gain.gain.setValueAtTime(0.0001, t);
-    wood1Gain.gain.exponentialRampToValueAtTime(0.22, t + 0.004);
-    wood1Gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
-    wood1.connect(wood1Gain);
-    wood1Gain.connect(drumMaster);
-    wood1.start(t);
-    wood1.stop(t + 0.12);
+    const body = ac.createOscillator();
+    const bodyGain = ac.createGain();
+    body.type = "sine";
+    body.frequency.setValueAtTime(125, t);
+    body.frequency.exponentialRampToValueAtTime(66, t + 0.22);
+    bodyGain.gain.setValueAtTime(0.0001, t);
+    bodyGain.gain.exponentialRampToValueAtTime(0.24, t + 0.008);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+    body.connect(bodyGain);
+    bodyGain.connect(drumMaster);
+    body.start(t);
+    body.stop(t + 0.37);
 
-    const wood2 = ac.createOscillator();
-    const wood2Gain = ac.createGain();
-    wood2.type = "sine";
-    wood2.frequency.setValueAtTime(470, t);
-    wood2Gain.gain.setValueAtTime(0.0001, t);
-    wood2Gain.gain.exponentialRampToValueAtTime(0.09, t + 0.003);
-    wood2Gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
-    wood2.connect(wood2Gain);
-    wood2Gain.connect(drumMaster);
-    wood2.start(t);
-    wood2.stop(t + 0.085);
+    const low = ac.createOscillator();
+    const lowGain = ac.createGain();
+    low.type = "sine";
+    low.frequency.setValueAtTime(72, t);
+    low.frequency.exponentialRampToValueAtTime(49, t + 0.26);
+    lowGain.gain.setValueAtTime(0.0001, t);
+    lowGain.gain.exponentialRampToValueAtTime(0.10, t + 0.012);
+    lowGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+    low.connect(lowGain);
+    lowGain.connect(drumMaster);
+    low.start(t);
+    low.stop(t + 0.40);
 
-    // 拍子木の「カッ」という輪郭。高域ノイズを非常に短く足す。
-    const length = Math.max(1, Math.floor(ac.sampleRate * 0.035));
+    // 打面のアタックだけ低域ノイズで軽く足す。拍子木の高域成分は入れない。
+    const length = Math.max(1, Math.floor(ac.sampleRate * 0.055));
     const noiseBuffer = ac.createBuffer(1, length, ac.sampleRate);
     const data = noiseBuffer.getChannelData(0);
     for (let i = 0; i < length; i++) {
@@ -161,16 +161,16 @@
     const filter = ac.createBiquadFilter();
     const noiseGain = ac.createGain();
     noise.buffer = noiseBuffer;
-    filter.type = "bandpass";
-    filter.frequency.value = 920;
-    filter.Q.value = 1.15;
-    noiseGain.gain.setValueAtTime(0.075, t);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    filter.type = "lowpass";
+    filter.frequency.value = 300;
+    filter.Q.value = 0.7;
+    noiseGain.gain.setValueAtTime(0.07, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
     noise.connect(filter);
     filter.connect(noiseGain);
     noiseGain.connect(drumMaster);
     noise.start(t);
-    noise.stop(t + 0.055);
+    noise.stop(t + 0.08);
   }
 
   function playDrumPatternStep() {
@@ -316,7 +316,7 @@
 
   window.SnowSaver = {
     playDrum: playDrumBon,
-    playClack: playDrumBo,
+    playDoubleDrum: playDrumBo,
     stopDrum: stopSnowDrum
   };
 })();
