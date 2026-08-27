@@ -52,6 +52,16 @@
         #ai-analysis .ai-row:nth-child(2) .ai-label { padding-top:0; }
       }
 
+      /* セクター画面は薄暗い補助色を使わず、表の文字を通常の明るい色に統一する。 */
+      #sector-page table.sector-table th,
+      #sector-page table.sector-table td,
+      #sector-page .sector-meta,
+      #sector-page .sector-note,
+      #sector-page .bar .note,
+      #sector-page .pct-empty {
+        color:var(--fg) !important;
+      }
+
       #ai-help-modal {
         position:fixed; inset:0; z-index:10020; background:rgba(0,0,0,.72);
         display:flex; align-items:center; justify-content:center; padding:16px;
