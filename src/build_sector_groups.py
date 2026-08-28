@@ -87,7 +87,7 @@ def group_sector(major, raw_sector, industry):
 
     if major == "ディフェンシブ・公共":
         if raw_sector == "消費":
-            return "ディフェンシブ消費"
+            return "生活必需品"
         if raw_sector == "ヘルスケア":
             return "医薬品"
         if raw_sector == "公益":
@@ -175,19 +175,15 @@ def group_industry(major, sector, raw_sector, industry):
             return "インフラ系"
 
         if sector == "国内消費":
-            if has(industry,
-                   "スーパー", "ディスカウント", "ドラッグストア", "調剤",
-                   "総合小売", "小売", "専門店", "靴", "衣料・家具", "生活雑貨", "衣料・インナー"):
-                if has(industry, "百貨店", "ファッションEC"):
-                    return "余剰小売"
-                return "生活小売"
-            if has(industry, "化粧品", "ホテル", "宿泊", "テーマパーク", "百貨店", "ファッションEC"):
-                return "余剰小売"
-            if has(industry, "外食"):
-                return "外食"
-            if has(industry, "遊技機", "カラオケ", "レジャー", "娯楽"):
+            # パチンコ・カラオケ・テーマパーク等はレジャー娯楽。
+            if has(industry, "遊技機", "カラオケ", "レジャー", "娯楽", "テーマパーク"):
                 return "レジャー・娯楽"
-            return "食品・生活用品"
+            # 外食、百貨店、ファッションEC、化粧品、ホテル等は余剰消費へ統合。
+            if has(industry,
+                   "外食", "百貨店", "ファッションEC", "化粧品", "ホテル", "宿泊"):
+                return "余剰消費"
+            # スーパー、ドラッグストア、衣料等に加え、食品・生活用品も生活小売へ統合。
+            return "生活小売"
 
         if sector == "国内情報通信":
             if has(industry,
@@ -236,10 +232,12 @@ def group_industry(major, sector, raw_sector, industry):
         return "他金融"
 
     if major == "ディフェンシブ・公共":
-        if sector == "ディフェンシブ消費":
-            if has(industry, "たばこ", "ビール"):
-                return "奢侈品"
-            return "生活品"
+        if sector == "生活必需品":
+            if has(industry, "ビール", "飲料"):
+                return "飲料"
+            if has(industry, "日用品", "衛生用品", "育児用品", "ヘルスケア", "たばこ"):
+                return "日用品"
+            return "食品"
         if sector == "医薬品":
             return "医薬品"
         if sector == "公益":
@@ -292,6 +290,7 @@ def validate(rows):
     forbidden = {
         "運輸・不動産", "消費・コンテンツ", "国内素材", "遊技機",
         "建設・不動産", "サービス・卸売", "建設・土木", "設備工事", "住宅・建材",
+        "余剰小売", "外食", "食品・生活用品", "ディフェンシブ消費", "奢侈品", "生活品",
     }
     for r in rows:
         if r["sector"] in forbidden or r["industry"] in forbidden:
