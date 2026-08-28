@@ -78,12 +78,22 @@
     window.AiAnalysisHelp = { open, close };
   }
 
-  function loadSectorHeatmap() {
-    if (document.querySelector('script[data-sector-heatmap="1"]')) return;
+  function loadSectorHeatColorMode() {
+    if (document.querySelector('script[data-sector-heat-color-mode="1"]')) return;
     const script = document.createElement("script");
-    script.src = "sector-heatmap.js";
-    script.dataset.sectorHeatmap = "1";
+    script.src = "sector-heat-color-mode.js";
+    script.dataset.sectorHeatColorMode = "1";
     document.body.appendChild(script);
+  }
+
+  function loadSectorHeatmap() {
+    if (!document.querySelector('script[data-sector-heatmap="1"]')) {
+      const script = document.createElement("script");
+      script.src = "sector-heatmap.js";
+      script.dataset.sectorHeatmap = "1";
+      document.body.appendChild(script);
+    }
+    loadSectorHeatColorMode();
   }
 
   function loadSectorView() {
