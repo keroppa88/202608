@@ -61,7 +61,7 @@
         font-size:26px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-sector-label {
-        font-size:27px !important;
+        font-size:54px !important;
         padding:4px 7px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.sector-heat-node {
@@ -70,7 +70,7 @@
         line-height:1.15 !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile .sector-treemap-name {
-        font-size:27px !important;
+        font-size:54px !important;
         font-weight:bold !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile .sector-heat-change {
@@ -78,20 +78,20 @@
         font-weight:bold !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile .sector-treemap-cap {
-        font-size:23px !important;
+        font-size:46px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.compact {
         padding:4px !important;
         gap:2px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.compact .sector-treemap-name {
-        font-size:24px !important;
+        font-size:48px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.compact .sector-heat-change {
         font-size:26px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.tiny .sector-treemap-name {
-        font-size:21px !important;
+        font-size:42px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.tiny .sector-heat-change {
         display:block !important;
@@ -108,7 +108,7 @@
         #sector-page .sector-treemap-view .sector-heatmap-legend,
         #sector-page .sector-treemap-view .sector-heatmap-legend b,
         #sector-page .sector-treemap-view .sector-heatmap-legend span { font-size:24px !important; }
-        #sector-page .sector-treemap-view .sector-treemap-sector-label { font-size:24px !important; }
+        #sector-page .sector-treemap-view .sector-treemap-sector-label { font-size:48px !important; }
         #sector-page .sector-treemap-view .sector-treemap-note { font-size:23px !important; }
       }
 
