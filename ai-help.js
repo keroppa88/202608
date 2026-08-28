@@ -39,9 +39,10 @@
       #sector-page .bar .note,
       #sector-page .pct-empty { color:var(--fg) !important; }
 
-      /* 業種別の四角マス・ヒートマップ。文字サイズは前設定の1.5倍。 */
+      /* 業種別の四角マス・ヒートマップ。
+         基準サイズから通常文字=1.5倍、分野名と時価総額/銘柄数=2倍。 */
       #sector-page .sector-treemap-view {
-        font-size:27px !important;
+        font-size:18px !important;
         line-height:1.2 !important;
       }
       #sector-page .sector-treemap-view .sector-heatmap-head {
@@ -49,19 +50,19 @@
         margin-bottom:14px !important;
       }
       #sector-page .sector-treemap-view .sector-heatmap-title {
-        font-size:36px !important;
+        font-size:27px !important;
         font-weight:bold !important;
       }
       #sector-page .sector-treemap-view .sector-heatmap-meta {
-        font-size:27px !important;
+        font-size:18px !important;
       }
       #sector-page .sector-treemap-view .sector-heatmap-legend,
       #sector-page .sector-treemap-view .sector-heatmap-legend b,
       #sector-page .sector-treemap-view .sector-heatmap-legend span {
-        font-size:26px !important;
+        font-size:18px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-sector-label {
-        font-size:54px !important;
+        font-size:24px !important;
         padding:4px 7px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.sector-heat-node {
@@ -70,46 +71,46 @@
         line-height:1.15 !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile .sector-treemap-name {
-        font-size:54px !important;
+        font-size:26px !important;
         font-weight:bold !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile .sector-heat-change {
-        font-size:30px !important;
+        font-size:21px !important;
         font-weight:bold !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile .sector-treemap-cap {
-        font-size:46px !important;
+        font-size:20px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.compact {
         padding:4px !important;
         gap:2px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.compact .sector-treemap-name {
-        font-size:48px !important;
+        font-size:20px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.compact .sector-heat-change {
-        font-size:26px !important;
+        font-size:15px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.tiny .sector-treemap-name {
-        font-size:42px !important;
+        font-size:16px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-tile.tiny .sector-heat-change {
         display:block !important;
-        font-size:23px !important;
+        font-size:15px !important;
       }
       #sector-page .sector-treemap-view .sector-treemap-note {
-        font-size:24px !important;
+        font-size:18px !important;
         margin-top:10px !important;
       }
       @media (max-width:700px) {
-        #sector-page .sector-treemap-view { font-size:26px !important; }
-        #sector-page .sector-treemap-view .sector-heatmap-title { font-size:33px !important; }
-        #sector-page .sector-treemap-view .sector-heatmap-meta { font-size:26px !important; }
+        #sector-page .sector-treemap-view { font-size:18px !important; }
+        #sector-page .sector-treemap-view .sector-heatmap-title { font-size:27px !important; }
+        #sector-page .sector-treemap-view .sector-heatmap-meta { font-size:18px !important; }
         #sector-page .sector-treemap-view .sector-heatmap-legend,
         #sector-page .sector-treemap-view .sector-heatmap-legend b,
-        #sector-page .sector-treemap-view .sector-heatmap-legend span { font-size:24px !important; }
-        #sector-page .sector-treemap-view .sector-treemap-sector-label { font-size:48px !important; }
-        #sector-page .sector-treemap-view .sector-treemap-note { font-size:23px !important; }
+        #sector-page .sector-treemap-view .sector-heatmap-legend span { font-size:18px !important; }
+        #sector-page .sector-treemap-view .sector-treemap-sector-label { font-size:24px !important; }
+        #sector-page .sector-treemap-view .sector-treemap-note { font-size:18px !important; }
       }
 
       #ai-help-modal { position:fixed; inset:0; z-index:10020; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; }
