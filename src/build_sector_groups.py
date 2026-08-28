@@ -164,13 +164,14 @@ def group_industry(major, sector, raw_sector, industry):
 
     if major == "内需・国内景気":
         if sector == "国内建設・不動産":
-            # 完成したインフラ・大型建設物を供給するゼネコンや建材はインフラ系。
-            if has(industry, "不動産", "駐車場"):
+            # 住宅完成品メーカーを不動産開発より優先して住宅系へ入れる。
+            if has(industry, "住宅・不動産開発", "住宅・木材", "住宅設備"):
+                return "住宅系"
+            if has(industry, "不動産開発・賃貸", "駐車場"):
                 return "不動産"
             if has(industry, "電力設備工事", "通信設備工事", "空調・設備工事"):
                 return "建設設備"
-            if has(industry, "住宅・不動産開発", "住宅・木材", "住宅設備"):
-                return "住宅系"
+            # ゼネコン、海洋土木、インフラ補修、セメント等はインフラ系。
             return "インフラ系"
 
         if sector == "国内消費":
@@ -200,7 +201,6 @@ def group_industry(major, sector, raw_sector, industry):
             return "B2B"
 
         if sector == "国内サービス":
-            # 消費者の日常生活へ直接提供するサービスだけをB2C、それ以外はB2Bへ。
             if has(industry, "警備", "業務・生活サービス"):
                 return "B2C"
             return "B2B"
