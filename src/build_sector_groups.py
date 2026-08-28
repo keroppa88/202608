@@ -18,6 +18,7 @@ from collections import Counter
 from common import repo_root
 
 MIN_MEMBERS = 3
+BEVERAGE_CODES = {"2501", "2502", "2503", "2579", "2587", "2593"}
 
 
 def has(text, *words):
@@ -97,7 +98,7 @@ def group_sector(major, raw_sector, industry):
     return raw_sector
 
 
-def group_industry(major, sector, raw_sector, industry):
+def group_industry(major, sector, raw_sector, industry, code):
     if major == "外需・グローバル景気":
         if sector == "自動車":
             if has(industry, "タイヤ", "ゴム"):
@@ -164,25 +165,20 @@ def group_industry(major, sector, raw_sector, industry):
 
     if major == "内需・国内景気":
         if sector == "国内建設・不動産":
-            # 住宅完成品メーカーを不動産開発より優先して住宅系へ入れる。
             if has(industry, "住宅・不動産開発", "住宅・木材", "住宅設備"):
                 return "住宅系"
             if has(industry, "不動産開発・賃貸", "駐車場"):
                 return "不動産"
             if has(industry, "電力設備工事", "通信設備工事", "空調・設備工事"):
                 return "建設設備"
-            # ゼネコン、海洋土木、インフラ補修、セメント等はインフラ系。
             return "インフラ系"
 
         if sector == "国内消費":
-            # パチンコ・カラオケ・テーマパーク等はレジャー娯楽。
             if has(industry, "遊技機", "カラオケ", "レジャー", "娯楽", "テーマパーク"):
-                return "レジャー・娯楽"
-            # 外食、百貨店、ファッションEC、化粧品、ホテル等は余剰消費へ統合。
+                return "レジャー娯楽"
             if has(industry,
                    "外食", "百貨店", "ファッションEC", "化粧品", "ホテル", "宿泊"):
                 return "余剰消費"
-            # スーパー、ドラッグストア、衣料等に加え、食品・生活用品も生活小売へ統合。
             return "生活小売"
 
         if sector == "国内情報通信":
@@ -233,7 +229,7 @@ def group_industry(major, sector, raw_sector, industry):
 
     if major == "ディフェンシブ・公共":
         if sector == "生活必需品":
-            if has(industry, "ビール", "飲料"):
+            if code in BEVERAGE_CODES or has(industry, "ビール・飲料", "清涼飲料"):
                 return "飲料"
             if has(industry, "日用品", "衛生用品", "育児用品", "ヘルスケア", "たばこ"):
                 return "日用品"
@@ -264,7 +260,7 @@ def transform(rows):
         if not code or not major or not raw_sector or not raw_industry:
             continue
         sector = group_sector(major, raw_sector, raw_industry)
-        industry = group_industry(major, sector, raw_sector, raw_industry)
+        industry = group_industry(major, sector, raw_sector, raw_industry, code)
         out.append({
             "code": code,
             "major": major,
@@ -291,6 +287,7 @@ def validate(rows):
         "運輸・不動産", "消費・コンテンツ", "国内素材", "遊技機",
         "建設・不動産", "サービス・卸売", "建設・土木", "設備工事", "住宅・建材",
         "余剰小売", "外食", "食品・生活用品", "ディフェンシブ消費", "奢侈品", "生活品",
+        "レジャー・娯楽",
     }
     for r in rows:
         if r["sector"] in forbidden or r["industry"] in forbidden:
