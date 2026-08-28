@@ -34,7 +34,7 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-28T14:10:03+09:00",
+  "generatedAt": "2026-08-28T14:12:08+09:00",
   "demand": [
     {
       "name": "内需",
@@ -522,11 +522,11 @@
     },
     {
       "name": "不動産",
-      "change": -0.4574,
-      "count": 13,
-      "marketCapCount": 13,
-      "marketCapTrillion": 24.2058,
-      "avgMarketCapTrillion": 1.862,
+      "change": -0.536,
+      "count": 11,
+      "marketCapCount": 11,
+      "marketCapTrillion": 18.8395,
+      "avgMarketCapTrillion": 1.7127,
       "major": "内需・国内景気",
       "sector": "国内建設・不動産"
     },
@@ -552,11 +552,11 @@
     },
     {
       "name": "住宅系",
-      "change": 0.1972,
-      "count": 4,
-      "marketCapCount": 4,
-      "marketCapTrillion": 2.9258,
-      "avgMarketCapTrillion": 0.7314,
+      "change": 0.1231,
+      "count": 6,
+      "marketCapCount": 6,
+      "marketCapTrillion": 8.292,
+      "avgMarketCapTrillion": 1.382,
       "major": "内需・国内景気",
       "sector": "国内建設・不動産"
     },
