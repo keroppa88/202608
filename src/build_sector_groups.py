@@ -3,10 +3,11 @@
 入力: data/stock-sectors-detail.csv
 出力: data/stock-sectors.csv
 
-原則:
+ルール:
 - 元の細分類は detail 側に残す。
 - 表示・集計用は株価ドライバーが近いものをまとめる。
-- セクター・業種とも原則3銘柄以上。3未満なら生成を失敗させる。
+- セクターも業種も最低3銘柄。1～2銘柄の分類は一切出さない。
+- 3銘柄未満が1件でもあれば生成を失敗させる。
 """
 
 import csv
@@ -65,16 +66,17 @@ def group_sector(major, raw_sector, industry):
         return "素材・化学"
 
     if major == "内需・国内景気":
-        if raw_sector == "素材":
-            return "消費"
-        if raw_sector in {"食品", "消費", "消費・コンテンツ"}:
-            return "消費"
+        # 国内素材も独立させず国内消費へ。消費・コンテンツも独立させない。
+        if raw_sector in {"素材", "食品", "消費", "消費・コンテンツ"}:
+            return "国内消費"
         if raw_sector == "建設・不動産":
             return "建設・不動産"
+        # 国内情報通信は細分しすぎず、B2B/B2C/通信インフラの3業種へ集約する。
         if raw_sector in {"情報通信", "ハイテク・電子", "機械"}:
-            return "情報通信・業務機器"
+            return "国内情報通信"
         if raw_sector in {"サービス", "卸売"}:
             return "サービス・卸売"
+        # 運輸・不動産、公共・金融の単独セクターは作らない。
         if raw_sector in {"運輸・物流", "運輸・不動産", "公共・金融"}:
             return "運輸・物流"
         if raw_sector == "ヘルスケア":
@@ -175,23 +177,37 @@ def group_industry(major, sector, raw_sector, industry):
                 return "住宅・建材"
             return "建設・土木"
 
-        if sector == "消費":
+        if sector == "国内消費":
+            # 生活必需寄りの店舗・専門店を生活小売へまとめる。
+            if has(industry,
+                   "スーパー", "ディスカウント", "ドラッグストア", "調剤",
+                   "総合小売", "小売", "専門店", "靴", "衣料・家具", "生活雑貨", "衣料・インナー"):
+                # 百貨店とファッションECは裁量消費側へ回す。
+                if has(industry, "百貨店", "ファッションEC"):
+                    return "余剰小売"
+                return "生活小売"
+            # 化粧品、ホテル、テーマパークは裁量・余剰消費としてまとめる。
+            if has(industry, "化粧品", "ホテル", "宿泊", "テーマパーク"):
+                return "余剰小売"
             if has(industry, "外食"):
                 return "外食"
-            if has(industry, "テーマパーク", "レジャー", "ホテル", "宿泊", "遊技機", "カラオケ"):
-                return "レジャー・宿泊"
-            if has(industry, "小売", "スーパー", "百貨店", "ドラッグストア", "専門店", "ディスカウント", "EC", "総合小売", "衣料・家具"):
-                return "小売"
+            # パチンコ等の遊技機は製造業として独立させずレジャー・娯楽へ。
+            if has(industry, "遊技機", "カラオケ", "レジャー", "娯楽"):
+                return "レジャー・娯楽"
+            # 食品、文具、包装など国内素材も生活消費へ吸収。
             return "食品・生活用品"
 
-        if sector == "情報通信・業務機器":
-            if has(industry, "業務自動化機器", "IT機器販売"):
-                return "業務機器・IT販売"
-            if has(industry, "通信キャリア", "通信・クラウド", "インターネットインフラ", "通信販売代理"):
-                return "通信・インフラ"
-            if has(industry, "インターネット", "EC", "フリマ", "決済", "広告・メディア"):
-                return "インターネット・EC"
-            return "SI・ソフトウェア"
+        if sector == "国内情報通信":
+            if has(industry,
+                   "通信キャリア", "通信・クラウド", "通信設備", "通信販売代理",
+                   "インターネットインフラ", "クラウド基盤"):
+                return "通信インフラ"
+            if has(industry,
+                   "インターネットサービス", "フリマ", "決済", "EC・通信・金融",
+                   "インターネット広告", "メディア"):
+                return "B2C"
+            # SI、SaaS、DX、企業向けソフト、セキュリティ、業務機器・IT販売など。
+            return "B2B"
 
         if sector == "サービス・卸売":
             if has(industry, "人材", "コンサル", "M&A"):
@@ -217,14 +233,16 @@ def group_industry(major, sector, raw_sector, industry):
         if industry == "メガバンク":
             return "メガバンク"
         if has(industry, "銀行"):
-            return "その他銀行"
-        if has(industry, "生命保険", "損害保険"):
-            return "保険"
-        if has(industry, "証券", "取引所"):
-            return "証券"
+            return "他銀行"
         if industry == "リース":
             return "リース"
-        return "その他金融"
+        if has(industry, "クレジット", "消費者金融"):
+            return "クレジット"
+        if has(industry, "生命保険", "損害保険"):
+            return "生損保"
+        if has(industry, "証券", "取引所"):
+            return "証券"
+        return "他金融"
 
     if major == "ディフェンシブ・公共":
         if sector == "生活必需品":
@@ -271,6 +289,7 @@ def validate(rows):
     sector_counts = Counter((r["major"], r["sector"]) for r in rows)
     industry_counts = Counter((r["major"], r["sector"], r["industry"]) for r in rows)
 
+    # 最低3銘柄は「原則」ではなく絶対条件。
     for (major, sector), count in sorted(sector_counts.items()):
         if count < MIN_MEMBERS:
             errors.append(f"セクター {major} / {sector}: {count}銘柄")
@@ -278,8 +297,13 @@ def validate(rows):
         if count < MIN_MEMBERS:
             errors.append(f"業種 {major} / {sector} / {industry}: {count}銘柄")
 
+    forbidden = {"運輸・不動産", "消費・コンテンツ", "国内素材", "遊技機"}
+    for r in rows:
+        if r["sector"] in forbidden or r["industry"] in forbidden:
+            errors.append(f"禁止された細分類が残存: {r['code']} {r['sector']} / {r['industry']}")
+
     if errors:
-        print("最低3銘柄ルールに違反:", file=sys.stderr)
+        print("分類生成エラー（3銘柄未満または禁止分類）:", file=sys.stderr)
         for e in errors:
             print("  " + e, file=sys.stderr)
         return False
