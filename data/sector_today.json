@@ -34,7 +34,7 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-28T14:12:08+09:00",
+  "generatedAt": "2026-08-28T14:18:02+09:00",
   "demand": [
     {
       "name": "内需",
@@ -332,15 +332,6 @@
       "major": "金融・金利敏感"
     },
     {
-      "name": "ディフェンシブ消費",
-      "change": -0.628,
-      "count": 31,
-      "marketCapCount": 31,
-      "marketCapTrillion": 45.6431,
-      "avgMarketCapTrillion": 1.4724,
-      "major": "ディフェンシブ・公共"
-    },
-    {
       "name": "公益",
       "change": -0.4312,
       "count": 14,
@@ -356,6 +347,15 @@
       "marketCapCount": 15,
       "marketCapTrillion": 46.6685,
       "avgMarketCapTrillion": 3.1112,
+      "major": "ディフェンシブ・公共"
+    },
+    {
+      "name": "生活必需品",
+      "change": -0.628,
+      "count": 31,
+      "marketCapCount": 31,
+      "marketCapTrillion": 45.6431,
+      "avgMarketCapTrillion": 1.4724,
       "major": "ディフェンシブ・公共"
     }
   ],
@@ -511,12 +511,12 @@
       "sector": "金融"
     },
     {
-      "name": "レジャー・娯楽",
-      "change": -1.1897,
-      "count": 3,
-      "marketCapCount": 2,
-      "marketCapTrillion": 0.8365,
-      "avgMarketCapTrillion": 0.4182,
+      "name": "レジャー娯楽",
+      "change": -1.0816,
+      "count": 4,
+      "marketCapCount": 3,
+      "marketCapTrillion": 6.263,
+      "avgMarketCapTrillion": 2.0877,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
@@ -561,12 +561,12 @@
       "sector": "国内建設・不動産"
     },
     {
-      "name": "余剰小売",
-      "change": -0.6979,
-      "count": 11,
-      "marketCapCount": 11,
-      "marketCapTrillion": 12.6096,
-      "avgMarketCapTrillion": 1.1463,
+      "name": "余剰消費",
+      "change": -0.5438,
+      "count": 14,
+      "marketCapCount": 14,
+      "marketCapTrillion": 8.7975,
+      "avgMarketCapTrillion": 0.6284,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
@@ -651,26 +651,6 @@
       "sector": "素材・化学"
     },
     {
-      "name": "外食",
-      "change": -0.1735,
-      "count": 4,
-      "marketCapCount": 4,
-      "marketCapTrillion": 1.6145,
-      "avgMarketCapTrillion": 0.4036,
-      "major": "内需・国内景気",
-      "sector": "国内消費"
-    },
-    {
-      "name": "奢侈品",
-      "change": -0.5367,
-      "count": 3,
-      "marketCapCount": 3,
-      "marketCapTrillion": 19.0209,
-      "avgMarketCapTrillion": 6.3403,
-      "major": "ディフェンシブ・公共",
-      "sector": "ディフェンシブ消費"
-    },
-    {
       "name": "完成車",
       "change": -1.0156,
       "count": 9,
@@ -711,6 +691,16 @@
       "sector": "国内建設・不動産"
     },
     {
+      "name": "日用品",
+      "change": -0.0767,
+      "count": 6,
+      "marketCapCount": 6,
+      "marketCapTrillion": 20.3454,
+      "avgMarketCapTrillion": 3.3909,
+      "major": "ディフェンシブ・公共",
+      "sector": "生活必需品"
+    },
+    {
       "name": "民生・事務機器",
       "change": 0.1031,
       "count": 7,
@@ -741,22 +731,12 @@
       "sector": "金融"
     },
     {
-      "name": "生活品",
-      "change": -0.6378,
-      "count": 28,
-      "marketCapCount": 28,
-      "marketCapTrillion": 26.6222,
-      "avgMarketCapTrillion": 0.9508,
-      "major": "ディフェンシブ・公共",
-      "sector": "ディフェンシブ消費"
-    },
-    {
       "name": "生活小売",
-      "change": -0.6726,
-      "count": 22,
-      "marketCapCount": 22,
-      "marketCapTrillion": 26.5696,
-      "avgMarketCapTrillion": 1.2077,
+      "change": -0.554,
+      "count": 29,
+      "marketCapCount": 29,
+      "marketCapTrillion": 29.8276,
+      "avgMarketCapTrillion": 1.0285,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
@@ -961,14 +941,24 @@
       "sector": "非鉄・電線"
     },
     {
-      "name": "食品・生活用品",
-      "change": -0.1814,
-      "count": 7,
-      "marketCapCount": 7,
-      "marketCapTrillion": 3.258,
-      "avgMarketCapTrillion": 0.4654,
-      "major": "内需・国内景気",
-      "sector": "国内消費"
+      "name": "食品",
+      "change": -0.8228,
+      "count": 19,
+      "marketCapCount": 19,
+      "marketCapTrillion": 17.1952,
+      "avgMarketCapTrillion": 0.905,
+      "major": "ディフェンシブ・公共",
+      "sector": "生活必需品"
+    },
+    {
+      "name": "飲料",
+      "change": -0.5624,
+      "count": 6,
+      "marketCapCount": 6,
+      "marketCapTrillion": 8.1025,
+      "avgMarketCapTrillion": 1.3504,
+      "major": "ディフェンシブ・公共",
+      "sector": "生活必需品"
     }
   ]
 }
