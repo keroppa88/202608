@@ -18,8 +18,10 @@ on:
     branches: [main]
     paths:
       - "src/calc_stock_sectors.py"
-      - "data/stock-sectors.csv"
+      - "src/build_sector_groups.py"
+      - "data/stock-sectors-detail.csv"
       - "data/market_cap.csv"
+      - ".github/workflows/stocks-copy.yml"
 
 permissions:
   contents: write
@@ -38,6 +40,9 @@ jobs:
 
       - name: 写す
         run: python3 src/copy_stocks.py chart0
+
+      - name: 集計用の分類を生成
+        run: python3 src/build_sector_groups.py
 
       - name: セクター騰落率を計算
         run: python3 src/calc_stock_sectors.py
