@@ -1,12 +1,15 @@
 """財務CSVと最新株価から日次の時価総額を作る。
 
 計算方法:
-    推定株式数 = NP / EPS
+    推定株式数 = 実績当期純利益 / 実績EPS
     時価総額   = 推定株式数 * 最新終値
 
-NP/EPS は J-Quants /v2/fins/summary を保存した data/financedata/{code}.csv の
+chart0 の financedata には新旧2形式が混在するため両方に対応する。
+    新: DiscDate / NP / EPS
+    旧: DisclosedDate / Profit / EarningsPerShare
+
 最新開示行（株価日以前）を使う。発行済株式数そのものではなく、EPS 計算上の
-加重平均株式数の推定値である。
+加重平均株式数の推定値である。予想 FNP/FEPS は使わない。
 
 出力:
     data/market_cap.csv
@@ -104,13 +107,17 @@ def latest_finance(path, stock_date):
     try:
         with open(path, encoding="utf-8-sig", newline="") as f:
             for r in csv.DictReader(f):
-                disc_date = (r.get("DiscDate") or "").strip()[:10]
+                disc_date = (r.get("DiscDate") or r.get("DisclosedDate") or "").strip()[:10]
                 if not disc_date or disc_date > stock_date:
                     continue
-                np = num(r.get("NP"))
-                eps = num(r.get("EPS"))
+
+                raw_np = r.get("NP") if r.get("NP") not in (None, "") else r.get("Profit")
+                raw_eps = r.get("EPS") if r.get("EPS") not in (None, "") else r.get("EarningsPerShare")
+                np = num(raw_np)
+                eps = num(raw_eps)
                 if np is None or eps is None or eps == 0:
                     continue
+
                 shares = np / eps
                 if not math.isfinite(shares) or shares <= 0:
                     continue
