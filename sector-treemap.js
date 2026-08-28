@@ -474,7 +474,7 @@
     const monthDates = [];
     const seenMonths = new Set();
     dates.forEach((d) => { const month = d.slice(0, 7); if (!seenMonths.has(month)) { seenMonths.add(month); monthDates.push(d); } });
-    const monthly = monthDates.map((d) => `<line x1="${x(d).toFixed(2)}" x2="${x(d).toFixed(2)}" y1="${top}" y2="${height - bottom}" class="original-chart-month"/><text x="${x(d).toFixed(2)}" y="${height - 20}" text-anchor="middle" class="original-chart-date">${esc(d.replaceAll("-", "/"))}</text>`).join("");
+    const monthly = monthDates.map((d) => `<line x1="${x(d).toFixed(2)}" x2="${x(d).toFixed(2)}" y1="${top}" y2="${height - bottom}" class="original-chart-month"/><text x="${x(d).toFixed(2)}" y="${height - 20}" text-anchor="middle" class="original-chart-date">${esc(d.slice(0, 7).replace("-", "/"))}</text>`).join("");
     const base = `<line x1="${left}" x2="${width - right}" y1="${y(100).toFixed(2)}" y2="${y(100).toFixed(2)}" class="original-chart-base"/>`;
     const lines = valid.map((s) => `<path d="${path(s.item.points)}" class="original-chart-line" style="stroke:${s.color};stroke-width:${s.width || 2}"/>`).join("");
     const legend = valid.map((s) => `<span class="original-chart-legend"><i style="border-color:${s.color}"></i>${esc(s.item.name)} ${fmt(s.item.ytd)}</span>`).join("");
