@@ -86,6 +86,14 @@
     document.body.appendChild(script);
   }
 
+  function loadSectorTreemap() {
+    if (document.querySelector('script[data-sector-treemap="1"]')) return;
+    const script = document.createElement("script");
+    script.src = "sector-treemap.js";
+    script.dataset.sectorTreemap = "1";
+    document.body.appendChild(script);
+  }
+
   function loadSectorHeatmap() {
     if (!document.querySelector('script[data-sector-heatmap="1"]')) {
       const script = document.createElement("script");
@@ -94,6 +102,7 @@
       document.body.appendChild(script);
     }
     loadSectorHeatColorMode();
+    loadSectorTreemap();
   }
 
   function loadSectorView() {
