@@ -66,17 +66,14 @@ def group_sector(major, raw_sector, industry):
         return "素材・化学"
 
     if major == "内需・国内景気":
-        # 国内素材も独立させず国内消費へ。消費・コンテンツも独立させない。
         if raw_sector in {"素材", "食品", "消費", "消費・コンテンツ"}:
             return "国内消費"
         if raw_sector == "建設・不動産":
             return "建設・不動産"
-        # 国内情報通信は細分しすぎず、B2B/B2C/通信インフラの3業種へ集約する。
         if raw_sector in {"情報通信", "ハイテク・電子", "機械"}:
             return "国内情報通信"
         if raw_sector in {"サービス", "卸売"}:
             return "サービス・卸売"
-        # 運輸・不動産、公共・金融の単独セクターは作らない。
         if raw_sector in {"運輸・物流", "運輸・不動産", "公共・金融"}:
             return "運輸・物流"
         if raw_sector == "ヘルスケア":
@@ -90,7 +87,7 @@ def group_sector(major, raw_sector, industry):
 
     if major == "ディフェンシブ・公共":
         if raw_sector == "消費":
-            return "生活必需品"
+            return "ディフェンシブ消費"
         if raw_sector == "ヘルスケア":
             return "医薬品"
         if raw_sector == "公益":
@@ -178,23 +175,18 @@ def group_industry(major, sector, raw_sector, industry):
             return "建設・土木"
 
         if sector == "国内消費":
-            # 生活必需寄りの店舗・専門店を生活小売へまとめる。
             if has(industry,
                    "スーパー", "ディスカウント", "ドラッグストア", "調剤",
                    "総合小売", "小売", "専門店", "靴", "衣料・家具", "生活雑貨", "衣料・インナー"):
-                # 百貨店とファッションECは裁量消費側へ回す。
                 if has(industry, "百貨店", "ファッションEC"):
                     return "余剰小売"
                 return "生活小売"
-            # 化粧品、ホテル、テーマパークは裁量・余剰消費としてまとめる。
-            if has(industry, "化粧品", "ホテル", "宿泊", "テーマパーク"):
+            if has(industry, "化粧品", "ホテル", "宿泊", "テーマパーク", "百貨店", "ファッションEC"):
                 return "余剰小売"
             if has(industry, "外食"):
                 return "外食"
-            # パチンコ等の遊技機は製造業として独立させずレジャー・娯楽へ。
             if has(industry, "遊技機", "カラオケ", "レジャー", "娯楽"):
                 return "レジャー・娯楽"
-            # 食品、文具、包装など国内素材も生活消費へ吸収。
             return "食品・生活用品"
 
         if sector == "国内情報通信":
@@ -206,7 +198,6 @@ def group_industry(major, sector, raw_sector, industry):
                    "インターネットサービス", "フリマ", "決済", "EC・通信・金融",
                    "インターネット広告", "メディア"):
                 return "B2C"
-            # SI、SaaS、DX、企業向けソフト、セキュリティ、業務機器・IT販売など。
             return "B2B"
 
         if sector == "サービス・卸売":
@@ -245,14 +236,19 @@ def group_industry(major, sector, raw_sector, industry):
         return "他金融"
 
     if major == "ディフェンシブ・公共":
-        if sector == "生活必需品":
-            if has(industry, "日用品", "衛生用品", "育児用品"):
-                return "日用品"
-            return "食品・飲料・たばこ"
+        if sector == "ディフェンシブ消費":
+            # たばこ・ビールだけを奢侈品、それ以外の生活必需消費は生活品へ。
+            if has(industry, "たばこ", "ビール"):
+                return "奢侈品"
+            return "生活品"
+        # 医療機器・医薬品も含め、ディフェンシブ側の医薬品系は一括。
         if sector == "医薬品":
             return "医薬品"
         if sector == "公益":
-            return "電力" if has(industry, "電力") else "ガス"
+            # 都市ガス、都市ガス・LPガス、LPガスをすべて同じガスに統合。
+            if has(industry, "ガス", "LPガス"):
+                return "ガス"
+            return "電力"
 
     return industry
 
@@ -289,7 +285,6 @@ def validate(rows):
     sector_counts = Counter((r["major"], r["sector"]) for r in rows)
     industry_counts = Counter((r["major"], r["sector"], r["industry"]) for r in rows)
 
-    # 最低3銘柄は「原則」ではなく絶対条件。
     for (major, sector), count in sorted(sector_counts.items()):
         if count < MIN_MEMBERS:
             errors.append(f"セクター {major} / {sector}: {count}銘柄")
