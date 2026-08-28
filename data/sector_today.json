@@ -25,7 +25,7 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-29T00:34:22+09:00",
+  "generatedAt": "2026-08-29T00:36:36+09:00",
   "demand": [
     {
       "name": "内需",
@@ -37,8 +37,8 @@
         "強内需": 187
       },
       "marketCapCount": 253,
-      "marketCapTrillion": 350.335,
-      "avgMarketCapTrillion": 1.3847
+      "marketCapTrillion": 350.3946,
+      "avgMarketCapTrillion": 1.385
     },
     {
       "name": "外需",
@@ -50,8 +50,8 @@
         "外需": 94
       },
       "marketCapCount": 204,
-      "marketCapTrillion": 709.9796,
-      "avgMarketCapTrillion": 3.4803
+      "marketCapTrillion": 709.955,
+      "avgMarketCapTrillion": 3.4802
     }
   ],
   "major": [
@@ -76,8 +76,8 @@
       "change": 0.7221,
       "count": 185,
       "marketCapCount": 185,
-      "marketCapTrillion": 252.1712,
-      "avgMarketCapTrillion": 1.3631
+      "marketCapTrillion": 252.2037,
+      "avgMarketCapTrillion": 1.3633
     },
     {
       "name": "金融・金利敏感",
@@ -92,8 +92,8 @@
       "change": 0.1964,
       "count": 61,
       "marketCapCount": 61,
-      "marketCapTrillion": 103.6596,
-      "avgMarketCapTrillion": 1.6993
+      "marketCapTrillion": 103.7072,
+      "avgMarketCapTrillion": 1.7001
     }
   ],
   "sector": [
@@ -246,8 +246,8 @@
       "change": 1.0791,
       "count": 9,
       "marketCapCount": 9,
-      "marketCapTrillion": 4.4787,
-      "avgMarketCapTrillion": 0.4976,
+      "marketCapTrillion": 4.5288,
+      "avgMarketCapTrillion": 0.5032,
       "major": "内需・国内景気"
     },
     {
@@ -255,8 +255,8 @@
       "change": 1.4809,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 34.2618,
-      "avgMarketCapTrillion": 2.2841,
+      "marketCapTrillion": 34.2514,
+      "avgMarketCapTrillion": 2.2834,
       "major": "内需・国内景気"
     },
     {
@@ -273,8 +273,8 @@
       "change": 2.0456,
       "count": 28,
       "marketCapCount": 28,
-      "marketCapTrillion": 61.3856,
-      "avgMarketCapTrillion": 2.1923,
+      "marketCapTrillion": 61.4029,
+      "avgMarketCapTrillion": 2.193,
       "major": "内需・国内景気"
     },
     {
@@ -282,8 +282,8 @@
       "change": 0.8725,
       "count": 61,
       "marketCapCount": 61,
-      "marketCapTrillion": 72.6164,
-      "avgMarketCapTrillion": 1.1904,
+      "marketCapTrillion": 72.5919,
+      "avgMarketCapTrillion": 1.19,
       "major": "内需・国内景気"
     },
     {
@@ -327,8 +327,8 @@
       "change": 0.1979,
       "count": 31,
       "marketCapCount": 31,
-      "marketCapTrillion": 43.175,
-      "avgMarketCapTrillion": 1.3927,
+      "marketCapTrillion": 43.2227,
+      "avgMarketCapTrillion": 1.3943,
       "major": "ディフェンシブ・公共"
     }
   ],
@@ -338,8 +338,8 @@
       "change": 2.7662,
       "count": 16,
       "marketCapCount": 16,
-      "marketCapTrillion": 13.7891,
-      "avgMarketCapTrillion": 0.8618,
+      "marketCapTrillion": 13.8045,
+      "avgMarketCapTrillion": 0.8628,
       "major": "内需・国内景気",
       "sector": "国内情報通信"
     },
@@ -348,8 +348,8 @@
       "change": 0.7174,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 8.4177,
-      "avgMarketCapTrillion": 1.4029,
+      "marketCapTrillion": 8.4195,
+      "avgMarketCapTrillion": 1.4033,
       "major": "内需・国内景気",
       "sector": "国内情報通信"
     },
@@ -418,8 +418,8 @@
       "change": 1.4809,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 34.2618,
-      "avgMarketCapTrillion": 2.2841,
+      "marketCapTrillion": 34.2514,
+      "avgMarketCapTrillion": 2.2834,
       "major": "内需・国内景気",
       "sector": "国内サービス"
     },
@@ -448,8 +448,8 @@
       "change": 1.8533,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 29.5809,
-      "avgMarketCapTrillion": 1.9721,
+      "marketCapTrillion": 29.5564,
+      "avgMarketCapTrillion": 1.9704,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
@@ -528,8 +528,8 @@
       "change": 1.1262,
       "count": 5,
       "marketCapCount": 5,
-      "marketCapTrillion": 2.8679,
-      "avgMarketCapTrillion": 0.5736,
+      "marketCapTrillion": 2.918,
+      "avgMarketCapTrillion": 0.5836,
       "major": "内需・国内景気",
       "sector": "ヘルスケア"
     },
@@ -888,8 +888,8 @@
       "change": 0.1816,
       "count": 20,
       "marketCapCount": 20,
-      "marketCapTrillion": 28.8768,
-      "avgMarketCapTrillion": 1.4438,
+      "marketCapTrillion": 28.8677,
+      "avgMarketCapTrillion": 1.4434,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     },
@@ -898,13 +898,13 @@
       "change": 0.1156,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 8.1025,
-      "avgMarketCapTrillion": 1.3504,
+      "marketCapTrillion": 8.1592,
+      "avgMarketCapTrillion": 1.3599,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     }
   ],
   "marketCapMethod": "NP/EPS × latest close",
-  "marketCapDynamic": 478,
-  "marketCapFallback": 14
+  "marketCapDynamic": 492,
+  "marketCapFallback": 0
 }
