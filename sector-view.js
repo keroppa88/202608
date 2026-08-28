@@ -305,7 +305,11 @@
     sectorButton.setAttribute("aria-selected", "true");
     title.classList.add("hidden");
     page.classList.remove("hidden");
-    load();
+    if (window.SectorTreemapView && typeof window.SectorTreemapView.show === "function") {
+      window.SectorTreemapView.show();
+    } else {
+      load();
+    }
   }
 
   function close() {
