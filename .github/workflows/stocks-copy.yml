@@ -20,6 +20,7 @@ on:
       - "src/calc_stock_sectors.py"
       - "src/build_sector_groups.py"
       - "src/build_market_caps.py"
+      - "src/finalize_market_cap_metadata.py"
       - "src/copy_stocks.py"
       - "src/copy_finance.py"
       - "data/stock-sectors-detail.csv"
@@ -54,6 +55,9 @@ jobs:
 
       - name: セクター騰落率を計算
         run: python3 src/calc_stock_sectors.py
+
+      - name: 時価総額メタデータを更新
+        run: python3 src/finalize_market_cap_metadata.py
 
       - name: コミット
         if: always()
