@@ -6,6 +6,9 @@
   let mode = "table";
   let heatData = null;
   let resizeTimer = 0;
+  let detailIndex = null;
+  let detailIndexPromise = null;
+  let popupRequest = 0;
 
   function esc(v) {
     return String(v == null ? "" : v)
@@ -26,6 +29,16 @@
     if (!Number.isFinite(n)) return "-";
     if (n >= 10) return `${n.toFixed(1)}兆`;
     return `${n.toFixed(2)}兆`;
+  }
+
+  function fmtStockCap(million) {
+    const n = Number(million);
+    if (!Number.isFinite(n) || n < 0) return "-";
+    const trillion = n / 1_000_000;
+    if (trillion >= 1) return `${trillion.toFixed(2)}兆`;
+    const billion = n / 1_000;
+    if (billion >= 1) return `${billion.toFixed(0)}億`;
+    return `${n.toFixed(0)}百万円`;
   }
 
   function heatColor(v) {
@@ -143,9 +156,10 @@
     }
 
     return `<div class="sector-heat-node sector-treemap-tile${compact ? " compact" : ""}${tiny ? " tiny" : ""}" ` +
+      `data-major="${esc(row.major || "")}" data-sector="${esc(row.sector || "")}" data-industry="${esc(row.name || "")}" ` +
       `style="left:${(rect.x + 1).toFixed(2)}px;top:${(rect.y + 1).toFixed(2)}px;` +
       `width:${w.toFixed(2)}px;height:${h.toFixed(2)}px;background:${heatColor(row && row.change)}" ` +
-      `title="${esc(name)} / ${esc(fmt(row && row.change))} / 時価総額 ${esc(fmtCap(cap))} / ${count}銘柄 / ${esc(row.sector || "")} / ${esc(row.major || "")}">` +
+      `title="${esc(name)} / ${esc(fmt(row && row.change))} / 時価総額 ${esc(fmtCap(cap))} / ${count}銘柄 / ダブルクリックで詳細">` +
       inner + `</div>`;
   }
 
@@ -188,8 +202,244 @@
       `<span class="sector-heatmap-legend"><b>-10%</b><span class="sector-heatmap-gradient"></span><b>0%</b><b>+10%</b></span>` +
       `</div>` +
       `<div class="sector-treemap-canvas" style="width:${width}px;height:${height}px">${sectorsHtml}</div>` +
-      `<div class="sector-treemap-note">枠＝セクター / マス＝業種。時価総額未取得分は面積に含めない。</div>` +
+      `<div class="sector-treemap-note">枠＝セクター / マス＝業種。ダブルクリックで分類・時価総額・騰落率・構成銘柄を表示。時価総額未取得分は面積に含めない。</div>` +
       `</div>`;
+  }
+
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], field = "", quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; }
+          else quoted = false;
+        } else field += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ",") { row.push(field); field = ""; }
+      else if (ch === "\n") {
+        row.push(field.replace(/\r$/, "")); field = "";
+        if (row.some((v) => v !== "")) rows.push(row);
+        row = [];
+      } else field += ch;
+    }
+    if (field !== "" || row.length) {
+      row.push(field.replace(/\r$/, ""));
+      if (row.some((v) => v !== "")) rows.push(row);
+    }
+    if (!rows.length) return [];
+    const header = rows[0].map((v) => v.replace(/^\uFEFF/, ""));
+    return rows.slice(1).map((cells) => {
+      const out = {};
+      header.forEach((h, i) => { out[h] = cells[i] == null ? "" : cells[i]; });
+      return out;
+    });
+  }
+
+  async function fetchText(url) {
+    const res = await fetch(`${url}?t=${Date.now()}`, { cache:"no-store" });
+    if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+    return res.text();
+  }
+
+  async function ensureDetailIndex() {
+    if (detailIndex) return detailIndex;
+    if (detailIndexPromise) return detailIndexPromise;
+    detailIndexPromise = Promise.all([
+      fetchText("data/stock-sectors.csv"),
+      fetchText("data/stocks/list.csv"),
+      fetchText("data/market_cap.csv")
+    ]).then(([classText, listText, capText]) => {
+      const names = new Map();
+      parseCsv(listText).forEach((r) => {
+        const code = String(r.code || "").trim().toUpperCase();
+        if (code) names.set(code, String(r.name || code).trim());
+      });
+      const caps = new Map();
+      parseCsv(capText).forEach((r) => {
+        const code = String(r.code || "").trim().toUpperCase();
+        const cap = Number(String(r.market_cap_million || "").replaceAll(",", ""));
+        if (code && Number.isFinite(cap)) caps.set(code, cap);
+      });
+      const byIndustry = new Map();
+      parseCsv(classText).forEach((r) => {
+        const code = String(r.code || "").trim().toUpperCase();
+        const major = String(r.major || "").trim();
+        const sector = String(r.sector || "").trim();
+        const industry = String(r.industry || "").trim();
+        if (!code || !major || !sector || !industry) return;
+        const key = `${major}${SEP}${sector}${SEP}${industry}`;
+        if (!byIndustry.has(key)) byIndustry.set(key, []);
+        byIndustry.get(key).push({
+          code,
+          name:names.get(code) || code,
+          major,
+          sector,
+          industry,
+          demand:String(r.demand || "").trim(),
+          marketCapMillion:caps.has(code) ? caps.get(code) : null
+        });
+      });
+      detailIndex = { names, caps, byIndustry };
+      return detailIndex;
+    }).finally(() => {
+      detailIndexPromise = null;
+    });
+    return detailIndexPromise;
+  }
+
+  function changeAtDate(csvText, targetDate) {
+    const closes = [];
+    parseCsv(csvText).forEach((r) => {
+      const date = String(r.Date || r.date || "").trim().slice(0, 10);
+      const raw = r.Close != null && r.Close !== "" ? r.Close : r.close;
+      const close = Number(String(raw == null ? "" : raw).replaceAll(",", ""));
+      if (date && Number.isFinite(close) && close > 0 && date <= targetDate) closes.push({ date, close });
+    });
+    closes.sort((a, b) => a.date.localeCompare(b.date));
+    const i = closes.findIndex((r) => r.date === targetDate);
+    if (i <= 0) return null;
+    const prev = closes[i - 1].close;
+    const now = closes[i].close;
+    return prev > 0 && now > 0 ? (now / prev - 1) * 100 : null;
+  }
+
+  async function mapLimit(items, limit, worker) {
+    const out = new Array(items.length);
+    let next = 0;
+    async function run() {
+      while (true) {
+        const i = next++;
+        if (i >= items.length) return;
+        out[i] = await worker(items[i], i);
+      }
+    }
+    await Promise.all(Array.from({ length:Math.min(limit, items.length) }, run));
+    return out;
+  }
+
+  function findIndustryRow(major, sector, industry) {
+    return (heatData && Array.isArray(heatData.industry) ? heatData.industry : []).find((r) =>
+      String(r.major || "") === major &&
+      String(r.sector || "") === sector &&
+      String(r.name || "") === industry
+    ) || null;
+  }
+
+  function ensurePopup() {
+    let modal = document.getElementById("sector-treemap-detail");
+    if (modal) return modal;
+    modal = document.createElement("div");
+    modal.id = "sector-treemap-detail";
+    modal.className = "hidden";
+    modal.innerHTML = `
+      <div class="sector-treemap-detail-box" role="dialog" aria-modal="true" aria-label="業種詳細">
+        <div class="sector-treemap-detail-head">
+          <strong id="sector-treemap-detail-title">業種詳細</strong>
+          <span class="spacer"></span>
+          <button id="sector-treemap-detail-close" type="button">閉じる</button>
+        </div>
+        <div id="sector-treemap-detail-body"></div>
+      </div>`;
+    document.body.appendChild(modal);
+    const close = () => {
+      modal.classList.add("hidden");
+      popupRequest++;
+    };
+    modal.querySelector("#sector-treemap-detail-close").addEventListener("click", close);
+    modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+    return modal;
+  }
+
+  function closePopup() {
+    const modal = document.getElementById("sector-treemap-detail");
+    if (!modal || modal.classList.contains("hidden")) return false;
+    modal.classList.add("hidden");
+    popupRequest++;
+    return true;
+  }
+
+  async function showIndustryPopup(major, sector, industry) {
+    const modal = ensurePopup();
+    const title = modal.querySelector("#sector-treemap-detail-title");
+    const content = modal.querySelector("#sector-treemap-detail-body");
+    const row = findIndustryRow(major, sector, industry);
+    const displayName = displayIndustryName(row || { name:industry, sector });
+    const requestId = ++popupRequest;
+    title.textContent = displayName || industry || "業種詳細";
+    modal.classList.remove("hidden");
+    content.innerHTML = `<div class="sector-treemap-detail-loading">構成銘柄を読み込み中…</div>`;
+
+    try {
+      const idx = await ensureDetailIndex();
+      if (requestId !== popupRequest) return;
+      const key = `${major}${SEP}${sector}${SEP}${industry}`;
+      const members = Array.from(idx.byIndustry.get(key) || []);
+      const targetDate = heatData && heatData.date ? heatData.date : "9999-12-31";
+      const stocks = await mapLimit(members, 6, async (member) => {
+        let change = null;
+        try {
+          const text = await fetchText(`data/stocks/${encodeURIComponent(member.code)}.csv`);
+          change = changeAtDate(text, targetDate);
+        } catch (_) {
+          change = null;
+        }
+        return { ...member, change };
+      });
+      if (requestId !== popupRequest) return;
+
+      stocks.sort((a, b) => {
+        const ac = Number(a.marketCapMillion);
+        const bc = Number(b.marketCapMillion);
+        if (Number.isFinite(ac) && Number.isFinite(bc) && ac !== bc) return bc - ac;
+        if (Number.isFinite(ac) !== Number.isFinite(bc)) return Number.isFinite(ac) ? -1 : 1;
+        return String(a.code).localeCompare(String(b.code), "ja", { numeric:true });
+      });
+
+      const knownCaps = stocks.filter((s) => Number.isFinite(Number(s.marketCapMillion)));
+      const knownCapTotal = knownCaps.reduce((sum, s) => sum + Number(s.marketCapMillion), 0);
+      const aggregateCap = row && Number(row.marketCapTrillion);
+      const aggregateCount = row && Number(row.count);
+      const aggregateCapCount = row && Number(row.marketCapCount);
+
+      const summary = `
+        <div class="sector-treemap-detail-class">
+          <div><span>大分類</span><b>${esc(major)}</b></div>
+          <div><span>セクター</span><b>${esc(sector)}</b></div>
+          <div><span>業種</span><b>${esc(displayName)}</b></div>
+        </div>
+        <div class="sector-treemap-detail-stats">
+          <div><span>騰落率</span><b>${fmt(row && row.change)}</b></div>
+          <div><span>合計時価総額</span><b>${fmtCap(aggregateCap)}</b></div>
+          <div><span>銘柄数</span><b>${Number.isFinite(aggregateCount) ? aggregateCount : stocks.length}</b></div>
+          <div><span>時価総額取得</span><b>${Number.isFinite(aggregateCapCount) ? aggregateCapCount : knownCaps.length} / ${Number.isFinite(aggregateCount) ? aggregateCount : stocks.length}</b></div>
+        </div>`;
+
+      const rows = stocks.map((s) => `
+        <tr>
+          <td class="code">${esc(s.code)}</td>
+          <td class="name">${esc(s.name)}</td>
+          <td>${esc(s.demand || "-")}</td>
+          <td class="num">${fmtStockCap(s.marketCapMillion)}</td>
+          <td class="num">${fmt(s.change)}</td>
+        </tr>`).join("");
+
+      const capCheck = Number.isFinite(aggregateCap)
+        ? `集計値 ${fmtCap(aggregateCap)}`
+        : `取得済み構成銘柄合計 ${fmtStockCap(knownCapTotal)}`;
+
+      content.innerHTML = summary +
+        `<div class="sector-treemap-detail-subhead">構成銘柄 <span>${esc(capCheck)}</span></div>` +
+        `<div class="sector-treemap-detail-table-wrap">` +
+        `<table class="sector-treemap-detail-table"><thead><tr>` +
+        `<th>コード</th><th>銘柄名</th><th>需要地域</th><th>時価総額</th><th>騰落率</th>` +
+        `</tr></thead><tbody>${rows || '<tr><td colspan="5">構成銘柄なし</td></tr>'}</tbody></table>` +
+        `</div>`;
+    } catch (err) {
+      if (requestId !== popupRequest) return;
+      content.innerHTML = `<div class="sector-treemap-detail-loading">詳細を読み込めませんでした。<br>${esc(err && err.message ? err.message : err)}</div>`;
+    }
   }
 
   async function fetchHeatData() {
@@ -211,6 +461,7 @@
     const body = document.getElementById("sector-body");
     const toggle = document.getElementById("sector-view-toggle");
     if (!body || !toggle) return;
+    closePopup();
     mode = "treemap";
     toggle.setAttribute("aria-pressed", "true");
     updateToggleHint(toggle);
@@ -226,6 +477,7 @@
   }
 
   function showHierarchy() {
+    closePopup();
     mode = "hierarchy";
     const toggle = document.getElementById("sector-view-toggle");
     updateToggleHint(toggle);
@@ -235,6 +487,7 @@
   }
 
   function showTable() {
+    closePopup();
     mode = "table";
     const toggle = document.getElementById("sector-view-toggle");
     updateToggleHint(toggle);
@@ -273,7 +526,7 @@
         flex-direction:column; align-items:center; justify-content:center;
         gap:2px; padding:4px; overflow:hidden;
         border:1px solid rgba(255,255,255,.78);
-        line-height:1.08; text-align:center;
+        line-height:1.08; text-align:center; cursor:pointer;
       }
       #sector-page .sector-treemap-tile .sector-treemap-name {
         display:block; max-width:100%; overflow:hidden;
@@ -294,8 +547,75 @@
       #sector-page .sector-treemap-tile.tiny .sector-treemap-name { font-size:8px; }
       #sector-page .sector-treemap-tile.tiny .sector-heat-change { display:none; }
       #sector-page .sector-treemap-note { margin-top:7px; color:var(--fg); font-size:12px; }
+
+      #sector-treemap-detail {
+        position:fixed; inset:0; z-index:10040;
+        display:flex; align-items:center; justify-content:center;
+        padding:18px; background:rgba(0,0,0,.74);
+      }
+      #sector-treemap-detail.hidden { display:none !important; }
+      #sector-treemap-detail .sector-treemap-detail-box {
+        width:min(1000px, 96vw); max-height:88vh; overflow:auto;
+        background:var(--bg); color:var(--fg);
+        border:2px solid var(--line);
+        box-shadow:0 10px 40px rgba(0,0,0,.65);
+      }
+      #sector-treemap-detail .sector-treemap-detail-head {
+        position:sticky; top:0; z-index:3;
+        display:flex; align-items:center; gap:12px;
+        padding:9px 11px; border-bottom:1px solid var(--line);
+        background:var(--panel);
+      }
+      #sector-treemap-detail .sector-treemap-detail-head strong { color:var(--fg2); font-size:19px; }
+      #sector-treemap-detail .sector-treemap-detail-head .spacer { flex:1; }
+      #sector-treemap-detail .sector-treemap-detail-head button {
+        font:inherit; color:var(--fg); background:var(--panel);
+        border:1px solid var(--line); padding:5px 14px; cursor:pointer;
+      }
+      #sector-treemap-detail-body { padding:12px; }
+      #sector-treemap-detail .sector-treemap-detail-class,
+      #sector-treemap-detail .sector-treemap-detail-stats {
+        display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:7px; margin-bottom:10px;
+      }
+      #sector-treemap-detail .sector-treemap-detail-stats { grid-template-columns:repeat(4, minmax(0,1fr)); }
+      #sector-treemap-detail .sector-treemap-detail-class > div,
+      #sector-treemap-detail .sector-treemap-detail-stats > div {
+        min-width:0; border:1px solid var(--line); padding:7px 9px; background:var(--panel);
+      }
+      #sector-treemap-detail .sector-treemap-detail-class span,
+      #sector-treemap-detail .sector-treemap-detail-stats span {
+        display:block; color:var(--dim); font-size:11px; margin-bottom:2px;
+      }
+      #sector-treemap-detail .sector-treemap-detail-class b,
+      #sector-treemap-detail .sector-treemap-detail-stats b {
+        display:block; overflow:hidden; text-overflow:ellipsis; color:var(--fg2); font-size:15px;
+      }
+      #sector-treemap-detail .sector-treemap-detail-subhead {
+        display:flex; gap:12px; align-items:baseline; margin:14px 0 5px; color:var(--fg2); font-size:15px;
+      }
+      #sector-treemap-detail .sector-treemap-detail-subhead span { color:var(--dim); font-size:11px; }
+      #sector-treemap-detail .sector-treemap-detail-table-wrap { overflow:auto; }
+      #sector-treemap-detail .sector-treemap-detail-table {
+        width:100%; min-width:700px; border-collapse:collapse; font-variant-numeric:tabular-nums;
+      }
+      #sector-treemap-detail .sector-treemap-detail-table th,
+      #sector-treemap-detail .sector-treemap-detail-table td {
+        border:1px solid var(--line); padding:6px 8px; color:var(--fg);
+      }
+      #sector-treemap-detail .sector-treemap-detail-table th {
+        position:sticky; top:0; background:var(--panel); color:var(--fg2); text-align:left;
+      }
+      #sector-treemap-detail .sector-treemap-detail-table td.num { text-align:right; white-space:nowrap; }
+      #sector-treemap-detail .sector-treemap-detail-table td.code { white-space:nowrap; }
+      #sector-treemap-detail .sector-treemap-detail-table td.name { min-width:12em; }
+      #sector-treemap-detail .sector-treemap-detail-loading { padding:22px 12px; color:var(--fg2); }
+
       @media (max-width:700px) {
         #sector-page .sector-treemap-sector-label { font-size:10px; padding:1px 3px; }
+        #sector-treemap-detail { padding:7px; }
+        #sector-treemap-detail .sector-treemap-detail-box { width:99vw; max-height:92vh; }
+        #sector-treemap-detail .sector-treemap-detail-class,
+        #sector-treemap-detail .sector-treemap-detail-stats { grid-template-columns:1fr 1fr; }
       }
     `;
     document.head.appendChild(style);
@@ -312,6 +632,7 @@
 
     toggle.dataset.treemapCycle = "1";
     installStyle();
+    ensurePopup();
     updateToggleHint(toggle);
 
     // 既存の表↔階層ヒートマップのクリック処理より先に受け取り、3画面循環に拡張する。
@@ -323,6 +644,15 @@
       else showTable();
     }, true);
 
+    body.addEventListener("dblclick", (event) => {
+      if (mode !== "treemap") return;
+      const tile = event.target.closest(".sector-treemap-tile[data-industry]");
+      if (!tile) return;
+      event.preventDefault();
+      event.stopPropagation();
+      showIndustryPopup(tile.dataset.major || "", tile.dataset.sector || "", tile.dataset.industry || "");
+    });
+
     themeButton?.addEventListener("click", () => {
       if (mode !== "treemap" || !heatData) return;
       window.setTimeout(() => {
@@ -331,9 +661,17 @@
     });
 
     backButton?.addEventListener("click", () => {
+      closePopup();
       mode = "table";
       updateToggleHint(toggle);
     });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!closePopup()) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, true);
 
     window.addEventListener("resize", () => {
       if (mode !== "treemap" || !heatData) return;
@@ -347,7 +685,8 @@
       show:showTreemap,
       hierarchy:showHierarchy,
       table:showTable,
-      render:renderTreemap
+      render:renderTreemap,
+      detail:showIndustryPopup
     };
     return true;
   }
