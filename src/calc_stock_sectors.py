@@ -14,8 +14,9 @@
 騰落率の計算には使わず、各分類の合計時価総額・1社平均時価総額を表示用に集計する。
 
 出力:
-    data/sector_today.json   当日表示用
-    data/sector_history.csv 日々の履歴（同日は差し替え）
+    data/sector_today.json            当日表示用
+    data/sector_history.csv           日々の履歴（同日は差し替え）
+    data/original_index_history.json  オリジナル10指数の年初来推移
 """
 
 import csv
@@ -31,6 +32,7 @@ from original_indices import ORIGINAL_INDEXES, STRENGTH_WEIGHT, classify_origina
 
 JST = timezone(timedelta(hours=9))
 MARKET_CAP_AS_OF = "2026-08-27"
+ORIGINAL_HISTORY_YEAR = 2026
 MAJOR_ORDER = {
     "外需・グローバル景気": 0,
     "資源・市況": 1,
@@ -204,6 +206,162 @@ def latest_pair(path):
     days = sorted(last_by_date)
     prev_d, last_d = days[-2], days[-1]
     return prev_d, last_by_date[prev_d], last_d, last_by_date[last_d]
+
+
+def load_close_history(path, year, date_field="Date", close_field="Close", predicate=None):
+    """CSVから指定年の日付 -> 終値を読む。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    prefix = f"{year}-"
+    try:
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            for r in csv.DictReader(f):
+                if predicate is not None and not predicate(r):
+                    continue
+                d = (r.get(date_field) or r.get(date_field.lower()) or "").strip()[:10]
+                raw = r.get(close_field)
+                if raw in (None, ""):
+                    raw = r.get(close_field.lower())
+                if not d.startswith(prefix) or raw in (None, ""):
+                    continue
+                try:
+                    close = float(str(raw).replace(",", ""))
+                except ValueError:
+                    continue
+                if math.isfinite(close) and close > 0:
+                    out[d] = close
+    except (OSError, csv.Error):
+        return {}
+    return out
+
+
+def normalized_benchmark(index_id, name, closes):
+    days = sorted(closes)
+    if not days:
+        return None
+    base = closes[days[0]]
+    points = [[d, round(closes[d] / base * 100.0, 4)] for d in days]
+    latest = points[-1][1]
+    return {
+        "id": index_id,
+        "name": name,
+        "baseDate": days[0],
+        "latestDate": days[-1],
+        "latest": latest,
+        "ytd": round(latest - 100.0, 4),
+        "points": points,
+    }
+
+
+def weighted_history_series(definition, members, closes_by_code, calendar):
+    """固定構成・固定寄与度の日次騰落率を複利し、初日100の指数にする。"""
+    if not calendar:
+        return None
+    returns_by_code = {}
+    for code, _weight in members:
+        closes = closes_by_code.get(code) or {}
+        previous = None
+        daily = {}
+        for d in sorted(closes):
+            close = closes[d]
+            if previous is not None:
+                daily[d] = close / previous - 1.0
+            previous = close
+        returns_by_code[code] = daily
+
+    level = 100.0
+    points = [[calendar[0], 100.0]]
+    for d in calendar[1:]:
+        numerator = 0.0
+        denominator = 0.0
+        for code, weight in members:
+            daily_return = returns_by_code.get(code, {}).get(d)
+            if daily_return is None:
+                continue
+            numerator += daily_return * weight
+            denominator += weight
+        if denominator:
+            level *= 1.0 + numerator / denominator
+        points.append([d, round(level, 4)])
+
+    latest = points[-1][1]
+    return {
+        "id": definition["id"],
+        "name": definition["name"],
+        "memberCount": len(members),
+        "baseDate": calendar[0],
+        "latestDate": calendar[-1],
+        "latest": latest,
+        "ytd": round(latest - 100.0, 4),
+        "points": points,
+    }
+
+
+def build_original_index_history(root, classes, original_memberships, year):
+    """固定構成の10指数と日経平均・TOPIXを初日100で作る。"""
+    stocks_dir = os.path.join(root, "data", "stocks")
+    closes_by_code = {}
+    calendar_days = set()
+    for item in classes:
+        code = item["code"]
+        closes = load_close_history(os.path.join(stocks_dir, f"{code}.csv"), year)
+        if not closes:
+            continue
+        closes_by_code[code] = closes
+        calendar_days.update(closes)
+    calendar = sorted(calendar_days)
+    if not calendar:
+        return None
+
+    members_by_index = defaultdict(list)
+    for item in classes:
+        code = item["code"]
+        memberships = original_memberships.get(code) or classify_original_indices(item)
+        for index_id, strength in memberships.items():
+            members_by_index[index_id].append((code, STRENGTH_WEIGHT[strength]))
+
+    indices = []
+    for definition in ORIGINAL_INDEXES:
+        series = weighted_history_series(
+            definition, members_by_index.get(definition["id"], []), closes_by_code, calendar
+        )
+        if series is not None:
+            indices.append(series)
+
+    data_dir = os.path.join(root, "data")
+    nikkei = load_close_history(
+        os.path.join(data_dir, f"overseas_{year}.csv"), year,
+        date_field="trade_date", close_field="close",
+        predicate=lambda r: (r.get("symbol") or "") == "^N225" or (r.get("name") or "") == "日経平均",
+    )
+    # 直近の公式CSVを年初来バックフィルへ補完する（既存値は維持）。
+    recent_nikkei = load_close_history(
+        os.path.join(data_dir, "nikkei_ohlc.csv"), year,
+        date_field="trade_date", close_field="close",
+        predicate=lambda r: (r.get("name") or "") == "日経平均",
+    )
+    for d, close in recent_nikkei.items():
+        nikkei.setdefault(d, close)
+    topix = load_close_history(
+        os.path.join(data_dir, "jpx_index.csv"), year,
+        date_field="trade_date", close_field="close",
+        predicate=lambda r: (r.get("name") or "") == "TOPIX",
+    )
+    benchmarks = [
+        normalized_benchmark("nikkei", "日経平均", nikkei),
+        normalized_benchmark("topix", "TOPIX", topix),
+    ]
+    return {
+        "year": year,
+        "baseDate": calendar[0],
+        "latestDate": calendar[-1],
+        "method": "fixed_constituents_daily_weighted_return_compounded_base_100",
+        "weightMethod": "large_1_medium_0.7_small_0.5",
+        "indices": indices,
+        "benchmarks": [item for item in benchmarks if item is not None],
+        "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
+    }
 
 
 def add_market_cap_summary(row, members):
@@ -387,6 +545,7 @@ def main():
     stocks_dir = os.path.join(root, "data", "stocks")
     out_path = os.path.join(root, "data", "sector_today.json")
     history_path = os.path.join(root, "data", "sector_history.csv")
+    original_history_path = os.path.join(root, "data", "original_index_history.json")
 
     if not os.path.exists(class_path):
         print(f"分類マスターがない: {class_path}", file=sys.stderr)
@@ -464,6 +623,15 @@ def main():
     history_today, history_total = update_history(
         history_path, latest_date, original, demand, major, sector, industry
     )
+    original_history = build_original_index_history(
+        root, classes, original_memberships, ORIGINAL_HISTORY_YEAR
+    )
+    if original_history is None:
+        print("オリジナル指数の年初来履歴を作れませんでした", file=sys.stderr)
+        return 4
+    with open(original_history_path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(original_history, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
     matched_market_cap = sum(1 for c in classes if c["code"] in market_caps)
     missing_market_cap_codes = [c["code"] for c in classes if c["code"] not in market_caps]
@@ -488,6 +656,7 @@ def main():
         "missingMarketCapCodes": missing_market_cap_codes,
         "marketCapBands": ["<0.2兆", "0.2–0.5兆", "0.5–1兆", "1–2兆", "2–5兆", "5–10兆", "10兆+"],
         "historyFile": "data/sector_history.csv",
+        "originalHistoryFile": "data/original_index_history.json",
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
         "original": original,
         "demand": demand,
@@ -510,6 +679,10 @@ def main():
         f"分類一致 {matched_market_cap}/{len(classes)}銘柄"
     )
     print(f"  履歴: 当日 {history_today}行 / 累計 {history_total}行")
+    print(
+        f"  年初来指数: {original_history['baseDate']}=100 / "
+        f"{len(original_history['indices'])}指数 / 比較 {len(original_history['benchmarks'])}指数"
+    )
     if demand:
         print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
     if original:

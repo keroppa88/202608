@@ -9,6 +9,10 @@
   let detailIndex = null;
   let detailIndexPromise = null;
   let popupRequest = 0;
+  let originalHistory = null;
+  let originalHistoryPromise = null;
+  let originalSortKey = "id";
+  let originalSortDir = 1;
 
   function esc(v) {
     return String(v == null ? "" : v)
@@ -190,11 +194,21 @@
       `<div class="sector-treemap-note">枠＝セクター / マス＝業種。ダブルクリックで分類・時価総額・騰落率・構成銘柄を表示。時価総額未取得分は面積に含めない。</div></div>`;
   }
 
-  function renderOriginal(data) {
+  function renderOriginal(data, history) {
     heatData = data;
     const body = document.getElementById("sector-body");
     if (!body || mode !== "original") return;
-    const rows = Array.from(data.original || []).sort((a, b) => Number(a.id) - Number(b.id));
+    const historyMap = new Map((history && history.indices || []).map((item) => [Number(item.id), item]));
+    const rows = Array.from(data.original || []).map((row) => ({
+      ...row,
+      ...(historyMap.get(Number(row.id)) || {}),
+    })).sort((a, b) => {
+      if (originalSortKey === "id") return (Number(a.id) - Number(b.id)) * originalSortDir;
+      const av = Number(a[originalSortKey]), bv = Number(b[originalSortKey]);
+      if (Number.isFinite(av) && Number.isFinite(bv) && av !== bv) return (av - bv) * originalSortDir;
+      if (Number.isFinite(av) !== Number.isFinite(bv)) return Number.isFinite(av) ? -originalSortDir : originalSortDir;
+      return (String(a.name).localeCompare(String(b.name), "ja")) * originalSortDir;
+    });
     const tableRows = rows.map((row) => {
       const breakdown = row.breakdown || {};
       const detail = `大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}`;
@@ -203,6 +217,8 @@
         `<th class="sector-name"><button type="button" class="original-index-name" data-original-index="${Number(row.id) || ""}" title="クリックで定義を表示">${esc(row.name)}</button></th>` +
         `<td class="sector-graphic-cell">${pctGraphic(row.change)}</td>` +
         `<td class="sector-change sector-change-col">${fmt(row.change)}</td>` +
+        `<td class="sector-change sector-ytd-col">${fmt(row.ytd)}</td>` +
+        `<td class="sector-cap sector-cap-col">${fmtCap(row.marketCapTrillion)}</td>` +
         `<td class="sector-count sector-count-col">${Number(row.count) || 0}</td>` +
         `<td class="original-index-strength" title="寄与度：大1.0・中0.7・小0.5">${esc(detail)}</td>` +
         `</tr>`;
@@ -210,13 +226,30 @@
     body.innerHTML = `<div class="sector-head original-index-head">` +
       `<span class="sector-title">日本株 オリジナル10指数</span>` +
       `<span class="sector-meta">${esc(data.date || "-")}</span>` +
-      `<span class="sector-note">名称クリックで定義 ／ 大1.0・中0.7・小0.5の加重平均 ／ 銘柄重複あり</span>` +
-      `</div><section class="sector-section original-index-section">` +
+      `<span class="sector-note">名称クリックで定義・チャート ／ 大1.0・中0.7・小0.5の加重平均 ／ 銘柄重複あり</span>` +
+      `</div><div class="original-index-benchmarks" id="original-index-benchmarks">${renderBenchmarkPanel(history)}</div>` +
+      `<section class="sector-section original-index-section">` +
       `<table class="sector-table original-index-table"><thead><tr>` +
       `<th class="original-index-number">#</th><th class="sector-name">名称</th>` +
-      `<th class="sector-graphic-cell">％graphic</th><th class="sector-change-col">騰落率</th>` +
-      `<th class="sector-count-col">銘柄数</th><th class="original-index-strength">構成（大 / 中 / 小）</th>` +
-      `</tr></thead><tbody>${tableRows || '<tr><td colspan="6">オリジナル指数データなし</td></tr>'}</tbody></table></section>`;
+      `<th class="sector-graphic-cell">％graphic</th><th class="sector-change-col"><button type="button" class="original-sort" data-original-sort="change">騰落率</button></th>` +
+      `<th class="sector-ytd-col"><button type="button" class="original-sort" data-original-sort="ytd">年初来騰落率</button></th>` +
+      `<th class="sector-cap-col"><button type="button" class="original-sort" data-original-sort="marketCapTrillion">時価総額</button></th>` +
+      `<th class="sector-count-col"><button type="button" class="original-sort" data-original-sort="count">銘柄数</button></th>` +
+      `<th class="original-index-strength">構成（大 / 中 / 小）</th>` +
+      `</tr></thead><tbody>${tableRows || '<tr><td colspan="8">オリジナル指数データなし</td></tr>'}</tbody></table></section>`;
+  }
+
+  function renderBenchmarkPanel(history) {
+    const benchmarks = history && Array.isArray(history.benchmarks) ? history.benchmarks : [];
+    if (!benchmarks.length) return '<span>TOPIX・日経平均の履歴を取得できませんでした。</span>';
+    return benchmarks.map((item) => {
+      const points = Array.isArray(item.points) ? item.points : [];
+      const latest = points.length ? Number(points[points.length - 1][1]) : NaN;
+      const previous = points.length > 1 ? Number(points[points.length - 2][1]) : NaN;
+      const daily = Number.isFinite(latest) && Number.isFinite(previous) && previous ? (latest / previous - 1) * 100 : NaN;
+      return `<div class="original-index-benchmark"><b>${esc(item.name)}</b>` +
+        `<span>騰落率 <strong>${fmt(daily)}</strong></span><span>年初来 <strong>${fmt(item.ytd)}</strong></span></div>`;
+    }).join("");
   }
 
   function parseCsv(text) {
@@ -415,14 +448,45 @@
     }
   }
 
-  function showOriginalPopup(indexId) {
+  function originalChart(history, indexId) {
+    const selected = (history && history.indices || []).find((item) => Number(item.id) === Number(indexId));
+    const benchmarks = history && history.benchmarks || [];
+    if (!selected || !Array.isArray(selected.points) || selected.points.length < 2) {
+      return '<div class="original-index-chart-empty">年初来チャートを表示できる履歴がありません。</div>';
+    }
+    const series = [{ item:selected, cls:"selected" }].concat(benchmarks.map((item, i) => ({ item, cls:i === 0 ? "nikkei" : "topix" })));
+    const all = series.flatMap((s) => s.item.points || []).map((p) => Number(p[1])).filter(Number.isFinite);
+    let lo = Math.min(100, ...all), hi = Math.max(100, ...all);
+    const pad = Math.max((hi - lo) * 0.08, 1);
+    lo -= pad; hi += pad;
+    const width = 920, height = 330, left = 54, right = 16, top = 18, bottom = 38;
+    const iw = width - left - right, ih = height - top - bottom;
+    const dates = series.flatMap((s) => (s.item.points || []).map((p) => p[0])).sort();
+    const first = Date.parse(`${dates[0]}T00:00:00Z`), last = Date.parse(`${dates[dates.length - 1]}T00:00:00Z`);
+    const x = (date) => left + (last > first ? (Date.parse(`${date}T00:00:00Z`) - first) / (last - first) : 0) * iw;
+    const y = (value) => top + (hi - value) / (hi - lo) * ih;
+    const path = (points) => points.map((p, i) => `${i ? "L" : "M"}${x(p[0]).toFixed(2)},${y(Number(p[1])).toFixed(2)}`).join(" ");
+    const ticks = Array.from({ length:5 }, (_, i) => lo + (hi - lo) * i / 4);
+    const grid = ticks.map((v) => `<line x1="${left}" x2="${width - right}" y1="${y(v).toFixed(2)}" y2="${y(v).toFixed(2)}" class="original-chart-grid"/><text x="${left - 8}" y="${(y(v) + 4).toFixed(2)}" text-anchor="end" class="original-chart-axis">${v.toFixed(1)}</text>`).join("");
+    const base = `<line x1="${left}" x2="${width - right}" y1="${y(100).toFixed(2)}" y2="${y(100).toFixed(2)}" class="original-chart-base"/>`;
+    const labels = [dates[0], dates[Math.floor((dates.length - 1) / 2)], dates[dates.length - 1]]
+      .filter((d, i, arr) => d && arr.indexOf(d) === i)
+      .map((d) => `<text x="${x(d).toFixed(2)}" y="${height - 10}" text-anchor="middle" class="original-chart-axis">${esc(d.slice(0, 7))}</text>`).join("");
+    const lines = series.map((s) => `<path d="${path(s.item.points)}" class="original-chart-line ${s.cls}"/>`).join("");
+    const legend = series.map((s) => `<span class="original-chart-legend ${s.cls}"><i></i>${esc(s.item.name)} ${fmt(s.item.ytd)}</span>`).join("");
+    return `<div class="original-index-chart-head"><span>2026年 年初来推移（2026-01-05＝100）</span><span>基準日 ${esc(history.baseDate || selected.baseDate || "-")}</span></div>` +
+      `<svg class="original-index-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(selected.name)}とTOPIX・日経平均の2026年推移">${grid}${base}${lines}${labels}</svg>` +
+      `<div class="original-chart-legend-wrap">${legend}</div>`;
+  }
+
+  async function showOriginalPopup(indexId) {
     const row = (heatData && Array.isArray(heatData.original) ? heatData.original : [])
       .find((item) => Number(item.id) === Number(indexId));
     if (!row) return;
     const modal = ensurePopup();
     const title = modal.querySelector("#sector-treemap-detail-title");
     const content = modal.querySelector("#sector-treemap-detail-body");
-    popupRequest++;
+    const requestId = ++popupRequest;
     title.textContent = `${Number(row.id)}. ${row.name}`;
     const breakdown = row.breakdown || {};
     content.innerHTML = `<div class="original-index-popup-concept">${esc(row.concept || row.name)}</div>` +
@@ -430,11 +494,28 @@
       `<p class="original-index-popup-definition">${esc(row.definition || "-")}</p>` +
       `<div class="sector-treemap-detail-stats original-index-popup-stats">` +
       `<div><span>騰落率</span><b>${fmt(row.change)}</b></div>` +
+      `<div><span>年初来騰落率</span><b>読み込み中…</b></div>` +
+      `<div><span>時価総額</span><b>${fmtCap(row.marketCapTrillion)}</b></div>` +
       `<div><span>銘柄数</span><b>${Number(row.count) || 0}</b></div>` +
       `<div><span>寄与度合計</span><b>${Number(row.weightSum) || 0}</b></div>` +
       `<div><span>構成</span><b>大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}</b></div>` +
-      `</div><div class="original-index-popup-method">指数騰落率 ＝ Σ（各銘柄の騰落率 × 寄与度）÷ Σ（寄与度）<br>寄与度：大 1.0 ／ 中 0.7 ／ 小 0.5。銘柄の指数間重複を許容。</div>`;
+      `</div><div class="original-index-chart-wrap">チャートを読み込み中…</div>` +
+      `<div class="original-index-popup-method">指数騰落率 ＝ Σ（各銘柄の騰落率 × 寄与度）÷ Σ（寄与度）<br>寄与度：大 1.0 ／ 中 0.7 ／ 小 0.5。銘柄の指数間重複を許容。</div>`;
     modal.classList.remove("hidden");
+    try {
+      const history = await fetchOriginalHistory();
+      if (requestId !== popupRequest) return;
+      const series = (history.indices || []).find((item) => Number(item.id) === Number(indexId));
+      const ytd = series ? series.ytd : NaN;
+      const stats = content.querySelectorAll(".original-index-popup-stats b");
+      if (stats[1]) stats[1].textContent = fmt(ytd);
+      const chart = content.querySelector(".original-index-chart-wrap");
+      if (chart) chart.innerHTML = originalChart(history, indexId);
+    } catch (err) {
+      if (requestId !== popupRequest) return;
+      const chart = content.querySelector(".original-index-chart-wrap");
+      if (chart) chart.textContent = "年初来チャートを読み込めませんでした。";
+    }
   }
 
   async function fetchHeatData() {
@@ -443,6 +524,16 @@
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     heatData = await res.json();
     return heatData;
+  }
+
+  async function fetchOriginalHistory() {
+    if (originalHistory) return originalHistory;
+    if (!originalHistoryPromise) {
+      originalHistoryPromise = fetch("data/original_index_history.json?t=" + Date.now(), { cache:"no-store" })
+        .then((res) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+        .then((data) => { originalHistory = data; return data; });
+    }
+    return originalHistoryPromise;
   }
 
   function updateToggleHint(toggle) {
@@ -464,7 +555,9 @@
     body.innerHTML = '<div class="sector-error">オリジナル10指数読み込み中…</div>';
     try {
       const data = await fetchHeatData();
-      if (mode === "original") renderOriginal(data);
+      let history = null;
+      try { history = await fetchOriginalHistory(); } catch (_) { /* 表自体は表示する */ }
+      if (mode === "original") renderOriginal(data, history);
     } catch (err) {
       if (mode === "original") body.innerHTML = `<div class="sector-error">オリジナル10指数を読み込めませんでした。\n${esc(err && err.message ? err.message : err)}</div>`;
     }
@@ -527,16 +620,40 @@
       #sector-page .sector-treemap-tile.tiny .sector-heat-change { display:none; }
       #sector-page .sector-treemap-note { margin-top:7px; color:var(--fg); font-size:12px; }
       #sector-page .original-index-section { overflow-x:auto; }
-      #sector-page table.original-index-table { min-width:760px; }
+      #sector-page table.original-index-table { min-width:1080px; }
       #sector-page .original-index-table .original-index-number { width:3.5em; min-width:3.5em; text-align:right; color:var(--dim); }
       #sector-page .original-index-table .sector-name { width:15em; min-width:15em; max-width:15em; }
       #sector-page .original-index-name { width:100%; padding:0; border:0; background:none; color:var(--fg2); font:inherit; font-weight:bold; text-align:left; cursor:pointer; }
       #sector-page .original-index-name:hover,#sector-page .original-index-name:focus-visible { text-decoration:underline; }
       #sector-page .original-index-strength { width:15em; min-width:15em; text-align:right; white-space:nowrap; color:var(--dim); }
+      #sector-page .original-sort { padding:0; border:0; background:none; color:inherit; font:inherit; cursor:pointer; text-decoration:underline dotted; }
+      #sector-page .original-sort:hover,#sector-page .original-sort:focus-visible { color:var(--fg2); }
+      #sector-page .original-index-benchmarks { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
+      #sector-page .original-index-benchmark { display:flex; align-items:baseline; gap:10px; min-width:240px; padding:8px 12px; border:1px solid var(--line); background:var(--panel); }
+      #sector-page .original-index-benchmark b { color:var(--fg2); }
+      #sector-page .original-index-benchmark span { color:var(--dim); font-size:12px; }
+      #sector-page .original-index-benchmark strong { color:var(--fg); font-size:14px; }
       #sector-treemap-detail .original-index-popup-concept { margin-bottom:14px; color:var(--fg2); font-size:20px; font-weight:bold; }
       #sector-treemap-detail .original-index-popup-label { margin-bottom:5px; color:var(--dim); font-size:12px; }
       #sector-treemap-detail .original-index-popup-definition { margin:0 0 16px; padding:12px; border:1px solid var(--line); background:var(--panel); color:var(--fg); font-size:16px; line-height:1.75; }
+      #sector-treemap-detail .original-index-popup-stats { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
       #sector-treemap-detail .original-index-popup-method { padding:10px 12px; border-top:1px solid var(--line); color:var(--dim); line-height:1.7; }
+      #sector-treemap-detail .original-index-chart-wrap { margin:14px 0; padding:10px; border:1px solid var(--line); background:var(--panel); overflow:hidden; }
+      #sector-treemap-detail .original-index-chart-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:6px; color:var(--fg2); font-size:12px; }
+      #sector-treemap-detail .original-index-chart { display:block; width:100%; min-height:250px; }
+      #sector-treemap-detail .original-chart-grid { stroke:var(--line); stroke-width:1; opacity:.7; }
+      #sector-treemap-detail .original-chart-base { stroke:var(--dim); stroke-width:1; stroke-dasharray:4 4; opacity:.9; }
+      #sector-treemap-detail .original-chart-axis { fill:var(--dim); font-size:11px; }
+      #sector-treemap-detail .original-chart-line { fill:none; stroke-width:2; vector-effect:non-scaling-stroke; }
+      #sector-treemap-detail .original-chart-line.selected { stroke:var(--fg2); stroke-width:3; }
+      #sector-treemap-detail .original-chart-line.nikkei { stroke:#e6b450; }
+      #sector-treemap-detail .original-chart-line.topix { stroke:#6bb5ff; }
+      #sector-treemap-detail .original-chart-legend-wrap { display:flex; flex-wrap:wrap; gap:12px; margin-top:4px; }
+      #sector-treemap-detail .original-chart-legend { color:var(--dim); font-size:12px; }
+      #sector-treemap-detail .original-chart-legend i { display:inline-block; width:18px; margin-right:5px; vertical-align:middle; border-top:3px solid var(--fg2); }
+      #sector-treemap-detail .original-chart-legend.nikkei i { border-color:#e6b450; }
+      #sector-treemap-detail .original-chart-legend.topix i { border-color:#6bb5ff; }
+      #sector-treemap-detail .original-index-chart-empty { padding:16px; color:var(--dim); }
       #sector-treemap-detail { position:fixed; inset:0; z-index:10040; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.74); }
       #sector-treemap-detail.hidden { display:none !important; }
       #sector-treemap-detail .sector-treemap-detail-box { width:min(1000px,96vw); max-height:88vh; overflow:auto; background:var(--bg); color:var(--fg); border:2px solid var(--line); box-shadow:0 10px 40px rgba(0,0,0,.65); }
@@ -595,6 +712,15 @@
     });
     body.addEventListener("click", (event) => {
       if (mode !== "original") return;
+      const sortButton = event.target.closest("button[data-original-sort]");
+      if (sortButton) {
+        event.preventDefault();
+        const key = sortButton.dataset.originalSort || "id";
+        if (originalSortKey === key) originalSortDir *= -1;
+        else { originalSortKey = key; originalSortDir = key === "id" ? 1 : -1; }
+        renderOriginal(heatData, originalHistory);
+        return;
+      }
       const button = event.target.closest("button[data-original-index]");
       if (!button) return;
       event.preventDefault();
@@ -604,7 +730,7 @@
       if (!heatData || (mode !== "treemap" && mode !== "original")) return;
       window.setTimeout(() => {
         if (mode === "treemap") renderTreemap(heatData);
-        else if (mode === "original") renderOriginal(heatData);
+        else if (mode === "original") renderOriginal(heatData, originalHistory);
       }, 0);
     });
     backButton?.addEventListener("click", () => { closePopup(); mode = "table"; updateToggleHint(toggle); });

@@ -12,7 +12,7 @@
   "unreadableCodes": [],
   "stale": 0,
   "staleCodes": [],
-  "marketCapAsOf": "2026-08-28",
+  "marketCapAsOf": "2026-08-27",
   "marketCapSourceCount": 492,
   "marketCapMatched": 492,
   "missingMarketCapCodes": [],
@@ -26,7 +26,8 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-29T02:46:00+09:00",
+  "originalHistoryFile": "data/original_index_history.json",
+  "generatedAt": "2026-08-29T03:11:11+09:00",
   "original": [
     {
       "id": 1,
@@ -1076,8 +1077,5 @@
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     }
-  ],
-  "marketCapMethod": "NP/EPS × latest close",
-  "marketCapDynamic": 492,
-  "marketCapFallback": 0
+  ]
 }

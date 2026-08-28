@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 import sys
 import unittest
@@ -55,6 +56,19 @@ class OriginalIndexTest(unittest.TestCase):
     def test_overseas_strength_uses_demand_tag(self):
         self.assertEqual(self.memberships("7203").get(10), "大")
         self.assertEqual(self.memberships("7974").get(10), "中")
+
+    def test_history_is_base_100_and_has_benchmarks(self):
+        path = os.path.join(ROOT, "data", "original_index_history.json")
+        with open(path, encoding="utf-8") as f:
+            history = json.load(f)
+        self.assertEqual(history["year"], 2026)
+        self.assertEqual(history["baseDate"], "2026-01-05")
+        self.assertEqual(len(history["indices"]), 10)
+        self.assertEqual({item["name"] for item in history["benchmarks"]}, {"日経平均", "TOPIX"})
+        for item in history["indices"] + history["benchmarks"]:
+            self.assertEqual(item["points"][0], ["2026-01-05", 100.0])
+            self.assertEqual(item["ytd"], round(item["latest"] - 100.0, 4))
+            self.assertEqual(item["points"], sorted(item["points"], key=lambda point: point[0]))
 
 
 if __name__ == "__main__":
