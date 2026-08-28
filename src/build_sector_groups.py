@@ -69,18 +69,18 @@ def group_sector(major, raw_sector, industry):
         if raw_sector in {"素材", "食品", "消費", "消費・コンテンツ"}:
             return "国内消費"
         if raw_sector == "建設・不動産":
-            return "建設・不動産"
+            return "国内建設・不動産"
         if raw_sector in {"情報通信", "ハイテク・電子", "機械"}:
             return "国内情報通信"
         if raw_sector in {"サービス", "卸売"}:
-            return "サービス・卸売"
+            return "国内サービス"
         if raw_sector in {"運輸・物流", "運輸・不動産", "公共・金融"}:
             return "運輸・物流"
         if raw_sector == "ヘルスケア":
             return "ヘルスケア"
         if raw_sector == "メディア":
             return "メディア"
-        return "サービス・卸売"
+        return "国内サービス"
 
     if major == "金融・金利敏感":
         return "金融"
@@ -163,16 +163,15 @@ def group_industry(major, sector, raw_sector, industry):
             return "紙・炭素" if has(industry, "紙", "炭素") else "基礎化学"
 
     if major == "内需・国内景気":
-        if sector == "建設・不動産":
+        if sector == "国内建設・不動産":
+            # 完成したインフラ・大型建設物を供給するゼネコンや建材はインフラ系。
             if has(industry, "不動産", "駐車場"):
                 return "不動産"
-            if industry == "総合建設・設備工事":
-                return "建設・土木"
             if has(industry, "電力設備工事", "通信設備工事", "空調・設備工事"):
-                return "設備工事"
-            if has(industry, "住宅", "木材", "住宅設備", "断熱", "建築化学材"):
-                return "住宅・建材"
-            return "建設・土木"
+                return "建設設備"
+            if has(industry, "住宅・不動産開発", "住宅・木材", "住宅設備"):
+                return "住宅系"
+            return "インフラ系"
 
         if sector == "国内消費":
             if has(industry,
@@ -200,10 +199,11 @@ def group_industry(major, sector, raw_sector, industry):
                 return "B2C"
             return "B2B"
 
-        if sector == "サービス・卸売":
-            if has(industry, "人材", "コンサル", "M&A"):
-                return "人材・コンサル"
-            return "業務サービス・卸売"
+        if sector == "国内サービス":
+            # 消費者の日常生活へ直接提供するサービスだけをB2C、それ以外はB2Bへ。
+            if has(industry, "警備", "業務・生活サービス"):
+                return "B2C"
+            return "B2B"
 
         if sector == "運輸・物流":
             if has(industry, "鉄道"):
@@ -237,15 +237,12 @@ def group_industry(major, sector, raw_sector, industry):
 
     if major == "ディフェンシブ・公共":
         if sector == "ディフェンシブ消費":
-            # たばこ・ビールだけを奢侈品、それ以外の生活必需消費は生活品へ。
             if has(industry, "たばこ", "ビール"):
                 return "奢侈品"
             return "生活品"
-        # 医療機器・医薬品も含め、ディフェンシブ側の医薬品系は一括。
         if sector == "医薬品":
             return "医薬品"
         if sector == "公益":
-            # 都市ガス、都市ガス・LPガス、LPガスをすべて同じガスに統合。
             if has(industry, "ガス", "LPガス"):
                 return "ガス"
             return "電力"
@@ -292,7 +289,10 @@ def validate(rows):
         if count < MIN_MEMBERS:
             errors.append(f"業種 {major} / {sector} / {industry}: {count}銘柄")
 
-    forbidden = {"運輸・不動産", "消費・コンテンツ", "国内素材", "遊技機"}
+    forbidden = {
+        "運輸・不動産", "消費・コンテンツ", "国内素材", "遊技機",
+        "建設・不動産", "サービス・卸売", "建設・土木", "設備工事", "住宅・建材",
+    }
     for r in rows:
         if r["sector"] in forbidden or r["industry"] in forbidden:
             errors.append(f"禁止された細分類が残存: {r['code']} {r['sector']} / {r['industry']}")
