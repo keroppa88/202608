@@ -201,6 +201,45 @@
       #sector-page #sector-color-mode-toggle[aria-pressed="true"] {
         background:var(--sel-bg); color:var(--sel-fg);
       }
+
+      /* 親枝の縦線は最初の子ノード中心から最後の子ノード中心までだけ描く。 */
+      #sector-page .sector-tree-branch::before,
+      #sector-page .sector-tree-stocks::before {
+        display:none !important;
+      }
+      #sector-page .sector-tree-branch > .sector-tree-sector::after,
+      #sector-page .sector-tree-branch > .sector-tree-industry::after,
+      #sector-page .sector-tree-stocks > .sector-tree-stock::after {
+        content:"";
+        position:absolute;
+        left:-42px;
+        top:-2px;
+        bottom:-2px;
+        border-left:1px solid var(--line);
+        pointer-events:none;
+      }
+      #sector-page .sector-tree-branch > .sector-tree-sector:first-child::after,
+      #sector-page .sector-tree-branch > .sector-tree-industry:first-child::after,
+      #sector-page .sector-tree-stocks > .sector-tree-stock:first-child::after {
+        top:50%;
+      }
+      #sector-page .sector-tree-branch > .sector-tree-sector:last-child::after,
+      #sector-page .sector-tree-branch > .sector-tree-industry:last-child::after,
+      #sector-page .sector-tree-stocks > .sector-tree-stock:last-child::after {
+        bottom:50%;
+      }
+      #sector-page .sector-tree-branch > .sector-tree-sector:only-child::after,
+      #sector-page .sector-tree-branch > .sector-tree-industry:only-child::after,
+      #sector-page .sector-tree-stocks > .sector-tree-stock:only-child::after {
+        display:none;
+      }
+      @media (max-width:700px) {
+        #sector-page .sector-tree-branch > .sector-tree-sector::after,
+        #sector-page .sector-tree-branch > .sector-tree-industry::after,
+        #sector-page .sector-tree-stocks > .sector-tree-stock::after {
+          left:-36px;
+        }
+      }
     `;
     document.head.appendChild(style);
 
