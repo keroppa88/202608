@@ -34,7 +34,7 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-28T19:29:17+09:00",
+  "generatedAt": "2026-08-28T19:39:48+09:00",
   "demand": [
     {
       "name": "内需",
@@ -644,11 +644,11 @@
     },
     {
       "name": "日用品",
-      "change": -0.0767,
-      "count": 6,
-      "marketCapCount": 6,
-      "marketCapTrillion": 20.3454,
-      "avgMarketCapTrillion": 3.3909,
+      "change": -0.1436,
+      "count": 5,
+      "marketCapCount": 5,
+      "marketCapTrillion": 6.3434,
+      "avgMarketCapTrillion": 1.2687,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     },
@@ -894,11 +894,11 @@
     },
     {
       "name": "食品",
-      "change": -0.8228,
-      "count": 19,
-      "marketCapCount": 19,
-      "marketCapTrillion": 17.1952,
-      "avgMarketCapTrillion": 0.905,
+      "change": -0.7688,
+      "count": 20,
+      "marketCapCount": 20,
+      "marketCapTrillion": 31.1972,
+      "avgMarketCapTrillion": 1.5599,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     },
