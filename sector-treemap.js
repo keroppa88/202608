@@ -673,8 +673,8 @@
       #sector-page .original-sort:hover,#sector-page .original-sort:focus-visible { color:var(--fg2); }
       #sector-page .original-index-benchmarks { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
       #sector-page .original-index-benchmark { display:flex; align-items:baseline; gap:10px; min-width:240px; padding:8px 12px; border:1px solid var(--line); background:var(--panel); }
-      #sector-page .original-index-benchmark b { color:var(--fg2); }
-      #sector-page .original-index-benchmark span { color:var(--dim); font-size:12px; }
+      #sector-page .original-index-benchmark b { color:var(--fg); }
+      #sector-page .original-index-benchmark span { color:var(--fg); font-size:12px; }
       #sector-page .original-index-benchmark strong { color:var(--fg); font-size:14px; }
       #sector-treemap-detail .original-index-popup-concept { margin-bottom:14px; color:var(--fg2); font-size:20px; font-weight:bold; }
       #sector-treemap-detail .original-index-popup-label { margin-bottom:5px; color:var(--dim); font-size:12px; }
