@@ -18,6 +18,7 @@ on:
     branches: [main]
     paths:
       - "src/calc_stock_sectors.py"
+      - "src/original_indices.py"
       - "src/build_sector_groups.py"
       - "src/build_market_caps.py"
       - "src/finalize_market_cap_metadata.py"

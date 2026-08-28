@@ -24,6 +24,17 @@
     return `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
   }
 
+  function pctGraphic(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return '<span class="pct-graphic pct-empty">-</span>';
+    const a = Math.abs(n);
+    const cells = a >= 10 ? 11 : (a < 0.5 ? 1 : Math.min(10, Math.floor(a - 0.5) + 2));
+    const neg = n < 0 ? "■".repeat(cells) : "";
+    const pos = n >= 0 ? "□".repeat(cells) : "";
+    return `<span class="pct-graphic" title="${esc(fmt(n))}">` +
+      `<span class="pct-neg">${neg}</span><span class="pct-zero"></span><span class="pct-pos">${pos}</span></span>`;
+  }
+
   function fmtCap(v) {
     const n = Number(v);
     if (!Number.isFinite(n)) return "-";
@@ -179,6 +190,35 @@
       `<div class="sector-treemap-note">枠＝セクター / マス＝業種。ダブルクリックで分類・時価総額・騰落率・構成銘柄を表示。時価総額未取得分は面積に含めない。</div></div>`;
   }
 
+  function renderOriginal(data) {
+    heatData = data;
+    const body = document.getElementById("sector-body");
+    if (!body || mode !== "original") return;
+    const rows = Array.from(data.original || []).sort((a, b) => Number(a.id) - Number(b.id));
+    const tableRows = rows.map((row) => {
+      const breakdown = row.breakdown || {};
+      const detail = `大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}`;
+      return `<tr>` +
+        `<td class="original-index-number">${Number(row.id) || "-"}</td>` +
+        `<th class="sector-name"><button type="button" class="original-index-name" data-original-index="${Number(row.id) || ""}" title="クリックで定義を表示">${esc(row.name)}</button></th>` +
+        `<td class="sector-graphic-cell">${pctGraphic(row.change)}</td>` +
+        `<td class="sector-change sector-change-col">${fmt(row.change)}</td>` +
+        `<td class="sector-count sector-count-col">${Number(row.count) || 0}</td>` +
+        `<td class="original-index-strength" title="寄与度：大1.0・中0.7・小0.5">${esc(detail)}</td>` +
+        `</tr>`;
+    }).join("");
+    body.innerHTML = `<div class="sector-head original-index-head">` +
+      `<span class="sector-title">日本株 オリジナル10指数</span>` +
+      `<span class="sector-meta">${esc(data.date || "-")}</span>` +
+      `<span class="sector-note">名称クリックで定義 ／ 大1.0・中0.7・小0.5の加重平均 ／ 銘柄重複あり</span>` +
+      `</div><section class="sector-section original-index-section">` +
+      `<table class="sector-table original-index-table"><thead><tr>` +
+      `<th class="original-index-number">#</th><th class="sector-name">名称</th>` +
+      `<th class="sector-graphic-cell">％graphic</th><th class="sector-change-col">騰落率</th>` +
+      `<th class="sector-count-col">銘柄数</th><th class="original-index-strength">構成（大 / 中 / 小）</th>` +
+      `</tr></thead><tbody>${tableRows || '<tr><td colspan="6">オリジナル指数データなし</td></tr>'}</tbody></table></section>`;
+  }
+
   function parseCsv(text) {
     const rows = [];
     let row = [], field = "", quoted = false;
@@ -301,7 +341,7 @@
     modal = document.createElement("div");
     modal.id = "sector-treemap-detail";
     modal.className = "hidden";
-    modal.innerHTML = `<div class="sector-treemap-detail-box" role="dialog" aria-modal="true" aria-label="業種詳細">` +
+    modal.innerHTML = `<div class="sector-treemap-detail-box" role="dialog" aria-modal="true" aria-label="詳細">` +
       `<div class="sector-treemap-detail-head"><strong id="sector-treemap-detail-title">業種詳細</strong><span class="spacer"></span>` +
       `<button id="sector-treemap-detail-close" type="button">閉じる</button></div><div id="sector-treemap-detail-body"></div></div>`;
     document.body.appendChild(modal);
@@ -375,6 +415,28 @@
     }
   }
 
+  function showOriginalPopup(indexId) {
+    const row = (heatData && Array.isArray(heatData.original) ? heatData.original : [])
+      .find((item) => Number(item.id) === Number(indexId));
+    if (!row) return;
+    const modal = ensurePopup();
+    const title = modal.querySelector("#sector-treemap-detail-title");
+    const content = modal.querySelector("#sector-treemap-detail-body");
+    popupRequest++;
+    title.textContent = `${Number(row.id)}. ${row.name}`;
+    const breakdown = row.breakdown || {};
+    content.innerHTML = `<div class="original-index-popup-concept">${esc(row.concept || row.name)}</div>` +
+      `<div class="original-index-popup-label">定義</div>` +
+      `<p class="original-index-popup-definition">${esc(row.definition || "-")}</p>` +
+      `<div class="sector-treemap-detail-stats original-index-popup-stats">` +
+      `<div><span>騰落率</span><b>${fmt(row.change)}</b></div>` +
+      `<div><span>銘柄数</span><b>${Number(row.count) || 0}</b></div>` +
+      `<div><span>寄与度合計</span><b>${Number(row.weightSum) || 0}</b></div>` +
+      `<div><span>構成</span><b>大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}</b></div>` +
+      `</div><div class="original-index-popup-method">指数騰落率 ＝ Σ（各銘柄の騰落率 × 寄与度）÷ Σ（寄与度）<br>寄与度：大 1.0 ／ 中 0.7 ／ 小 0.5。銘柄の指数間重複を許容。</div>`;
+    modal.classList.remove("hidden");
+  }
+
   async function fetchHeatData() {
     if (heatData) return heatData;
     const res = await fetch(`data/sector_today.json?t=${Date.now()}`, { cache:"no-store" });
@@ -385,9 +447,27 @@
 
   function updateToggleHint(toggle) {
     if (!toggle) return;
-    if (mode === "table") toggle.title = "表切替：業種別時価総額マップを表示";
+    if (mode === "table") toggle.title = "表切替：オリジナル10指数を表示";
+    else if (mode === "original") toggle.title = "表切替：業種別時価総額マップを表示";
     else if (mode === "treemap") toggle.title = "表切替：階層ヒートマップを表示";
     else toggle.title = "表切替：表へ戻る";
+  }
+
+  async function showOriginal() {
+    const body = document.getElementById("sector-body");
+    const toggle = document.getElementById("sector-view-toggle");
+    if (!body || !toggle) return;
+    closePopup();
+    mode = "original";
+    toggle.setAttribute("aria-pressed", "false");
+    updateToggleHint(toggle);
+    body.innerHTML = '<div class="sector-error">オリジナル10指数読み込み中…</div>';
+    try {
+      const data = await fetchHeatData();
+      if (mode === "original") renderOriginal(data);
+    } catch (err) {
+      if (mode === "original") body.innerHTML = `<div class="sector-error">オリジナル10指数を読み込めませんでした。\n${esc(err && err.message ? err.message : err)}</div>`;
+    }
   }
 
   async function showTreemap() {
@@ -446,6 +526,17 @@
       #sector-page .sector-treemap-tile.tiny .sector-treemap-name { font-size:8px; }
       #sector-page .sector-treemap-tile.tiny .sector-heat-change { display:none; }
       #sector-page .sector-treemap-note { margin-top:7px; color:var(--fg); font-size:12px; }
+      #sector-page .original-index-section { overflow-x:auto; }
+      #sector-page table.original-index-table { min-width:760px; }
+      #sector-page .original-index-table .original-index-number { width:3.5em; min-width:3.5em; text-align:right; color:var(--dim); }
+      #sector-page .original-index-table .sector-name { width:15em; min-width:15em; max-width:15em; }
+      #sector-page .original-index-name { width:100%; padding:0; border:0; background:none; color:var(--fg2); font:inherit; font-weight:bold; text-align:left; cursor:pointer; }
+      #sector-page .original-index-name:hover,#sector-page .original-index-name:focus-visible { text-decoration:underline; }
+      #sector-page .original-index-strength { width:15em; min-width:15em; text-align:right; white-space:nowrap; color:var(--dim); }
+      #sector-treemap-detail .original-index-popup-concept { margin-bottom:14px; color:var(--fg2); font-size:20px; font-weight:bold; }
+      #sector-treemap-detail .original-index-popup-label { margin-bottom:5px; color:var(--dim); font-size:12px; }
+      #sector-treemap-detail .original-index-popup-definition { margin:0 0 16px; padding:12px; border:1px solid var(--line); background:var(--panel); color:var(--fg); font-size:16px; line-height:1.75; }
+      #sector-treemap-detail .original-index-popup-method { padding:10px 12px; border-top:1px solid var(--line); color:var(--dim); line-height:1.7; }
       #sector-treemap-detail { position:fixed; inset:0; z-index:10040; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.74); }
       #sector-treemap-detail.hidden { display:none !important; }
       #sector-treemap-detail .sector-treemap-detail-box { width:min(1000px,96vw); max-height:88vh; overflow:auto; background:var(--bg); color:var(--fg); border:2px solid var(--line); box-shadow:0 10px 40px rgba(0,0,0,.65); }
@@ -489,7 +580,8 @@
     toggle.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      if (mode === "table") showTreemap();
+      if (mode === "table") showOriginal();
+      else if (mode === "original") showTreemap();
       else if (mode === "treemap") showHierarchy();
       else showTable();
     }, true);
@@ -501,9 +593,19 @@
       event.stopPropagation();
       showIndustryPopup(tile.dataset.major || "", tile.dataset.sector || "", tile.dataset.industry || "");
     });
+    body.addEventListener("click", (event) => {
+      if (mode !== "original") return;
+      const button = event.target.closest("button[data-original-index]");
+      if (!button) return;
+      event.preventDefault();
+      showOriginalPopup(button.dataset.originalIndex);
+    });
     themeButton?.addEventListener("click", () => {
-      if (mode !== "treemap" || !heatData) return;
-      window.setTimeout(() => { if (mode === "treemap") renderTreemap(heatData); }, 0);
+      if (!heatData || (mode !== "treemap" && mode !== "original")) return;
+      window.setTimeout(() => {
+        if (mode === "treemap") renderTreemap(heatData);
+        else if (mode === "original") renderOriginal(heatData);
+      }, 0);
     });
     backButton?.addEventListener("click", () => { closePopup(); mode = "table"; updateToggleHint(toggle); });
     document.addEventListener("keydown", (event) => {
@@ -517,7 +619,7 @@
       clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => { if (mode === "treemap") renderTreemap(heatData); }, 120);
     });
-    window.SectorTreemapView = { show:showTreemap, hierarchy:showHierarchy, table:showTable, render:renderTreemap, detail:showIndustryPopup };
+    window.SectorTreemapView = { show:showTreemap, original:showOriginal, hierarchy:showHierarchy, table:showTable, render:renderTreemap, detail:showIndustryPopup };
     return true;
   }
 

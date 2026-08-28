@@ -4,10 +4,11 @@
 分類マスターにある銘柄だけを対象にし、各銘柄の前回終値→最新終値の騰落率を
 単純平均（等ウェイト）して大分類・セクター・業種別にまとめる。
 
-需要地域の合成指数だけは次の寄与度を使う。
+需要地域と10のオリジナル指数は寄与度を使う。
     内需指数: 強内需=1.0 / 内需=0.5
     外需指数: 強外需=1.0 / 外需=0.5
     内外均衡はどちらにも入れない。
+    オリジナル指数: 大=1.0 / 中=0.7 / 小=0.5
 
 時価総額は data/market_cap.csv をコードで突き合わせる。
 騰落率の計算には使わず、各分類の合計時価総額・1社平均時価総額を表示用に集計する。
@@ -26,6 +27,7 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 
 from common import repo_root
+from original_indices import ORIGINAL_INDEXES, STRENGTH_WEIGHT, classify_original_indices
 
 JST = timezone(timedelta(hours=9))
 MARKET_CAP_AS_OF = "2026-08-27"
@@ -36,7 +38,7 @@ MAJOR_ORDER = {
     "金融・金利敏感": 3,
     "ディフェンシブ・公共": 4,
 }
-HISTORY_LEVEL_ORDER = {"demand": 0, "major": 1, "sector": 2, "industry": 3}
+HISTORY_LEVEL_ORDER = {"original": 0, "demand": 1, "major": 2, "sector": 3, "industry": 4}
 HISTORY_FIELDS = [
     "date",
     "level",
@@ -115,6 +117,27 @@ def load_classes(path):
                 }
             )
     return normalize_sector_names(rows)
+
+
+def load_original_memberships(path):
+    """詳細分類マスターからコード別のオリジナル指数所属を作る。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            code = (r.get("code") or "").strip().upper()
+            if not code:
+                continue
+            row = {
+                "code": code,
+                "major": (r.get("major") or "").strip(),
+                "sector": (r.get("sector") or "").strip(),
+                "industry": (r.get("industry") or "").strip(),
+                "demand": (r.get("demand") or "").strip(),
+            }
+            out[code] = classify_original_indices(row)
+    return out
 
 
 def load_market_caps(path):
@@ -249,6 +272,42 @@ def demand_index(rows, name, weights):
     return add_market_cap_summary(row, selected)
 
 
+def original_index_rows(rows):
+    """10指数を大=1.0、中=0.7、小=0.5の寄与度で加重平均する。"""
+    by_index = defaultdict(list)
+    for stock in rows:
+        memberships = stock.get("original_memberships")
+        if memberships is None:
+            memberships = classify_original_indices(stock)
+        for index_id, strength in memberships.items():
+            by_index[index_id].append((stock, strength))
+
+    out = []
+    for definition in ORIGINAL_INDEXES:
+        index_id = definition["id"]
+        members = by_index.get(index_id, [])
+        denominator = sum(STRENGTH_WEIGHT[strength] for _, strength in members)
+        if not denominator:
+            continue
+        numerator = sum(
+            stock["change"] * STRENGTH_WEIGHT[strength]
+            for stock, strength in members
+        )
+        breakdown = defaultdict(int)
+        for _, strength in members:
+            breakdown[strength] += 1
+        row = {
+            **definition,
+            "change": round(numerator / denominator, 4),
+            "count": len(members),
+            "weightSum": round(denominator, 1),
+            "breakdown": {key: breakdown.get(key, 0) for key in ("大", "中", "小")},
+        }
+        add_market_cap_summary(row, [stock for stock, _ in members])
+        out.append(row)
+    return out
+
+
 def history_row(date, level, row, major="", sector=""):
     return {
         "date": date,
@@ -265,8 +324,10 @@ def history_row(date, level, row, major="", sector=""):
     }
 
 
-def make_history_rows(date, demand, major, sector, industry):
+def make_history_rows(date, original, demand, major, sector, industry):
     rows = []
+    for r in original:
+        rows.append(history_row(date, "original", r))
     for r in demand:
         rows.append(history_row(date, "demand", r))
     for r in major:
@@ -286,7 +347,7 @@ def make_history_rows(date, demand, major, sector, industry):
     return rows
 
 
-def update_history(path, date, demand, major, sector, industry):
+def update_history(path, date, original, demand, major, sector, industry):
     """履歴を蓄積する。同一日を再計算した場合はその日の行だけ全置換する。"""
     kept = []
     if os.path.exists(path):
@@ -298,7 +359,7 @@ def update_history(path, date, demand, major, sector, industry):
         except (OSError, csv.Error) as e:
             print(f"履歴CSV読取警告: {e}", file=sys.stderr)
 
-    current = make_history_rows(date, demand, major, sector, industry)
+    current = make_history_rows(date, original, demand, major, sector, industry)
     rows = kept + current
     rows.sort(
         key=lambda r: (
@@ -321,6 +382,7 @@ def update_history(path, date, demand, major, sector, industry):
 def main():
     root = repo_root()
     class_path = os.path.join(root, "data", "stock-sectors.csv")
+    detail_class_path = os.path.join(root, "data", "stock-sectors-detail.csv")
     market_cap_path = os.path.join(root, "data", "market_cap.csv")
     stocks_dir = os.path.join(root, "data", "stocks")
     out_path = os.path.join(root, "data", "sector_today.json")
@@ -334,6 +396,7 @@ def main():
         return 2
 
     classes = load_classes(class_path)
+    original_memberships = load_original_memberships(detail_class_path)
     market_caps = load_market_caps(market_cap_path)
     observed = []
     missing_codes = []
@@ -358,6 +421,7 @@ def main():
                 "change": (close / prev - 1.0) * 100.0,
                 "market_cap_million": cap,
                 "market_cap_band": market_cap_band(cap),
+                "original_memberships": original_memberships.get(c["code"]),
             }
         )
 
@@ -386,6 +450,7 @@ def main():
         demand_index(today, "外需", {"強外需": 1.0, "外需": 0.5}),
     ]
     demand = [r for r in demand if r is not None]
+    original = original_index_rows(today)
 
     major.sort(key=lambda r: (MAJOR_ORDER.get(r["name"], 99), r["name"]))
     sector.sort(key=lambda r: (MAJOR_ORDER.get(r["major"], 99), r["major"], r["name"]))
@@ -397,7 +462,7 @@ def main():
         return 3
 
     history_today, history_total = update_history(
-        history_path, latest_date, demand, major, sector, industry
+        history_path, latest_date, original, demand, major, sector, industry
     )
 
     matched_market_cap = sum(1 for c in classes if c["code"] in market_caps)
@@ -407,6 +472,7 @@ def main():
         "date": latest_date,
         "method": "equal_weight",
         "demandMethod": "strong_1_normal_0.5",
+        "originalMethod": "large_1_medium_0.7_small_0.5",
         "sectorNaming": "unique_by_market_driver",
         "classified": len(classes),
         "available": len(today),
@@ -423,6 +489,7 @@ def main():
         "marketCapBands": ["<0.2兆", "0.2–0.5兆", "0.5–1兆", "1–2兆", "2–5兆", "5–10兆", "10兆+"],
         "historyFile": "data/sector_history.csv",
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
+        "original": original,
         "demand": demand,
         "major": major,
         "sector": sector,
@@ -435,7 +502,8 @@ def main():
 
     print(
         f"セクター騰落率 {latest_date}: 使用 {len(today)}/{len(classes)}銘柄 / "
-        f"大分類 {len(major)} / セクター {len(sector)} / 業種 {len(industry)}"
+        f"オリジナル指数 {len(original)} / 大分類 {len(major)} / "
+        f"セクター {len(sector)} / 業種 {len(industry)}"
     )
     print(
         f"  時価総額: {MARKET_CAP_AS_OF} / ランキング {len(market_caps)}銘柄 / "
@@ -444,6 +512,8 @@ def main():
     print(f"  履歴: 当日 {history_today}行 / 累計 {history_total}行")
     if demand:
         print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
+    if original:
+        print("  オリジナル指数: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in original))
     if missing_market_cap_codes:
         print("  時価総額なしコード: " + " ".join(missing_market_cap_codes))
     if missing_codes or unreadable_codes or stale_codes:
