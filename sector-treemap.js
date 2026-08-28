@@ -46,6 +46,11 @@
     return `${n.toFixed(2)}兆`;
   }
 
+  function fmtIndexValue(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n.toFixed(2) : "-";
+  }
+
   function fmtStockCap(million) {
     if (million == null || million === "") return "-";
     const n = Number(million);
@@ -215,6 +220,7 @@
       return `<tr>` +
         `<td class="original-index-number">${Number(row.id) || "-"}</td>` +
         `<th class="sector-name"><button type="button" class="original-index-name" data-original-index="${Number(row.id) || ""}" title="クリックで定義を表示">${esc(row.name)}</button></th>` +
+        `<td class="original-index-value">${fmtIndexValue(row.latest)}</td>` +
         `<td class="sector-graphic-cell">${pctGraphic(row.change)}</td>` +
         `<td class="sector-change sector-change-col">${fmt(row.change)}</td>` +
         `<td class="sector-change sector-ytd-col">${fmt(row.ytd)}</td>` +
@@ -224,19 +230,20 @@
         `</tr>`;
     }).join("");
     body.innerHTML = `<div class="sector-head original-index-head">` +
-      `<span class="sector-title">日本株 オリジナル10指数</span>` +
+      `<button type="button" class="sector-title original-index-overview" data-original-overview title="10指数とTOPIX・日経平均の年初来チャートを表示">日本株 オリジナル10指数</button>` +
       `<span class="sector-meta">${esc(data.date || "-")}</span>` +
       `<span class="sector-note">名称クリックで定義・チャート ／ 大1.0・中0.7・小0.5の加重平均 ／ 銘柄重複あり</span>` +
       `</div><div class="original-index-benchmarks" id="original-index-benchmarks">${renderBenchmarkPanel(history)}</div>` +
       `<section class="sector-section original-index-section">` +
       `<table class="sector-table original-index-table"><thead><tr>` +
-      `<th class="original-index-number">#</th><th class="sector-name">名称</th>` +
+      `<th class="original-index-number"><button type="button" class="original-sort" data-original-sort="id">#</button></th><th class="sector-name">名称</th>` +
+      `<th class="original-index-value"><button type="button" class="original-sort" data-original-sort="latest">指数値</button></th>` +
       `<th class="sector-graphic-cell">％graphic</th><th class="sector-change-col"><button type="button" class="original-sort" data-original-sort="change">騰落率</button></th>` +
       `<th class="sector-ytd-col"><button type="button" class="original-sort" data-original-sort="ytd">年初来騰落率</button></th>` +
       `<th class="sector-cap-col"><button type="button" class="original-sort" data-original-sort="marketCapTrillion">時価総額</button></th>` +
       `<th class="sector-count-col"><button type="button" class="original-sort" data-original-sort="count">銘柄数</button></th>` +
       `<th class="original-index-strength">構成（大 / 中 / 小）</th>` +
-      `</tr></thead><tbody>${tableRows || '<tr><td colspan="8">オリジナル指数データなし</td></tr>'}</tbody></table></section>`;
+      `</tr></thead><tbody>${tableRows || '<tr><td colspan="9">オリジナル指数データなし</td></tr>'}</tbody></table></section>`;
   }
 
   function renderBenchmarkPanel(history) {
@@ -448,35 +455,68 @@
     }
   }
 
-  function originalChart(history, indexId) {
-    const selected = (history && history.indices || []).find((item) => Number(item.id) === Number(indexId));
-    const benchmarks = history && history.benchmarks || [];
-    if (!selected || !Array.isArray(selected.points) || selected.points.length < 2) {
-      return '<div class="original-index-chart-empty">年初来チャートを表示できる履歴がありません。</div>';
-    }
-    const series = [{ item:selected, cls:"selected" }].concat(benchmarks.map((item, i) => ({ item, cls:i === 0 ? "nikkei" : "topix" })));
-    const all = series.flatMap((s) => s.item.points || []).map((p) => Number(p[1])).filter(Number.isFinite);
+  function renderHistoryChart(history, series, ariaLabel) {
+    const valid = series.filter((s) => s.item && Array.isArray(s.item.points) && s.item.points.length > 1);
+    if (!valid.length) return '<div class="original-index-chart-empty">年初来チャートを表示できる履歴がありません。</div>';
+    const all = valid.flatMap((s) => s.item.points).map((p) => Number(p[1])).filter(Number.isFinite);
     let lo = Math.min(100, ...all), hi = Math.max(100, ...all);
     const pad = Math.max((hi - lo) * 0.08, 1);
     lo -= pad; hi += pad;
-    const width = 920, height = 330, left = 54, right = 16, top = 18, bottom = 38;
+    const width = 920, height = 360, left = 58, right = 16, top = 18, bottom = 58;
     const iw = width - left - right, ih = height - top - bottom;
-    const dates = series.flatMap((s) => (s.item.points || []).map((p) => p[0])).sort();
+    const dates = [...new Set(valid.flatMap((s) => s.item.points.map((p) => p[0])))].sort();
     const first = Date.parse(`${dates[0]}T00:00:00Z`), last = Date.parse(`${dates[dates.length - 1]}T00:00:00Z`);
     const x = (date) => left + (last > first ? (Date.parse(`${date}T00:00:00Z`) - first) / (last - first) : 0) * iw;
     const y = (value) => top + (hi - value) / (hi - lo) * ih;
     const path = (points) => points.map((p, i) => `${i ? "L" : "M"}${x(p[0]).toFixed(2)},${y(Number(p[1])).toFixed(2)}`).join(" ");
     const ticks = Array.from({ length:5 }, (_, i) => lo + (hi - lo) * i / 4);
-    const grid = ticks.map((v) => `<line x1="${left}" x2="${width - right}" y1="${y(v).toFixed(2)}" y2="${y(v).toFixed(2)}" class="original-chart-grid"/><text x="${left - 8}" y="${(y(v) + 4).toFixed(2)}" text-anchor="end" class="original-chart-axis">${v.toFixed(1)}</text>`).join("");
+    const horizontal = ticks.map((v) => `<line x1="${left}" x2="${width - right}" y1="${y(v).toFixed(2)}" y2="${y(v).toFixed(2)}" class="original-chart-grid"/><text x="${left - 9}" y="${(y(v) + 5).toFixed(2)}" text-anchor="end" class="original-chart-axis">${v.toFixed(1)}</text>`).join("");
+    const monthDates = [];
+    const seenMonths = new Set();
+    dates.forEach((d) => { const month = d.slice(0, 7); if (!seenMonths.has(month)) { seenMonths.add(month); monthDates.push(d); } });
+    const monthly = monthDates.map((d) => `<line x1="${x(d).toFixed(2)}" x2="${x(d).toFixed(2)}" y1="${top}" y2="${height - bottom}" class="original-chart-month"/><text x="${x(d).toFixed(2)}" y="${height - 20}" text-anchor="middle" class="original-chart-date">${esc(d.replaceAll("-", "/"))}</text>`).join("");
     const base = `<line x1="${left}" x2="${width - right}" y1="${y(100).toFixed(2)}" y2="${y(100).toFixed(2)}" class="original-chart-base"/>`;
-    const labels = [dates[0], dates[Math.floor((dates.length - 1) / 2)], dates[dates.length - 1]]
-      .filter((d, i, arr) => d && arr.indexOf(d) === i)
-      .map((d) => `<text x="${x(d).toFixed(2)}" y="${height - 10}" text-anchor="middle" class="original-chart-axis">${esc(d.slice(0, 7))}</text>`).join("");
-    const lines = series.map((s) => `<path d="${path(s.item.points)}" class="original-chart-line ${s.cls}"/>`).join("");
-    const legend = series.map((s) => `<span class="original-chart-legend ${s.cls}"><i></i>${esc(s.item.name)} ${fmt(s.item.ytd)}</span>`).join("");
-    return `<div class="original-index-chart-head"><span>2026年 年初来推移（2026-01-05＝100）</span><span>基準日 ${esc(history.baseDate || selected.baseDate || "-")}</span></div>` +
-      `<svg class="original-index-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(selected.name)}とTOPIX・日経平均の2026年推移">${grid}${base}${lines}${labels}</svg>` +
+    const lines = valid.map((s) => `<path d="${path(s.item.points)}" class="original-chart-line" style="stroke:${s.color};stroke-width:${s.width || 2}"/>`).join("");
+    const legend = valid.map((s) => `<span class="original-chart-legend"><i style="border-color:${s.color}"></i>${esc(s.item.name)} ${fmt(s.item.ytd)}</span>`).join("");
+    return `<div class="original-index-chart-head"><span>2026年 年初来推移（2026-01-05＝100）</span><span>基準日 ${esc(history.baseDate || "-")}</span></div>` +
+      `<svg class="original-index-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(ariaLabel)}">${horizontal}${monthly}${base}${lines}</svg>` +
       `<div class="original-chart-legend-wrap">${legend}</div>`;
+  }
+
+  function originalChart(history, indexId) {
+    const selected = (history && history.indices || []).find((item) => Number(item.id) === Number(indexId));
+    const benchmarks = history && history.benchmarks || [];
+    return renderHistoryChart(history, [
+      { item:selected, color:"#ff5f56", width:3 },
+      { item:benchmarks.find((item) => item.name === "TOPIX"), color:"#56b4ff" },
+      { item:benchmarks.find((item) => item.name === "日経平均"), color:"#ffd166" },
+    ], `${selected ? selected.name : "選択指数"}とTOPIX・日経平均の2026年推移`);
+  }
+
+  function allOriginalChart(history) {
+    const colors = ["#ff5f56", "#ff9f43", "#ffd166", "#7ee787", "#2dd4bf", "#4cc9f0", "#6ea8fe", "#9b8afb", "#d783ff", "#ff7ab2"];
+    const series = (history.indices || []).map((item, i) => ({ item, color:colors[i % colors.length], width:2.2 }));
+    series.push({ item:(history.benchmarks || []).find((item) => item.name === "TOPIX"), color:"var(--fg)", width:3 });
+    series.push({ item:(history.benchmarks || []).find((item) => item.name === "日経平均"), color:"#f1c40f", width:3 });
+    return renderHistoryChart(history, series, "オリジナル10指数とTOPIX・日経平均の2026年推移");
+  }
+
+  async function showOriginalOverviewPopup() {
+    const modal = ensurePopup();
+    const title = modal.querySelector("#sector-treemap-detail-title");
+    const content = modal.querySelector("#sector-treemap-detail-body");
+    const requestId = ++popupRequest;
+    title.textContent = "日本株 オリジナル10指数";
+    content.innerHTML = '<div class="original-index-chart-wrap">10指数とTOPIX・日経平均の年初来チャートを読み込み中…</div>';
+    modal.classList.remove("hidden");
+    try {
+      const history = await fetchOriginalHistory();
+      if (requestId !== popupRequest) return;
+      content.innerHTML = `<div class="original-index-chart-wrap original-index-chart-all">${allOriginalChart(history)}</div>`;
+    } catch (_) {
+      if (requestId !== popupRequest) return;
+      content.innerHTML = '<div class="original-index-chart-empty">年初来チャートを読み込めませんでした。</div>';
+    }
   }
 
   async function showOriginalPopup(indexId) {
@@ -620,9 +660,12 @@
       #sector-page .sector-treemap-tile.tiny .sector-heat-change { display:none; }
       #sector-page .sector-treemap-note { margin-top:7px; color:var(--fg); font-size:12px; }
       #sector-page .original-index-section { overflow-x:auto; }
-      #sector-page table.original-index-table { min-width:1080px; }
+      #sector-page table.original-index-table { min-width:1180px; }
       #sector-page .original-index-table .original-index-number { width:3.5em; min-width:3.5em; text-align:right; color:var(--dim); }
       #sector-page .original-index-table .sector-name { width:15em; min-width:15em; max-width:15em; }
+      #sector-page .original-index-value { min-width:6.5em; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+      #sector-page .original-index-overview { padding:0; border:0; background:none; color:var(--fg2); font:inherit; font-weight:bold; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+      #sector-page .original-index-overview:hover,#sector-page .original-index-overview:focus-visible { color:var(--fg); }
       #sector-page .original-index-name { width:100%; padding:0; border:0; background:none; color:var(--fg2); font:inherit; font-weight:bold; text-align:left; cursor:pointer; }
       #sector-page .original-index-name:hover,#sector-page .original-index-name:focus-visible { text-decoration:underline; }
       #sector-page .original-index-strength { width:15em; min-width:15em; text-align:right; white-space:nowrap; color:var(--dim); }
@@ -639,17 +682,19 @@
       #sector-treemap-detail .original-index-popup-stats { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
       #sector-treemap-detail .original-index-popup-method { padding:10px 12px; border-top:1px solid var(--line); color:var(--dim); line-height:1.7; }
       #sector-treemap-detail .original-index-chart-wrap { margin:14px 0; padding:10px; border:1px solid var(--line); background:var(--panel); overflow:hidden; }
-      #sector-treemap-detail .original-index-chart-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:6px; color:var(--fg2); font-size:12px; }
+      #sector-treemap-detail .original-index-chart-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:6px; color:var(--fg); font-size:14px; font-weight:bold; }
       #sector-treemap-detail .original-index-chart { display:block; width:100%; min-height:250px; }
       #sector-treemap-detail .original-chart-grid { stroke:var(--line); stroke-width:1; opacity:.7; }
+      #sector-treemap-detail .original-chart-month { stroke:var(--line); stroke-width:1; opacity:.85; }
       #sector-treemap-detail .original-chart-base { stroke:var(--dim); stroke-width:1; stroke-dasharray:4 4; opacity:.9; }
-      #sector-treemap-detail .original-chart-axis { fill:var(--dim); font-size:11px; }
+      #sector-treemap-detail .original-chart-axis { fill:var(--fg); font-size:13px; font-weight:bold; }
+      #sector-treemap-detail .original-chart-date { fill:var(--fg); font-size:13px; font-weight:bold; }
       #sector-treemap-detail .original-chart-line { fill:none; stroke-width:2; vector-effect:non-scaling-stroke; }
       #sector-treemap-detail .original-chart-line.selected { stroke:var(--fg2); stroke-width:3; }
       #sector-treemap-detail .original-chart-line.nikkei { stroke:#e6b450; }
       #sector-treemap-detail .original-chart-line.topix { stroke:#6bb5ff; }
       #sector-treemap-detail .original-chart-legend-wrap { display:flex; flex-wrap:wrap; gap:12px; margin-top:4px; }
-      #sector-treemap-detail .original-chart-legend { color:var(--dim); font-size:12px; }
+      #sector-treemap-detail .original-chart-legend { color:var(--fg); font-size:13px; }
       #sector-treemap-detail .original-chart-legend i { display:inline-block; width:18px; margin-right:5px; vertical-align:middle; border-top:3px solid var(--fg2); }
       #sector-treemap-detail .original-chart-legend.nikkei i { border-color:#e6b450; }
       #sector-treemap-detail .original-chart-legend.topix i { border-color:#6bb5ff; }
@@ -712,6 +757,12 @@
     });
     body.addEventListener("click", (event) => {
       if (mode !== "original") return;
+      const overviewButton = event.target.closest("button[data-original-overview]");
+      if (overviewButton) {
+        event.preventDefault();
+        showOriginalOverviewPopup();
+        return;
+      }
       const sortButton = event.target.closest("button[data-original-sort]");
       if (sortButton) {
         event.preventDefault();
