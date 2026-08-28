@@ -34,7 +34,7 @@
     "10兆+"
   ],
   "historyFile": "data/sector_history.csv",
-  "generatedAt": "2026-08-28T14:06:20+09:00",
+  "generatedAt": "2026-08-28T14:10:03+09:00",
   "demand": [
     {
       "name": "内需",
@@ -260,15 +260,6 @@
       "major": "資源・市況"
     },
     {
-      "name": "サービス・卸売",
-      "change": -0.2773,
-      "count": 16,
-      "marketCapCount": 16,
-      "marketCapTrillion": 35.6781,
-      "avgMarketCapTrillion": 2.2299,
-      "major": "内需・国内景気"
-    },
-    {
       "name": "ヘルスケア",
       "change": -0.6478,
       "count": 8,
@@ -287,6 +278,24 @@
       "major": "内需・国内景気"
     },
     {
+      "name": "国内サービス",
+      "change": -0.2773,
+      "count": 16,
+      "marketCapCount": 16,
+      "marketCapTrillion": 35.6781,
+      "avgMarketCapTrillion": 2.2299,
+      "major": "内需・国内景気"
+    },
+    {
+      "name": "国内建設・不動産",
+      "change": 0.1131,
+      "count": 39,
+      "marketCapCount": 38,
+      "marketCapTrillion": 45.4036,
+      "avgMarketCapTrillion": 1.1948,
+      "major": "内需・国内景気"
+    },
+    {
       "name": "国内情報通信",
       "change": 0.8196,
       "count": 28,
@@ -302,15 +311,6 @@
       "marketCapCount": 46,
       "marketCapTrillion": 44.8881,
       "avgMarketCapTrillion": 0.9758,
-      "major": "内需・国内景気"
-    },
-    {
-      "name": "建設・不動産",
-      "change": 0.1131,
-      "count": 39,
-      "marketCapCount": 38,
-      "marketCapTrillion": 45.4036,
-      "avgMarketCapTrillion": 1.1948,
       "major": "内需・国内景気"
     },
     {
@@ -362,6 +362,16 @@
   "industry": [
     {
       "name": "B2B",
+      "change": -0.2998,
+      "count": 12,
+      "marketCapCount": 12,
+      "marketCapTrillion": 31.5224,
+      "avgMarketCapTrillion": 2.6269,
+      "major": "内需・国内景気",
+      "sector": "国内サービス"
+    },
+    {
+      "name": "B2B",
       "change": 1.444,
       "count": 16,
       "marketCapCount": 16,
@@ -369,6 +379,16 @@
       "avgMarketCapTrillion": 0.8663,
       "major": "内需・国内景気",
       "sector": "国内情報通信"
+    },
+    {
+      "name": "B2C",
+      "change": -0.2095,
+      "count": 4,
+      "marketCapCount": 4,
+      "marketCapTrillion": 4.1557,
+      "avgMarketCapTrillion": 1.0389,
+      "major": "内需・国内景気",
+      "sector": "国内サービス"
     },
     {
       "name": "B2C",
@@ -399,6 +419,16 @@
       "avgMarketCapTrillion": 14.2302,
       "major": "外需・グローバル景気",
       "sector": "IT・通信"
+    },
+    {
+      "name": "インフラ系",
+      "change": 0.4768,
+      "count": 15,
+      "marketCapCount": 14,
+      "marketCapTrillion": 13.2755,
+      "avgMarketCapTrillion": 0.9483,
+      "major": "内需・国内景気",
+      "sector": "国内建設・不動産"
     },
     {
       "name": "ガス",
@@ -498,17 +528,7 @@
       "marketCapTrillion": 24.2058,
       "avgMarketCapTrillion": 1.862,
       "major": "内需・国内景気",
-      "sector": "建設・不動産"
-    },
-    {
-      "name": "人材・コンサル",
-      "change": 0.1873,
-      "count": 6,
-      "marketCapCount": 6,
-      "marketCapTrillion": 27.7671,
-      "avgMarketCapTrillion": 4.6279,
-      "major": "内需・国内景気",
-      "sector": "サービス・卸売"
+      "sector": "国内建設・不動産"
     },
     {
       "name": "他金融",
@@ -531,14 +551,14 @@
       "sector": "金融"
     },
     {
-      "name": "住宅・建材",
-      "change": 0.1813,
-      "count": 6,
-      "marketCapCount": 6,
-      "marketCapTrillion": 3.8553,
-      "avgMarketCapTrillion": 0.6425,
+      "name": "住宅系",
+      "change": 0.1972,
+      "count": 4,
+      "marketCapCount": 4,
+      "marketCapTrillion": 2.9258,
+      "avgMarketCapTrillion": 0.7314,
       "major": "内需・国内景気",
-      "sector": "建設・不動産"
+      "sector": "国内建設・不動産"
     },
     {
       "name": "余剰小売",
@@ -681,24 +701,14 @@
       "sector": "機械"
     },
     {
-      "name": "建設・土木",
-      "change": 0.5271,
-      "count": 13,
-      "marketCapCount": 12,
-      "marketCapTrillion": 12.3461,
-      "avgMarketCapTrillion": 1.0288,
+      "name": "建設設備",
+      "change": 0.3451,
+      "count": 7,
+      "marketCapCount": 7,
+      "marketCapTrillion": 4.9965,
+      "avgMarketCapTrillion": 0.7138,
       "major": "内需・国内景気",
-      "sector": "建設・不動産"
-    },
-    {
-      "name": "業務サービス・卸売",
-      "change": -0.556,
-      "count": 10,
-      "marketCapCount": 10,
-      "marketCapTrillion": 7.9109,
-      "avgMarketCapTrillion": 0.7911,
-      "major": "内需・国内景気",
-      "sector": "サービス・卸売"
+      "sector": "国内建設・不動産"
     },
     {
       "name": "民生・事務機器",
@@ -839,16 +849,6 @@
       "avgMarketCapTrillion": 1.1224,
       "major": "内需・国内景気",
       "sector": "運輸・物流"
-    },
-    {
-      "name": "設備工事",
-      "change": 0.3451,
-      "count": 7,
-      "marketCapCount": 7,
-      "marketCapTrillion": 4.9965,
-      "avgMarketCapTrillion": 0.7138,
-      "major": "内需・国内景気",
-      "sector": "建設・不動産"
     },
     {
       "name": "証券",
