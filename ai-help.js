@@ -94,6 +94,14 @@
     document.body.appendChild(script);
   }
 
+  function loadSectorAI() {
+    if (document.querySelector('script[data-sector-ai="1"]')) return;
+    const script = document.createElement("script");
+    script.src = "sector-ai.js";
+    script.dataset.sectorAi = "1";
+    document.body.appendChild(script);
+  }
+
   function loadSectorHeatmap() {
     if (!document.querySelector('script[data-sector-heatmap="1"]')) {
       const script = document.createElement("script");
@@ -103,6 +111,7 @@
     }
     loadSectorHeatColorMode();
     loadSectorTreemap();
+    loadSectorAI();
   }
 
   function loadSectorView() {
