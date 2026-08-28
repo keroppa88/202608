@@ -11,6 +11,7 @@
   let relativeLimit = null;
   let relativeLimitPromise = null;
   let paintQueued = false;
+  let labelQueued = false;
 
   function esc(v) {
     return String(v == null ? "" : v)
@@ -71,8 +72,8 @@
   function paint() {
     paintQueued = false;
     const page = document.getElementById("sector-page");
-    const toggle = document.getElementById("sector-view-toggle");
-    if (!page || !toggle || toggle.getAttribute("aria-pressed") !== "true") return;
+    const viewToggle = document.getElementById("sector-view-toggle");
+    if (!page || !viewToggle || viewToggle.getAttribute("aria-pressed") !== "true") return;
 
     const limit = currentLimit();
     page.querySelectorAll(".sector-heat-node").forEach((node) => {
@@ -124,42 +125,80 @@
     return relativeLimitPromise;
   }
 
-  function syncButtons() {
-    const absolute = document.getElementById("sector-color-absolute");
-    const relative = document.getElementById("sector-color-relative");
-    if (absolute) absolute.setAttribute("aria-pressed", colorMode === "absolute" ? "true" : "false");
-    if (relative) relative.setAttribute("aria-pressed", colorMode === "relative" ? "true" : "false");
+  function syncColorButton() {
+    const button = document.getElementById("sector-color-mode-toggle");
+    if (!button) return;
+    const relative = colorMode === "relative";
+    button.textContent = relative ? "相対値色" : "絶対値色";
+    button.setAttribute("aria-pressed", relative ? "true" : "false");
+    button.title = relative
+      ? "相対値色：クリックすると絶対値色へ切替"
+      : "絶対値色：クリックすると相対値色へ切替";
   }
 
   function syncVisibility() {
     const controls = document.getElementById("sector-heat-color-controls");
-    const toggle = document.getElementById("sector-view-toggle");
-    if (!controls || !toggle) return;
-    controls.hidden = toggle.getAttribute("aria-pressed") !== "true";
+    const viewToggle = document.getElementById("sector-view-toggle");
+    if (!controls || !viewToggle) return;
+    controls.hidden = viewToggle.getAttribute("aria-pressed") !== "true";
     if (!controls.hidden) queuePaint();
   }
 
-  async function setColorMode(next) {
-    colorMode = next === "relative" ? "relative" : "absolute";
-    syncButtons();
+  async function toggleColorMode() {
+    colorMode = colorMode === "absolute" ? "relative" : "absolute";
+    syncColorButton();
     if (colorMode === "relative") await loadRelativeLimit();
     queuePaint();
+  }
+
+  function contextualIndustryName(name, sector) {
+    if (name !== "B2B" && name !== "B2C") return name;
+    if (sector === "国内サービス") return `サービス${name}`;
+    if (sector === "国内情報通信") return `情報通信${name}`;
+    const prefix = String(sector || "").replace(/^国内/, "");
+    return prefix ? `${prefix}${name}` : name;
+  }
+
+  function rewriteIndustryLabels() {
+    labelQueued = false;
+    const sections = Array.from(document.querySelectorAll("#sector-page .sector-section"));
+    const section = sections.find((item) => item.querySelector("h2")?.textContent.trim() === "業種別");
+    if (!section) return;
+
+    section.querySelectorAll("tbody tr").forEach((row) => {
+      const nameCell = row.querySelector("th.sector-name");
+      if (!nameCell) return;
+      const current = nameCell.textContent.trim();
+      if (current !== "B2B" && current !== "B2C") return;
+      const parentCells = row.querySelectorAll("td.sector-parent-col");
+      const sector = parentCells[0]?.textContent.trim() || "";
+      const displayName = contextualIndustryName(current, sector);
+      if (displayName === current) return;
+      nameCell.textContent = displayName;
+      nameCell.title = displayName;
+    });
+  }
+
+  function queueIndustryLabels() {
+    if (labelQueued) return;
+    labelQueued = true;
+    requestAnimationFrame(rewriteIndustryLabels);
   }
 
   function init() {
     const page = document.getElementById("sector-page");
     const body = document.getElementById("sector-body");
-    const toggle = document.getElementById("sector-view-toggle");
-    if (!page || !body || !toggle) return false;
+    const viewToggle = document.getElementById("sector-view-toggle");
+    if (!page || !body || !viewToggle) return false;
     if (document.getElementById("sector-heat-color-controls")) return true;
 
     const style = document.createElement("style");
     style.textContent = `
       #sector-page #sector-heat-color-controls {
-        display:inline-flex; align-items:center; gap:4px;
+        display:inline-flex; align-items:center;
       }
       #sector-page #sector-heat-color-controls[hidden] { display:none !important; }
-      #sector-page .sector-color-mode-button[aria-pressed="true"] {
+      #sector-page #sector-color-mode-toggle[aria-pressed="true"] {
         background:var(--sel-bg); color:var(--sel-fg);
       }
     `;
@@ -169,25 +208,27 @@
     controls.id = "sector-heat-color-controls";
     controls.hidden = true;
     controls.innerHTML =
-      `<button id="sector-color-absolute" class="sector-color-mode-button" type="button" aria-pressed="true" title="固定 -10%～+10%">絶対値色</button>` +
-      `<button id="sector-color-relative" class="sector-color-mode-button" type="button" aria-pressed="false" title="その日の最大絶対値を上下限にする">相対値色</button>`;
-    toggle.insertAdjacentElement("afterend", controls);
+      `<button id="sector-color-mode-toggle" type="button" aria-pressed="false">絶対値色</button>`;
+    viewToggle.insertAdjacentElement("afterend", controls);
 
-    document.getElementById("sector-color-absolute").addEventListener("click", () => setColorMode("absolute"));
-    document.getElementById("sector-color-relative").addEventListener("click", () => setColorMode("relative"));
-    toggle.addEventListener("click", () => setTimeout(syncVisibility, 0));
+    document.getElementById("sector-color-mode-toggle").addEventListener("click", toggleColorMode);
+    viewToggle.addEventListener("click", () => setTimeout(syncVisibility, 0));
 
-    new MutationObserver(syncVisibility).observe(toggle, {
+    new MutationObserver(syncVisibility).observe(viewToggle, {
       attributes:true,
       attributeFilter:["aria-pressed"]
     });
-    new MutationObserver(queuePaint).observe(body, {
+    new MutationObserver(() => {
+      queuePaint();
+      queueIndustryLabels();
+    }).observe(body, {
       childList:true,
       subtree:true
     });
 
-    syncButtons();
+    syncColorButton();
     syncVisibility();
+    queueIndustryLabels();
     return true;
   }
 
