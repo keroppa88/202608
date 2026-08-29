@@ -9,7 +9,8 @@
       '<button data-go="sheet">表</button>',
       '<button data-go="chart">チャート</button>',
       '<button data-go="correlation">相関係数</button>',
-      '<button data-go="technical">テクニカル</button>'
+      '<button data-go="technical">テクニカル</button>',
+      '<button data-go="help">説明</button>'
     ].join("");
   }
   const newItems = menu ? [...menu.querySelectorAll("button")] : [];
