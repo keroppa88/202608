@@ -1062,6 +1062,7 @@ document.getElementById("back").addEventListener("click", backToTitle);
 --------------------------------------------------------------- */
 const cache = new Map();
 const jsonCache = new Map();
+const yahooSymbolCache = new Map();
 
 async function fetchCsv(path) {
   if (cache.has(path)) return cache.get(path);
@@ -1105,6 +1106,47 @@ function splitLine(line) {
   }
   out.push(cur);
   return out;
+}
+
+// Yahoo年次CSVは全銘柄をオブジェクト化せず、選択銘柄だけを1年ずつ抜き出す。
+// キャッシュするのも抽出後の小さなMapだけにして、元CSVは次の年へ進む前に破棄する。
+async function fetchYahooSymbol(year, symbol) {
+  const cacheKey = `${year}\n${symbol}`;
+  if (yahooSymbolCache.has(cacheKey)) return yahooSymbolCache.get(cacheKey);
+  const empty = () => ({ close:new Map(), bars:new Map(), volume:new Map() });
+  const promise = fetch(`data/overseas_${year}.csv`).then(async (response) => {
+    if (!response.ok) return empty();
+    let text = await response.text();
+    if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+    const firstBreak = text.indexOf("\n");
+    if (firstBreak < 0) return empty();
+    const head = splitLine(text.slice(0, firstBreak));
+    const index = Object.fromEntries(head.map((name, i) => [name, i]));
+    if (index.trade_date === undefined || index.symbol === undefined) return empty();
+    const result = empty();
+    let start = firstBreak + 1;
+    while (start < text.length) {
+      let end = text.indexOf("\n", start);
+      if (end < 0) end = text.length;
+      const cells = splitLine(text.slice(start, end));
+      start = end + 1;
+      if (cells[index.symbol] !== symbol) continue;
+      const date = cells[index.trade_date];
+      if (!date) continue;
+      const close = cells[index.close] || "";
+      if (close !== "" && Number.isFinite(Number(close))) result.close.set(date, close);
+      const open = cells[index.open] || "", high = cells[index.high] || "", low = cells[index.low] || "";
+      if ([open, high, low, close].every((value) => value !== "" && Number.isFinite(Number(value)))) {
+        result.bars.set(date, { open, high, low, close });
+      }
+      const volume = Number(cells[index.volume]);
+      if (volume > 0) result.volume.set(date, volume);
+    }
+    text = "";
+    return result;
+  }).catch(() => empty());
+  yahooSymbolCache.set(cacheKey, promise);
+  return promise;
 }
 
 // 候補はこの順で並べる
@@ -1315,9 +1357,7 @@ async function seriesOf(key, year) {
   const [src, id] = splitKey(key);
   const map = new Map();
   if (src === "yahoo") {
-    for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
-      if (r.symbol === id && r.close !== "") map.set(r.trade_date, r.close);
-    }
+    return (await fetchYahooSymbol(year, id)).close;
   } else if (src === "jpx") {
     for (const r of await fetchCsv("data/jpx_index.csv")) {
       if (r.name === id && r.close !== "" && r.trade_date.startsWith(year)) {
@@ -1370,9 +1410,7 @@ async function volumeOf(key, year) {
   const [src, id] = splitKey(key);
   const map = new Map();
   if (src === "yahoo") {
-    for (const r of await fetchCsv(`data/overseas_${year}.csv`)) {
-      if (r.symbol === id && Number(r.volume) > 0) map.set(r.trade_date, Number(r.volume));
-    }
+    return (await fetchYahooSymbol(year, id)).volume;
   } else if (src === "stock") {
     for (const r of await fetchCsv(`data/stocks/${id}.csv`)) {
       if ((r.Date || "").startsWith(year) && Number(r.Volume) > 0) map.set(r.Date, Number(r.Volume));
@@ -1401,7 +1439,7 @@ async function barsOf(key, year) {
     }
   };
   if (src === "yahoo") {
-    take(await fetchCsv(`data/overseas_${year}.csv`), (r) => r.symbol === id);
+    return (await fetchYahooSymbol(year, id)).bars;
   } else if (src === "jpx") {
     take(await fetchCsv("data/jpx_index.csv"), (r) => r.name === id && r.trade_date.startsWith(year));
   } else if (src === "nikkei") {
