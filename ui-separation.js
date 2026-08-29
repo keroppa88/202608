@@ -157,8 +157,52 @@
   }
 
   let aiCatalog = [];
+  let aiMainChoices = [];
+  let aiCompareChoices = [];
   let aiBusy = false;
   const MAX_SUBS = 10;
+
+  // スマホで年間Yahooファイルを10年分CSV展開するとメモリを使い切るため、
+  // 原因対策まではAI分析のメイン候補からYahoo系列を外す。
+  // そのほかも、メインは250足、比較は40足の見込みがある系列だけを出す。
+  async function prepareAiChoices(year) {
+    const counts = new Map();
+    const latest = new Map();
+    const addCounts = (src, rows, field) => {
+      for (const row of rows) {
+        const id = row[field];
+        if (!id) continue;
+        const key = `${src}:${id}`;
+        counts.set(key, (counts.get(key) || 0) + 1);
+        if (row.trade_date && (!latest.has(key) || row.trade_date > latest.get(key))) latest.set(key, row.trade_date);
+      }
+    };
+    addCounts("yahoo", await fetchCsv(`data/overseas_${year}.csv`), "symbol");
+    addCounts("jpx", await fetchCsv("data/jpx_index.csv"), "name");
+    addCounts("nikkei", await fetchCsv("data/nikkei_ohlc.csv"), "name");
+    addCounts("yomiuri", await fetchCsv("data/yomiuri333.csv"), "name");
+    addCounts("ratio", await fetchCsv("data/ratios.csv"), "name");
+    addCounts("rates", await fetchCsv("data/rates.csv"), "name");
+
+    const stockSpan = new Map((await fetchCsv("data/stocks/list.csv")).map((row) => {
+      const first = Date.parse(`${row.first || ""}T00:00:00Z`);
+      const last = Date.parse(`${row.last || ""}T00:00:00Z`);
+      return [`stock:${row.code}`, Number.isFinite(first) && Number.isFinite(last) ? (last - first) / 86400000 : 0];
+    }));
+    const sourceOf = (item) => splitKey(item.key)[0];
+    aiMainChoices = aiCatalog.filter((item) => {
+      const src = sourceOf(item);
+      if (src === "yahoo" || src === "original") return false;
+      if (src === "stock") return (stockSpan.get(item.key) || 0) >= 400;
+      return (counts.get(item.key) || 0) >= 250 && String(latest.get(item.key) || "").startsWith(year);
+    });
+    aiCompareChoices = aiCatalog.filter((item) => {
+      const src = sourceOf(item);
+      if (src === "original") return false;
+      if (src === "stock") return (stockSpan.get(item.key) || 0) >= 90;
+      return (counts.get(item.key) || 0) >= 40 && String(latest.get(item.key) || "").startsWith(year);
+    });
+  }
 
   const FALLBACK_TECH_RULES = `次のJSONは、ある銘柄（name）について、プログラムが計算した
 テクニカル指標と、主要指数などとの相関です。この数字だけを使って日本語で述べてください。
@@ -222,12 +266,13 @@ AI主観コメント
   }
 
   function normalizeAiSelection() {
-    const has = (key) => aiCatalog.some((c) => c.key === key);
-    if (!settings.corrAiMain || !has(settings.corrAiMain)) {
-      settings.corrAiMain = has(settings.techKey) ? settings.techKey : (aiCatalog[0] ? aiCatalog[0].key : "");
+    const hasMain = (key) => aiMainChoices.some((c) => c.key === key);
+    const hasCompare = (key) => aiCompareChoices.some((c) => c.key === key);
+    if (!settings.corrAiMain || !hasMain(settings.corrAiMain)) {
+      settings.corrAiMain = hasMain(settings.techKey) ? settings.techKey : (aiMainChoices[0] ? aiMainChoices[0].key : "");
     }
     settings.corrAiSubs = [...new Set(settings.corrAiSubs || [])]
-      .filter((key) => has(key) && key !== settings.corrAiMain)
+      .filter((key) => hasCompare(key) && key !== settings.corrAiMain)
       .slice(0, MAX_SUBS);
     saveSettings();
   }
@@ -235,7 +280,7 @@ AI主観コメント
   function drawAiControls() {
     const main = document.getElementById("ai-main");
     main.innerHTML = "";
-    fillPicker(main, aiCatalog, settings.corrAiMain, false);
+    fillPicker(main, aiMainChoices, settings.corrAiMain, false);
     main.value = settings.corrAiMain;
     main.onchange = () => {
       settings.corrAiMain = main.value;
@@ -252,7 +297,7 @@ AI主観コメント
       row.className = "ai-sub";
       const sel = document.createElement("select");
       sel.setAttribute("aria-label", `分析用比較銘柄 ${i + 1}`);
-      fillPicker(sel, aiCatalog, key, false);
+      fillPicker(sel, aiCompareChoices, key, false);
       sel.value = key;
       sel.addEventListener("change", () => {
         const next = sel.value;
@@ -287,7 +332,11 @@ AI主観コメント
     aiPage.classList.remove("hidden");
     document.getElementById("aistatus").textContent = "銘柄一覧を読み込み中…";
     try {
-      if (!aiCatalog.length) aiCatalog = await buildCatalog(String(new Date().getFullYear()));
+      if (!aiCatalog.length) {
+        const year = String(new Date().getFullYear());
+        aiCatalog = await buildCatalog(year);
+        await prepareAiChoices(year);
+      }
       normalizeAiSelection();
       drawAiControls();
       document.getElementById("aistatus").textContent = "";
@@ -577,7 +626,7 @@ AI主観コメント
     promptModal.addEventListener("click", (e) => { if (e.target === promptModal) closePromptModal(); });
     document.getElementById("ai-add").addEventListener("click", () => {
       if (settings.corrAiSubs.length >= MAX_SUBS) return;
-      const first = aiCatalog.find((c) => c.key !== settings.corrAiMain && !settings.corrAiSubs.includes(c.key));
+      const first = aiCompareChoices.find((c) => c.key !== settings.corrAiMain && !settings.corrAiSubs.includes(c.key));
       if (!first) return;
       settings.corrAiSubs.push(first.key);
       saveSettings();
