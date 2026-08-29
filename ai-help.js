@@ -81,7 +81,7 @@
   function loadSectorHeatColorMode() {
     if (document.querySelector('script[data-sector-heat-color-mode="1"]')) return;
     const script = document.createElement("script");
-    script.src = "sector-heat-color-mode.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("sector-heat-color-mode.js") : "sector-heat-color-mode.js";
     script.dataset.sectorHeatColorMode = "1";
     document.body.appendChild(script);
   }
@@ -89,7 +89,7 @@
   function loadSectorTreemap() {
     if (document.querySelector('script[data-sector-treemap="1"]')) return;
     const script = document.createElement("script");
-    script.src = "sector-treemap.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("sector-treemap.js") : "sector-treemap.js";
     script.dataset.sectorTreemap = "1";
     document.body.appendChild(script);
   }
@@ -97,7 +97,7 @@
   function loadSectorAI() {
     if (document.querySelector('script[data-sector-ai="1"]')) return;
     const script = document.createElement("script");
-    script.src = "sector-ai.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("sector-ai.js") : "sector-ai.js";
     script.dataset.sectorAi = "1";
     document.body.appendChild(script);
   }
@@ -105,7 +105,7 @@
   function loadSectorHeatmap() {
     if (!document.querySelector('script[data-sector-heatmap="1"]')) {
       const script = document.createElement("script");
-      script.src = "sector-heatmap.js";
+      script.src = window.sobaAssetUrl ? window.sobaAssetUrl("sector-heatmap.js") : "sector-heatmap.js";
       script.dataset.sectorHeatmap = "1";
       document.body.appendChild(script);
     }
@@ -122,7 +122,7 @@
       return;
     }
     const script = document.createElement("script");
-    script.src = "sector-view.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("sector-view.js") : "sector-view.js";
     script.dataset.sectorView = "1";
     script.addEventListener("load", loadSectorHeatmap, { once:true });
     document.body.appendChild(script);
