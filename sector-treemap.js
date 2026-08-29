@@ -590,6 +590,7 @@
     if (!body || !toggle) return;
     closePopup();
     mode = "original";
+    document.getElementById("sector-page")?.classList.add("original-index-mode");
     toggle.setAttribute("aria-pressed", "false");
     updateToggleHint(toggle);
     body.innerHTML = '<div class="sector-error">オリジナル10指数読み込み中…</div>';
@@ -609,6 +610,7 @@
     if (!body || !toggle) return;
     closePopup();
     mode = "treemap";
+    document.getElementById("sector-page")?.classList.remove("original-index-mode");
     toggle.setAttribute("aria-pressed", "true");
     updateToggleHint(toggle);
     body.innerHTML = '<div class="sector-error">業種別時価総額マップ読み込み中…</div>';
@@ -623,6 +625,7 @@
   function showHierarchy() {
     closePopup();
     mode = "hierarchy";
+    document.getElementById("sector-page")?.classList.remove("original-index-mode");
     const toggle = document.getElementById("sector-view-toggle");
     updateToggleHint(toggle);
     if (window.SectorHeatmapView && typeof window.SectorHeatmapView.show === "function") window.SectorHeatmapView.show();
@@ -631,6 +634,7 @@
   function showTable() {
     closePopup();
     mode = "table";
+    document.getElementById("sector-page")?.classList.remove("original-index-mode");
     const toggle = document.getElementById("sector-view-toggle");
     updateToggleHint(toggle);
     if (window.SectorHeatmapView && typeof window.SectorHeatmapView.table === "function") window.SectorHeatmapView.table();
@@ -659,6 +663,9 @@
       #sector-page .sector-treemap-tile.tiny .sector-treemap-name { font-size:8px; }
       #sector-page .sector-treemap-tile.tiny .sector-heat-change { display:none; }
       #sector-page .sector-treemap-note { margin-top:7px; color:var(--fg); font-size:12px; }
+      #sector-page.original-index-mode #sector-ai-run,
+      #sector-page.original-index-mode #sector-ai-prompt,
+      #sector-page.original-index-mode #sector-ai-status { display:none !important; }
       #sector-page .original-index-section { overflow-x:auto; }
       #sector-page table.original-index-table { min-width:1180px; }
       #sector-page .original-index-table .original-index-number { width:3.5em; min-width:3.5em; text-align:right; color:var(--dim); }
@@ -784,7 +791,12 @@
         else if (mode === "original") renderOriginal(heatData, originalHistory);
       }, 0);
     });
-    backButton?.addEventListener("click", () => { closePopup(); mode = "table"; updateToggleHint(toggle); });
+    backButton?.addEventListener("click", () => {
+      closePopup();
+      mode = "table";
+      page.classList.remove("original-index-mode");
+      updateToggleHint(toggle);
+    });
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;
       if (!closePopup()) return;
