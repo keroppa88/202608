@@ -357,5 +357,21 @@
     }
   });
 
+  function openOriginalFromUrl() {
+    if (window.location.hash !== "#original-index") return;
+    open();
+    let attempts = 0;
+    const show = () => {
+      if (window.SectorTreemapView && typeof window.SectorTreemapView.original === "function") {
+        window.SectorTreemapView.original();
+      } else if (attempts++ < 100) {
+        window.setTimeout(show, 50);
+      }
+    };
+    show();
+  }
+
   window.SectorPerformancePage = { open, close, load };
+  window.addEventListener("hashchange", openOriginalFromUrl);
+  window.setTimeout(openOriginalFromUrl, 0);
 })();
