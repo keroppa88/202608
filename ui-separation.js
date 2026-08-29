@@ -163,6 +163,21 @@
   let aiBusy = false;
   const MAX_SUBS = 10;
 
+  function isMobileAiBrowser() {
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "") ||
+      ((navigator.maxTouchPoints || 0) > 1 && Math.min(screen.width || 9999, screen.height || 9999) < 900);
+  }
+
+  function releaseLargeAiSourceCache() {
+    if (!isMobileAiBrowser() || typeof cache === "undefined") return;
+    for (const path of cache.keys()) {
+      if (/^data\/overseas_\d{4}\.csv$/.test(path) ||
+          ["data/jpx_index.csv", "data/ratios.csv", "data/rates.csv"].includes(path)) {
+        cache.delete(path);
+      }
+    }
+  }
+
   // メインは250足、比較は40足の見込みがある系列だけを出す。
   // Yahoo系列は選択銘柄だけを年ごとに抽出するため、メイン候補にも戻している。
   async function prepareAiChoices(year) {
@@ -337,6 +352,7 @@ AI主観コメント
         const year = String(new Date().getFullYear());
         aiCatalog = await buildCatalog(year);
         await prepareAiChoices(year);
+        releaseLargeAiSourceCache();
       }
       normalizeAiSelection();
       drawAiControls();
@@ -511,12 +527,17 @@ AI主観コメント
     const run = document.getElementById("ai-run");
     const status = document.getElementById("aistatus");
     const result = document.getElementById("ai-result");
+    document.getElementById("ai-prompt-text").textContent = "";
+    closePromptModal();
+    releaseLargeAiSourceCache();
     run.textContent = "分析中…";
     const requested = signature();
     const progress = (text) => { status.textContent = text; };
     try {
       const payload = await buildStandaloneAiPayload(progress);
       const body = JSON.stringify(payload);
+      releaseLargeAiSourceCache();
+      if (isMobileAiBrowser()) await new Promise((resolve) => window.setTimeout(resolve, 0));
       progress(`送信 ${(body.length / 1024).toFixed(1)}KB`);
       if (!AI_ENDPOINT) throw new Error("AIの中継先が設定されていない");
       const res = await fetch(AI_ENDPOINT, {
