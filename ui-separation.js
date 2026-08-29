@@ -162,9 +162,8 @@
   let aiBusy = false;
   const MAX_SUBS = 10;
 
-  // スマホで年間Yahooファイルを10年分CSV展開するとメモリを使い切るため、
-  // 原因対策まではAI分析のメイン候補からYahoo系列を外す。
-  // そのほかも、メインは250足、比較は40足の見込みがある系列だけを出す。
+  // メインは250足、比較は40足の見込みがある系列だけを出す。
+  // Yahoo系列は選択銘柄だけを年ごとに抽出するため、メイン候補にも戻している。
   async function prepareAiChoices(year) {
     const counts = new Map();
     const latest = new Map();
@@ -192,8 +191,9 @@
     const sourceOf = (item) => splitKey(item.key)[0];
     aiMainChoices = aiCatalog.filter((item) => {
       const src = sourceOf(item);
-      if (src === "yahoo" || src === "original") return false;
+      if (src === "original") return false;
       if (src === "stock") return (stockSpan.get(item.key) || 0) >= 400;
+      if (src === "yahoo") return (counts.get(item.key) || 0) >= 40;
       return (counts.get(item.key) || 0) >= 250 && String(latest.get(item.key) || "").startsWith(year);
     });
     aiCompareChoices = aiCatalog.filter((item) => {
