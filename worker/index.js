@@ -179,7 +179,13 @@ async function callGemini(env, payload, rules) {
     })
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`Gemini HTTP ${res.status}\n${text.slice(0, 800)}`);
+  if (!res.ok) {
+    const error = new Error(`Gemini HTTP ${res.status}\n${text.slice(0, 800)}`);
+    if (res.status === 429 || /resource_exhausted|quota|billing|budget|spend|monthly|payment required|insufficient/i.test(text)) {
+      error.code = "API_LIMIT";
+    }
+    throw error;
+  }
   let json;
   try {
     json = JSON.parse(text);
@@ -323,6 +329,12 @@ export default {
     try {
       return reply(200, { text: await callGemini(env, payload, rules) }, cors);
     } catch (e) {
+      if (e && e.code === "API_LIMIT") {
+        return reply(429, {
+          code: "API_LIMIT",
+          error: "Gemini APIの利用上限に達しているため、APIによるAI分析を利用できません。月額上限は400円です。AI分析用プロンプト出力は引き続き利用できます。"
+        }, cors);
+      }
       return reply(502, { error: String(e && e.message ? e.message : e) }, cors);
     }
   }
