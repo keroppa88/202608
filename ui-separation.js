@@ -520,6 +520,21 @@ AI主観コメント
     }
   }
 
+  function aiApiFailureMessage(status, raw) {
+    let detail = raw;
+    let code = "";
+    try {
+      const json = JSON.parse(raw);
+      detail = json.error || json.message || raw;
+      code = json.code || "";
+    } catch (_) { }
+    const limit = `${code}\n${detail}`;
+    if (code === "API_LIMIT" || /resource_exhausted|quota|billing|budget|spend|monthly|payment required|insufficient/i.test(limit)) {
+      return "Gemini APIの利用上限に達しているため、APIによるAI分析を利用できません。\n月額上限：400円\nAI分析用プロンプト出力は引き続き利用できます。";
+    }
+    return `HTTP ${status}\n${detail}`;
+  }
+
   async function runAiAnalysis() {
     if (aiBusy || !settings.corrAiMain) return;
     aiBusy = true;
@@ -547,7 +562,7 @@ AI主観コメント
         body
       });
       const raw = await res.text();
-      if (!res.ok) throw new Error(`HTTP ${res.status}\n${raw}`);
+      if (!res.ok) throw new Error(aiApiFailureMessage(res.status, raw));
       let answer = raw;
       try {
         const json = JSON.parse(raw);
