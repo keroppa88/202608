@@ -366,10 +366,10 @@
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     const script = document.createElement("script");
-    script.src = "ui-separation.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("ui-separation.js") : "ui-separation.js";
     script.addEventListener("load", () => {
       const morse = document.createElement("script");
-      morse.src = "ai-morse.js";
+      morse.src = window.sobaAssetUrl ? window.sobaAssetUrl("ai-morse.js") : "ai-morse.js";
       document.body.appendChild(morse);
     }, { once: true });
     document.body.appendChild(script);
