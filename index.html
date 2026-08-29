@@ -743,7 +743,11 @@
 <!-- ===================== 擬似スクリーンセーバー ===================== -->
 <div id="saver" class="hidden" aria-hidden="true"></div>
 
-<script src="correlation.js"></script>
+<script>
+window.SobaAssetVersion = String(Date.now());
+window.sobaAssetUrl = (path) => `${path}${path.includes("?") ? "&" : "?"}v=${encodeURIComponent(window.SobaAssetVersion)}`;
+document.write(`<script src="${window.sobaAssetUrl("correlation.js")}"><\/script>`);
+</script>
 <script>
 "use strict";
 
