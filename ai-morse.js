@@ -193,11 +193,16 @@
     const run = document.getElementById("ai-run");
     if (!run) return;
 
-    run.addEventListener("click", () => {
-      if (run.disabled) return;
-      startAnalysisMorse();
-      watchAnalysisEnd(run);
-    }, true);
+    const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "") ||
+      ((navigator.maxTouchPoints || 0) > 1 && Math.min(screen.width || 9999, screen.height || 9999) < 900);
+
+    if (!mobile) {
+      run.addEventListener("click", () => {
+        if (run.disabled) return;
+        startAnalysisMorse();
+        watchAnalysisEnd(run);
+      }, true);
+    }
 
     const back = document.getElementById("aiback");
     if (back) back.addEventListener("click", stopAnalysisMorse);
