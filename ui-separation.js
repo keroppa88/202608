@@ -530,7 +530,7 @@ AI主観コメント
     } catch (_) { }
     const limit = `${code}\n${detail}`;
     if (code === "API_LIMIT" || /resource_exhausted|quota|billing|budget|spend|monthly|payment required|insufficient/i.test(limit)) {
-      return "Gemini APIの利用上限に達しているため、APIによるAI分析を利用できません。\n月額上限：400円\nAI分析用プロンプト出力は引き続き利用できます。";
+      return "keroppa自腹によるAPI利用料が月額400円の上限に達したため、月内は利用できません。「AI分析用プロンプト出力」は無料なので、そちらを利用してください。";
     }
     return `HTTP ${status}\n${detail}`;
   }
