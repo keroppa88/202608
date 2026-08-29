@@ -1056,10 +1056,12 @@ document.getElementById("back").addEventListener("click", backToTitle);
      yomiuri:{指数名}  data/yomiuri333.csv
      ratio:{名前}      data/ratios.csv
      rates:{名前}      data/rates.csv
+     original:{指数名} data/original_index_history.json
 
    どれも終値を出す。無い日は #N/A
 --------------------------------------------------------------- */
 const cache = new Map();
+const jsonCache = new Map();
 
 async function fetchCsv(path) {
   if (cache.has(path)) return cache.get(path);
@@ -1106,7 +1108,7 @@ function splitLine(line) {
 }
 
 // 候補はこの順で並べる
-const GROUPS = ["日本株指数", "米国株指数", "海外その他", "債券", "為替", "日本個別株", "海外個別株"];
+const GROUPS = ["日本株指数", "日本株オリジナル指数10", "米国株指数", "海外その他", "債券", "為替", "日本個別株", "海外個別株"];
 
 // 米国の株価指数。ここに無い海外指数は「海外その他」へ入れる
 const US_INDEX = new Set(["^DJI", "^IXIC", "^NDX", "^GSPC", "^RUT", "^SOX", "^VIX"]);
@@ -1260,6 +1262,22 @@ async function buildCatalog(year) {
     if (r.trade_date.startsWith(year)) note(key, r);
     if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
+  // 固定銘柄で算出した日本株オリジナル10指数
+  const originalHistory = await fetchJson("data/original_index_history.json");
+  for (const item of originalHistory?.indices || []) {
+    const points = Array.isArray(item.points) ? item.points : [];
+    if (!points.some((p) => String(p[0] || "").startsWith(year))) continue;
+    const key = "original:" + item.name;
+    if (!seen.has(key)) {
+      seen.add(key);
+      cat.push({
+        key,
+        label: item.name,
+        group: "日本株オリジナル指数10",
+        sort: String(item.id).padStart(2, "0")
+      });
+    }
+  }
   // 国債利回りと政策金利。値の列が close ではなく value
   for (const r of await fetchCsv("data/rates.csv")) {
     const key = "rates:" + r.name;
@@ -1324,6 +1342,13 @@ async function seriesOf(key, year) {
         map.set(r.trade_date, r.close);
       }
     }
+  } else if (src === "original") {
+    const history = await fetchJson("data/original_index_history.json");
+    const item = (history?.indices || []).find((x) => x.name === id);
+    for (const point of item?.points || []) {
+      const date = String(point[0] || "");
+      if (date.startsWith(year) && isNum(point[1])) map.set(date, point[1]);
+    }
   } else if (src === "rates") {
     for (const r of await fetchCsv("data/rates.csv")) {
       if (r.name === id && r.value !== "" && r.trade_date.startsWith(year)) {
@@ -1354,6 +1379,13 @@ async function volumeOf(key, year) {
     }
   }
   return map;
+}
+
+async function fetchJson(path) {
+  if (jsonCache.has(path)) return jsonCache.get(path);
+  const p = fetch(path).then((r) => r.ok ? r.json() : null).catch(() => null);
+  jsonCache.set(path, p);
+  return p;
 }
 
 // 1銘柄ぶんの「日付 → 四本値」を返す。4つとも揃っている日だけ
