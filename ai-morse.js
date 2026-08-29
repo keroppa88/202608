@@ -214,7 +214,7 @@
   function loadSnowSaver() {
     if (document.querySelector('script[data-snow-saver="1"]')) return;
     const script = document.createElement("script");
-    script.src = "saver-snow.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("saver-snow.js") : "saver-snow.js";
     script.dataset.snowSaver = "1";
     document.body.appendChild(script);
   }
@@ -222,7 +222,7 @@
   function loadAiHelp() {
     if (document.querySelector('script[data-ai-help="1"]')) return;
     const script = document.createElement("script");
-    script.src = "ai-help.js";
+    script.src = window.sobaAssetUrl ? window.sobaAssetUrl("ai-help.js") : "ai-help.js";
     script.dataset.aiHelp = "1";
     document.body.appendChild(script);
   }
