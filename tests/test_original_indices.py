@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import unittest
+from tempfile import TemporaryDirectory
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,6 +14,7 @@ from original_indices import (  # noqa: E402
     STRENGTH_WEIGHT,
     classify_original_indices,
 )
+from calc_stock_sectors import covered_calendar, write_original_index_csv  # noqa: E402
 
 
 def load_rows():
@@ -69,6 +71,36 @@ class OriginalIndexTest(unittest.TestCase):
             self.assertEqual(item["points"][0], ["2026-01-05", 100.0])
             self.assertEqual(item["ytd"], round(item["latest"] - 100.0, 4))
             self.assertEqual(item["points"], sorted(item["points"], key=lambda point: point[0]))
+
+    def test_long_history_uses_index_csv_shape(self):
+        history = {
+            "indices": [
+                {"name": "ブルジョワ地主指数", "points": [["2016-02-05", 100.0], ["2016-02-08", 101.25]]},
+                {"name": "政治寄生指数", "points": [["2016-02-05", 100.0], ["2016-02-08", 99.5]]},
+            ]
+        }
+        with TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "original_index.csv")
+            count = write_original_index_csv(path, history, "2026-08-30T00:00:00+09:00")
+            with open(path, encoding="utf-8", newline="") as f:
+                rows = list(csv.DictReader(f))
+                self.assertEqual(list(rows[0]), [
+                    "trade_date", "name", "open", "high", "low", "close",
+                    "change", "change_pct", "fetched_at",
+                ])
+        self.assertEqual(count, 4)
+        self.assertEqual(rows[0]["close"], "100")
+        self.assertEqual(rows[2]["change"], "1.25")
+        self.assertEqual(rows[2]["change_pct"], "1.25")
+
+    def test_long_history_starts_after_most_members_exist(self):
+        closes = {
+            "a": {"2016-02-01": 1, "2016-02-05": 2, "2016-02-08": 3},
+            "b": {"2016-02-05": 2, "2016-02-08": 3},
+            "c": {"2016-02-05": 2, "2016-02-08": 3},
+            "d": {"2016-02-05": 2, "2016-02-08": 3},
+        }
+        self.assertEqual(covered_calendar(closes, 0.75), ["2016-02-05", "2016-02-08"])
 
 
 if __name__ == "__main__":
