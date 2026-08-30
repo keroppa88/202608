@@ -16,6 +16,7 @@
 出力:
     data/sector_today.json            当日表示用
     data/sector_history.csv           日々の履歴（同日は差し替え）
+    data/original_index.csv           オリジナル10指数の長期日次データ
     data/original_index_history.json  オリジナル10指数の年初来推移
 """
 
@@ -33,6 +34,7 @@ from original_indices import ORIGINAL_INDEXES, STRENGTH_WEIGHT, classify_origina
 JST = timezone(timedelta(hours=9))
 MARKET_CAP_AS_OF = "2026-08-27"
 ORIGINAL_HISTORY_YEAR = 2026
+ORIGINAL_LONG_MIN_COVERAGE = 0.9
 MAJOR_ORDER = {
     "外需・グローバル景気": 0,
     "資源・市況": 1,
@@ -53,6 +55,17 @@ HISTORY_FIELDS = [
     "market_cap_trillion",
     "avg_market_cap_trillion",
     "market_cap_count",
+]
+ORIGINAL_INDEX_FIELDS = [
+    "trade_date",
+    "name",
+    "open",
+    "high",
+    "low",
+    "close",
+    "change",
+    "change_pct",
+    "fetched_at",
 ]
 
 MAJOR_SECTOR_PREFIX = {
@@ -208,12 +221,12 @@ def latest_pair(path):
     return prev_d, last_by_date[prev_d], last_d, last_by_date[last_d]
 
 
-def load_close_history(path, year, date_field="Date", close_field="Close", predicate=None):
-    """CSVから指定年の日付 -> 終値を読む。"""
+def load_close_history(path, year=None, date_field="Date", close_field="Close", predicate=None):
+    """CSVから日付 -> 終値を読む。yearを省略すると全期間を読む。"""
     out = {}
     if not os.path.exists(path):
         return out
-    prefix = f"{year}-"
+    prefix = f"{year}-" if year is not None else ""
     try:
         with open(path, encoding="utf-8-sig", newline="") as f:
             for r in csv.DictReader(f):
@@ -223,7 +236,7 @@ def load_close_history(path, year, date_field="Date", close_field="Close", predi
                 raw = r.get(close_field)
                 if raw in (None, ""):
                     raw = r.get(close_field.lower())
-                if not d.startswith(prefix) or raw in (None, ""):
+                if (prefix and not d.startswith(prefix)) or raw in (None, ""):
                     continue
                 try:
                     close = float(str(raw).replace(",", ""))
@@ -298,6 +311,21 @@ def weighted_history_series(definition, members, closes_by_code, calendar):
     }
 
 
+def covered_calendar(closes_by_code, min_coverage=ORIGINAL_LONG_MIN_COVERAGE):
+    """構成銘柄の一定割合が揃った最初の日から取引日を返す。"""
+    if not closes_by_code:
+        return []
+    counts = defaultdict(int)
+    for closes in closes_by_code.values():
+        for trade_date in closes:
+            counts[trade_date] += 1
+    required = math.ceil(len(closes_by_code) * min_coverage)
+    start = next((d for d in sorted(counts) if counts[d] >= required), None)
+    if start is None:
+        return []
+    return [d for d in sorted(counts) if d >= start]
+
+
 def build_original_index_history(root, classes, original_memberships, year):
     """固定構成の10指数と日経平均・TOPIXを初日100で作る。"""
     stocks_dir = os.path.join(root, "data", "stocks")
@@ -362,6 +390,85 @@ def build_original_index_history(root, classes, original_memberships, year):
         "benchmarks": [item for item in benchmarks if item is not None],
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
     }
+
+
+def build_original_index_long_history(root, classes, original_memberships):
+    """固定構成の10指数を、個別株CSVにある全期間について算出する。"""
+    stocks_dir = os.path.join(root, "data", "stocks")
+    closes_by_code = {}
+    for item in classes:
+        code = item["code"]
+        closes = load_close_history(os.path.join(stocks_dir, f"{code}.csv"))
+        if not closes:
+            continue
+        closes_by_code[code] = closes
+    calendar = covered_calendar(closes_by_code)
+    if not calendar:
+        return None
+
+    members_by_index = defaultdict(list)
+    for item in classes:
+        code = item["code"]
+        memberships = original_memberships.get(code) or classify_original_indices(item)
+        for index_id, strength in memberships.items():
+            members_by_index[index_id].append((code, STRENGTH_WEIGHT[strength]))
+
+    indices = []
+    for definition in ORIGINAL_INDEXES:
+        series = weighted_history_series(
+            definition, members_by_index.get(definition["id"], []), closes_by_code, calendar
+        )
+        if series is not None:
+            indices.append(series)
+    return {
+        "baseDate": calendar[0],
+        "latestDate": calendar[-1],
+        "baseMemberCoverage": sum(calendar[0] in closes for closes in closes_by_code.values()),
+        "sourceMemberCount": len(closes_by_code),
+        "indices": indices,
+    }
+
+
+def write_original_index_csv(path, history, generated_at):
+    """長期指数をJPX指数CSVと同じ列構成の縦持ちCSVで保存する。"""
+    previous_rows = {}
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8-sig", newline="") as f:
+                for row in csv.DictReader(f):
+                    previous_rows[(row.get("trade_date", ""), row.get("name", ""))] = row
+        except (OSError, csv.Error):
+            previous_rows = {}
+    rows = []
+    for series in history["indices"]:
+        previous = None
+        for trade_date, close in series["points"]:
+            change = None if previous is None else close - previous
+            change_pct = None if previous in (None, 0) else change / previous * 100.0
+            formatted_close = f"{close:.4f}".rstrip("0").rstrip(".")
+            old = previous_rows.get((trade_date, series["name"]), {})
+            row_fetched_at = old.get("fetched_at", "") if old.get("close") == formatted_close else ""
+            rows.append(
+                {
+                    "trade_date": trade_date,
+                    "name": series["name"],
+                    "open": "",
+                    "high": "",
+                    "low": "",
+                    "close": formatted_close,
+                    "change": "" if change is None else f"{change:.4f}".rstrip("0").rstrip("."),
+                    "change_pct": "" if change_pct is None else f"{change_pct:.4f}".rstrip("0").rstrip("."),
+                    "fetched_at": row_fetched_at or generated_at,
+                }
+            )
+            previous = close
+    order = {item["name"]: item["id"] for item in ORIGINAL_INDEXES}
+    rows.sort(key=lambda row: (row["trade_date"], order.get(row["name"], 99)))
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=ORIGINAL_INDEX_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    return len(rows)
 
 
 def add_market_cap_summary(row, members):
@@ -545,6 +652,7 @@ def main():
     stocks_dir = os.path.join(root, "data", "stocks")
     out_path = os.path.join(root, "data", "sector_today.json")
     history_path = os.path.join(root, "data", "sector_history.csv")
+    original_long_history_path = os.path.join(root, "data", "original_index.csv")
     original_history_path = os.path.join(root, "data", "original_index_history.json")
 
     if not os.path.exists(class_path):
@@ -632,6 +740,16 @@ def main():
     with open(original_history_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(original_history, f, ensure_ascii=False, indent=2)
         f.write("\n")
+    original_long_history = build_original_index_long_history(
+        root, classes, original_memberships
+    )
+    if original_long_history is None:
+        print("オリジナル指数の長期履歴を作れませんでした", file=sys.stderr)
+        return 5
+    generated_at = datetime.now(JST).isoformat(timespec="seconds")
+    original_long_rows = write_original_index_csv(
+        original_long_history_path, original_long_history, generated_at
+    )
 
     matched_market_cap = sum(1 for c in classes if c["code"] in market_caps)
     missing_market_cap_codes = [c["code"] for c in classes if c["code"] not in market_caps]
@@ -656,6 +774,7 @@ def main():
         "missingMarketCapCodes": missing_market_cap_codes,
         "marketCapBands": ["<0.2兆", "0.2–0.5兆", "0.5–1兆", "1–2兆", "2–5兆", "5–10兆", "10兆+"],
         "historyFile": "data/sector_history.csv",
+        "originalLongHistoryFile": "data/original_index.csv",
         "originalHistoryFile": "data/original_index_history.json",
         "generatedAt": datetime.now(JST).isoformat(timespec="seconds"),
         "original": original,
@@ -682,6 +801,12 @@ def main():
     print(
         f"  年初来指数: {original_history['baseDate']}=100 / "
         f"{len(original_history['indices'])}指数 / 比較 {len(original_history['benchmarks'])}指数"
+    )
+    print(
+        f"  長期指数: {original_long_history['baseDate']}=100 / "
+        f"{original_long_history['latestDate']}まで / {original_long_rows}行 / "
+        f"開始時 {original_long_history['baseMemberCoverage']}/"
+        f"{original_long_history['sourceMemberCount']}銘柄"
     )
     if demand:
         print("  需要地域: " + " / ".join(f"{r['name']} {r['change']:+.2f}%" for r in demand))
