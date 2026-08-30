@@ -28,6 +28,7 @@ on:
       - 松井証券・投資指標取得
       - Fear & Greed 取得
       - 過去分の取り込み（手動）
+      - 個別株のコピー（chart0）
     types: [completed]
   workflow_dispatch:
 
