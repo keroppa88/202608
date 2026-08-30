@@ -1308,11 +1308,15 @@ async function buildCatalog(year) {
     if (r.trade_date.startsWith(year)) note(key, r);
     if (!seen.has(key)) { seen.add(key); cat.push({ key, label: r.name, group: "日本株指数" }); }
   }
-  // 固定銘柄で算出した日本株オリジナル10指数
+  // 固定銘柄で算出した日本株オリジナル10指数。
+  // 選択中の年に長期CSVの値がある指数だけを出す。
+  const originalNames = new Set();
+  for (const row of await fetchCsv("data/original_index.csv")) {
+    if (row.trade_date.startsWith(year) && row.close !== "") originalNames.add(row.name);
+  }
   const originalHistory = await fetchJson("data/original_index_history.json");
   for (const item of originalHistory?.indices || []) {
-    const points = Array.isArray(item.points) ? item.points : [];
-    if (!points.some((p) => String(p[0] || "").startsWith(year))) continue;
+    if (!originalNames.has(item.name)) continue;
     const key = "original:" + item.name;
     if (!seen.has(key)) {
       seen.add(key);
