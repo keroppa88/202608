@@ -204,6 +204,38 @@
 
   /* ---- チャート画面 ---- */
   #charts { height: 100%; display: flex; flex-direction: column; }
+  .chart-pages {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 8px; overflow-x: auto; overflow-y: hidden;
+    border-bottom: 1px solid var(--line); background: var(--panel);
+    flex: none; scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin;
+  }
+  .chart-page {
+    display: inline-flex; align-items: center; flex: none;
+    border: 1px solid var(--line); background: var(--panel);
+  }
+  .chart-page[aria-current="page"] { background: var(--sel-bg); color: var(--sel-fg); }
+  .chart-page button {
+    border: 0; background: none; color: inherit; font: inherit;
+    padding: 4px 6px; cursor: pointer; white-space: nowrap;
+  }
+  .chart-page .chart-page-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+  .chart-page .chart-page-drag {
+    padding: 4px 3px 4px 6px; cursor: grab; user-select: none; touch-action: none;
+  }
+  .chart-page .chart-page-drag:active { cursor: grabbing; }
+  .chart-page.dragging { opacity: .45; }
+  .chart-page.drop-before { box-shadow: -3px 0 0 var(--fg2); }
+  .chart-page.drop-after { box-shadow: 3px 0 0 var(--fg2); }
+  .chart-page input {
+    width: 130px; margin: 2px 3px; padding: 2px 4px;
+    border: 1px solid currentColor; background: var(--bg); color: var(--fg); font: inherit;
+  }
+  .chart-page-add {
+    flex: none; border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+    font: inherit; padding: 4px 10px; cursor: pointer;
+  }
+  .chart-page-count { flex: none; color: var(--dim); padding-right: 3px; }
   /* 銘柄の選択欄。既定5・最大10 */
   .picks {
     display: flex; flex-wrap: wrap; gap: 6px 10px;
@@ -248,6 +280,12 @@
   .canvas .vline, .canvas .hline { stroke: var(--dim); stroke-width: .5; }
   .canvas .lab { fill: var(--fg); font-size: 14px; font-weight: bold; }
   .canvas .plot { fill: none; stroke-width: 1.2; }
+
+  @media (max-width: 640px) {
+    .chart-pages { padding: 6px; gap: 7px; }
+    .chart-page button, .chart-page-add { padding-top: 7px; padding-bottom: 7px; }
+    .chart-page .chart-page-name { max-width: 140px; }
+  }
 
   /* ---- テクニカル画面 ---- */
   /* 上がテクニカルの数字、下が相関。それぞれ別に動かす */
@@ -682,6 +720,7 @@
     <div class="spacer"></div>
     <div class="note" id="cstatus"></div>
   </div>
+  <div class="chart-pages" id="cpagebar" aria-label="チャートページ"></div>
   <div class="picks" id="cpicks"></div>
   <div class="canvas" id="ccanvas"></div>
 </section>
@@ -792,6 +831,8 @@ const DEFAULT_COLUMNS = [
 ];
 // チャート画面の既定。5銘柄。＋で最大10まで
 const MAX_SERIES = 10;
+// チャートの銘柄セットを保存するページ。最大10ページ
+const MAX_CHART_PAGES = 10;
 // 相関に並べるのは10銘柄まで。ペアの数は銘柄数の2乗で増えるので、
 // 際限なく足せると計算が重くなる
 const MAX_CORR_COLUMNS = 10;
@@ -850,9 +891,31 @@ function fixKeys(list, fallback) {
   return list.map((k) => RENAMED[k] || k);
 }
 
+function fixChartPages(list, fallbackColumns) {
+  const source = Array.isArray(list) && list.length ? list.slice(0, MAX_CHART_PAGES) : [null];
+  const usedIds = new Set();
+  return source.map((page, i) => {
+    let id = page && typeof page.id === "string" && page.id ? page.id : `chart-page-${i + 1}`;
+    while (usedIds.has(id)) id += "-copy";
+    usedIds.add(id);
+    const name = page && typeof page.name === "string" && page.name.trim()
+      ? page.name.trim().slice(0, 40)
+      : String(i + 1);
+    const columns = page && Array.isArray(page.columns)
+      ? page.columns.map((key) => RENAMED[key] || key).slice(0, MAX_SERIES)
+      : fallbackColumns.slice(0, MAX_SERIES);
+    return { id, name, columns };
+  });
+}
+
 function loadSettings() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE) || "{}");
+    const oldChartColumns = fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES);
+    const chartPages = fixChartPages(s.chartPages, oldChartColumns);
+    const chartPageId = chartPages.some((page) => page.id === s.chartPageId)
+      ? s.chartPageId : chartPages[0].id;
+    const activeChartPage = chartPages.find((page) => page.id === chartPageId) || chartPages[0];
     return {
       theme: s.theme || "retro",
       year: s.year || 2026,
@@ -862,7 +925,9 @@ function loadSettings() {
       chartType: s.chartType === "abs" ? "abs" : "rel",
       chartYear: s.chartYear || 2026,
       chartJoin: s.chartJoin === true,
-      chartColumns: fixKeys(s.chartColumns, DEFAULT_CHART_COLUMNS).slice(0, MAX_SERIES),
+      chartPages,
+      chartPageId,
+      chartColumns: activeChartPage.columns,
       chartZoom: Number(s.chartZoom) > 0 ? Number(s.chartZoom) : 1,
       corrColumns: fixKeys(s.corrColumns, s.columns || DEFAULT_COLUMNS),
       corrPeriod: [20, 60, 120].includes(Number(s.corrPeriod)) ? Number(s.corrPeriod) : 20,
@@ -886,11 +951,12 @@ function loadSettings() {
       saverIndex: Number.isInteger(s.saverIndex) && s.saverIndex >= 0 ? s.saverIndex : 0
     };
   } catch (e) {
+    const chartPages = [{ id: "chart-page-1", name: "1", columns: DEFAULT_CHART_COLUMNS.slice() }];
     return {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
       ma: { 20: false, 80: false, 200: false },
       chartType: "rel", chartYear: 2026, chartJoin: false,
-      chartColumns: DEFAULT_CHART_COLUMNS.slice(),
+      chartPages, chartPageId: chartPages[0].id, chartColumns: chartPages[0].columns,
       chartZoom: 1,
       corrColumns: DEFAULT_COLUMNS.slice(), corrPeriod: 20,
       corrStartYear: 2000, corrEndYear: new Date().getFullYear(),
@@ -1909,6 +1975,7 @@ window.addEventListener("resize", applyChartPan);
 const chartsEl = document.getElementById("charts");
 const canvasEl = document.getElementById("ccanvas");
 const picksEl = document.getElementById("cpicks");
+const chartPageBarEl = document.getElementById("cpagebar");
 const ctypeEl = document.getElementById("ctype");
 const cyearEl = document.getElementById("cyear");
 const cstatusEl = document.getElementById("cstatus");
@@ -1931,9 +1998,196 @@ function seriesColor(i) {
   return c[i % c.length];
 }
 
+let chartPageSerial = 0;
+
+function currentChartPage() {
+  return settings.chartPages.find((page) => page.id === settings.chartPageId)
+    || settings.chartPages[0];
+}
+
+function syncChartPage() {
+  let page = currentChartPage();
+  if (!page) {
+    page = { id: "chart-page-1", name: "1", columns: DEFAULT_CHART_COLUMNS.slice() };
+    settings.chartPages = [page];
+  }
+  settings.chartPageId = page.id;
+  settings.chartColumns = page.columns;
+  return page;
+}
+
+function newChartPageId() {
+  chartPageSerial += 1;
+  return `chart-page-${Date.now().toString(36)}-${chartPageSerial.toString(36)}`;
+}
+
+function selectChartPage(id) {
+  if (id === settings.chartPageId || !settings.chartPages.some((page) => page.id === id)) return;
+  settings.chartPageId = id;
+  syncChartPage();
+  saveSettings();
+  drawCharts();
+}
+
+function addChartPage() {
+  if (settings.chartPages.length >= MAX_CHART_PAGES) return;
+  const source = syncChartPage();
+  const page = {
+    id: newChartPageId(),
+    name: String(settings.chartPages.length + 1),
+    columns: source.columns.slice(0, MAX_SERIES),
+  };
+  settings.chartPages.push(page);
+  settings.chartPageId = page.id;
+  settings.chartColumns = page.columns;
+  saveSettings();
+  drawCharts();
+}
+
+function deleteChartPage(id) {
+  if (settings.chartPages.length <= 1) return;
+  const index = settings.chartPages.findIndex((page) => page.id === id);
+  if (index < 0) return;
+  const wasActive = settings.chartPageId === id;
+  settings.chartPages.splice(index, 1);
+  if (wasActive) {
+    const next = settings.chartPages[Math.min(index, settings.chartPages.length - 1)];
+    settings.chartPageId = next.id;
+  }
+  syncChartPage();
+  saveSettings();
+  drawCharts();
+}
+
+function renameChartPage(page, nameButton) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = page.name;
+  input.maxLength = 40;
+  input.setAttribute("aria-label", "ページ名");
+  nameButton.replaceWith(input);
+  let done = false;
+  const finish = (cancel) => {
+    if (done) return;
+    done = true;
+    const name = input.value.trim();
+    if (!cancel && name) page.name = name.slice(0, 40);
+    saveSettings();
+    drawChartPages();
+  };
+  input.addEventListener("keydown", (event) => {
+    event.stopPropagation();
+    if (event.key === "Enter") { event.preventDefault(); finish(false); }
+    if (event.key === "Escape") { event.preventDefault(); finish(true); }
+  });
+  input.addEventListener("blur", () => finish(false), { once: true });
+  input.focus();
+  input.select();
+}
+
+function clearChartPageDropMarks() {
+  chartPageBarEl.querySelectorAll(".drop-before, .drop-after")
+    .forEach((item) => item.classList.remove("drop-before", "drop-after"));
+}
+
+function bindChartPageDrag(handle, item, pageId) {
+  let drag = null;
+  handle.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    drag = { pointerId: event.pointerId, targetId: "", before: true };
+    handle.setPointerCapture(event.pointerId);
+    item.classList.add("dragging");
+    event.preventDefault();
+  });
+  handle.addEventListener("pointermove", (event) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    clearChartPageDropMarks();
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".chart-page");
+    if (!target || !chartPageBarEl.contains(target) || target.dataset.pageId === pageId) {
+      drag.targetId = "";
+      return;
+    }
+    const rect = target.getBoundingClientRect();
+    drag.before = event.clientX < rect.left + rect.width / 2;
+    drag.targetId = target.dataset.pageId;
+    target.classList.add(drag.before ? "drop-before" : "drop-after");
+  });
+  const finish = (event, cancel) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const drop = drag;
+    drag = null;
+    item.classList.remove("dragging");
+    clearChartPageDropMarks();
+    if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+    if (cancel || !drop.targetId) return;
+    const from = settings.chartPages.findIndex((page) => page.id === pageId);
+    let target = settings.chartPages.findIndex((page) => page.id === drop.targetId);
+    if (from < 0 || target < 0 || from === target) return;
+    const [moved] = settings.chartPages.splice(from, 1);
+    if (from < target) target -= 1;
+    const at = Math.max(0, Math.min(settings.chartPages.length, target + (drop.before ? 0 : 1)));
+    settings.chartPages.splice(at, 0, moved);
+    saveSettings();
+    drawChartPages();
+  };
+  handle.addEventListener("pointerup", (event) => finish(event, false));
+  handle.addEventListener("pointercancel", (event) => finish(event, true));
+}
+
+function drawChartPages() {
+  const active = syncChartPage();
+  chartPageBarEl.innerHTML = "";
+  settings.chartPages.forEach((page) => {
+    const item = document.createElement("div");
+    item.className = "chart-page";
+    item.dataset.pageId = page.id;
+    if (page.id === active.id) item.setAttribute("aria-current", "page");
+
+    const drag = document.createElement("span");
+    drag.className = "chart-page-drag";
+    drag.textContent = "≡";
+    drag.title = "掴んでページを並べ替える";
+    bindChartPageDrag(drag, item, page.id);
+
+    const name = document.createElement("button");
+    name.className = "chart-page-name";
+    name.textContent = page.name;
+    name.title = "このページを表示";
+    name.addEventListener("click", () => selectChartPage(page.id));
+
+    const rename = document.createElement("button");
+    rename.textContent = "✎";
+    rename.title = "ページ名を変える";
+    rename.addEventListener("click", () => renameChartPage(page, name));
+
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = settings.chartPages.length > 1 ? "このページを消す" : "最後の1ページは消せない";
+    del.disabled = settings.chartPages.length <= 1;
+    del.addEventListener("click", () => deleteChartPage(page.id));
+
+    item.append(drag, name, rename, del);
+    chartPageBarEl.appendChild(item);
+  });
+
+  if (settings.chartPages.length < MAX_CHART_PAGES) {
+    const add = document.createElement("button");
+    add.className = "chart-page-add";
+    add.textContent = "＋";
+    add.title = "現在の銘柄構成を複製して新しいページを作る";
+    add.addEventListener("click", addChartPage);
+    chartPageBarEl.appendChild(add);
+  }
+  const count = document.createElement("span");
+  count.className = "chart-page-count";
+  count.textContent = `${settings.chartPages.length}/${MAX_CHART_PAGES}`;
+  chartPageBarEl.appendChild(count);
+}
+
 function openCharts() {
   titleEl.classList.add("hidden");
   chartsEl.classList.remove("hidden");
+  syncChartPage();
   drawCharts();
 }
 function backFromCharts() {
@@ -2035,6 +2289,8 @@ function drawPicks(catalog) {
 let cRendering = 0;
 async function drawCharts() {
   const mine = ++cRendering;
+  syncChartPage();
+  drawChartPages();
   const year = String(settings.chartYear);
   cyearEl.value = year;
   ctypeEl.textContent = settings.chartType === "rel" ? "相対" : "絶対";
