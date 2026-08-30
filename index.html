@@ -87,6 +87,18 @@
   .menu button[aria-selected="true"]:disabled { background: var(--dim); color: var(--bg); }
   #title .hint { color: var(--dim); font-size: 12px; }
 
+  @media (max-width: 640px) {
+    #title {
+      height: 100%; min-height: 0; justify-content: flex-start;
+      overflow-y: auto; padding: 18px 12px 24px; gap: 16px;
+    }
+    #title h1 { display: block; flex: none; font-size: 20px; margin: 0; }
+    #title .sub { flex: none; margin-bottom: 0; }
+    #title .menu { flex: none; gap: 10px; width: min(320px, 100%); }
+    #title .menu button { width: 100%; padding: 13px 0; }
+    #title .hint { flex: none; }
+  }
+
   /* ---- 表画面 ---- */
   #sheet { height: 100%; display: flex; flex-direction: column; }
   .bar {
@@ -360,6 +372,8 @@
   }
   #techpick .pane button:hover { background: var(--panel); }
   #techpick .pane button[aria-selected="true"] { background: var(--sel-bg); color: var(--sel-fg); }
+  #techpick .pane button:disabled { color: var(--dim); cursor: default; }
+  #techpick .pane button.symbol-delete { color: var(--fg2); border-bottom: 1px solid var(--line); padding: 7px 8px; }
   #techpick input {
     flex: none; margin: 0; border: 0; border-bottom: 1px solid var(--line);
     background: var(--bg); color: var(--fg); font: inherit; padding: 5px 8px;
@@ -369,6 +383,18 @@
   /* 落ちる一覧のスクロール棒も配色に合わせる */
   #techpick .pane { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
   #techpick .list { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
+
+  @media (max-width: 640px) {
+    #techpick { align-items: stretch; padding: 8px; }
+    #techpick .box { width: 100%; height: 100%; padding: 8px; }
+    #techpick .panes { flex-direction: column; gap: 7px; }
+    #techpick .pane.left {
+      width: 100%; flex-direction: row; flex: none; overflow-x: auto; overflow-y: hidden;
+    }
+    #techpick .pane.left button { width: auto; flex: none; padding: 7px 10px; }
+    #techpick .pane.right { flex: 1; }
+    #techpick .list button { padding: 7px 8px; }
+  }
 
   /* AIコメント。作っている間は点滅、出来上がると点灯する */
   @keyframes tai-blink { 50% { background: var(--sel-bg); color: var(--sel-fg); } }
@@ -712,7 +738,7 @@
 <div id="techpick" class="hidden">
   <div class="box">
     <div class="head">
-      <span class="ttl">銘柄を選ぶ</span>
+      <span class="ttl" id="tptitle">銘柄を選ぶ</span>
       <button id="tpclose">閉じる</button>
     </div>
     <div class="panes">
@@ -932,6 +958,13 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { cursor = (cursor + 1) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "ArrowUp")   { cursor = (cursor - 1 + items.length) % items.length; drawCursor(); e.preventDefault(); }
     if (e.key === "Enter")     { decide(); e.preventDefault(); }
+    return;
+  }
+
+  // 共通の銘柄選択が開いている間は、背後の画面を動かさない。
+  if (!techPickEl.classList.contains("hidden")) {
+    if (e.key === "Escape") closeTechPick();
+    e.preventDefault();
     return;
   }
 
@@ -1940,10 +1973,30 @@ function drawPicks(catalog) {
     const one = document.createElement("div");
     one.className = "one";
 
-    const nm = document.createElement("span");
+    const nm = document.createElement("button");
     nm.className = "nm";
     nm.textContent = labelOf(key, catalog);
+    nm.title = "銘柄を変える";
     if (settings.chartType === "rel") nm.style.color = seriesColor(i);
+    nm.addEventListener("click", () => {
+      openSymbolPicker({
+        catalog,
+        currentKey: key,
+        title: "チャート：銘柄を変更",
+        allowDelete: true,
+        disabledKeys: settings.chartColumns.filter((_, j) => j !== i),
+        onPick: (next) => {
+          settings.chartColumns[i] = next;
+          saveSettings();
+          drawCharts();
+        },
+        onDelete: () => {
+          settings.chartColumns.splice(i, 1);
+          saveSettings();
+          drawCharts();
+        },
+      });
+    });
 
     const del = document.createElement("button");
     del.textContent = "×";
@@ -1954,17 +2007,7 @@ function drawPicks(catalog) {
       drawCharts();
     });
 
-    const sel = document.createElement("select");
-    sel.title = "銘柄を変える";
-    fillPicker(sel, catalog, key, true);
-    sel.addEventListener("change", () => {
-      if (sel.value === DEL_VALUE) settings.chartColumns.splice(i, 1);
-      else settings.chartColumns[i] = sel.value;
-      saveSettings();
-      drawCharts();
-    });
-
-    one.append(nm, del, sel);
+    one.append(nm, del);
     picksEl.appendChild(one);
   });
 
@@ -1974,48 +2017,19 @@ function drawPicks(catalog) {
     add.textContent = "＋";
     add.title = "銘柄を足す";
     add.addEventListener("click", () => {
-      const first = catalog.find((c) => !settings.chartColumns.includes(c.key));
-      if (first) {
-        settings.chartColumns.push(first.key);
-        saveSettings();
-        drawCharts();
-      }
+      openSymbolPicker({
+        catalog,
+        title: "チャート：銘柄を追加",
+        disabledKeys: settings.chartColumns,
+        onPick: (key) => {
+          settings.chartColumns.push(key);
+          saveSettings();
+          drawCharts();
+        },
+      });
     });
     picksEl.appendChild(add);
   }
-}
-
-// 候補を分野ごとに区切って入れる。表の見出しと同じ作り
-const DEL_VALUE = "__del__";
-
-function fillPicker(sel, catalog, key, withDelete) {
-  if (withDelete) {
-    // 指で押すと × に当てにくいので、候補の筆頭にも削除を置く
-    const del = document.createElement("option");
-    del.value = DEL_VALUE;
-    del.textContent = "× 削除";
-    sel.appendChild(del);
-  }
-  if (!catalog.some((c) => c.key === key)) {
-    const keep = document.createElement("option");
-    keep.value = key;
-    keep.textContent = labelOf(key, catalog);
-    sel.appendChild(keep);
-  }
-  let box = null, cur = null;
-  catalog.forEach((c) => {
-    if (c.group !== cur) {
-      cur = c.group;
-      box = document.createElement("optgroup");
-      box.label = cur;
-      sel.appendChild(box);
-    }
-    const o = document.createElement("option");
-    o.value = c.key;
-    o.textContent = c.label;
-    box.appendChild(o);
-  });
-  sel.value = key;
 }
 
 let cRendering = 0;
@@ -2359,45 +2373,6 @@ async function render() {
       const wrap = document.createElement("div");
       wrap.className = "colhead";
 
-      const sel = document.createElement("select");
-      sel.className = "picker";
-      sel.title = "銘柄を変える";
-      {
-        // 指で押すと × に当てにくいので、候補の筆頭にも削除を置く
-        const kill = document.createElement("option");
-        kill.value = DEL_VALUE;
-        kill.textContent = "× 削除";
-        sel.appendChild(kill);
-      }
-      // その年に値が無い銘柄も選び続けられるようにしておく
-      if (!catalog.some((c) => c.key === key)) {
-        const keep = document.createElement("option");
-        keep.value = key;
-        keep.textContent = name;
-        sel.appendChild(keep);
-      }
-      // 分野ごとに見出しを付けて区切る
-      let box = null, cur = null;
-      catalog.forEach((c) => {
-        if (c.group !== cur) {
-          cur = c.group;
-          box = document.createElement("optgroup");
-          box.label = cur;
-          sel.appendChild(box);
-        }
-        const o = document.createElement("option");
-        o.value = c.key;
-        o.textContent = c.label;
-        box.appendChild(o);
-      });
-      sel.value = key;
-      sel.addEventListener("change", () => {
-        if (sel.value === DEL_VALUE) curColumns().splice(i, 1);
-        else curColumns()[i] = sel.value;
-        saveSettings();
-        render();
-      });
-
       const del = document.createElement("button");
       del.textContent = "×";
       del.title = "この列を消す";
@@ -2410,11 +2385,29 @@ async function render() {
       const arrow = document.createElement("button");
       arrow.textContent = "▼";
       arrow.title = "銘柄を変える";
+      arrow.addEventListener("click", () => {
+        openSymbolPicker({
+          catalog,
+          currentKey: key,
+          title: "表：銘柄を変更",
+          allowDelete: true,
+          onPick: (next) => {
+            curColumns()[i] = next;
+            saveSettings();
+            render();
+          },
+          onDelete: () => {
+            curColumns().splice(i, 1);
+            saveSettings();
+            render();
+          },
+        });
+      });
 
-      // ▼ と選択を重ねる。▼を押すと候補が開く
+      // ▼から全メニュー共通の銘柄選択を開く
       const pick = document.createElement("div");
       pick.className = "pickwrap";
-      pick.append(arrow, sel);
+      pick.append(arrow);
 
       const ops = document.createElement("div");
       ops.className = "ops" + (j ? " blank" : "");   // 出すのは左端の1列だけ
@@ -2450,11 +2443,16 @@ async function render() {
   add.textContent = "＋";
   add.title = "列を足す";
   add.addEventListener("click", () => {
-    const first = catalog.find((c) => !curColumns().includes(c.key));
-    if (!first) return;
-    curColumns().push(first.key);
-    saveSettings();
-    render();
+    openSymbolPicker({
+      catalog,
+      title: "表：銘柄を追加",
+      disabledKeys: curColumns(),
+      onPick: (key) => {
+        curColumns().push(key);
+        saveSettings();
+        render();
+      },
+    });
   });
   addTh.appendChild(add);
   htr.appendChild(addTh);
@@ -3738,6 +3736,7 @@ async function drawTechnical() {
    数が知れているので要らない。
 --------------------------------------------------------------- */
 const techPickEl = document.getElementById("techpick");
+const tpTitleEl = document.getElementById("tptitle");
 const tpGroupsEl = document.getElementById("tpgroups");
 const tpItemsEl = document.getElementById("tpitems");
 const tpCodeEl = document.getElementById("tpcode");
@@ -3746,26 +3745,49 @@ const tpCodeEl = document.getElementById("tpcode");
 const TECH_PICK_CODE_GROUP = "日本個別株";
 
 let techCatalog = [];        // いま出している年の銘柄一覧
+let symbolPickState = null;  // 全メニュー共通の選択内容と完了時の処理
 let tpGroup = "";            // 左で選んでいる分野
 
-function openTechPick() {
-  if (!techCatalog.length) return;
-  const cur = techCatalog.find((c) => c.key === settings.techKey);
-  tpGroup = cur ? cur.group : (techCatalog[0] || {}).group || "";
+function openSymbolPicker(options) {
+  const catalog = Array.isArray(options && options.catalog) ? options.catalog : [];
+  if (!catalog.length) return;
+  const currentKey = String(options.currentKey || "");
+  symbolPickState = {
+    catalog,
+    currentKey,
+    allowDelete: !!options.allowDelete,
+    onPick: typeof options.onPick === "function" ? options.onPick : null,
+    onDelete: typeof options.onDelete === "function" ? options.onDelete : null,
+    disabledKeys: new Set(options.disabledKeys || []),
+  };
+  const cur = catalog.find((c) => c.key === currentKey);
+  tpGroup = cur ? cur.group : (catalog[0] || {}).group || "";
+  tpTitleEl.textContent = options.title || "銘柄を選ぶ";
   tpCodeEl.value = "";
   drawTechPickGroups();
   drawTechPickItems();
   techPickEl.classList.remove("hidden");
   if (tpGroup === TECH_PICK_CODE_GROUP) tpCodeEl.focus();
 }
+
+function openTechPick() {
+  openSymbolPicker({
+    catalog: techCatalog,
+    currentKey: settings.techKey,
+    title: "テクニカル：銘柄を選ぶ",
+    onPick: pickTechKey,
+  });
+}
 function closeTechPick() {
   techPickEl.classList.add("hidden");
+  symbolPickState = null;
 }
 
 function drawTechPickGroups() {
   tpGroupsEl.innerHTML = "";
   const seen = [];
-  techCatalog.forEach((c) => { if (!seen.includes(c.group)) seen.push(c.group); });
+  const catalog = symbolPickState ? symbolPickState.catalog : [];
+  catalog.forEach((c) => { if (!seen.includes(c.group)) seen.push(c.group); });
   seen.forEach((g) => {
     const b = document.createElement("button");
     b.textContent = g;
@@ -3784,7 +3806,8 @@ function drawTechPickGroups() {
 // 打ち込んだ字で絞る。コードの頭からと、名前の中のどちらでも当たる
 function tpMatches() {
   const q = tpCodeEl.value.trim().toUpperCase();
-  const inGroup = techCatalog.filter((c) => c.group === tpGroup);
+  const catalog = symbolPickState ? symbolPickState.catalog : [];
+  const inGroup = catalog.filter((c) => c.group === tpGroup);
   if (!q || tpGroup !== TECH_PICK_CODE_GROUP) return inGroup;
   return inGroup.filter((c) => {
     const id = splitKey(c.key)[1].toUpperCase();
@@ -3796,26 +3819,53 @@ function drawTechPickItems() {
   // コードを打てるのは日本個別株だけ
   tpCodeEl.classList.toggle("hidden", tpGroup !== TECH_PICK_CODE_GROUP);
 
+  const state = symbolPickState;
   const hit = tpMatches();
-  const html = hit.map((c) =>
-    `<button data-key="${c.key}"${c.key === settings.techKey ? ' aria-selected="true"' : ""}>${c.label}</button>`
-  ).join("");
-  tpItemsEl.innerHTML = html || '<div class="none">見つからない</div>';
-  tpItemsEl.querySelectorAll("button[data-key]").forEach((b) => {
-    b.addEventListener("click", () => pickTechKey(b.dataset.key));
+  tpItemsEl.innerHTML = "";
+  if (state && state.allowDelete) {
+    const del = document.createElement("button");
+    del.className = "symbol-delete";
+    del.textContent = "× 削除";
+    del.addEventListener("click", () => {
+      const onDelete = state.onDelete;
+      closeTechPick();
+      if (onDelete) onDelete();
+    });
+    tpItemsEl.appendChild(del);
+  }
+  hit.forEach((c) => {
+    const button = document.createElement("button");
+    button.dataset.key = c.key;
+    button.textContent = c.label;
+    if (c.key === (state && state.currentKey)) button.setAttribute("aria-selected", "true");
+    if (state && state.disabledKeys.has(c.key) && c.key !== state.currentKey) button.disabled = true;
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      const onPick = state && state.onPick;
+      closeTechPick();
+      if (onPick) onPick(c.key);
+    });
+    tpItemsEl.appendChild(button);
   });
+  if (!hit.length) {
+    const none = document.createElement("div");
+    none.className = "none";
+    none.textContent = "見つからない";
+    tpItemsEl.appendChild(none);
+  }
   const at = tpItemsEl.querySelector('button[aria-selected="true"]');
   if (at) at.scrollIntoView({ block: "center" });
 }
 
 function pickTechKey(key) {
-  closeTechPick();
   if (key === settings.techKey) return;
   settings.techKey = key;
   saveSettings();
   drawTechnical();
   if (corrPutFirst(key)) renderCorrelations();
 }
+
+window.SymbolPicker = { open: openSymbolPicker, close: closeTechPick };
 
 /* テクニカルで選んだ銘柄を、相関のいちばん左（筆頭）に置く。
    もう並んでいる銘柄なら、そこから抜いて先頭へ動かす。
@@ -4045,9 +4095,29 @@ async function drawTechCompare() {
   settings.techComp.forEach((key, i) => {
     const one = document.createElement("div");
     one.className = "one";
-    const nm = document.createElement("span");
+    const nm = document.createElement("button");
     nm.className = "nm";
     nm.textContent = labelOf(key, catalog);
+    nm.title = "銘柄を変える";
+    nm.addEventListener("click", () => {
+      openSymbolPicker({
+        catalog,
+        currentKey: key,
+        title: "テクニカル比較：銘柄を変更",
+        allowDelete: true,
+        disabledKeys: [...TECH_BASE, ...settings.techComp.filter((_, j) => j !== i), settings.techKey],
+        onPick: (next) => {
+          settings.techComp[i] = next;
+          saveSettings();
+          drawTechCompare();
+        },
+        onDelete: () => {
+          settings.techComp.splice(i, 1);
+          saveSettings();
+          drawTechCompare();
+        },
+      });
+    });
     const del = document.createElement("button");
     del.textContent = "×";
     del.title = "この銘柄を外す";
@@ -4056,16 +4126,7 @@ async function drawTechCompare() {
       saveSettings();
       drawTechCompare();
     });
-    const sel = document.createElement("select");
-    sel.title = "銘柄を変える";
-    fillPicker(sel, catalog, key, true);
-    sel.addEventListener("change", () => {
-      if (sel.value === DEL_VALUE) settings.techComp.splice(i, 1);
-      else settings.techComp[i] = sel.value;
-      saveSettings();
-      drawTechCompare();
-    });
-    one.append(nm, del, sel);
+    one.append(nm, del);
     picks.appendChild(one);
   });
   if (settings.techComp.length < MAX_TECH_COMP) {
@@ -4074,11 +4135,16 @@ async function drawTechCompare() {
     add.textContent = "＋";
     add.title = "比べる銘柄を足す";
     add.addEventListener("click", () => {
-      const first = catalog.find((c) => !techCompKeys().includes(c.key) && c.key !== settings.techKey);
-      if (!first) return;
-      settings.techComp.push(first.key);
-      saveSettings();
-      drawTechCompare();
+      openSymbolPicker({
+        catalog,
+        title: "テクニカル比較：銘柄を追加",
+        disabledKeys: [...techCompKeys(), settings.techKey],
+        onPick: (key) => {
+          settings.techComp.push(key);
+          saveSettings();
+          drawTechCompare();
+        },
+      });
     });
     picks.appendChild(add);
   }
@@ -5515,16 +5581,30 @@ function drawCorrelationPicks(catalog) {
   corrPicksEl.innerHTML = "";
   settings.corrColumns.forEach((key, i) => {
     const one = document.createElement("div"); one.className = "one";
-    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = labelOf(key, catalog);
+    const nm = document.createElement("button"); nm.className = "nm"; nm.textContent = labelOf(key, catalog);
+    nm.title = "銘柄を変える";
+    nm.addEventListener("click", () => {
+      openSymbolPicker({
+        catalog,
+        currentKey: key,
+        title: "相関係数：銘柄を変更",
+        allowDelete: true,
+        disabledKeys: settings.corrColumns.filter((_, j) => j !== i),
+        onPick: (next) => {
+          settings.corrColumns[i] = next;
+          saveSettings();
+          renderCorrelations();
+        },
+        onDelete: () => {
+          settings.corrColumns.splice(i, 1);
+          saveSettings();
+          renderCorrelations();
+        },
+      });
+    });
     const del = document.createElement("button"); del.textContent = "×"; del.title = "分析対象から外す";
     del.addEventListener("click", () => { settings.corrColumns.splice(i, 1); saveSettings(); renderCorrelations(); });
-    const sel = document.createElement("select"); sel.title = "銘柄を変える"; fillPicker(sel, catalog, key, true);
-    sel.addEventListener("change", () => {
-      if (sel.value === DEL_VALUE) settings.corrColumns.splice(i, 1);
-      else if (!settings.corrColumns.includes(sel.value)) settings.corrColumns[i] = sel.value;
-      saveSettings(); renderCorrelations();
-    });
-    one.append(nm, del, sel); corrPicksEl.appendChild(one);
+    one.append(nm, del); corrPicksEl.appendChild(one);
   });
   const add = document.createElement("button"); add.className = "add"; add.textContent = "＋";
   const full = settings.corrColumns.length >= MAX_CORR_COLUMNS;
@@ -5532,8 +5612,16 @@ function drawCorrelationPicks(catalog) {
   add.title = full ? `${MAX_CORR_COLUMNS}銘柄まで。足すには×でどれか外す` : "分析対象を足す";
   add.addEventListener("click", () => {
     if (settings.corrColumns.length >= MAX_CORR_COLUMNS) return;
-    const first = catalog.find((c) => !settings.corrColumns.includes(c.key));
-    if (first) { settings.corrColumns.push(first.key); saveSettings(); renderCorrelations(); }
+    openSymbolPicker({
+      catalog,
+      title: "相関係数：銘柄を追加",
+      disabledKeys: settings.corrColumns,
+      onPick: (key) => {
+        settings.corrColumns.push(key);
+        saveSettings();
+        renderCorrelations();
+      },
+    });
   });
   corrPicksEl.appendChild(add);
 }
