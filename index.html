@@ -1060,7 +1060,7 @@ document.getElementById("back").addEventListener("click", backToTitle);
      yomiuri:{指数名}  data/yomiuri333.csv
      ratio:{名前}      data/ratios.csv
      rates:{名前}      data/rates.csv
-     original:{指数名} data/original_index_history.json
+     original:{指数名} data/original_index.csv
 
    どれも終値を出す。無い日は #N/A
 --------------------------------------------------------------- */
@@ -1387,11 +1387,10 @@ async function seriesOf(key, year) {
       }
     }
   } else if (src === "original") {
-    const history = await fetchJson("data/original_index_history.json");
-    const item = (history?.indices || []).find((x) => x.name === id);
-    for (const point of item?.points || []) {
-      const date = String(point[0] || "");
-      if (date.startsWith(year) && isNum(point[1])) map.set(date, point[1]);
+    for (const r of await fetchCsv("data/original_index.csv")) {
+      if (r.name === id && r.close !== "" && r.trade_date.startsWith(year)) {
+        map.set(r.trade_date, r.close);
+      }
     }
   } else if (src === "rates") {
     for (const r of await fetchCsv("data/rates.csv")) {
@@ -4285,7 +4284,7 @@ function corrMeta(key, catalog) {
   const [src, id] = splitKey(key);
   const hit = catalog.find((c) => c.key === key) || {};
   let market = "OTHER", calcType = "return";
-  if (["jpx", "nikkei", "yomiuri", "ratio", "stock"].includes(src)) market = "JP";
+  if (["jpx", "nikkei", "yomiuri", "ratio", "original", "stock"].includes(src)) market = "JP";
   if (src === "rates") {
     calcType = "diff";
     if (/^(米|アメリカ)/.test(id)) market = "US";
@@ -4342,6 +4341,7 @@ async function loadCorrelationPrices(keys, progress) {
       nikkei: ["data/nikkei_ohlc.csv", "name", "close"],
       yomiuri: ["data/yomiuri333.csv", "name", "close"],
       ratio: ["data/ratios.csv", "name", "close"],
+      original: ["data/original_index.csv", "name", "close"],
       rates: ["data/rates.csv", "name", "value"]
     };
     for (const [src, spec] of Object.entries(staticFiles)) {
