@@ -39,17 +39,17 @@
       align-items:center; margin-bottom:12px;
     }
     #ai-analysis .ai-label { color:var(--fg2); }
-    #ai-analysis select,
+    #ai-analysis .ai-choice,
     #ai-analysis .ai-add,
     #ai-analysis .ai-top-action,
     #ai-analysis .ai-sub button {
       background:var(--panel); color:var(--fg); border:1px solid var(--line);
       font:inherit; padding:5px 8px;
     }
-    #ai-analysis select { width:100%; min-width:0; }
+    #ai-analysis .ai-choice { width:100%; min-width:0; text-align:left; cursor:pointer; }
     #ai-analysis .ai-subs { display:flex; flex-direction:column; gap:6px; }
     #ai-analysis .ai-sub { display:flex; gap:6px; align-items:center; }
-    #ai-analysis .ai-sub select { flex:1; }
+    #ai-analysis .ai-sub .ai-choice { flex:1; }
     #ai-analysis .ai-sub button { cursor:pointer; padding:5px 10px; }
     #ai-analysis .ai-add { cursor:pointer; margin-top:2px; }
     #ai-analysis .ai-top-action { cursor:pointer; padding:5px 12px; }
@@ -111,7 +111,7 @@
     <div class="ai-wrap">
       <div class="ai-row">
         <div class="ai-label">予測対象銘柄</div>
-        <select id="ai-main" aria-label="予測対象銘柄"></select>
+        <button type="button" id="ai-main" class="ai-choice" aria-label="予測対象銘柄"></button>
       </div>
       <div class="ai-row">
         <div class="ai-label">分析用比較銘柄 <span id="ai-sub-count">0/10</span></div>
@@ -278,7 +278,7 @@ AI主観コメント
     document.getElementById("ai-run").disabled = !enabled;
     document.getElementById("ai-prompt").disabled = !enabled;
     document.getElementById("ai-add").disabled = !enabled || settings.corrAiSubs.length >= MAX_SUBS;
-    document.querySelectorAll("#ai-subs select, #ai-subs button").forEach((el) => { el.disabled = !enabled; });
+    document.querySelectorAll("#ai-subs button").forEach((el) => { el.disabled = !enabled; });
   }
 
   function normalizeAiSelection() {
@@ -295,15 +295,21 @@ AI主観コメント
 
   function drawAiControls() {
     const main = document.getElementById("ai-main");
-    main.innerHTML = "";
-    fillPicker(main, aiMainChoices, settings.corrAiMain, false);
-    main.value = settings.corrAiMain;
-    main.onchange = () => {
-      settings.corrAiMain = main.value;
-      settings.corrAiSubs = settings.corrAiSubs.filter((key) => key !== settings.corrAiMain);
-      saveSettings();
-      clearAiResult();
-      drawAiControls();
+    main.textContent = labelOf(settings.corrAiMain, aiCatalog);
+    main.onclick = () => {
+      window.SymbolPicker?.open({
+        catalog: aiMainChoices,
+        currentKey: settings.corrAiMain,
+        title: "AI分析：予測対象銘柄",
+        disabledKeys: settings.corrAiSubs,
+        onPick: (key) => {
+          settings.corrAiMain = key;
+          settings.corrAiSubs = settings.corrAiSubs.filter((sub) => sub !== key);
+          saveSettings();
+          clearAiResult();
+          drawAiControls();
+        },
+      });
     };
 
     const subs = document.getElementById("ai-subs");
@@ -311,20 +317,31 @@ AI主観コメント
     settings.corrAiSubs.forEach((key, i) => {
       const row = document.createElement("div");
       row.className = "ai-sub";
-      const sel = document.createElement("select");
-      sel.setAttribute("aria-label", `分析用比較銘柄 ${i + 1}`);
-      fillPicker(sel, aiCompareChoices, key, false);
-      sel.value = key;
-      sel.addEventListener("change", () => {
-        const next = sel.value;
-        if (next === settings.corrAiMain || settings.corrAiSubs.some((k, j) => j !== i && k === next)) {
-          sel.value = settings.corrAiSubs[i];
-          document.getElementById("aistatus").textContent = "同じ銘柄は重複して選べない";
-          return;
-        }
-        settings.corrAiSubs[i] = next;
-        saveSettings();
-        clearAiResult();
+      const choice = document.createElement("button");
+      choice.type = "button";
+      choice.className = "ai-choice";
+      choice.setAttribute("aria-label", `分析用比較銘柄 ${i + 1}`);
+      choice.textContent = labelOf(key, aiCatalog);
+      choice.addEventListener("click", () => {
+        window.SymbolPicker?.open({
+          catalog: aiCompareChoices,
+          currentKey: key,
+          title: `AI分析：比較銘柄 ${i + 1}`,
+          allowDelete: true,
+          disabledKeys: [settings.corrAiMain, ...settings.corrAiSubs.filter((_, j) => j !== i)],
+          onPick: (next) => {
+            settings.corrAiSubs[i] = next;
+            saveSettings();
+            clearAiResult();
+            drawAiControls();
+          },
+          onDelete: () => {
+            settings.corrAiSubs.splice(i, 1);
+            saveSettings();
+            clearAiResult();
+            drawAiControls();
+          },
+        });
       });
       const del = document.createElement("button");
       del.textContent = "×";
@@ -335,7 +352,7 @@ AI主観コメント
         clearAiResult();
         drawAiControls();
       });
-      row.append(sel, del);
+      row.append(choice, del);
       subs.appendChild(row);
     });
     document.getElementById("ai-sub-count").textContent = `${settings.corrAiSubs.length}/${MAX_SUBS}`;
@@ -663,12 +680,17 @@ AI主観コメント
     promptModal.addEventListener("click", (e) => { if (e.target === promptModal) closePromptModal(); });
     document.getElementById("ai-add").addEventListener("click", () => {
       if (settings.corrAiSubs.length >= MAX_SUBS) return;
-      const first = aiCompareChoices.find((c) => c.key !== settings.corrAiMain && !settings.corrAiSubs.includes(c.key));
-      if (!first) return;
-      settings.corrAiSubs.push(first.key);
-      saveSettings();
-      clearAiResult();
-      drawAiControls();
+      window.SymbolPicker?.open({
+        catalog: aiCompareChoices,
+        title: "AI分析：比較銘柄を追加",
+        disabledKeys: [settings.corrAiMain, ...settings.corrAiSubs],
+        onPick: (key) => {
+          settings.corrAiSubs.push(key);
+          saveSettings();
+          clearAiResult();
+          drawAiControls();
+        },
+      });
     });
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initSeparatedUi, { once: true });
@@ -680,6 +702,13 @@ AI主観コメント
         closePromptModal();
         e.preventDefault();
       }
+      e.stopImmediatePropagation();
+      return;
+    }
+    const symbolPicker = document.getElementById("techpick");
+    if (symbolPicker && !symbolPicker.classList.contains("hidden")) {
+      if (e.key === "Escape") window.SymbolPicker?.close();
+      e.preventDefault();
       e.stopImmediatePropagation();
       return;
     }
