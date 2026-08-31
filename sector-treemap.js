@@ -225,14 +225,14 @@
         `<td class="sector-change sector-change-col">${fmt(row.change)}</td>` +
         `<td class="sector-change sector-ytd-col">${fmt(row.ytd)}</td>` +
         `<td class="sector-cap sector-cap-col">${fmtCap(row.marketCapTrillion)}</td>` +
-        `<td class="sector-count sector-count-col">${Number(row.count) || 0}</td>` +
-        `<td class="original-index-strength" title="寄与度：大1.0・中0.7・小0.5">${esc(detail)}</td>` +
+        `<td class="sector-count sector-count-col"><button type="button" class="original-index-members" data-original-members="${Number(row.id) || ""}" title="構成銘柄を表示">${Number(row.count) || 0}</button></td>` +
+        `<td class="original-index-strength" title="寄与度：大1.0・中0.7・小0.5"><button type="button" class="original-index-members" data-original-members="${Number(row.id) || ""}" title="構成銘柄を表示">${esc(detail)}</button></td>` +
         `</tr>`;
     }).join("");
     body.innerHTML = `<div class="sector-head original-index-head">` +
       `<button type="button" class="sector-title original-index-overview" data-original-overview title="10指数とTOPIX・日経平均の年初来チャートを表示">日本株 オリジナル10指数</button>` +
       `<span class="sector-meta">${esc(data.date || "-")}</span>` +
-      `<span class="sector-note">名称クリックで定義・チャート ／ 大1.0・中0.7・小0.5の加重平均 ／ 銘柄重複あり</span>` +
+      `<span class="sector-note">名称クリックで定義・チャート ／ 銘柄数・構成クリックで構成銘柄 ／ 大1.0・中0.7・小0.5の加重平均 ／ 銘柄重複あり</span>` +
       `</div><div class="original-index-benchmarks" id="original-index-benchmarks">${renderBenchmarkPanel(history)}</div>` +
       `<section class="sector-section original-index-section">` +
       `<table class="sector-table original-index-table"><thead><tr>` +
@@ -558,6 +558,59 @@
     }
   }
 
+  async function showOriginalMembersPopup(indexId) {
+    const row = (heatData && Array.isArray(heatData.original) ? heatData.original : [])
+      .find((item) => Number(item.id) === Number(indexId));
+    if (!row) return;
+    const modal = ensurePopup();
+    const title = modal.querySelector("#sector-treemap-detail-title");
+    const content = modal.querySelector("#sector-treemap-detail-body");
+    const requestId = ++popupRequest;
+    title.textContent = `${Number(row.id)}. ${row.name}　構成銘柄`;
+    modal.classList.remove("hidden");
+    content.innerHTML = '<div class="sector-treemap-detail-loading">構成銘柄を読み込み中…</div>';
+    try {
+      const members = Array.from(row.members || []).map((member) => ({
+        code:String(member.code || "").trim().toUpperCase(),
+        name:String(member.name || member.code || "").trim(),
+        strength:String(member.strength || ""),
+        weight:Number(member.weight),
+      })).filter((member) => member.code);
+      let sortKey = "strength";
+      const draw = () => {
+        const sorted = members.slice().sort((a, b) => {
+          if (sortKey === "strength" && a.weight !== b.weight) return b.weight - a.weight;
+          return a.code.localeCompare(b.code, "ja", { numeric:true });
+        });
+        const breakdown = row.breakdown || {};
+        const rows = sorted.map((member) => `<tr>` +
+          `<td class="code">${esc(member.code)}</td><td class="name">${esc(member.name)}</td>` +
+          `<td class="num original-member-weight"><b>${esc(member.strength || "-")}</b> ${Number.isFinite(member.weight) ? member.weight.toFixed(1) : "-"}</td></tr>`).join("");
+        content.innerHTML = `<div class="sector-treemap-detail-stats original-member-stats">` +
+          `<div><span>銘柄数</span><b>${Number(row.count) || members.length}</b></div>` +
+          `<div><span>寄与度合計</span><b>${Number(row.weightSum) || 0}</b></div>` +
+          `<div><span>構成</span><b>大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}</b></div>` +
+          `</div><div class="original-member-sortbar"><span>並び順</span>` +
+          `<button type="button" data-original-member-sort="strength" aria-pressed="${sortKey === "strength"}">寄与度順</button>` +
+          `<button type="button" data-original-member-sort="code" aria-pressed="${sortKey === "code"}">コード順</button></div>` +
+          `<div class="sector-treemap-detail-table-wrap"><table class="sector-treemap-detail-table original-member-table"><thead><tr>` +
+          `<th><button type="button" data-original-member-sort="code">コード</button></th><th>銘柄名</th>` +
+          `<th><button type="button" data-original-member-sort="strength">寄与度</button></th></tr></thead>` +
+          `<tbody>${rows || '<tr><td colspan="3">構成銘柄なし</td></tr>'}</tbody></table></div>`;
+        content.querySelectorAll("button[data-original-member-sort]").forEach((button) => {
+          button.addEventListener("click", () => {
+            sortKey = button.dataset.originalMemberSort === "code" ? "code" : "strength";
+            draw();
+          });
+        });
+      };
+      draw();
+    } catch (err) {
+      if (requestId !== popupRequest) return;
+      content.innerHTML = `<div class="sector-treemap-detail-loading">構成銘柄を読み込めませんでした。<br>${esc(err && err.message ? err.message : err)}</div>`;
+    }
+  }
+
   async function fetchHeatData() {
     if (heatData) return heatData;
     const res = await fetch(`data/sector_today.json?t=${Date.now()}`, { cache:"no-store" });
@@ -676,6 +729,8 @@
       #sector-page .original-index-name { width:100%; padding:0; border:0; background:none; color:var(--fg2); font:inherit; font-weight:bold; text-align:left; cursor:pointer; }
       #sector-page .original-index-name:hover,#sector-page .original-index-name:focus-visible { text-decoration:underline; }
       #sector-page .original-index-strength { width:15em; min-width:15em; text-align:right; white-space:nowrap; color:var(--dim); }
+      #sector-page .original-index-members { width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:inherit; cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
+      #sector-page .original-index-members:hover,#sector-page .original-index-members:focus-visible { color:var(--fg2); }
       #sector-page .original-sort { padding:0; border:0; background:none; color:inherit; font:inherit; cursor:pointer; text-decoration:underline dotted; }
       #sector-page .original-sort:hover,#sector-page .original-sort:focus-visible { color:var(--fg2); }
       #sector-page .original-index-benchmarks { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
@@ -706,6 +761,13 @@
       #sector-treemap-detail .original-chart-legend.nikkei i { border-color:#e6b450; }
       #sector-treemap-detail .original-chart-legend.topix i { border-color:#6bb5ff; }
       #sector-treemap-detail .original-index-chart-empty { padding:16px; color:var(--dim); }
+      #sector-treemap-detail .original-member-stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      #sector-treemap-detail .original-member-sortbar { display:flex; align-items:center; gap:7px; margin:12px 0 7px; color:var(--dim); }
+      #sector-treemap-detail .original-member-sortbar button,#sector-treemap-detail .original-member-table th button { border:1px solid var(--line); background:var(--panel); color:var(--fg); font:inherit; padding:4px 10px; cursor:pointer; }
+      #sector-treemap-detail .original-member-sortbar button[aria-pressed="true"] { background:var(--sel-bg); color:var(--sel-fg); }
+      #sector-treemap-detail .original-member-table { min-width:520px; }
+      #sector-treemap-detail .original-member-table th button { padding:0; border:0; color:var(--fg2); text-decoration:underline dotted; }
+      #sector-treemap-detail .original-member-weight b { color:var(--fg2); }
       #sector-treemap-detail { position:fixed; inset:0; z-index:10040; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.74); }
       #sector-treemap-detail.hidden { display:none !important; }
       #sector-treemap-detail .sector-treemap-detail-box { width:min(1000px,96vw); max-height:88vh; overflow:auto; background:var(--bg); color:var(--fg); border:2px solid var(--line); box-shadow:0 10px 40px rgba(0,0,0,.65); }
@@ -777,6 +839,12 @@
         if (originalSortKey === key) originalSortDir *= -1;
         else { originalSortKey = key; originalSortDir = key === "id" ? 1 : -1; }
         renderOriginal(heatData, originalHistory);
+        return;
+      }
+      const membersButton = event.target.closest("button[data-original-members]");
+      if (membersButton) {
+        event.preventDefault();
+        showOriginalMembersPopup(membersButton.dataset.originalMembers);
         return;
       }
       const button = event.target.closest("button[data-original-index]");
