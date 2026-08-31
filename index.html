@@ -1547,6 +1547,26 @@ async function volumeOf(key, year) {
   return map;
 }
 
+// Dynamicチャートは年で切らず、選択銘柄に存在する全期間を読む。
+// 海外データなどの大きな共通CSVは、公開時に生成した1銘柄1ファイルを使う。
+async function allSeriesOf(key) {
+  const [src, id] = splitKey(key);
+  const map = new Map();
+  if (src === "stock") {
+    for (const row of await fetchCsv(`data/stocks/${id}.csv`)) {
+      if ((row.Date || "") && isNum(row.Close)) map.set(row.Date, row.Close);
+    }
+    return map;
+  }
+  const manifest = await fetchJson("data/dynamic/manifest.json");
+  const item = manifest && manifest.series ? manifest.series[key] : null;
+  if (!item || !item.path) return map;
+  for (const row of await fetchCsv(item.path)) {
+    if ((row.date || "") && isNum(row.close)) map.set(row.date, row.close);
+  }
+  return map;
+}
+
 async function fetchJson(path) {
   if (jsonCache.has(path)) return jsonCache.get(path);
   const p = fetch(path).then((r) => r.ok ? r.json() : null).catch(() => null);
@@ -2243,8 +2263,7 @@ ctypeEl.addEventListener("click", () => {
 cdynamicEl.addEventListener("click", () => {
   settings.chartDynamic = !settings.chartDynamic;
   saveSettings();
-  if (chartRenderData) renderChartWindow();
-  else drawCharts();
+  drawCharts();
 });
 document.getElementById("cjoin").addEventListener("click", () => {
   settings.chartJoin = !settings.chartJoin;
@@ -2258,7 +2277,8 @@ cyearEl.addEventListener("change", () => {
 });
 
 function chartWindowKey() {
-  return `${settings.chartYear}|${settings.chartPageId}|${settings.chartColumns.join("\u001f")}`;
+  const period = settings.chartDynamic ? "all" : String(settings.chartYear);
+  return `${period}|${settings.chartPageId}|${settings.chartColumns.join("\u001f")}`;
 }
 
 function clampChartWindow(total, start, length) {
@@ -2420,6 +2440,8 @@ async function drawCharts() {
   drawChartPages();
   const year = String(settings.chartYear);
   cyearEl.value = year;
+  cyearEl.disabled = settings.chartDynamic;
+  cyearEl.title = settings.chartDynamic ? "Dynamic中は年を指定せず全期間を表示" : "表示する年";
   ctypeEl.textContent = settings.chartType === "rel" ? "相対" : "絶対";
   cdynamicEl.setAttribute("aria-pressed", String(settings.chartDynamic));
   document.getElementById("cjoin").textContent =
@@ -2427,10 +2449,11 @@ async function drawCharts() {
   chartRangeEl.classList.toggle("hidden", !settings.chartDynamic);
   canvasEl.classList.toggle("dynamic-active", settings.chartDynamic);
   canvasEl.innerHTML = '<div id="loading">読み込み中…</div>';
-
   const catalog = await buildCatalog(year);
   const series = [];
-  for (const key of settings.chartColumns) series.push(await seriesOf(key, year));
+  for (const key of settings.chartColumns) {
+    series.push(settings.chartDynamic ? await allSeriesOf(key) : await seriesOf(key, year));
+  }
   if (mine !== cRendering) return;
 
   drawPicks(catalog);
@@ -2540,14 +2563,27 @@ function boxSize(rows, rightPad) {
 // 月ごとの縦線と、下の月の数字
 function monthLines(days, x, T, ih) {
   const out = [];
+  const months = [];
   let prev = "";
   days.forEach((d, i) => {
     const m = d.slice(0, 7);
     if (m === prev) return;
     prev = m;
+    months.push({ date:d, index:i, month:m });
+  });
+  const firstMonth = months.length ? Number(months[0].month.slice(0, 4)) * 12 + Number(months[0].month.slice(5, 7)) : 0;
+  const lastMonth = months.length ? Number(months[months.length - 1].month.slice(0, 4)) * 12 + Number(months[months.length - 1].month.slice(5, 7)) : 0;
+  const span = Math.max(0, lastMonth - firstMonth);
+  const step = span > 240 ? 60 : span > 72 ? 12 : span > 36 ? 6 : span > 18 ? 3 : 1;
+  months.forEach(({ date:d, index:i, month:m }) => {
+    const serial = Number(m.slice(0, 4)) * 12 + Number(m.slice(5, 7));
+    if ((serial - firstMonth) % step !== 0) return;
     const px = x(i);
     out.push(`<line x1="${px}" y1="${T}" x2="${px}" y2="${T + ih}" class="vline"/>`);
-    out.push(`<text x="${px}" y="${T + ih + 18}" class="lab" text-anchor="middle">${Number(d.slice(5, 7))}</text>`);
+    const label = settings.chartDynamic
+      ? (step >= 12 ? d.slice(0, 4) : d.slice(0, 7).replace("-", "/"))
+      : Number(d.slice(5, 7));
+    out.push(`<text x="${px}" y="${T + ih + 18}" class="lab" text-anchor="middle">${label}</text>`);
   });
   return out;
 }
