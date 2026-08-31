@@ -57,6 +57,9 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      - name: Dynamicチャート用の全期間データを生成
+        run: python3 src/build_dynamic_series.py
+
       - name: 中身をまとめる
         uses: actions/upload-pages-artifact@v3
         with:
