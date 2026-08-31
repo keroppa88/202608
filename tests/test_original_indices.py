@@ -14,7 +14,11 @@ from original_indices import (  # noqa: E402
     STRENGTH_WEIGHT,
     classify_original_indices,
 )
-from calc_stock_sectors import covered_calendar, write_original_index_csv  # noqa: E402
+from calc_stock_sectors import (  # noqa: E402
+    covered_calendar,
+    original_index_rows,
+    write_original_index_csv,
+)
 
 
 def load_rows():
@@ -58,6 +62,35 @@ class OriginalIndexTest(unittest.TestCase):
     def test_overseas_strength_uses_demand_tag(self):
         self.assertEqual(self.memberships("7203").get(10), "大")
         self.assertEqual(self.memberships("7974").get(10), "中")
+
+    def test_original_rows_expose_members_with_name_and_weight(self):
+        rows = [
+            {
+                "code": "2222", "name": "中寄与", "change": 1.0,
+                "market_cap_million": 100, "original_memberships": {1: "中"},
+            },
+            {
+                "code": "1111", "name": "大寄与", "change": 2.0,
+                "market_cap_million": 200, "original_memberships": {1: "大"},
+            },
+        ]
+        index = original_index_rows(rows)[0]
+        self.assertEqual(index["count"], len(index["members"]))
+        self.assertEqual(index["members"], [
+            {"code": "1111", "name": "大寄与", "strength": "大", "weight": 1.0},
+            {"code": "2222", "name": "中寄与", "strength": "中", "weight": 0.7},
+        ])
+
+    def test_sector_today_members_match_displayed_counts(self):
+        path = os.path.join(ROOT, "data", "sector_today.json")
+        with open(path, encoding="utf-8") as f:
+            today = json.load(f)
+        self.assertEqual(len(today["original"]), 10)
+        for index in today["original"]:
+            self.assertEqual(index["count"], len(index["members"]))
+            self.assertTrue(all(member["code"] and member["name"] for member in index["members"]))
+            self.assertTrue(all(member["strength"] in STRENGTH_WEIGHT for member in index["members"]))
+            self.assertTrue(all(member["weight"] == STRENGTH_WEIGHT[member["strength"]] for member in index["members"]))
 
     def test_history_is_base_100_and_has_benchmarks(self):
         path = os.path.join(ROOT, "data", "original_index_history.json")
