@@ -175,6 +175,20 @@ def load_market_caps(path):
     return out
 
 
+def load_stock_names(path):
+    """コード -> 銘柄名を返す。"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            code = (r.get("code") or "").strip().upper()
+            name = (r.get("name") or "").strip()
+            if code:
+                out[code] = name or code
+    return out
+
+
 def market_cap_band(million):
     if million is None:
         return ""
@@ -567,6 +581,18 @@ def original_index_rows(rows):
             "count": len(members),
             "weightSum": round(denominator, 1),
             "breakdown": {key: breakdown.get(key, 0) for key in ("大", "中", "小")},
+            "members": sorted(
+                [
+                    {
+                        "code": stock["code"],
+                        "name": stock.get("name") or stock["code"],
+                        "strength": strength,
+                        "weight": STRENGTH_WEIGHT[strength],
+                    }
+                    for stock, strength in members
+                ],
+                key=lambda member: (-member["weight"], member["code"]),
+            ),
         }
         add_market_cap_summary(row, [stock for stock, _ in members])
         out.append(row)
@@ -649,6 +675,7 @@ def main():
     class_path = os.path.join(root, "data", "stock-sectors.csv")
     detail_class_path = os.path.join(root, "data", "stock-sectors-detail.csv")
     market_cap_path = os.path.join(root, "data", "market_cap.csv")
+    stock_list_path = os.path.join(root, "data", "stocks", "list.csv")
     stocks_dir = os.path.join(root, "data", "stocks")
     out_path = os.path.join(root, "data", "sector_today.json")
     history_path = os.path.join(root, "data", "sector_history.csv")
@@ -665,6 +692,7 @@ def main():
     classes = load_classes(class_path)
     original_memberships = load_original_memberships(detail_class_path)
     market_caps = load_market_caps(market_cap_path)
+    stock_names = load_stock_names(stock_list_path)
     observed = []
     missing_codes = []
     unreadable_codes = []
@@ -688,6 +716,7 @@ def main():
                 "change": (close / prev - 1.0) * 100.0,
                 "market_cap_million": cap,
                 "market_cap_band": market_cap_band(cap),
+                "name": stock_names.get(c["code"], c["code"]),
                 "original_memberships": original_memberships.get(c["code"]),
             }
         )
