@@ -536,12 +536,15 @@
       `<div><span>騰落率</span><b>${fmt(row.change)}</b></div>` +
       `<div><span>年初来騰落率</span><b>読み込み中…</b></div>` +
       `<div><span>時価総額</span><b>${fmtCap(row.marketCapTrillion)}</b></div>` +
-      `<div><span>銘柄数</span><b>${Number(row.count) || 0}</b></div>` +
+      `<div><button type="button" class="original-index-popup-member-open" data-original-popup-members="${Number(row.id) || ""}" title="構成銘柄を表示"><span>銘柄数</span><b>${Number(row.count) || 0}</b></button></div>` +
       `<div><span>寄与度合計</span><b>${Number(row.weightSum) || 0}</b></div>` +
-      `<div><span>構成</span><b>大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}</b></div>` +
+      `<div><button type="button" class="original-index-popup-member-open" data-original-popup-members="${Number(row.id) || ""}" title="構成銘柄を表示"><span>構成</span><b>大${Number(breakdown["大"]) || 0} / 中${Number(breakdown["中"]) || 0} / 小${Number(breakdown["小"]) || 0}</b></button></div>` +
       `</div><div class="original-index-chart-wrap">チャートを読み込み中…</div>` +
       `<div class="original-index-popup-method">指数騰落率 ＝ Σ（各銘柄の騰落率 × 寄与度）÷ Σ（寄与度）<br>寄与度：大 1.0 ／ 中 0.7 ／ 小 0.5。銘柄の指数間重複を許容。</div>`;
     modal.classList.remove("hidden");
+    content.querySelectorAll("button[data-original-popup-members]").forEach((button) => {
+      button.addEventListener("click", () => showOriginalMembersPopup(button.dataset.originalPopupMembers));
+    });
     try {
       const history = await fetchOriginalHistory();
       if (requestId !== popupRequest) return;
@@ -742,6 +745,9 @@
       #sector-treemap-detail .original-index-popup-label { margin-bottom:5px; color:var(--dim); font-size:12px; }
       #sector-treemap-detail .original-index-popup-definition { margin:0 0 16px; padding:12px; border:1px solid var(--line); background:var(--panel); color:var(--fg); font-size:16px; line-height:1.75; }
       #sector-treemap-detail .original-index-popup-stats { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+      #sector-treemap-detail .original-index-popup-member-open { display:block; width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+      #sector-treemap-detail .original-index-popup-member-open b { text-decoration:underline dotted; text-underline-offset:3px; }
+      #sector-treemap-detail .original-index-popup-member-open:hover b,#sector-treemap-detail .original-index-popup-member-open:focus-visible b { color:var(--fg); }
       #sector-treemap-detail .original-index-popup-method { padding:10px 12px; border-top:1px solid var(--line); color:var(--dim); line-height:1.7; }
       #sector-treemap-detail .original-index-chart-wrap { margin:14px 0; padding:10px; border:1px solid var(--line); background:var(--panel); overflow:hidden; }
       #sector-treemap-detail .original-index-chart-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:6px; color:var(--fg); font-size:14px; font-weight:bold; }
