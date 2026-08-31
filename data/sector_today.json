@@ -12,7 +12,7 @@
   "unreadableCodes": [],
   "stale": 0,
   "staleCodes": [],
-  "marketCapAsOf": "2026-08-28",
+  "marketCapAsOf": "2026-08-27",
   "marketCapSourceCount": 492,
   "marketCapMatched": 492,
   "missingMarketCapCodes": [],
@@ -28,7 +28,7 @@
   "historyFile": "data/sector_history.csv",
   "originalLongHistoryFile": "data/original_index.csv",
   "originalHistoryFile": "data/original_index_history.json",
-  "generatedAt": "2026-08-30T19:23:52+09:00",
+  "generatedAt": "2026-08-31T13:17:20+09:00",
   "original": [
     {
       "id": 1,
@@ -43,6 +43,392 @@
         "中": 3,
         "小": 7
       },
+      "members": [
+        {
+          "code": "3003",
+          "name": "ヒューリック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3231",
+          "name": "野村不",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3289",
+          "name": "東急不",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5830",
+          "name": "いよぎん",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5831",
+          "name": "しずおか銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5832",
+          "name": "中国銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5838",
+          "name": "楽天銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5844",
+          "name": "京都銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7164",
+          "name": "全国保証",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7167",
+          "name": "めぶきF",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7180",
+          "name": "九州F",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7181",
+          "name": "かんぽ生命保",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7182",
+          "name": "ゆうちょ銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7186",
+          "name": "横浜銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7189",
+          "name": "西日本フF",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7337",
+          "name": "ひろぎん",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8253",
+          "name": "クレセゾン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8303",
+          "name": "SBI新生銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8304",
+          "name": "あおぞら銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8306",
+          "name": "三菱UFJ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8308",
+          "name": "りそな",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8309",
+          "name": "三井住友信",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8316",
+          "name": "三井住友",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8331",
+          "name": "千葉銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8334",
+          "name": "群馬銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8341",
+          "name": "七十七銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8354",
+          "name": "ふくおか銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8359",
+          "name": "八十二長野銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8377",
+          "name": "ほくほく",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8410",
+          "name": "セブン銀",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8411",
+          "name": "みずほ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8418",
+          "name": "山口F",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8424",
+          "name": "芙蓉総合リース",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8439",
+          "name": "東京センチュリ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8473",
+          "name": "SBI",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8570",
+          "name": "イオンF",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8572",
+          "name": "アコム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8591",
+          "name": "オリックス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8593",
+          "name": "三菱ＨＣキャピ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8595",
+          "name": "ジャフコ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8601",
+          "name": "大和証券",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8604",
+          "name": "野村証券",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8630",
+          "name": "SOMPO",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8697",
+          "name": "日本取引所",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8725",
+          "name": "MS&AD",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8729",
+          "name": "ソニーF",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8750",
+          "name": "第一生命",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8766",
+          "name": "東京海上",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8795",
+          "name": "T&D",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8801",
+          "name": "三井不",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8802",
+          "name": "菱地所",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8804",
+          "name": "東建物",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8830",
+          "name": "住友不",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9984",
+          "name": "ソフバンクG",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4666",
+          "name": "パーク24",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9301",
+          "name": "三菱倉庫",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9302",
+          "name": "三井倉庫",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2768",
+          "name": "双日",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8001",
+          "name": "伊藤忠",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8002",
+          "name": "丸紅",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8015",
+          "name": "豊田通商",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8031",
+          "name": "三井物",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8053",
+          "name": "住友商",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8058",
+          "name": "三菱商",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 64,
       "marketCapTrillion": 313.1834,
       "avgMarketCapTrillion": 4.8935
@@ -60,6 +446,320 @@
         "中": 28,
         "小": 18
       },
+      "members": [
+        {
+          "code": "1414",
+          "name": "ショーボンド",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1893",
+          "name": "五洋建設",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5631",
+          "name": "日製鋼",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7011",
+          "name": "三菱重",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7012",
+          "name": "川重",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7013",
+          "name": "IHI",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1417",
+          "name": "ミライトワン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1719",
+          "name": "安藤ハザマ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1721",
+          "name": "コムシス",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1801",
+          "name": "大成建",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1802",
+          "name": "大林組",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1803",
+          "name": "清水建",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1808",
+          "name": "長谷工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1812",
+          "name": "鹿島",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1820",
+          "name": "西松建設",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1860",
+          "name": "戸田建設",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1942",
+          "name": "関電工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1944",
+          "name": "きんでん",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1951",
+          "name": "エクシオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1959",
+          "name": "クラフティア",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1969",
+          "name": "高砂熱学工業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2327",
+          "name": "日鉄ソリュ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2413",
+          "name": "エムスリー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3626",
+          "name": "TIS",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4307",
+          "name": "野村総研",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4684",
+          "name": "オービック",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4704",
+          "name": "トレンド",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4768",
+          "name": "大塚商会",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5076",
+          "name": "インフロニア",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6701",
+          "name": "NEC",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6702",
+          "name": "富士通",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8056",
+          "name": "BIPROGY",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8060",
+          "name": "キヤノンMJ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9759",
+          "name": "NSD",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1963",
+          "name": "日揮",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "3697",
+          "name": "SHIFT",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "3923",
+          "name": "ラクス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "3994",
+          "name": "マネーフォ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4544",
+          "name": "HUグループ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4716",
+          "name": "オラクル",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4733",
+          "name": "オービックビジネス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6532",
+          "name": "ベイカレン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9501",
+          "name": "東電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9502",
+          "name": "中部電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9503",
+          "name": "関西電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9504",
+          "name": "中国電力",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9505",
+          "name": "北陸電力",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9506",
+          "name": "東北電力",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9507",
+          "name": "四国電力",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9508",
+          "name": "九州電力",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9509",
+          "name": "北海道電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9513",
+          "name": "Jpower",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 52,
       "marketCapTrillion": 74.5329,
       "avgMarketCapTrillion": 1.4333
@@ -77,6 +777,254 @@
         "中": 23,
         "小": 11
       },
+      "members": [
+        {
+          "code": "2127",
+          "name": "日本M&A",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2181",
+          "name": "パーソル",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4194",
+          "name": "ビジョナル",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4732",
+          "name": "USS",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6098",
+          "name": "リクルート",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6532",
+          "name": "ベイカレン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9744",
+          "name": "メイテック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2768",
+          "name": "双日",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2784",
+          "name": "アルフレッサ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3038",
+          "name": "神戸物産",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3064",
+          "name": "モノタロ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3107",
+          "name": "ダイワボウ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3132",
+          "name": "マクニカ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3769",
+          "name": "GMOPG",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4385",
+          "name": "メルカリ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7459",
+          "name": "メディパル",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7476",
+          "name": "アズワン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8001",
+          "name": "伊藤忠",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8002",
+          "name": "丸紅",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8012",
+          "name": "長瀬産業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8015",
+          "name": "豊田通商",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8020",
+          "name": "兼松",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8031",
+          "name": "三井物",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8053",
+          "name": "住友商",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8058",
+          "name": "三菱商",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8129",
+          "name": "東邦",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8876",
+          "name": "リログループ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9435",
+          "name": "光通信",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9934",
+          "name": "因幡電機",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9987",
+          "name": "スズケン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1878",
+          "name": "大東建託",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4665",
+          "name": "ダスキン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8697",
+          "name": "日本取引所",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9064",
+          "name": "ヤマト",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9065",
+          "name": "山九",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9069",
+          "name": "センコー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9072",
+          "name": "ニッコン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9076",
+          "name": "セイノー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9143",
+          "name": "SG佐川",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9147",
+          "name": "日通",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9364",
+          "name": "上組",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 41,
       "marketCapTrillion": 118.4824,
       "avgMarketCapTrillion": 2.8898
@@ -94,6 +1042,326 @@
         "中": 4,
         "小": 11
       },
+      "members": [
+        {
+          "code": "2331",
+          "name": "ALSOK綜合警備",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8174",
+          "name": "日本瓦斯",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9001",
+          "name": "東武",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9003",
+          "name": "相鉄",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9005",
+          "name": "東急",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9006",
+          "name": "京浜急行電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9007",
+          "name": "小田急",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9008",
+          "name": "京王",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9009",
+          "name": "京成",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9020",
+          "name": "JR東日本",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9021",
+          "name": "JR西日本",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9022",
+          "name": "JR東海",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9023",
+          "name": "東京地下鉄",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9024",
+          "name": "西武",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9031",
+          "name": "西日本鉄道",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9041",
+          "name": "近鉄グループ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9042",
+          "name": "阪急阪神",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9044",
+          "name": "南海電鉄",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9045",
+          "name": "京阪",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9048",
+          "name": "名古屋鉄道",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9142",
+          "name": "JR九州",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9432",
+          "name": "NTT",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9433",
+          "name": "KDDI",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9434",
+          "name": "SBI",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9501",
+          "name": "東電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9502",
+          "name": "中部電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9503",
+          "name": "関西電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9504",
+          "name": "中国電力",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9505",
+          "name": "北陸電力",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9506",
+          "name": "東北電力",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9507",
+          "name": "四国電力",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9508",
+          "name": "九州電力",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9509",
+          "name": "北海道電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9513",
+          "name": "Jpower",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9531",
+          "name": "東ガス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9532",
+          "name": "大ガス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9533",
+          "name": "東邦ガス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9735",
+          "name": "セコム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3774",
+          "name": "IIJ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6544",
+          "name": "Jエレベーター",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8088",
+          "name": "岩谷産業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9449",
+          "name": "GMO",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6178",
+          "name": "日本郵政",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9064",
+          "name": "ヤマト",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9065",
+          "name": "山九",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9069",
+          "name": "センコー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9072",
+          "name": "ニッコン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9076",
+          "name": "セイノー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9143",
+          "name": "SG佐川",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9147",
+          "name": "日通",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9201",
+          "name": "JAL",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9202",
+          "name": "ANA",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9364",
+          "name": "上組",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 53,
       "marketCapTrillion": 89.4517,
       "avgMarketCapTrillion": 1.6878
@@ -111,6 +1379,392 @@
         "中": 15,
         "小": 3
       },
+      "members": [
+        {
+          "code": "1332",
+          "name": "ニッスイ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1333",
+          "name": "マルハニチロ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2002",
+          "name": "日清粉",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2201",
+          "name": "森永製菓",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2206",
+          "name": "江崎グリコ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2212",
+          "name": "山パン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2229",
+          "name": "カルビー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2264",
+          "name": "森永乳業",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2267",
+          "name": "ヤクルト",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2269",
+          "name": "明治",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2282",
+          "name": "日ハム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2501",
+          "name": "サッポロ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2502",
+          "name": "アサヒ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2503",
+          "name": "キリン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2531",
+          "name": "宝",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2579",
+          "name": "コカ・コーラ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2587",
+          "name": "サントリー食",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2593",
+          "name": "伊藤園",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2607",
+          "name": "不二製油",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2801",
+          "name": "キッコマン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2802",
+          "name": "味の素",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2809",
+          "name": "キユーピー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2810",
+          "name": "ハウス食品",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2811",
+          "name": "カゴメ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2871",
+          "name": "ニチレイ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2875",
+          "name": "東洋水産",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2897",
+          "name": "日清食品",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2914",
+          "name": "JT",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3088",
+          "name": "マツキヨココ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3197",
+          "name": "すかいらーく",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3349",
+          "name": "コスモス薬",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3391",
+          "name": "ツルハ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3397",
+          "name": "トリドール",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3549",
+          "name": "クスリアオキ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "417A",
+          "name": "ブルーゾーン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4452",
+          "name": "花王",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4912",
+          "name": "ライオン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4967",
+          "name": "小林製薬",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7532",
+          "name": "パン・パシ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7616",
+          "name": "コロワイド",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7649",
+          "name": "スギ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8113",
+          "name": "ユニチャーム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8227",
+          "name": "しまむら",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9627",
+          "name": "アイン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9861",
+          "name": "吉野家",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9989",
+          "name": "サンドラッグ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2222",
+          "name": "寿スピ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2670",
+          "name": "ABCマート",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3048",
+          "name": "ビックカメラ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3382",
+          "name": "7&i",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3563",
+          "name": "food＆life(スシロー)",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3591",
+          "name": "ワコール",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7453",
+          "name": "良品計画",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7550",
+          "name": "ゼンショー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7846",
+          "name": "パイロット",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7956",
+          "name": "ピジョン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7984",
+          "name": "コクヨ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8111",
+          "name": "ゴールドウイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8252",
+          "name": "丸井",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8267",
+          "name": "イオン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9983",
+          "name": "ファストリ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4911",
+          "name": "資生堂",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4922",
+          "name": "コーセー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4927",
+          "name": "ポーラオルビス",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 64,
       "marketCapTrillion": 94.5443,
       "avgMarketCapTrillion": 1.4773
@@ -128,6 +1782,230 @@
         "中": 19,
         "小": 5
       },
+      "members": [
+        {
+          "code": "1878",
+          "name": "大東建託",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1911",
+          "name": "住友林業",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1925",
+          "name": "ハウス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1928",
+          "name": "積ハウス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3288",
+          "name": "オープンハウス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3291",
+          "name": "飯田Ｇ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5332",
+          "name": "TOTO",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5938",
+          "name": "ＬＩＸＩＬ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5947",
+          "name": "リンナイ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6753",
+          "name": "シャープ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8282",
+          "name": "ケーズ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9831",
+          "name": "ヤマダ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9843",
+          "name": "ニトリ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3231",
+          "name": "野村不",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4902",
+          "name": "コニカミノ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5929",
+          "name": "三和",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6367",
+          "name": "ダイキン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6448",
+          "name": "ブラザー工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6724",
+          "name": "エプソン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6752",
+          "name": "パナソニック",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6952",
+          "name": "カシオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7164",
+          "name": "全国保証",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7201",
+          "name": "日産自",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7202",
+          "name": "いすゞ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7203",
+          "name": "トヨタ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7211",
+          "name": "三菱自",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7261",
+          "name": "マツダ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7267",
+          "name": "ホンダ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7269",
+          "name": "スズキ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7270",
+          "name": "スバル",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7751",
+          "name": "キヤノン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7752",
+          "name": "リコー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6758",
+          "name": "ソニー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7272",
+          "name": "ヤマハ発",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7309",
+          "name": "シマノ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7936",
+          "name": "アシックス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7951",
+          "name": "ヤマハ",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 37,
       "marketCapTrillion": 125.2672,
       "avgMarketCapTrillion": 3.3856
@@ -145,6 +2023,122 @@
         "中": 5,
         "小": 6
       },
+      "members": [
+        {
+          "code": "3086",
+          "name": "Jフロント",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3099",
+          "name": "三越伊勢丹",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4661",
+          "name": "OLCオリランド",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4911",
+          "name": "資生堂",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4922",
+          "name": "コーセー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4927",
+          "name": "ポーラオルビス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8233",
+          "name": "高島屋",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8242",
+          "name": "H2Oリテ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4680",
+          "name": "ラウンドワン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4681",
+          "name": "リゾートトラ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8111",
+          "name": "ゴールドウイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8136",
+          "name": "サンリオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9616",
+          "name": "共立メンテ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2222",
+          "name": "寿スピ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "3092",
+          "name": "ZOZO",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6758",
+          "name": "ソニー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7936",
+          "name": "アシックス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7951",
+          "name": "ヤマハ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "9706",
+          "name": "日本空港ビル",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 19,
       "marketCapTrillion": 42.064,
       "avgMarketCapTrillion": 2.2139
@@ -162,6 +2156,182 @@
         "中": 11,
         "小": 3
       },
+      "members": [
+        {
+          "code": "2432",
+          "name": "DeNA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2433",
+          "name": "博報堂DY",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3635",
+          "name": "コーエーテクモ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3659",
+          "name": "ネクソン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4324",
+          "name": "電通",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4676",
+          "name": "フジメディア",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4689",
+          "name": "LINEヤフー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4751",
+          "name": "サイバー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9401",
+          "name": "TBS",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9404",
+          "name": "日本テレビ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9468",
+          "name": "KADOKAWA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9602",
+          "name": "東宝",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9684",
+          "name": "スクエニ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9697",
+          "name": "カプコン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9766",
+          "name": "コナミ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2371",
+          "name": "カカクコム",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4680",
+          "name": "ラウンドワン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4755",
+          "name": "楽天",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6417",
+          "name": "SANKYO",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6460",
+          "name": "セガサミー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6758",
+          "name": "ソニー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7458",
+          "name": "第一興商",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7832",
+          "name": "バンナム",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7867",
+          "name": "タカラトミー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7974",
+          "name": "任天堂",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8136",
+          "name": "サンリオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3092",
+          "name": "ZOZO",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4385",
+          "name": "メルカリ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4661",
+          "name": "OLCオリランド",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 29,
       "marketCapTrillion": 69.1098,
       "avgMarketCapTrillion": 2.3831
@@ -179,6 +2349,1166 @@
         "中": 106,
         "小": 19
       },
+      "members": [
+        {
+          "code": "285A",
+          "name": "キオクシア",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3105",
+          "name": "日清紡",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3107",
+          "name": "ダイワボウ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3132",
+          "name": "マクニカ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3360",
+          "name": "シップヘルス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3436",
+          "name": "SUMCO",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4004",
+          "name": "レゾナック昭電工",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4062",
+          "name": "イビデン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4063",
+          "name": "信越化",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4186",
+          "name": "東京応化",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4543",
+          "name": "テルモ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4626",
+          "name": "太陽",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4980",
+          "name": "デクセリアルズ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5016",
+          "name": "ＪＸ金属",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5333",
+          "name": "ガイシ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5334",
+          "name": "日本特殊陶業",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5344",
+          "name": "MARUWA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6134",
+          "name": "FUJI富士機械",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6146",
+          "name": "ディスコ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6268",
+          "name": "ナブテスコ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6273",
+          "name": "SMC",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6323",
+          "name": "ローツェ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6361",
+          "name": "荏原",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6368",
+          "name": "オルガノ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6370",
+          "name": "栗田工業",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6479",
+          "name": "ミネベア",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6506",
+          "name": "安川電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6525",
+          "name": "KOKUSAI電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6526",
+          "name": "ソシオネク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6592",
+          "name": "マブチモーター",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6645",
+          "name": "オムロン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6707",
+          "name": "サンケン電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6723",
+          "name": "ルネサス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6728",
+          "name": "アルバック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6754",
+          "name": "アンリツ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6758",
+          "name": "ソニー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6762",
+          "name": "TDK",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6770",
+          "name": "アルプス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6806",
+          "name": "ヒロセ電機",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6841",
+          "name": "横河電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6845",
+          "name": "アズビル",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6849",
+          "name": "日本光電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6856",
+          "name": "堀場製",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6857",
+          "name": "アドテスト",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6861",
+          "name": "キーエンス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6869",
+          "name": "シスメックス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6920",
+          "name": "レーザーテク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6925",
+          "name": "ウシオ電機",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6951",
+          "name": "日本電子",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6954",
+          "name": "ファナック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6963",
+          "name": "ローム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6965",
+          "name": "浜松ホト",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6971",
+          "name": "京セラ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6976",
+          "name": "太陽誘電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6981",
+          "name": "村田製",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6988",
+          "name": "日東電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7701",
+          "name": "島津製作",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7729",
+          "name": "東京精密",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7731",
+          "name": "ニコン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7733",
+          "name": "オリンパス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7735",
+          "name": "スクリン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7741",
+          "name": "HOYA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7747",
+          "name": "朝日インテク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7911",
+          "name": "凸版",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7912",
+          "name": "大日印",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8035",
+          "name": "東エレク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8060",
+          "name": "キヤノンMJ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8086",
+          "name": "ニプロ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1963",
+          "name": "日揮",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3401",
+          "name": "帝人",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3402",
+          "name": "東レ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3405",
+          "name": "クラレ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3407",
+          "name": "旭化成",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3697",
+          "name": "SHIFT",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3861",
+          "name": "王子紙",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3923",
+          "name": "ラクス",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3941",
+          "name": "レンゴー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3994",
+          "name": "マネーフォ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4005",
+          "name": "住友化",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4021",
+          "name": "日産化",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4042",
+          "name": "東ソー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4043",
+          "name": "トクヤマ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4045",
+          "name": "東亞合成",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4061",
+          "name": "デンカ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4091",
+          "name": "日本酸素",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4114",
+          "name": "日本触媒",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4118",
+          "name": "カネカ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4151",
+          "name": "協和キリン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4182",
+          "name": "菱ガス化",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4183",
+          "name": "三井化学",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4188",
+          "name": "三菱ケミ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4202",
+          "name": "ダイセル",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4203",
+          "name": "住友ベーク",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4204",
+          "name": "積水化学",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4205",
+          "name": "日本ゼオン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4206",
+          "name": "アイカ工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4208",
+          "name": "宇部興産",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4272",
+          "name": "日本化薬",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4401",
+          "name": "ADEKA",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4403",
+          "name": "日油",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4502",
+          "name": "武田",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4503",
+          "name": "アステラ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4506",
+          "name": "住友ファ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4507",
+          "name": "塩野義",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4516",
+          "name": "日本新薬",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4519",
+          "name": "中外薬",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4523",
+          "name": "エーザイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4527",
+          "name": "ロート",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4528",
+          "name": "小野薬品",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4536",
+          "name": "参天製薬",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4540",
+          "name": "ツムラ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4568",
+          "name": "第一三共",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4578",
+          "name": "大塚",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4587",
+          "name": "ペプチド",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4612",
+          "name": "日本ペ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4613",
+          "name": "関西ペ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4631",
+          "name": "DIC大日本インキ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4704",
+          "name": "トレンド",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4733",
+          "name": "オービックビジネス",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4887",
+          "name": "サワイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4901",
+          "name": "富士フイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4902",
+          "name": "コニカミノ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5201",
+          "name": "旭硝子",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5214",
+          "name": "日電硝",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5301",
+          "name": "東海カーボ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5393",
+          "name": "ニチアス",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5401",
+          "name": "日本製鉄",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5406",
+          "name": "神戸鋼",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5411",
+          "name": "JFE",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5444",
+          "name": "大和工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5463",
+          "name": "丸一鋼管",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5471",
+          "name": "大同特鋼",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5631",
+          "name": "日製鋼",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5706",
+          "name": "三井金属",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5711",
+          "name": "三菱マ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5713",
+          "name": "住友鉱",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5714",
+          "name": "DOWA",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5901",
+          "name": "東洋製罐",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6005",
+          "name": "三浦工業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6113",
+          "name": "アマダ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6136",
+          "name": "OSG",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6141",
+          "name": "DMG森精機",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6269",
+          "name": "三井海洋開発",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6301",
+          "name": "コマツ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6302",
+          "name": "住友重",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6305",
+          "name": "日立建機",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6326",
+          "name": "クボタ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6367",
+          "name": "ダイキン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6383",
+          "name": "ダイフク",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6436",
+          "name": "アマノ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6448",
+          "name": "ブラザー工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6457",
+          "name": "グローリー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6465",
+          "name": "ホシザキ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6471",
+          "name": "日精工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6472",
+          "name": "NTN",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6473",
+          "name": "Jテクト",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6481",
+          "name": "THK",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6501",
+          "name": "日立",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6503",
+          "name": "三菱電",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6504",
+          "name": "富士電機",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6586",
+          "name": "マキタ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6674",
+          "name": "GSユアサ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6724",
+          "name": "エプソン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6752",
+          "name": "パナソニック",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6753",
+          "name": "シャープ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6952",
+          "name": "カシオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7003",
+          "name": "三井E&S",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7011",
+          "name": "三菱重",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7012",
+          "name": "川重",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7013",
+          "name": "IHI",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7751",
+          "name": "キヤノン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7752",
+          "name": "リコー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8012",
+          "name": "長瀬産業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9962",
+          "name": "ミスミ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3116",
+          "name": "トヨタ紡",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5101",
+          "name": "浜ゴム",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5105",
+          "name": "TOYO東洋タイヤ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5108",
+          "name": "ブリヂス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5110",
+          "name": "住友ゴ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5232",
+          "name": "住友大阪セメ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5233",
+          "name": "太平洋セメ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5801",
+          "name": "古河電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5802",
+          "name": "住友電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5803",
+          "name": "フジクラ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5991",
+          "name": "ニッパツ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6902",
+          "name": "デンソー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6923",
+          "name": "スタンレー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7240",
+          "name": "ＮＯＫ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7259",
+          "name": "アイシン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7276",
+          "name": "小糸製",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7282",
+          "name": "豊田合成",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7313",
+          "name": "TSテック",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7476",
+          "name": "アズワン",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 193,
       "marketCapTrillion": 489.6083,
       "avgMarketCapTrillion": 2.5368
@@ -196,6 +3526,1442 @@
         "中": 94,
         "小": 35
       },
+      "members": [
+        {
+          "code": "1605",
+          "name": "INPEX",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2768",
+          "name": "双日",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "285A",
+          "name": "キオクシア",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "2914",
+          "name": "JT",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3116",
+          "name": "トヨタ紡",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "3436",
+          "name": "SUMCO",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4062",
+          "name": "イビデン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4063",
+          "name": "信越化",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4091",
+          "name": "日本酸素",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4186",
+          "name": "東京応化",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4519",
+          "name": "中外薬",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4543",
+          "name": "テルモ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4568",
+          "name": "第一三共",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4626",
+          "name": "太陽",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4704",
+          "name": "トレンド",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "4980",
+          "name": "デクセリアルズ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5016",
+          "name": "ＪＸ金属",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5101",
+          "name": "浜ゴム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5105",
+          "name": "TOYO東洋タイヤ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5108",
+          "name": "ブリヂス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5110",
+          "name": "住友ゴ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5201",
+          "name": "旭硝子",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5214",
+          "name": "日電硝",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5333",
+          "name": "ガイシ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5334",
+          "name": "日本特殊陶業",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5344",
+          "name": "MARUWA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5711",
+          "name": "三菱マ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5713",
+          "name": "住友鉱",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5714",
+          "name": "DOWA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5801",
+          "name": "古河電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5802",
+          "name": "住友電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5803",
+          "name": "フジクラ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "5991",
+          "name": "ニッパツ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6113",
+          "name": "アマダ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6134",
+          "name": "FUJI富士機械",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6136",
+          "name": "OSG",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6141",
+          "name": "DMG森精機",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6146",
+          "name": "ディスコ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6269",
+          "name": "三井海洋開発",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6273",
+          "name": "SMC",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6301",
+          "name": "コマツ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6305",
+          "name": "日立建機",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6323",
+          "name": "ローツェ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6367",
+          "name": "ダイキン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6471",
+          "name": "日精工",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6472",
+          "name": "NTN",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6473",
+          "name": "Jテクト",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6479",
+          "name": "ミネベア",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6481",
+          "name": "THK",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6506",
+          "name": "安川電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6525",
+          "name": "KOKUSAI電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6526",
+          "name": "ソシオネク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6586",
+          "name": "マキタ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6592",
+          "name": "マブチモーター",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6645",
+          "name": "オムロン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6707",
+          "name": "サンケン電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6723",
+          "name": "ルネサス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6728",
+          "name": "アルバック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6758",
+          "name": "ソニー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6762",
+          "name": "TDK",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6770",
+          "name": "アルプス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6806",
+          "name": "ヒロセ電機",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6857",
+          "name": "アドテスト",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6861",
+          "name": "キーエンス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6902",
+          "name": "デンソー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6920",
+          "name": "レーザーテク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6923",
+          "name": "スタンレー",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6951",
+          "name": "日本電子",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6954",
+          "name": "ファナック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6963",
+          "name": "ローム",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6965",
+          "name": "浜松ホト",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6971",
+          "name": "京セラ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6976",
+          "name": "太陽誘電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6981",
+          "name": "村田製",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "6988",
+          "name": "日東電",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7003",
+          "name": "三井E&S",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7201",
+          "name": "日産自",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7202",
+          "name": "いすゞ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7203",
+          "name": "トヨタ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7211",
+          "name": "三菱自",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7240",
+          "name": "ＮＯＫ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7259",
+          "name": "アイシン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7261",
+          "name": "マツダ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7267",
+          "name": "ホンダ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7269",
+          "name": "スズキ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7270",
+          "name": "スバル",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7272",
+          "name": "ヤマハ発",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7276",
+          "name": "小糸製",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7282",
+          "name": "豊田合成",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7309",
+          "name": "シマノ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7313",
+          "name": "TSテック",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7729",
+          "name": "東京精密",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7733",
+          "name": "オリンパス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7735",
+          "name": "スクリン",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7741",
+          "name": "HOYA",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7747",
+          "name": "朝日インテク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7936",
+          "name": "アシックス",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7951",
+          "name": "ヤマハ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "7988",
+          "name": "ニフコ",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8001",
+          "name": "伊藤忠",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8002",
+          "name": "丸紅",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8015",
+          "name": "豊田通商",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8031",
+          "name": "三井物",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8035",
+          "name": "東エレク",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8053",
+          "name": "住友商",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "8058",
+          "name": "三菱商",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9101",
+          "name": "郵船",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9104",
+          "name": "商船三井",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9107",
+          "name": "川崎汽",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "9984",
+          "name": "ソフバンクG",
+          "strength": "大",
+          "weight": 1.0
+        },
+        {
+          "code": "1963",
+          "name": "日揮",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "2432",
+          "name": "DeNA",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3105",
+          "name": "日清紡",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3107",
+          "name": "ダイワボウ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3132",
+          "name": "マクニカ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3401",
+          "name": "帝人",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3402",
+          "name": "東レ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3405",
+          "name": "クラレ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3407",
+          "name": "旭化成",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3635",
+          "name": "コーエーテクモ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "3659",
+          "name": "ネクソン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4004",
+          "name": "レゾナック昭電工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4005",
+          "name": "住友化",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4021",
+          "name": "日産化",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4042",
+          "name": "東ソー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4043",
+          "name": "トクヤマ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4045",
+          "name": "東亞合成",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4061",
+          "name": "デンカ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4114",
+          "name": "日本触媒",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4118",
+          "name": "カネカ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4182",
+          "name": "菱ガス化",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4183",
+          "name": "三井化学",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4188",
+          "name": "三菱ケミ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4202",
+          "name": "ダイセル",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4203",
+          "name": "住友ベーク",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4204",
+          "name": "積水化学",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4205",
+          "name": "日本ゼオン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4208",
+          "name": "宇部興産",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4272",
+          "name": "日本化薬",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4401",
+          "name": "ADEKA",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4403",
+          "name": "日油",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4502",
+          "name": "武田",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4503",
+          "name": "アステラ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4523",
+          "name": "エーザイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4578",
+          "name": "大塚",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4587",
+          "name": "ペプチド",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4612",
+          "name": "日本ペ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4613",
+          "name": "関西ペ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4631",
+          "name": "DIC大日本インキ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4901",
+          "name": "富士フイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "4902",
+          "name": "コニカミノ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5301",
+          "name": "東海カーボ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5401",
+          "name": "日本製鉄",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5406",
+          "name": "神戸鋼",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5411",
+          "name": "JFE",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5444",
+          "name": "大和工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5463",
+          "name": "丸一鋼管",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5471",
+          "name": "大同特鋼",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5631",
+          "name": "日製鋼",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "5706",
+          "name": "三井金属",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6268",
+          "name": "ナブテスコ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6302",
+          "name": "住友重",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6326",
+          "name": "クボタ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6361",
+          "name": "荏原",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6368",
+          "name": "オルガノ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6370",
+          "name": "栗田工業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6383",
+          "name": "ダイフク",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6448",
+          "name": "ブラザー工",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6501",
+          "name": "日立",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6503",
+          "name": "三菱電",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6504",
+          "name": "富士電機",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6632",
+          "name": "JVCケンウッド",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6674",
+          "name": "GSユアサ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6724",
+          "name": "エプソン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6752",
+          "name": "パナソニック",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6754",
+          "name": "アンリツ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6841",
+          "name": "横河電",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6845",
+          "name": "アズビル",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6856",
+          "name": "堀場製",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6925",
+          "name": "ウシオ電機",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "6952",
+          "name": "カシオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7011",
+          "name": "三菱重",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7012",
+          "name": "川重",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7013",
+          "name": "IHI",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7701",
+          "name": "島津製作",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7731",
+          "name": "ニコン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7751",
+          "name": "キヤノン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7752",
+          "name": "リコー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7832",
+          "name": "バンナム",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7867",
+          "name": "タカラトミー",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7956",
+          "name": "ピジョン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "7974",
+          "name": "任天堂",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8012",
+          "name": "長瀬産業",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8020",
+          "name": "兼松",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8111",
+          "name": "ゴールドウイ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8113",
+          "name": "ユニチャーム",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "8136",
+          "name": "サンリオ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9468",
+          "name": "KADOKAWA",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9602",
+          "name": "東宝",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9684",
+          "name": "スクエニ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9697",
+          "name": "カプコン",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9766",
+          "name": "コナミ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9962",
+          "name": "ミスミ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "9983",
+          "name": "ファストリ",
+          "strength": "中",
+          "weight": 0.7
+        },
+        {
+          "code": "1911",
+          "name": "住友林業",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "2267",
+          "name": "ヤクルト",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "2413",
+          "name": "エムスリー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "2587",
+          "name": "サントリー食",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "2607",
+          "name": "不二製油",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "3563",
+          "name": "food＆life(スシロー)",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4151",
+          "name": "協和キリン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4324",
+          "name": "電通",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4506",
+          "name": "住友ファ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4507",
+          "name": "塩野義",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4516",
+          "name": "日本新薬",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4528",
+          "name": "小野薬品",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "4680",
+          "name": "ラウンドワン",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5019",
+          "name": "出光興産",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5020",
+          "name": "ENEOS",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5021",
+          "name": "コスモ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "5929",
+          "name": "三和",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6005",
+          "name": "三浦工業",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6460",
+          "name": "セガサミー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6465",
+          "name": "ホシザキ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6753",
+          "name": "シャープ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6849",
+          "name": "日本光電",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "6869",
+          "name": "シスメックス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7453",
+          "name": "良品計画",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7550",
+          "name": "ゼンショー",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7911",
+          "name": "凸版",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "7912",
+          "name": "大日印",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8086",
+          "name": "ニプロ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8306",
+          "name": "三菱UFJ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8316",
+          "name": "三井住友",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8411",
+          "name": "みずほ",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8591",
+          "name": "オリックス",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8601",
+          "name": "大和証券",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8604",
+          "name": "野村証券",
+          "strength": "小",
+          "weight": 0.5
+        },
+        {
+          "code": "8766",
+          "name": "東京海上",
+          "strength": "小",
+          "weight": 0.5
+        }
+      ],
       "marketCapCount": 239,
       "marketCapTrillion": 857.9561,
       "avgMarketCapTrillion": 3.5898
@@ -1078,8 +5844,5 @@
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     }
-  ],
-  "marketCapMethod": "NP/EPS × latest close",
-  "marketCapDynamic": 492,
-  "marketCapFallback": 0
+  ]
 }
