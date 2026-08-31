@@ -114,6 +114,7 @@
     border: 1px solid var(--line); font: inherit;
     padding: 4px 12px; cursor: pointer;
   }
+  .bar button[aria-pressed="true"] { background: var(--sel-bg); color: var(--sel-fg); }
   .bar select { padding-right: 6px; }
   .bar .spacer { flex: 1; }
   .bar .note { padding: 4px 6px; color: var(--dim); }
@@ -280,11 +281,23 @@
   .canvas .vline, .canvas .hline { stroke: var(--dim); stroke-width: .5; }
   .canvas .lab { fill: var(--fg); font-size: 14px; font-weight: bold; }
   .canvas .plot { fill: none; stroke-width: 1.2; }
+  .canvas.dynamic-active svg { cursor: grab; user-select: none; touch-action: none; }
+  .canvas.dynamic-active.is-dragging svg { cursor: grabbing; }
+  .chart-range {
+    display: grid; grid-template-columns: auto minmax(100px, 1fr) auto auto;
+    align-items: center; gap: 8px; flex: none;
+    padding: 6px 10px; border-top: 1px solid var(--line); background: var(--panel);
+  }
+  .chart-range input[type="range"] { width: 100%; accent-color: var(--fg2); cursor: ew-resize; }
+  .chart-range output { min-width: 190px; text-align: right; color: var(--fg); }
+  .chart-range .range-side { color: var(--dim); }
 
   @media (max-width: 640px) {
     .chart-pages { padding: 6px; gap: 7px; }
     .chart-page button, .chart-page-add { padding-top: 7px; padding-bottom: 7px; }
     .chart-page .chart-page-name { max-width: 140px; }
+    .chart-range { grid-template-columns: auto minmax(80px, 1fr) auto; }
+    .chart-range output { grid-column: 1 / -1; min-width: 0; text-align: center; }
   }
 
   /* ---- テクニカル画面 ---- */
@@ -715,6 +728,7 @@
     <button id="cback" title="タイトルへ戻る">戻る</button>
     <button id="ctype" title="押すと相対と絶対が入れ替わる">相対</button>
     <select id="cyear" title="表示する年"></select>
+    <button id="cdynamic" type="button" aria-pressed="false" title="表示期間をスライダー・ホイール・ドラッグで変更する">Dynamic</button>
     <button id="ctheme" title="押すたびに配色が変わる">Color</button>
     <button id="cjoin" title="押すと休みの日をまたいで線をつなぐ">線補完なし</button>
     <div class="spacer"></div>
@@ -723,6 +737,12 @@
   <div class="chart-pages" id="cpagebar" aria-label="チャートページ"></div>
   <div class="picks" id="cpicks"></div>
   <div class="canvas" id="ccanvas"></div>
+  <div class="chart-range hidden" id="crange">
+    <span class="range-side">広い</span>
+    <input id="crange-input" type="range" min="0" max="0" value="0" step="1" aria-label="表示期間。右で狭く、左で広くする">
+    <span class="range-side">狭い</span>
+    <output id="crange-dates"></output>
+  </div>
 </section>
 
 <!-- ===================== テクニカル画面 ===================== -->
@@ -925,6 +945,7 @@ function loadSettings() {
       chartType: s.chartType === "abs" ? "abs" : "rel",
       chartYear: s.chartYear || 2026,
       chartJoin: s.chartJoin === true,
+      chartDynamic: s.chartDynamic === true,
       chartPages,
       chartPageId,
       chartColumns: activeChartPage.columns,
@@ -956,6 +977,7 @@ function loadSettings() {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
       ma: { 20: false, 80: false, 200: false },
       chartType: "rel", chartYear: 2026, chartJoin: false,
+      chartDynamic: false,
       chartPages, chartPageId: chartPages[0].id, chartColumns: chartPages[0].columns,
       chartZoom: 1,
       corrColumns: DEFAULT_COLUMNS.slice(), corrPeriod: 20,
@@ -1978,7 +2000,16 @@ const picksEl = document.getElementById("cpicks");
 const chartPageBarEl = document.getElementById("cpagebar");
 const ctypeEl = document.getElementById("ctype");
 const cyearEl = document.getElementById("cyear");
+const cdynamicEl = document.getElementById("cdynamic");
+const chartRangeEl = document.getElementById("crange");
+const chartRangeInputEl = document.getElementById("crange-input");
+const chartRangeDatesEl = document.getElementById("crange-dates");
 const cstatusEl = document.getElementById("cstatus");
+const MIN_DYNAMIC_DAYS = 10;
+
+let chartRenderData = null;
+let chartWindow = { key: "", start: 0, length: 0 };
+let chartRangeDrag = null;
 
 /* 相対チャートの色。地の明るさで2組を使い分ける。
    同じ順で同じ系統の色にしてあるので、配色を変えても銘柄の色味は変わらない */
@@ -2209,6 +2240,12 @@ ctypeEl.addEventListener("click", () => {
   saveSettings();
   drawCharts();
 });
+cdynamicEl.addEventListener("click", () => {
+  settings.chartDynamic = !settings.chartDynamic;
+  saveSettings();
+  if (chartRenderData) renderChartWindow();
+  else drawCharts();
+});
 document.getElementById("cjoin").addEventListener("click", () => {
   settings.chartJoin = !settings.chartJoin;
   saveSettings();
@@ -2219,6 +2256,96 @@ cyearEl.addEventListener("change", () => {
   saveSettings();
   drawCharts();
 });
+
+function chartWindowKey() {
+  return `${settings.chartYear}|${settings.chartPageId}|${settings.chartColumns.join("\u001f")}`;
+}
+
+function clampChartWindow(total, start, length) {
+  const min = Math.min(MIN_DYNAMIC_DAYS, total);
+  const nextLength = Math.max(min, Math.min(total, Math.round(length || total)));
+  const nextStart = Math.max(0, Math.min(total - nextLength, Math.round(start || 0)));
+  return { start: nextStart, length: nextLength };
+}
+
+function ensureChartWindow(total) {
+  const key = chartWindowKey();
+  if (chartWindow.key !== key || !chartWindow.length) {
+    chartWindow = { key, start: 0, length: total };
+  } else {
+    chartWindow = { key, ...clampChartWindow(total, chartWindow.start, chartWindow.length) };
+  }
+  return chartWindow;
+}
+
+function setChartWindow(start, length) {
+  if (!chartRenderData || !chartRenderData.days.length) return;
+  const next = clampChartWindow(chartRenderData.days.length, start, length);
+  chartWindow = { key: chartWindowKey(), ...next };
+  renderChartWindow();
+}
+
+function updateChartRange(days) {
+  const total = chartRenderData ? chartRenderData.days.length : 0;
+  const min = Math.min(MIN_DYNAMIC_DAYS, total);
+  chartRangeInputEl.max = String(Math.max(0, total - min));
+  chartRangeInputEl.value = String(Math.max(0, total - chartWindow.length));
+  chartRangeInputEl.disabled = total <= min;
+  chartRangeDatesEl.textContent = days.length ? `${days[0]} 〜 ${days[days.length - 1]}　${days.length}日` : "";
+}
+
+chartRangeInputEl.addEventListener("input", () => {
+  if (!chartRenderData) return;
+  const total = chartRenderData.days.length;
+  const length = total - Number(chartRangeInputEl.value);
+  const end = chartWindow.start + chartWindow.length;
+  setChartWindow(end - length, length);
+});
+
+canvasEl.addEventListener("wheel", (event) => {
+  if (!settings.chartDynamic || !chartRenderData || !chartRenderData.days.length) return;
+  event.preventDefault();
+  const total = chartRenderData.days.length;
+  const min = Math.min(MIN_DYNAMIC_DAYS, total);
+  const oldLength = chartWindow.length;
+  const factor = event.deltaY < 0 ? 0.82 : 1.22;
+  const nextLength = Math.max(min, Math.min(total, Math.round(oldLength * factor)));
+  if (nextLength === oldLength) return;
+  const rect = canvasEl.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width)));
+  const anchor = chartWindow.start + ratio * Math.max(0, oldLength - 1);
+  setChartWindow(anchor - ratio * Math.max(0, nextLength - 1), nextLength);
+}, { passive: false });
+
+canvasEl.addEventListener("pointerdown", (event) => {
+  if (!settings.chartDynamic || event.button !== 0 || !event.target.closest(".one-chart svg")) return;
+  const svg = event.target.closest("svg");
+  chartRangeDrag = {
+    id: event.pointerId,
+    x: event.clientX,
+    start: chartWindow.start,
+    width: Math.max(1, svg.getBoundingClientRect().width),
+  };
+  canvasEl.setPointerCapture(event.pointerId);
+  canvasEl.classList.add("is-dragging");
+  event.preventDefault();
+});
+
+canvasEl.addEventListener("pointermove", (event) => {
+  if (!chartRangeDrag || chartRangeDrag.id !== event.pointerId) return;
+  const shift = -((event.clientX - chartRangeDrag.x) / chartRangeDrag.width) * chartWindow.length;
+  const nextStart = Math.round(chartRangeDrag.start + shift);
+  if (nextStart !== chartWindow.start) setChartWindow(nextStart, chartWindow.length);
+});
+
+function finishChartRangeDrag(event) {
+  if (!chartRangeDrag || chartRangeDrag.id !== event.pointerId) return;
+  if (canvasEl.hasPointerCapture(event.pointerId)) canvasEl.releasePointerCapture(event.pointerId);
+  chartRangeDrag = null;
+  canvasEl.classList.remove("is-dragging");
+}
+canvasEl.addEventListener("pointerup", finishChartRangeDrag);
+canvasEl.addEventListener("pointercancel", finishChartRangeDrag);
 
 // 銘柄の選択欄を組み立てる
 function drawPicks(catalog) {
@@ -2294,8 +2421,11 @@ async function drawCharts() {
   const year = String(settings.chartYear);
   cyearEl.value = year;
   ctypeEl.textContent = settings.chartType === "rel" ? "相対" : "絶対";
+  cdynamicEl.setAttribute("aria-pressed", String(settings.chartDynamic));
   document.getElementById("cjoin").textContent =
     settings.chartJoin ? "線補完あり" : "線補完なし";
+  chartRangeEl.classList.toggle("hidden", !settings.chartDynamic);
+  canvasEl.classList.toggle("dynamic-active", settings.chartDynamic);
   canvasEl.innerHTML = '<div id="loading">読み込み中…</div>';
 
   const catalog = await buildCatalog(year);
@@ -2311,14 +2441,33 @@ async function drawCharts() {
   const days = [...dates].sort();
 
   if (!days.length) {
+    chartRenderData = null;
     canvasEl.innerHTML = '<div id="loading">この年のデータがない</div>';
+    chartRangeEl.classList.add("hidden");
     cstatusEl.textContent = "";
     return;
   }
 
+  chartRenderData = { days, series, catalog };
+  renderChartWindow();
+}
+
+function renderChartWindow() {
+  if (!chartRenderData || !chartRenderData.days.length) return;
+  const allDays = chartRenderData.days;
+  const view = ensureChartWindow(allDays.length);
+  const days = settings.chartDynamic
+    ? allDays.slice(view.start, view.start + view.length)
+    : allDays;
+
   canvasEl.innerHTML = "";
-  if (settings.chartType === "rel") drawRelative(days, series, catalog);
-  else drawAbsolute(days, series, catalog);
+  if (settings.chartType === "rel") drawRelative(days, chartRenderData.series, chartRenderData.catalog);
+  else drawAbsolute(days, chartRenderData.series, chartRenderData.catalog);
+
+  cdynamicEl.setAttribute("aria-pressed", String(settings.chartDynamic));
+  chartRangeEl.classList.toggle("hidden", !settings.chartDynamic);
+  canvasEl.classList.toggle("dynamic-active", settings.chartDynamic);
+  if (settings.chartDynamic) updateChartRange(days);
 
   cstatusEl.textContent =
     `${days[0]} 〜 ${days[days.length - 1]}　${days.length}日 × ${settings.chartColumns.length}銘柄`;
@@ -2474,7 +2623,8 @@ function drawRelative(days, series, catalog) {
 
   const box = document.createElement("div");
   box.className = "one-chart";
-  box.innerHTML = `<div class="cap">年初を100とした動き</div><svg width="${W}" height="${H}">${parts.join("")}</svg>`;
+  const cap = settings.chartDynamic ? "表示左端を100とした動き" : "年初を100とした動き";
+  box.innerHTML = `<div class="cap">${cap}</div><svg width="${W}" height="${H}">${parts.join("")}</svg>`;
   canvasEl.appendChild(box);
 }
 
