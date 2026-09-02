@@ -1,0 +1,526 @@
+Business
+Markets
+Tech
+Media
+Calculators
+Videos
+Watch
+Listen
+Subscribe
+Sign in
+
+Markets 
+
+DOW	53,061.95	0.56%	
+S&P 500	7,666.60	0.46%	
+NASDAQ	26,217.83	0.45%	
+
+Fear & Greed Index 
+
+33
+Fearis driving the US market
+
+Latest Market News 
+
+MapQuest is No. 1 on the App Store after refusing to change Lake Ontario’s name
+US 10-year yield touches highest level since 2023
+The war is raising the price of money. That’s a problem for the global economy
+Fear & Greed Index
+
+What emotion is driving the market now?
+Learn more about the index
+
+Overview
+Timeline
+33
+Previous close
+44
+1 week ago
+53
+1 month ago
+45
+1 year ago
+62
+Last updated Sep 2 at 7:24:29 PM ET
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Extreme Greed
+Extreme Fear
+
+0
+
+25
+
+50
+
+75
+
+100
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 7:24:29 PM EDT
+
+7 FEAR & GREED INDICATORS
+MARKET MOMENTUM
+FEAR
+S&P 500 and its 125-day moving average
+
+S&P 500
+
+125-day moving average
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+7,500.00
+
+7,000.00
+
+6,500.00
+
+6,000.00
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 4:42:34 PM EDT
+
+It’s useful to look at stock market levels compared to where they’ve been over the past few months. When the S&P 500 is above its moving or rolling average of the prior 125 trading days, that’s a sign of positive momentum. But if the index is below this average, it shows investors are getting skittish. The Fear & Greed Index uses slowing momentum as a signal for Fear and a growing momentum for Greed.
+
+STOCK PRICE STRENGTH
+EXTREME FEAR
+Net new 52-week highs and lows on the NYSE
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+6.00%
+
+4.00%
+
+2.00%
+
+0.00%
+
+-2.00%
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 7:24:29 PM EDT
+
+A few big stocks can skew returns for the market. It’s important to also know how many stocks are doing well versus those that are struggling. This shows the number of stocks on the NYSE at 52-week highs compared to those at 52-week lows. When there are many more highs than lows, that’s a bullish sign and signals Greed.
+
+STOCK PRICE BREADTH
+NEUTRAL
+McClellan Volume Summation Index
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Market breadth strong
+Market breadth weak
+
+1,400.00
+
+1,200.00
+
+1,000.00
+
+800.00
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 7:24:29 PM EDT
+
+The market is made up of thousands of stocks. And on any given day, investors are actively buying and selling them. This measure looks at the amount, or volume, of shares on the NYSE that are rising compared to the number of shares that are falling. A low (or even negative) number is a bearish sign. The Fear & Greed Index uses decreasing trading volume as a signal for Fear.
+
+PUT AND CALL OPTIONS
+NEUTRAL
+5-day average put/call ratio
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+1.00
+
+0.90
+
+0.80
+
+0.70
+
+0.60
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 4:23:13 PM EDT
+
+Options are contracts that give investors the right to buy or sell stocks, indexes or other financial securities at an agreed upon price and date. Puts are the option to sell while calls are the option to buy. When the ratio of puts to calls is rising, it is usually a sign investors are growing more nervous. A ratio above 1 is considered bearish. The Fear & Greed Index uses a bearish options ratio as a signal for Fear.
+
+MARKET VOLATILITY
+NEUTRAL
+VIX and its 50-day moving average
+
+VIX
+
+50-day moving average
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+30.00
+
+25.00
+
+20.00
+
+15.00
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 4:15:01 PM EDT
+
+The most well-known measure of market sentiment is the CBOE Volatility Index, or VIX. The VIX measures expected price fluctuations or volatility in the S&P 500 Index options over the next 30 days. The VIX often drops on days when the broader market rallies and soars when stocks plunge. But the key is to look at the VIX over time. It tends to be lower in bull markets and higher when the bears are in control. The Fear & Greed Index uses increasing market volatility as a signal for Fear.
+
+SAFE HAVEN DEMAND
+FEAR
+Difference in 20-day stock and bond returns
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Stocks outperforming Bonds
+Bonds outperforming Stocks
+
+10.00%
+
+5.00%
+
+0.00%
+
+-5.00%
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Last updated Sep 2 at 3:59:59 PM EDT
+
+Stocks are riskier than bonds. But the reward for investing in stocks over the long haul is greater. Still, bonds can outperform stocks over short periods. Safe Haven Demand shows the difference between Treasury bond and stock returns over the past 20 trading days. Bonds do better when investors are scared. The Fear & Greed Index uses increasing safe haven demand as a signal for Fear.
+
+JUNK BOND DEMAND
+EXTREME FEAR
+Yield spread: junk bonds vs. investment grade
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+1.50%
+
+1.40%
+
+1.30%
+
+1.20%
+
+Oct 2025
+
+Jan 2026
+
+Apr
+
+Jul
+
+Note: The frequent drops of the yield spread on the Junk Bond Demand chart usually appear on the ex-dividend date. The spread typically bounces back after the dividend is paid and normalizes over time.
+
+Last updated Sep 2 at 6:30:00 PM EDT
+
+Junk bonds carry a higher risk of default compared to other bonds. Bond yields – or the return you get on investing in a bond - dip when prices go up. If investors crave junk bonds, the yields drop. Likewise, yields rise when people are selling. So a smaller difference (or spread) between yields for junk bonds and safer government bonds is a sign investors are taking on more risk. A wider spread shows more caution. The Fear & Greed Index uses junk bond demand as a signal for Greed.
+
+FEAR & GREED INDEX FAQS
+
+What is the CNN Business Fear & Greed Index?
+
+The Fear & Greed Index is a way to gauge stock market movements and whether stocks are fairly priced. The theory is based on the logic that excessive fear tends to drive down share prices, and too much greed tends to have the opposite effect.
+
+How is Fear & Greed Calculated?
+
+The Fear & Greed Index is a compilation of seven different indicators that measure some aspect of stock market behavior. They are market momentum, stock price strength, stock price breadth, put and call options, junk bond demand, market volatility, and safe haven demand. The index tracks how much these individual indicators deviate from their averages compared to how much they normally diverge. The index gives each indicator equal weighting in calculating a score from 0 to 100, with 100 representing maximum greediness and 0 signaling maximum fear.
+
+How often is the Fear & Greed Index calculated?
+
+Every component and the Index are calculated as soon as new data becomes available.
+
+How to use Fear & Greed Index?
+
+The Fear & Greed Index is used to gauge the mood of the market. Many investors are emotional and reactionary, and fear and greed sentiment indicators can alert investors to their own emotions and biases that can influence their decisions. When combined with fundamentals and other analytical tools, the Index can be a helpful way to assess market sentiment.
+
+Return to Fear & Greed Index
+RELATED
+
+QUOTE LOOKUP
+
+LATEST FEAR & GREED
+Jeenah Moon/Reuters
+US 10-year yield touches highest level since 2023
+Yuki Iwamura/AP
+The war is raising the price of money. That’s a problem for the global economy
+Kevin Carter/Getty Images/File
+Locked in to a high mortgage rate? We want to hear your story
+Humberto Matheus/Sipa USA/AP
+Chevron pledges to double its Venezuelan oil production
+joecicak/iStockphoto/Getty Images
+Are you a recent high school graduate who found a job quickly?
+Gaby Oraa/Reuters
+Why Venezuela probably won’t solve America’s emergency oil problem
+Kevin Carter/Getty Images
+Global bonds sell off as Middle East conflict escalates, further stoking inflation fears
+The Good Brigade/Digital Vision/Getty Images
+AI’s not taking all the jobs. Just ask your local hobby shop, garage band and crafts store
+Allison Joyce/Bloomberg/Getty Images
+Consumers pulled back on spending in July in the face of continuing price pressures
+Marco Postigo Storel/CNN
+From living with nuns to sharing with seniors, here are the unconventional ways people are affording NYC
+US
+Crime & Justice
+Immigration
+Education
+Transportation
+Race & Identity
+World
+Africa
+Americas
+Asia
+Australia
+China
+Europe
+India
+Middle East
+United Kingdom
+Politics
+Elections 2026
+Trump
+Facts First
+CNN Polls
+Redistricting Tracker
+Epstein Files
+Business
+Tech
+Media
+Calculators
+Videos
+Markets
+Pre-markets
+After-Hours
+Fear & Greed
+Investing
+Health
+Life, But Better
+Fitness
+Food
+Sleep
+Mindfulness
+Relationships
+CNN Underscored
+Electronics
+Fashion
+Beauty
+Health & Fitness
+Home
+Reviews
+Deals
+Money
+Gifts
+Travel
+Outdoors
+Pets
+Entertainment
+Movies
+Television
+Celebrity
+Tech
+Innovate
+Style
+Arts
+Design
+Fashion
+Architecture
+Luxury
+Beauty
+Video
+Travel
+Destinations
+Food & Drink
+Stay
+News
+Videos
+Sports
+NFL
+NBA
+MLB
+WNBA
+Golf
+Soccer
+Tennis
+Motorsport
+College Sports
+Olympics
+Bleacher Report
+Science
+Space
+Life
+Unearthed
+Climate
+Solutions
+Weather
+Weather
+Video
+Climate
+Ukraine-Russia War
+Israel-Hamas War
+Watch
+Featured
+Shows & Films
+Network TV
+Clips
+CNN Headlines
+Shows A-Z
+CNN 10
+CNN TV Schedule
+Listen
+All There Is with Anderson Cooper
+Chasing Life with Dr. Sanjay Gupta
+The Assignment with Audie Cornish
+Terms of Service with Clare Duffy
+CNN 5 Things
+All CNN Podcasts
+Games
+Daily Crossword
+Jumble Crossword
+Photo Shuffle
+Sudoblock
+Sudoku
+5 Things Quiz
+Labor Day Sales
+About CNN
+Subscribe
+Photos
+Investigations
+CNN Profiles
+CNN Leadership
+CNN Newsletters
+Work for CNN
+Business
+Watch
+Listen
+Subscribe
+Sign in
+FOLLOW CNN
+DOWNLOAD THE CNN APP
+
+Most stock quote data provided by BATS. US market indices are shown in real time, except for the S&P 500 which is refreshed every two minutes. All times are ET. Factset: FactSet Research Systems Inc. All rights reserved. Chicago Mercantile: Certain market data is the property of Chicago Mercantile Exchange Inc. and its licensors. All rights reserved. Dow Jones: The Dow Jones branded indices are proprietary to and are calculated, distributed and marketed by DJI Opco, a subsidiary of S&P Dow Jones Indices LLC and have been licensed for use to S&P Opco, LLC and CNN. Standard & Poor’s and S&P are registered trademarks of Standard & Poor’s Financial Services LLC and Dow Jones is a registered trademark of Dow Jones Trademark Holdings LLC. All content of the Dow Jones branded indices Copyright S&P Dow Jones Indices LLC and/or its affiliates. Fair value provided by IndexArb.com. Market holidays and trading hours provided by Copp Clark Limited.
+
+Terms of Use
+Privacy Policy
+Do Not Sell Or Share My Personal Information
+Ad Choices
+Accessibility & CC
+About
+Subscribe
+Newsletters
+Transcripts
+Help Center
+Sitemap
+
+© 2026 Cable News Network. A Warner Bros. Discovery Company. All Rights Reserved.
+CNN Sans ™ & © 2016 Cable News Network.
+
+Legal Terms and Privacy
+
+By clicking "Agree", you agree to the Terms of Use and to the collection and use of your information by cookies and similar technologies, as set forth in our Privacy Policy. Accepting does not impact privacy choices you may have under state laws. Learn more in our US State Supplement.
+
+Agree
