@@ -5,6 +5,8 @@ name: 日経・東証大引け記事取得
 on:
   schedule:
     - cron: "0 9 * * 1-5"
+  repository_dispatch:
+    types: [scheduled-nikkei-jp]
   workflow_dispatch:
 
 permissions:
@@ -12,6 +14,8 @@ permissions:
 
 jobs:
   fetch:
+    # Cloudflare稼働確認後にリポジトリ変数をtrueにするとGitHubのcronだけ停止。
+    if: github.event_name != 'schedule' || vars.CLOUDFLARE_SCHEDULE != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

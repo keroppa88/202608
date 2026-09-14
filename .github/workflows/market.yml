@@ -18,6 +18,8 @@ name: 相場データ取得（海外）
 on:
   schedule:
     - cron: "10 23 * * 1-5"
+  repository_dispatch:
+    types: [scheduled-market]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +27,8 @@ permissions:
 
 jobs:
   fetch:
+    # Cloudflare稼働確認後にリポジトリ変数をtrueにするとGitHubのcronだけ停止。
+    if: github.event_name != 'schedule' || vars.CLOUDFLARE_SCHEDULE != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

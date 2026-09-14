@@ -8,6 +8,8 @@ name: 相場データ取得（暗号資産）
 on:
   schedule:
     - cron: "10 0 * * 2-6" # UTC 火〜土 00:10 = JST 火〜土 09:10
+  repository_dispatch:
+    types: [scheduled-market-crypto]
   workflow_dispatch:
 
 permissions:
@@ -15,6 +17,8 @@ permissions:
 
 jobs:
   fetch:
+    # Cloudflare稼働確認後にリポジトリ変数をtrueにするとGitHubのcronだけ停止。
+    if: github.event_name != 'schedule' || vars.CLOUDFLARE_SCHEDULE != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

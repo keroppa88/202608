@@ -7,6 +7,8 @@ name: 日経・指数ページ取得
 on:
   schedule:
     - cron: "0 9 * * 1-5" # UTC 月〜金 09:00 = JST 月〜金 18:00
+  repository_dispatch:
+    types: [scheduled-nikkei-index]
   workflow_dispatch:
 
 permissions:
@@ -14,6 +16,8 @@ permissions:
 
 jobs:
   fetch:
+    # Cloudflare稼働確認後にリポジトリ変数をtrueにするとGitHubのcronだけ停止。
+    if: github.event_name != 'schedule' || vars.CLOUDFLARE_SCHEDULE != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

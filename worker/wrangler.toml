@@ -9,3 +9,9 @@ GEMINI_MODEL = "gemini-3.1-pro-preview"
 ALLOWED_ORIGINS = "https://keroppa88.github.io"
 # 個別株の取り寄せを頼む先。owner/repo
 GH_REPO = "keroppa88/202608"
+
+# 稼働確認後、GitHubのCLOUDFLARE_SCHEDULEと合わせてtrueへ切替
+SCHEDULE_ENABLED = "false"
+
+[triggers]
+crons = ["*/10 * * * *"]

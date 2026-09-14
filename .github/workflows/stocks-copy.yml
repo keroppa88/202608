@@ -13,6 +13,8 @@ name: 個別株のコピー（chart0）
 on:
   schedule:
     - cron: "30 9 * * 1-5" # UTC 月〜金 09:30 = JST 月〜金 18:30
+  repository_dispatch:
+    types: [scheduled-stocks-copy]
   workflow_dispatch:
   push:
     branches: [main]
@@ -32,6 +34,8 @@ permissions:
 
 jobs:
   copy:
+    # Cloudflare稼働確認後にリポジトリ変数をtrueにするとGitHubのcronだけ停止。
+    if: github.event_name != 'schedule' || vars.CLOUDFLARE_SCHEDULE != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

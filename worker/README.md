@@ -63,3 +63,42 @@ npx wrangler tail
 ```
 
 失敗したときは、その内容がそのままページのコメント欄に出る。
+
+## 定時更新をCloudflareから起動する
+
+`soba-ai` の Cron Trigger が10分ごとに動き、既存の時刻表に該当する場合だけ
+`repository_dispatch` を送る。取得・CSV保存・公開は従来どおりGitHubで実行する。
+`GH_TOKEN` は既存の Contents: 読み書き権限を利用し、追加のActions権限は不要。
+HTTP 204は起動要求の受理であり、処理開始・完了の保証ではない。
+GitHubランナーの待ち時間は残る。
+
+| 日本時間 | 曜日 | 対象 |
+|---|---|---|
+| 07:00 | 火〜土 | Fear & Greed、松井証券、金利 |
+| 08:00 | 火〜土 | 米国株記事 |
+| 08:10 | 火〜土 | 海外相場 |
+| 09:10 | 火〜土 | 暗号資産 |
+| 18:00 | 月〜金 | 日本株、JPX、日経指数、国内記事・指標・ランキング、読売333 |
+| 18:20 | 月〜金 | 商品・先物 |
+| 18:30 | 月〜金 | 個別株コピー、比率算出 |
+
+### 有効化
+
+1. この変更をGitHubのmainへ反映する。`repository_dispatch`はmain上の定義を使う。
+2. `cd worker && npx wrangler deploy`。既存のWorkerと秘密情報をそのまま使う。
+   初期状態は `SCHEDULE_ENABLED = "false"` なので、起動命令は送らない。
+3. CloudflareのCron設定の反映を待つ（最大15分）。WorkerのログでCron呼び出しを確認する。
+4. 更新予定時刻を避けて切り替える。GitHubの Settings → Secrets and variables →
+   Actions → Variables に `CLOUDFLARE_SCHEDULE` = `true` を設定する。
+   これでGitHub由来のscheduleジョブだけがスキップされる。Run workflowは使える。
+5. `wrangler.toml` の `SCHEDULE_ENABLED` を `"true"` に変え、再度deployする。
+   この設定変更もリポジトリへ保存する。
+6. 次の設定時刻にCloudflareログの `dispatch accepted`、GitHubの
+   `repository_dispatch` 実行、取得ステップ、CSV更新、ページ公開を確認する。
+
+受理不明時の重複起動を避けるため、Workerは自動再送しない。
+送信失敗はCron実行をエラーにする。他の対象への送信は継続する。
+GitHubとCloudflareの両スケジューラーを同時に有効化しないこと。
+復旧する場合はWorkerをfalseに戻してから、GitHub変数をfalseに戻す。
+
+検証: `node --test worker/schedule.test.mjs`

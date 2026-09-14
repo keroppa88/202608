@@ -10,6 +10,8 @@ name: 日経・米国株記事取得
 on:
   schedule:
     - cron: "0 23 * * 1-5" # UTC 月〜金 23:00 = JST 火〜土 08:00
+  repository_dispatch:
+    types: [scheduled-nikkei-us]
   workflow_dispatch:
 
 permissions:
@@ -17,6 +19,8 @@ permissions:
 
 jobs:
   fetch:
+    # Cloudflare稼働確認後にリポジトリ変数をtrueにするとGitHubのcronだけ停止。
+    if: github.event_name != 'schedule' || vars.CLOUDFLARE_SCHEDULE != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
