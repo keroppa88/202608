@@ -185,6 +185,9 @@ def _summary_detail(lines, divisor):
             rank, code, short, _full, sector, industry, weight = (
                 c.strip() for c in cells
             )
+            # 動的表示が未反映の「-」「-%」は欠測。四本値や他の指標を巻き添えにしない。
+            if weight.rstrip("%").strip() in ("", "-", "－", "—", "–"):
+                continue
             rows.append(
                 ("ウェート上位", f"{rank}. {code} {short}", f"{sector}/{industry}",
                  _num(weight), "%")
