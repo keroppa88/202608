@@ -4,12 +4,15 @@
 
   const API_HELP = "価格データと最適化されたテクニカル指標に基づいてGeminiの高級AIが分析を行う。\n※一回10円ほどのAPI利用料金はKeroppaの自腹である。";
   const PROMPT_HELP = "価格データと最適化されたテクニカル指標、それに基づいた分析用のプロンプトを出力する。コピーして各自のAIチャットに貼ると分析が出力される。※Keroppaのお財布にノーダメージという利点がある。";
+  const JEV_HELP = "Geminiと同じ価格・テクニカル指標・類似局面・比較銘柄のデータを使い、短期（5営業日以内）・中期（20営業日以内）・長期（100営業日以内）の買い度を評価する。100%が買い、50%がイーブン、0%が売り。上昇確率ではなく売買評価の尺度。材料が足りない期間は判定保留にする。";
 
   function init() {
     const run = document.getElementById("ai-run");
     const prompt = document.getElementById("ai-prompt");
     if (!run || !prompt || document.getElementById("ai-help")) return;
     run.title = API_HELP;
+    const jev = document.getElementById("ai-jev");
+    if (jev) jev.title = JEV_HELP;
     prompt.title = PROMPT_HELP;
     const help = document.createElement("button");
     help.id = "ai-help";
@@ -70,8 +73,10 @@
             <h3>AI分析の概要</h3>
             <p>予測対象を1銘柄、分析用比較銘柄を0〜10銘柄選ぶ。予測対象は約10年の価格から、既定のテクニカル指標、銘柄ごとに自動調整した指標、過去の類似局面、比較銘柄との相関を計算する。AIは計算済みの数字を文章化する。</p>
             <p>予測対象：日本個別株は収録期間400日以上、Yahoo系列は当年40足以上、その他は250足以上かつ当年更新あり。比較対象：日本個別株は90日以上、その他は40足以上かつ当年更新あり。不足する系列は選択肢から除外する。</p>
-            <h3>APIによるAI分析</h3>
+            <h3>GeminiAPIによるAI分析</h3>
             <p>${API_HELP}</p>
+            <h3>JevによるAI分析</h3>
+            <p>${JEV_HELP}</p>
             <h3>AI分析用プロンプト出力</h3>
             <p>${PROMPT_HELP}</p>
           </section>

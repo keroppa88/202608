@@ -1,4 +1,4 @@
-/* サイトの「AIコメント」を受けて Gemini に投げ、文章を返すだけの中継。
+/* サイトのAI分析をGeminiまたはJevへ中継する。
  *
  * ここでやること
  *   - 送り元の確認と回数制限
@@ -11,6 +11,7 @@
  *
  * 必要なもの
  *   GEMINI_API_KEY    wrangler secret put GEMINI_API_KEY で入れる
+ *   TYPESAFE_API_KEY  wrangler secret put TYPESAFE_API_KEY で入れる
  *   GEMINI_MODEL      任意。既定は gemini-3.1-pro-preview
  *   ALLOWED_ORIGINS   カンマ区切り。空なら送り元を見ない
  */
@@ -198,6 +199,137 @@ async function callGemini(env, payload, rules) {
   return answer;
 }
 
+const JEV_HORIZONS = [
+  { id: "short", label: "短期", days: 5, fields: ["chg5", "dev0", "macdHR", "stK", "rci0"], focus: "直近5観測日の騰落、反転日数、MACD、短期オシレーター、窓や値幅" },
+  { id: "medium", label: "中期", days: 20, fields: ["chg20", "dev1", "slope1", "rsi", "rci1"], focus: "20観測日前と直近の比較、騰落率、中期移動平均、RSI、RCI、短期との食い違い" },
+  { id: "long", label: "長期", days: 100, fields: ["chg100", "chg200", "dev2", "slope2", "pos52"], focus: "100観測日前までの経緯、長期移動平均、100日騰落率、レンジ位置。200日指標は背景材料" }
+];
+const JEV_LEVELS = [
+  "0%・売り：対象期間で下降方向の複数の材料が揃い、買いを支持する材料が乏しい",
+  "25%・売り寄り：対象期間で下降方向の材料が優勢だが、上昇を支持する材料もある",
+  "50%・イーブン：対象期間で買いと売りの材料が拮抗、または方向性が中立。材料不足とは区別する",
+  "75%・買い寄り：対象期間で上昇方向の材料が優勢だが、下降を支持する材料もある",
+  "100%・買い：対象期間で上昇方向の複数の材料が揃い、売りを支持する材料が乏しい"
+];
+const JEV_RULES = `提供されたテクニカル指標・株価推移・比較銘柄の数字だけで評価する。
+営業日は観測日として扱う。日付順に直近と過去を比較し、params.baseとparams.tunedの期間差を考慮する。
+トレンド系とオシレーター系を合わせて評価し、過熱だけで反転を断定しない。
+likeは過去の参考例であり、after.winを未来の上昇確率としない。100日先の成績は含まれないので作らない。
+corrの相関を因果としない。r60Agoの比較時点はこの入力では確定できないため、その値から変化期間を断定しない。
+nullは欠損でありゼロではない。dev/slope/chgは%、orderは移動平均の並び、bbBは%B、pos52は52週レンジ位置。
+macdHRはMACDヒストグラム÷株価%、runは連騰連落日数、dMaS/dMaL/dMacd/dSar/dStoch/dRsiは方向を符号で示す継続観測日数。
+評価の100は買い、50はイーブン、0は売り。上昇確率ではなく、提供された材料の売買評価。`;
+
+const finite = value => typeof value === "number" && Number.isFinite(value);
+
+function hasJevMaterial(payload, horizon) {
+  const now = payload.tuned.recent[payload.tuned.recent.length - 1];
+  return payload.span.rows >= horizon.days && horizon.fields.filter(key => finite(now[key])).length >= 2;
+}
+
+export function buildJevRequest(payload, model = "jev-1.13.0") {
+  const questions = {};
+  for (const horizon of JEV_HORIZONS) {
+    if (!hasJevMaterial(payload, horizon)) continue;
+    const period = `${horizon.label}（今後${horizon.days}営業日以内）`;
+    questions[`${horizon.id}_material`] = {
+      type: "choice", instructions: `${JEV_RULES}\n${period}の売買評価を行うための材料が揃っているか。注目材料：${horizon.focus}。`,
+      criteria: {
+        sufficient: "対象期間に対応した有効な複数の指標があり、買い・売り・中立を比較評価できる。矛盾する指標があるだけなら材料不足ではない",
+        insufficient: "対象期間の観測や有効な指標が欠け、買い・売り・中立を比較評価できない"
+      }
+    };
+    questions[horizon.id] = {
+      type: "score", instructions: `${JEV_RULES}\n${period}の総合的な買い度を評価する。注目材料：${horizon.focus}。`, criteria: JEV_LEVELS
+    };
+  }
+  return { model, state: payload, questions };
+}
+
+function validJevDistribution(answer, keys) {
+  const p = answer && answer.probabilities;
+  return p && typeof p === "object" && !Array.isArray(p) && Object.keys(p).length === keys.length &&
+    keys.every(key => finite(p[key]) && p[key] >= 0 && p[key] <= 1) &&
+    Math.abs(keys.reduce((sum, key) => sum + p[key], 0) - 1) <= keys.length * 0.005 + 1e-9 &&
+    finite(answer.confidence) && answer.confidence >= 0 && answer.confidence <= 1;
+}
+
+export function parseJevAnalysis(response, request) {
+  if (!response || typeof response.model !== "string" || !response.model || !response.answers ||
+      !["input_tokens", "output_tokens"].every(key => Number.isSafeInteger(response.usage?.[key]) && response.usage[key] >= 0)) {
+    throw new Error("Jevの応答にmodel / answers / usageがない");
+  }
+  return JEV_HORIZONS.map(horizon => {
+    const item = { period: horizon.id, label: horizon.label, days: horizon.days, score: null, status: "insufficient" };
+    if (!request.questions[horizon.id]) return item;
+    const material = response.answers[`${horizon.id}_material`];
+    if (material?.type !== "choice" || !["sufficient", "insufficient"].includes(material.choice) ||
+        !validJevDistribution(material, ["sufficient", "insufficient"])) throw new Error("Jevの材料判定が不正");
+    // 材料不足を50%（イーブン）に読み替えない。
+    if (material.choice === "insufficient") return item;
+    const answer = response.answers[horizon.id];
+    if (answer?.type !== "score" || !finite(answer.score) || answer.score < 0 || answer.score > 4 ||
+        !validJevDistribution(answer, ["0", "1", "2", "3", "4"])) throw new Error("Jevの評価値が不正");
+    const expected = Object.entries(answer.probabilities).reduce((sum, [key, p]) => sum + Number(key) * p, 0);
+    if (Math.abs(expected - answer.score) > 0.06) throw new Error("Jevの評価値と確率分布が一致しない");
+    return { ...item, status: "ok", score: Math.round(answer.score * 250) / 10, confidence: answer.confidence,
+      probabilities: answer.probabilities };
+  });
+}
+
+export function formatJevAnalysis(payload, horizons) {
+  const span = payload.span;
+  const lines = ["JevによるAI分析", `${payload.name || "選択銘柄"}　基準日：${payload.asOf || span.to || "不明"}`,
+    `使用データ：${span.from || "不明"} ～ ${span.to || "不明"}（${span.rows}観測）`, "",
+    "買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り", "売買評価の尺度です。上昇する確率ではありません。", ""];
+  for (const horizon of horizons) {
+    lines.push(`${horizon.label}（${horizon.days}営業日以内）　${horizon.status === "ok" ? `${horizon.score}%` : "判定保留（材料が足りない）"}`);
+  }
+  return lines.join("\n");
+}
+
+async function callJev(env, payload) {
+  const request = buildJevRequest(payload, env.JEV_MODEL || "jev-1.13.0");
+  if (!Object.keys(request.questions).length) {
+    const horizons = JEV_HORIZONS.map(h => ({ period: h.id, label: h.label, days: h.days, score: null, status: "insufficient" }));
+    return { provider: "jev", text: formatJevAnalysis(payload, horizons), horizons };
+  }
+  const res = await fetch("https://api.typesafe.ai/v1/systemone", {
+    method: "POST", redirect: "manual", signal: AbortSignal.timeout(30000),
+    headers: { "content-type": "application/json", authorization: `Bearer ${env.TYPESAFE_API_KEY}` },
+    body: JSON.stringify(request)
+  });
+  if (!res.ok) {
+    await res.body?.cancel();
+    const error = new Error([401, 403].includes(res.status) ? "JevのAPIキーを中継側で確認してください" :
+      [429, 529].includes(res.status) ? "Jevが混み合っています。しばらく待って再実行してください" : `Jev HTTP ${res.status}`);
+    error.status = res.status === 429 ? 429 : res.status === 529 ? 503 : 502;
+    throw error;
+  }
+  const response = await res.json();
+  const horizons = parseJevAnalysis(response, request);
+  return { provider: "jev", model: response.model, usage: response.usage, horizons, text: formatJevAnalysis(payload, horizons) };
+}
+
+async function handleJev(request, env, cors) {
+  if (!env.TYPESAFE_API_KEY) return reply(503, { error: "JevのAPIキーが中継側に未設定です（TYPESAFE_API_KEY）" }, cors);
+  if (tooOften(request.headers.get("cf-connecting-ip") || "unknown")) return reply(429, { error: `混み合っている。1分に${RATE_LIMIT}回まで` }, cors);
+  const body = await request.text();
+  if (new TextEncoder().encode(body).length > MAX_BODY) return reply(413, { error: "分析素材が大きすぎます" }, cors);
+  let payload;
+  try { payload = JSON.parse(body); } catch (_) { return reply(400, { error: "JSONとして読めない" }, cors); }
+  if (!payload || payload.kind !== "tech" || !Number.isSafeInteger(payload.span?.rows) || payload.span.rows < 1 ||
+      !Array.isArray(payload.tuned?.recent) || !payload.tuned.recent.length ||
+      !payload.tuned.recent.every(row => row && typeof row === "object" && !Array.isArray(row))) {
+    return reply(400, { error: "テクニカル分析のspan / tuned.recentが要る" }, cors);
+  }
+  try { return reply(200, await callJev(env, payload), cors); }
+  catch (error) {
+    const message = error.name === "TimeoutError" ? "Jevの応答が30秒以内に届きませんでした" : error.message;
+    return reply(error.status || 502, { error: String(message).split(env.TYPESAFE_API_KEY).join("[REDACTED]") }, cors);
+  }
+}
+
 /* 個別株の取得を頼む（/jquants）。
  *
  * ここは GitHub の Actions を起こすだけ。株価データはここを通らない。
@@ -368,6 +500,8 @@ export default {
         return reply(502, { error: String(e && e.message ? e.message : e) }, cors);
       }
     }
+
+    if (path === "/jev") return handleJev(request, env, cors);
 
     if (!env.GEMINI_API_KEY) return reply(500, { error: "GEMINI_API_KEY が入っていない" }, cors);
 

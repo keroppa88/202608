@@ -103,7 +103,8 @@
     <div class="bar">
       <button id="aiback" title="タイトルへ戻る">戻る</button>
       <button id="aitheme" title="押すたびに配色が変わる">Color</button>
-      <button id="ai-run" class="ai-top-action" title="APIでAI分析する">APIによるAI分析</button>
+      <button id="ai-run" class="ai-top-action" title="Gemini APIでAI分析する">GeminiAPIによるAI分析</button>
+      <button id="ai-jev" class="ai-top-action" title="既存の分析素材で短期5日・中期20日・長期100日の買い度を評価する">JevによるAI分析</button>
       <button id="ai-prompt" class="ai-top-action" title="他のAIへ貼り付ける分析用プロンプトを出力する">AI分析用プロンプト出力</button>
       <div class="spacer"></div>
       <div class="note" id="aistatus"></div>
@@ -120,7 +121,7 @@
           <button id="ai-add" class="ai-add">＋ 比較銘柄</button>
         </div>
       </div>
-      <div id="ai-result" class="ai-result"><span class="ai-empty">銘柄を選び、上部の「APIによるAI分析」または「AI分析用プロンプト出力」を押す。</span></div>
+      <div id="ai-result" class="ai-result" aria-live="polite"><span class="ai-empty">銘柄を選び、上部の「GeminiAPIによるAI分析」「JevによるAI分析」または「AI分析用プロンプト出力」を押す。</span></div>
     </div>`;
 
   const promptModal = document.createElement("div");
@@ -276,6 +277,7 @@ AI主観コメント
   function setAiEnabled(enabled) {
     document.getElementById("ai-main").disabled = !enabled;
     document.getElementById("ai-run").disabled = !enabled;
+    document.getElementById("ai-jev").disabled = !enabled;
     document.getElementById("ai-prompt").disabled = !enabled;
     document.getElementById("ai-add").disabled = !enabled || settings.corrAiSubs.length >= MAX_SUBS;
     document.querySelectorAll("#ai-subs button").forEach((el) => { el.disabled = !enabled; });
@@ -552,11 +554,13 @@ AI主観コメント
     return `HTTP ${status}\n${detail}`;
   }
 
-  async function runAiAnalysis() {
+  async function runAiAnalysis(provider = "gemini") {
     if (aiBusy || !settings.corrAiMain) return;
     aiBusy = true;
     setAiEnabled(false);
-    const run = document.getElementById("ai-run");
+    const isJev = provider === "jev";
+    const label = isJev ? "JevによるAI分析" : "GeminiAPIによるAI分析";
+    const run = document.getElementById(isJev ? "ai-jev" : "ai-run");
     const status = document.getElementById("aistatus");
     const result = document.getElementById("ai-result");
     document.getElementById("ai-prompt-text").textContent = "";
@@ -572,25 +576,37 @@ AI主観コメント
       if (isMobileAiBrowser()) await new Promise((resolve) => window.setTimeout(resolve, 0));
       progress(`送信 ${(body.length / 1024).toFixed(1)}KB`);
       if (!AI_ENDPOINT) throw new Error("AIの中継先が設定されていない");
-      const res = await fetch(AI_ENDPOINT, {
+      const endpoint = isJev ? `${AI_ENDPOINT.replace(/\/+$/, "")}/jev` : AI_ENDPOINT;
+      const res = await fetch(endpoint, {
         method: "POST",
         mode: "cors",
         headers: { "content-type": "application/json" },
         body
       });
       const raw = await res.text();
-      if (!res.ok) throw new Error(aiApiFailureMessage(res.status, raw));
+      if (!res.ok) {
+        // Jevの認証・回数制限をGeminiの月額上限に読み替えない。
+        if (isJev) {
+          let message = `Jev HTTP ${res.status}`;
+          try { message = JSON.parse(raw).error || message; } catch (_) { }
+          throw new Error(message);
+        }
+        throw new Error(aiApiFailureMessage(res.status, raw));
+      }
       let answer = raw;
       try {
         const json = JSON.parse(raw);
         answer = json.text || json.error || raw;
-      } catch (_) { }
+        if (isJev && (json.provider !== "jev" || typeof json.text !== "string" || !json.text.trim())) {
+          throw new Error("Jevの応答形式を確認できなかった");
+        }
+      } catch (e) { if (isJev) throw e; }
       if (requested !== signature()) {
         status.textContent = "分析中に条件が変わったため結果を破棄した";
         return;
       }
       result.textContent = answer;
-      status.textContent = `${payload.name}　${payload.asOf}　比較 ${settings.corrAiSubs.length}銘柄`;
+      status.textContent = `${isJev ? "Jev" : "Gemini"}　${payload.name}　${payload.asOf}　比較 ${settings.corrAiSubs.length}銘柄`;
     } catch (e) {
       const message = String(e && e.message ? e.message : e);
       if (/load failed|failed to fetch|networkerror/i.test(message)) {
@@ -601,7 +617,7 @@ AI主観コメント
       status.textContent = "AI分析に失敗";
     } finally {
       aiBusy = false;
-      run.textContent = "APIによるAI分析";
+      run.textContent = label;
       setAiEnabled(true);
       drawAiControls();
     }
@@ -673,7 +689,8 @@ AI主観コメント
       nextTheme();
       if (corrState) drawCorrelationResults();
     });
-    document.getElementById("ai-run").addEventListener("click", runAiAnalysis);
+    document.getElementById("ai-run").addEventListener("click", () => runAiAnalysis("gemini"));
+    document.getElementById("ai-jev").addEventListener("click", () => runAiAnalysis("jev"));
     document.getElementById("ai-prompt").addEventListener("click", runAiPromptOutput);
     document.getElementById("ai-prompt-copy").addEventListener("click", copyPrompt);
     document.getElementById("ai-prompt-close").addEventListener("click", closePromptModal);

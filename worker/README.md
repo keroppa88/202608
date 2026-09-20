@@ -1,10 +1,11 @@
 # 中継
 
-ブラウザから直に叩けないものを、代わりに叩くだけのもの。2つある。
+ブラウザから直に叩けないものを、代わりに叩く中継。
 
 | 宛先 | 何をするか |
 |---|---|
 | `/`（ルート） | 相関ページの「AI分析開始」の数字を Gemini に渡し、文章を返す |
+| `/jev` | 同じテクニカル分析素材をJevへ渡し、5・20・100営業日の買い度を返す |
 | `/jquants` | テクニカル画面の「取得」を受けて、GitHub の Actions を起こす |
 
 どちらも計算はしない。数字の計算はページ側（`correlation.js`）で済ませてある。
@@ -16,6 +17,7 @@
 cd worker
 npx wrangler login
 npx wrangler secret put GEMINI_API_KEY      # 貼って Enter。ここ以外に鍵を置かない
+npx wrangler secret put TYPESAFE_API_KEY    # Jev用。リポジトリやブラウザへ鍵を置かない
 npx wrangler secret put GH_TOKEN            # 個別株の取り寄せに使う。下を見る
 npx wrangler secret put JQ_PASS             # 合言葉。入れなければ誰でも押せる
 npx wrangler deploy
@@ -44,6 +46,7 @@ const AI_ENDPOINT = "";
 | どこ | 何 |
 |---|---|
 | `wrangler.toml` の `GEMINI_MODEL` | 使うモデル |
+| `wrangler.toml` の `JEV_MODEL` | Jevのモデル（既定はjev-1.13.0） |
 | `wrangler.toml` の `ALLOWED_ORIGINS` | 受け付ける送り元。カンマ区切り |
 | `index.js` の `RATE_LIMIT` | 1分あたりの回数 |
 | `index.js` の `RULES` | 相関だけを渡したときのAIへの指示 |
@@ -63,6 +66,21 @@ npx wrangler tail
 ```
 
 失敗したときは、その内容がそのままページのコメント欄に出る。
+
+## JevによるAI分析
+
+「GeminiAPIによるAI分析」の隣のボタンから `POST /jev` を呼ぶ。分析素材は既存の `buildStandaloneAiPayload` と共通で、価格・指標・類似局面・比較銘柄の抽出処理は変えない。Geminiのルート・文章生成も従来どおり。
+
+短期は今後5営業日以内、中期は20営業日以内、長期は100営業日以内。各期間の材料判定と5段階Scoreを1回のJev API呼び出しにまとめる。Scoreの0〜4を25倍して買い度0〜100%として表示し、100%が買い、50%がイーブン、0%が売り。材料不足は50%にせず判定保留。確率分布・confidenceも応答の `horizons` に含む。
+
+Jevだけを使う場合は `GEMINI_API_KEY` は不要。未設定キー、認証エラー、回数制限、タイムアウト、不正な応答は画面へ表示する。JevのエラーをGeminiの月額上限メッセージへ変換しない。
+
+GitHub Pagesの更新だけではWorkerは変わらない。`TYPESAFE_API_KEY` をWorkerのSecretに設定し、`worker/` から `npx wrangler deploy` を実行する。
+
+```sh
+node --test worker/jev.test.mjs worker/schedule.test.mjs tests/jev-ui.test.mjs
+node tests/correlation.test.js
+```
 
 ## 定時更新をCloudflareから起動する
 

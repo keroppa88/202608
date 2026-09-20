@@ -168,12 +168,13 @@
 
   function watchAnalysisEnd(button) {
     if (stopObserver) stopObserver.disconnect();
+    const idleLabel = button.textContent.trim();
     let sawBusy = false;
     const check = () => {
       const text = button.textContent.trim();
       const busy = button.disabled || text === "分析中…" || text === "分析中...";
       if (busy) sawBusy = true;
-      if (sawBusy && !button.disabled && text === "APIによるAI分析") {
+      if (sawBusy && !button.disabled && text === idleLabel) {
         const status = document.getElementById("aistatus");
         const failed = status && status.textContent.trim() === "AI分析に失敗";
         stopAnalysisMorse();
@@ -190,18 +191,18 @@
   }
 
   function init() {
-    const run = document.getElementById("ai-run");
-    if (!run) return;
+    const runs = [document.getElementById("ai-run"), document.getElementById("ai-jev")].filter(Boolean);
+    if (!runs.length) return;
 
     const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "") ||
       ((navigator.maxTouchPoints || 0) > 1 && Math.min(screen.width || 9999, screen.height || 9999) < 900);
 
     if (!mobile) {
-      run.addEventListener("click", () => {
+      runs.forEach((run) => run.addEventListener("click", () => {
         if (run.disabled) return;
         startAnalysisMorse();
         watchAnalysisEnd(run);
-      }, true);
+      }, true));
     }
 
     const back = document.getElementById("aiback");
