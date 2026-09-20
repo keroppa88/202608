@@ -1552,6 +1552,16 @@ async function volumeOf(key, year) {
 async function allSeriesOf(key) {
   const [src, id] = splitKey(key);
   const map = new Map();
+  // オリジナル指数は年別表示・銘柄一覧と同じ全期間CSVを共有する。
+  // 生成manifestや銘柄別CSVが古い／取得できない場合にも線を落とさない。
+  if (src === "original") {
+    for (const row of await fetchCsv("data/original_index.csv")) {
+      if (row.name === id && row.trade_date && isNum(row.close)) {
+        map.set(row.trade_date, row.close);
+      }
+    }
+    return map;
+  }
   if (src === "stock") {
     for (const row of await fetchCsv(`data/stocks/${id}.csv`)) {
       if ((row.Date || "") && isNum(row.Close)) map.set(row.Date, row.Close);
