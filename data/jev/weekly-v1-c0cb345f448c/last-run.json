@@ -1,8 +1,8 @@
 {
   "mode": "backfill",
-  "calls": 100,
-  "inputTokens": 1987113,
-  "estimatedUsd": 0.083458746,
-  "estimatedYenAt155": 12.93610563,
-  "failure": null
+  "calls": 41,
+  "inputTokens": 812107,
+  "estimatedUsd": 0.034108493999999996,
+  "estimatedYenAt155": 5.286816569999999,
+  "failure": "Worker HTTP 502 at dow/2025-12-05"
 }
