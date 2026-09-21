@@ -1,0 +1,64 @@
+{
+  "version": "weekly-v1-c0cb345f448c",
+  "target": "dow",
+  "cutoff": "2026-06-05",
+  "asOf": "2026-06-05",
+  "requestHash": "9446ac2ab2ff661a7eb6cf97287e48c2746915b6f4d1af9e7e145c1298961ce2",
+  "createdAt": "2026-09-21T15:02:16.079Z",
+  "response": {
+    "provider": "jev",
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 19825,
+      "output_tokens": 157
+    },
+    "horizons": [
+      {
+        "period": "short",
+        "label": "短期",
+        "days": 5,
+        "score": 45.8,
+        "status": "ok",
+        "confidence": 0.27,
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.41,
+          "2": 0.28,
+          "3": 0.29,
+          "4": 0
+        }
+      },
+      {
+        "period": "medium",
+        "label": "中期",
+        "days": 20,
+        "score": 72,
+        "status": "ok",
+        "confidence": 0.84,
+        "probabilities": {
+          "0": 0,
+          "1": 0.03,
+          "2": 0.09,
+          "3": 0.85,
+          "4": 0.03
+        }
+      },
+      {
+        "period": "long",
+        "label": "長期",
+        "days": 100,
+        "score": 76,
+        "status": "ok",
+        "confidence": 0.81,
+        "probabilities": {
+          "0": 0,
+          "1": 0.02,
+          "2": 0.05,
+          "3": 0.8,
+          "4": 0.13
+        }
+      }
+    ],
+    "text": "JevによるAI分析\nNYダウ　基準日：2026-06-05\n使用データ：2015-01-02 ～ 2026-06-05（2873観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　45.8%\n中期（20営業日以内）　72%\n長期（100営業日以内）　76%"
+  }
+}

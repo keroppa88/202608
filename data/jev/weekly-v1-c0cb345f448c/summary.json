@@ -2,11 +2,11 @@
   "version": "weekly-v1-c0cb345f448c",
   "implementationHash": "b1dd104f0823351157a6a72f84b2f1488af4a295b787261bcccb4994dd42a297",
   "model": "jev-1.13.0",
-  "generatedAt": "2026-09-21T14:38:27.152Z",
+  "generatedAt": "2026-09-21T15:06:06.493Z",
   "from": "2021-09-24",
   "through": "2026-09-18",
   "expected": 1566,
-  "completed": 13,
+  "completed": 113,
   "methodology": {
     "entry": "翌週最初の取引日の始値",
     "maxRise": "期間内高値と購入価格の比率。最低0%",
@@ -17,38 +17,38 @@
     "comparison": "対象以外の5指数＋ドル円＋日米10年債利回り。固定8比較",
     "data": "現在保存されている過去価格を使用。データ改訂・モデルの学習内容による影響を分離した検証ではない"
   },
-  "totalInputTokens": 258735,
+  "totalInputTokens": 2249915,
   "targets": {
     "nikkei": {
       "name": "日経平均",
       "key": "yahoo:^N225",
-      "judgments": 3,
+      "judgments": 19,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 2,
+            "n": 18,
             "pending": 1,
             "missing": 0,
-            "winRate": 50,
+            "winRate": 55.5556,
             "insufficient": true,
             "maxRise": {
-              "mean": 1.6217,
-              "median": 1.6217
+              "mean": 2.6578,
+              "median": 2.1496
             },
             "maxLoss": {
-              "mean": -3.3705,
-              "median": -3.3705
+              "mean": -3.1544,
+              "median": -2.8803
             },
             "endReturn": {
-              "mean": -1.4204,
-              "median": -1.4204
+              "mean": -0.0961,
+              "median": 0.1513
             },
             "closeDrawdown": {
-              "mean": -2.626,
-              "median": -2.626
+              "mean": -2.8989,
+              "median": -2.8216
             }
           },
           "gte90": {
@@ -81,78 +81,78 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 2,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 1.4909,
+              "median": 1.4909
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -4.5541,
+              "median": -4.5541
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -3.2806,
+              "median": -3.2806
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -5.0095,
+              "median": -5.0095
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 2,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 1.4909,
+              "median": 1.4909
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -4.5541,
+              "median": -4.5541
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -3.2806,
+              "median": -3.2806
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -5.0095,
+              "median": -5.0095
             }
           },
           "near": {
             "center": 51.8,
             "lower": 46.8,
             "upper": 56.8,
-            "n": 1,
+            "n": 3,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 33.3333,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.4518,
-              "median": 0.4518
+              "mean": 1.8742,
+              "median": 1.3053
             },
             "maxLoss": {
-              "mean": -5.2748,
-              "median": -5.2748
+              "mean": -3.3114,
+              "median": -2.8868
             },
             "endReturn": {
-              "mean": -4.9764,
-              "median": -4.9764
+              "mean": -1.0623,
+              "median": -0.9861
             },
             "closeDrawdown": {
-              "mean": -4.9764,
-              "median": -4.9764
+              "mean": -3.0619,
+              "median": -3.163
             }
           }
         },
@@ -161,26 +161,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 2,
+            "n": 15,
+            "pending": 4,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 53.3333,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.4518,
-              "median": 0.4518
+              "mean": 5.4303,
+              "median": 5.6189
             },
             "maxLoss": {
-              "mean": -9.8561,
-              "median": -9.8561
+              "mean": -6.8116,
+              "median": -6.3447
             },
             "endReturn": {
-              "mean": -4.8648,
-              "median": -4.8648
+              "mean": -0.4192,
+              "median": 0.5572
             },
             "closeDrawdown": {
-              "mean": -9.0791,
-              "median": -9.0791
+              "mean": -7.7188,
+              "median": -7.5101
             }
           },
           "gte90": {
@@ -213,78 +213,78 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 2.483,
+              "median": 2.483
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -11.7671,
+              "median": -11.7671
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -9.7458,
+              "median": -9.7458
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -11.3661,
+              "median": -11.3661
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 2.483,
+              "median": 2.483
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -11.7671,
+              "median": -11.7671
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -9.7458,
+              "median": -9.7458
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -11.3661,
+              "median": -11.3661
             }
           },
           "near": {
             "center": 38.8,
             "lower": 33.8,
             "upper": 43.8,
-            "n": 0,
+            "n": 1,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 9.0441,
+              "median": 9.0441
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -1.7725,
+              "median": -1.7725
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 3.8803,
+              "median": 3.8803
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -5.6253,
+              "median": -5.6253
             }
           }
         },
@@ -294,7 +294,7 @@
             "lower": null,
             "upper": null,
             "n": 1,
-            "pending": 2,
+            "pending": 18,
             "missing": 0,
             "winRate": 0,
             "insufficient": true,
@@ -346,7 +346,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 3,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -372,7 +372,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 3,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -398,7 +398,7 @@
             "lower": 60.8,
             "upper": 70.8,
             "n": 1,
-            "pending": 1,
+            "pending": 3,
             "missing": 0,
             "winRate": 0,
             "insufficient": true,
@@ -425,33 +425,33 @@
     "topix": {
       "name": "TOPIX",
       "key": "jpx:TOPIX",
-      "judgments": 2,
+      "judgments": 19,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 1,
+            "n": 17,
+            "pending": 2,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 47.0588,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.3829,
-              "median": 0.3829
+              "mean": 1.7663,
+              "median": 1.83
             },
             "maxLoss": {
-              "mean": -5.4898,
-              "median": -5.4898
+              "mean": -2.1887,
+              "median": -1.9538
             },
             "endReturn": {
-              "mean": -5.2938,
-              "median": -5.2938
+              "mean": -0.1197,
+              "median": -0.3817
             },
             "closeDrawdown": {
-              "mean": -5.2938,
-              "median": -5.2938
+              "mean": -1.9017,
+              "median": -2.0506
             }
           },
           "gte90": {
@@ -484,78 +484,78 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.0666,
+              "median": 0.0666
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -4.11,
+              "median": -4.11
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -3.1175,
+              "median": -3.1175
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -3.44,
+              "median": -3.44
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.0666,
+              "median": 0.0666
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -4.11,
+              "median": -4.11
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -3.1175,
+              "median": -3.1175
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -3.44,
+              "median": -3.44
             }
           },
           "near": {
             "center": 47.3,
             "lower": 42.3,
             "upper": 52.3,
-            "n": 1,
+            "n": 4,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 25,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.3829,
-              "median": 0.3829
+              "mean": 1.0466,
+              "median": 0.4823
             },
             "maxLoss": {
-              "mean": -5.4898,
-              "median": -5.4898
+              "mean": -3.7426,
+              "median": -3.6674
             },
             "endReturn": {
-              "mean": -5.2938,
-              "median": -5.2938
+              "mean": -1.354,
+              "median": -1.4424
             },
             "closeDrawdown": {
-              "mean": -5.2938,
-              "median": -5.2938
+              "mean": -2.4607,
+              "median": -2.2069
             }
           }
         },
@@ -564,26 +564,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 1,
+            "n": 14,
+            "pending": 5,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 64.2857,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.3829,
-              "median": 0.3829
+              "mean": 3.6398,
+              "median": 4.0198
             },
             "maxLoss": {
-              "mean": -8.0902,
-              "median": -8.0902
+              "mean": -3.6888,
+              "median": -3.8214
             },
             "endReturn": {
-              "mean": -4.5348,
-              "median": -4.5348
+              "mean": 0.8917,
+              "median": 1.2879
             },
             "closeDrawdown": {
-              "mean": -7.52,
-              "median": -7.52
+              "mean": -4.0557,
+              "median": -4.1409
             }
           },
           "gte90": {
@@ -616,52 +616,52 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.0666,
+              "median": 0.0666
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -5.6413,
+              "median": -5.6413
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -3.9768,
+              "median": -3.9768
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -4.1876,
+              "median": -4.1876
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.0666,
+              "median": 0.0666
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -5.6413,
+              "median": -5.6413
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -3.9768,
+              "median": -3.9768
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -4.1876,
+              "median": -4.1876
             }
           },
           "near": {
@@ -669,7 +669,7 @@
             "lower": 47.5,
             "upper": 57.5,
             "n": 0,
-            "pending": 1,
+            "pending": 2,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -697,7 +697,7 @@
             "lower": null,
             "upper": null,
             "n": 1,
-            "pending": 1,
+            "pending": 18,
             "missing": 0,
             "winRate": 0,
             "insufficient": true,
@@ -749,7 +749,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 4,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -775,7 +775,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 4,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -801,7 +801,7 @@
             "lower": 70,
             "upper": 80,
             "n": 1,
-            "pending": 1,
+            "pending": 13,
             "missing": 0,
             "winRate": 0,
             "insufficient": true,
@@ -828,33 +828,33 @@
     "dow": {
       "name": "NYダウ",
       "key": "yahoo:^DJI",
-      "judgments": 2,
+      "judgments": 19,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
+            "n": 18,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 44.4444,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.9265,
-              "median": 0.9265
+              "mean": 1.0414,
+              "median": 0.8995
             },
             "maxLoss": {
-              "mean": -2.7454,
-              "median": -2.7454
+              "mean": -1.1847,
+              "median": -1.1835
             },
             "endReturn": {
-              "mean": -1.1883,
-              "median": -1.1883
+              "mean": -0.0109,
+              "median": -0.2264
             },
             "closeDrawdown": {
-              "mean": -2.9408,
-              "median": -2.9408
+              "mean": -1.2522,
+              "median": -1.1538
             }
           },
           "gte90": {
@@ -887,78 +887,78 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.9759,
+              "median": 0.9759
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -0.9265,
+              "median": -0.9265
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -0.5753,
+              "median": -0.5753
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -1.3482,
+              "median": -1.3482
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 1,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.9759,
+              "median": 0.9759
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -0.9265,
+              "median": -0.9265
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -0.5753,
+              "median": -0.5753
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -1.3482,
+              "median": -1.3482
             }
           },
           "near": {
             "center": 23,
             "lower": 18,
             "upper": 28,
-            "n": 0,
+            "n": 2,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.3419,
+              "median": 0.3419
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.0699,
+              "median": -2.0699
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -1.2113,
+              "median": -1.2113
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -1.7129,
+              "median": -1.7129
             }
           }
         },
@@ -967,26 +967,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 1,
+            "n": 14,
+            "pending": 5,
             "missing": 0,
-            "winRate": 100,
+            "winRate": 78.5714,
             "insufficient": true,
             "maxRise": {
-              "mean": 2.9527,
-              "median": 2.9527
+              "mean": 3.0099,
+              "median": 3.2553
             },
             "maxLoss": {
-              "mean": -2.7454,
-              "median": -2.7454
+              "mean": -1.6451,
+              "median": -1.8334
             },
             "endReturn": {
-              "mean": 2.6994,
-              "median": 2.6994
+              "mean": 1.333,
+              "median": 1.9659
             },
             "closeDrawdown": {
-              "mean": -2.9408,
-              "median": -2.9408
+              "mean": -2.5727,
+              "median": -2.6444
             }
           },
           "gte90": {
@@ -1019,52 +1019,52 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 2,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 50,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 1.5996,
+              "median": 1.5996
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.5009,
+              "median": -2.5009
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 0.3896,
+              "median": 0.3897
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -2.8078,
+              "median": -2.8078
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 2,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 50,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 1.5996,
+              "median": 1.5996
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.5009,
+              "median": -2.5009
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 0.3896,
+              "median": 0.3897
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -2.8078,
+              "median": -2.8078
             }
           },
           "near": {
@@ -1100,7 +1100,7 @@
             "lower": null,
             "upper": null,
             "n": 1,
-            "pending": 1,
+            "pending": 18,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
@@ -1152,7 +1152,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 4,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1178,7 +1178,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 4,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1231,33 +1231,33 @@
     "sox": {
       "name": "SOX",
       "key": "yahoo:^SOX",
-      "judgments": 2,
+      "judgments": 19,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
+            "n": 18,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 38.8889,
             "insufficient": true,
             "maxRise": {
-              "mean": 1.1734,
-              "median": 1.1734
+              "mean": 4.0485,
+              "median": 3.0292
             },
             "maxLoss": {
-              "mean": -6.1311,
-              "median": -6.1311
+              "mean": -5.5404,
+              "median": -5.2577
             },
             "endReturn": {
-              "mean": -4.5914,
-              "median": -4.5914
+              "mean": -0.8565,
+              "median": -0.7518
             },
             "closeDrawdown": {
-              "mean": -5.4376,
-              "median": -5.4376
+              "mean": -5.882,
+              "median": -5.4314
             }
           },
           "gte90": {
@@ -1342,26 +1342,26 @@
             "center": 53.8,
             "lower": 48.8,
             "upper": 58.8,
-            "n": 1,
+            "n": 2,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 50,
             "insufficient": true,
             "maxRise": {
-              "mean": 1.1734,
-              "median": 1.1734
+              "mean": 3.2989,
+              "median": 3.2989
             },
             "maxLoss": {
-              "mean": -6.1311,
-              "median": -6.1311
+              "mean": -5.2577,
+              "median": -5.2577
             },
             "endReturn": {
-              "mean": -4.5914,
-              "median": -4.5914
+              "mean": 0.3425,
+              "median": 0.3425
             },
             "closeDrawdown": {
-              "mean": -5.4376,
-              "median": -5.4376
+              "mean": -5.5749,
+              "median": -5.5749
             }
           }
         },
@@ -1370,26 +1370,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 1,
+            "n": 14,
+            "pending": 5,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 28.5714,
             "insufficient": true,
             "maxRise": {
-              "mean": 1.1734,
-              "median": 1.1734
+              "mean": 7.072,
+              "median": 5.8566
             },
             "maxLoss": {
-              "mean": -7.395,
-              "median": -7.395
+              "mean": -11.9455,
+              "median": -12.2507
             },
             "endReturn": {
-              "mean": -1.3996,
-              "median": -1.3996
+              "mean": -4.0714,
+              "median": -2.9197
             },
             "closeDrawdown": {
-              "mean": -7.7578,
-              "median": -7.7578
+              "mean": -14.2914,
+              "median": -14.0546
             }
           },
           "gte90": {
@@ -1475,7 +1475,7 @@
             "lower": 43.5,
             "upper": 53.5,
             "n": 0,
-            "pending": 1,
+            "pending": 2,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1503,7 +1503,7 @@
             "lower": null,
             "upper": null,
             "n": 1,
-            "pending": 1,
+            "pending": 18,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
@@ -1555,7 +1555,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 3,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1581,7 +1581,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 3,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1607,7 +1607,7 @@
             "lower": 62,
             "upper": 72,
             "n": 0,
-            "pending": 1,
+            "pending": 6,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1634,33 +1634,33 @@
     "sp500": {
       "name": "S&P500",
       "key": "yahoo:^GSPC",
-      "judgments": 2,
+      "judgments": 19,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
+            "n": 18,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 50,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.3417,
-              "median": 0.3417
+              "mean": 0.9011,
+              "median": 0.6209
             },
             "maxLoss": {
-              "mean": -3.4578,
-              "median": -3.4578
+              "mean": -1.5111,
+              "median": -1.5148
             },
             "endReturn": {
-              "mean": -1.9153,
-              "median": -1.9153
+              "mean": -0.1418,
+              "median": 0.0758
             },
             "closeDrawdown": {
-              "mean": -3.0512,
-              "median": -3.0512
+              "mean": -1.3381,
+              "median": -1.4292
             }
           },
           "gte90": {
@@ -1745,26 +1745,26 @@
             "center": 41,
             "lower": 36,
             "upper": 46,
-            "n": 0,
+            "n": 2,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 1.0901,
+              "median": 1.0901
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -0.7252,
+              "median": -0.7252
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 0.4526,
+              "median": 0.4526
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -0.5534,
+              "median": -0.5534
             }
           }
         },
@@ -1773,26 +1773,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 1,
+            "n": 14,
+            "pending": 5,
             "missing": 0,
-            "winRate": 100,
+            "winRate": 57.1429,
             "insufficient": true,
             "maxRise": {
-              "mean": 2.6463,
-              "median": 2.6463
+              "mean": 2.0918,
+              "median": 1.6493
             },
             "maxLoss": {
-              "mean": -3.6735,
-              "median": -3.6735
+              "mean": -2.5298,
+              "median": -2.714
             },
             "endReturn": {
-              "mean": 2.3138,
-              "median": 2.3138
+              "mean": 0.6213,
+              "median": 0.3227
             },
             "closeDrawdown": {
-              "mean": -3.2106,
-              "median": -3.2106
+              "mean": -2.8433,
+              "median": -2.611
             }
           },
           "gte90": {
@@ -1825,78 +1825,78 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 2,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.2546,
+              "median": 0.2546
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -3.6231,
+              "median": -3.6231
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -2.031,
+              "median": -2.031
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -3.5293,
+              "median": -3.5293
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 0,
+            "n": 2,
             "pending": 0,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.2546,
+              "median": 0.2546
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -3.6231,
+              "median": -3.6231
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -2.031,
+              "median": -2.031
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -3.5293,
+              "median": -3.5293
             }
           },
           "near": {
             "center": 56.3,
             "lower": 51.3,
             "upper": 61.3,
-            "n": 0,
-            "pending": 1,
+            "n": 1,
+            "pending": 2,
             "missing": 0,
-            "winRate": null,
+            "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.8405,
+              "median": 0.8405
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.961,
+              "median": -2.961
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 0.3571,
+              "median": 0.3571
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -2.6511,
+              "median": -2.6511
             }
           }
         },
@@ -1906,7 +1906,7 @@
             "lower": null,
             "upper": null,
             "n": 1,
-            "pending": 1,
+            "pending": 18,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
@@ -1958,7 +1958,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 5,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1984,7 +1984,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 5,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -2010,7 +2010,7 @@
             "lower": 68,
             "upper": 78,
             "n": 1,
-            "pending": 1,
+            "pending": 10,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
@@ -2037,33 +2037,33 @@
     "nasdaq": {
       "name": "ナスダック総合",
       "key": "yahoo:^IXIC",
-      "judgments": 2,
+      "judgments": 18,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
+            "n": 17,
             "pending": 1,
             "missing": 0,
-            "winRate": 0,
+            "winRate": 47.0588,
             "insufficient": true,
             "maxRise": {
-              "mean": 0.3275,
-              "median": 0.3275
+              "mean": 1.2646,
+              "median": 0.8817
             },
             "maxLoss": {
-              "mean": -4.214,
-              "median": -4.214
+              "mean": -2.4582,
+              "median": -2.0696
             },
             "endReturn": {
-              "mean": -2.5911,
-              "median": -2.5911
+              "mean": -0.5376,
+              "median": -0.6761
             },
             "closeDrawdown": {
-              "mean": -3.4829,
-              "median": -3.4829
+              "mean": -2.3181,
+              "median": -2.4819
             }
           },
           "gte90": {
@@ -2148,26 +2148,26 @@
             "center": 61.5,
             "lower": 56.5,
             "upper": 66.5,
-            "n": 0,
+            "n": 1,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 0,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 0.0512,
+              "median": 0.0512
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.0696,
+              "median": -2.0696
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -1.2898,
+              "median": -1.2898
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -1.6844,
+              "median": -1.6844
             }
           }
         },
@@ -2176,26 +2176,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 1,
-            "pending": 1,
+            "n": 13,
+            "pending": 5,
             "missing": 0,
-            "winRate": 100,
+            "winRate": 38.4615,
             "insufficient": true,
             "maxRise": {
-              "mean": 1.7926,
+              "mean": 2.4078,
               "median": 1.7926
             },
             "maxLoss": {
-              "mean": -5.1657,
-              "median": -5.1657
+              "mean": -4.4161,
+              "median": -5.0369
             },
             "endReturn": {
-              "mean": 0.9096,
-              "median": 0.9096
+              "mean": -0.2331,
+              "median": -0.9453
             },
             "closeDrawdown": {
-              "mean": -4.7728,
-              "median": -4.7728
+              "mean": -4.8853,
+              "median": -5.1349
             }
           },
           "gte90": {
@@ -2281,7 +2281,7 @@
             "lower": 53.8,
             "upper": 63.8,
             "n": 0,
-            "pending": 1,
+            "pending": 2,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -2309,7 +2309,7 @@
             "lower": null,
             "upper": null,
             "n": 1,
-            "pending": 1,
+            "pending": 17,
             "missing": 0,
             "winRate": 0,
             "insufficient": true,
@@ -2361,7 +2361,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 4,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -2387,7 +2387,7 @@
             "lower": null,
             "upper": null,
             "n": 0,
-            "pending": 0,
+            "pending": 4,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -2413,7 +2413,7 @@
             "lower": 66.5,
             "upper": 76.5,
             "n": 1,
-            "pending": 1,
+            "pending": 6,
             "missing": 0,
             "winRate": 0,
             "insufficient": true,

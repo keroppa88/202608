@@ -1,0 +1,64 @@
+{
+  "version": "weekly-v1-c0cb345f448c",
+  "target": "sox",
+  "cutoff": "2026-05-29",
+  "asOf": "2026-05-29",
+  "requestHash": "37b2a6ba655c8f69e4816f16c53b84f3a4a705ee3977dd8ee11cdc429c1f901f",
+  "createdAt": "2026-09-21T15:04:06.207Z",
+  "response": {
+    "provider": "jev",
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 19860,
+      "output_tokens": 157
+    },
+    "horizons": [
+      {
+        "period": "short",
+        "label": "短期",
+        "days": 5,
+        "score": 71.5,
+        "status": "ok",
+        "confidence": 0.79,
+        "probabilities": {
+          "0": 0,
+          "1": 0.05,
+          "2": 0.09,
+          "3": 0.8,
+          "4": 0.06
+        }
+      },
+      {
+        "period": "medium",
+        "label": "中期",
+        "days": 20,
+        "score": 76.5,
+        "status": "ok",
+        "confidence": 0.86,
+        "probabilities": {
+          "0": 0,
+          "1": 0.01,
+          "2": 0.03,
+          "3": 0.85,
+          "4": 0.11
+        }
+      },
+      {
+        "period": "long",
+        "label": "長期",
+        "days": 100,
+        "score": 80.8,
+        "status": "ok",
+        "confidence": 0.75,
+        "probabilities": {
+          "0": 0,
+          "1": 0.01,
+          "2": 0.02,
+          "3": 0.71,
+          "4": 0.26
+        }
+      }
+    ],
+    "text": "JevによるAI分析\nSOX　基準日：2026-05-29\n使用データ：2015-01-02 ～ 2026-05-29（2868観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　71.5%\n中期（20営業日以内）　76.5%\n長期（100営業日以内）　80.8%"
+  }
+}

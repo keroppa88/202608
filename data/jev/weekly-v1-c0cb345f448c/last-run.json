@@ -1,8 +1,8 @@
 {
-  "mode": "aggregate",
-  "calls": 0,
-  "inputTokens": 0,
-  "estimatedUsd": 0,
-  "estimatedYenAt155": 0,
+  "mode": "backfill",
+  "calls": 100,
+  "inputTokens": 1991180,
+  "estimatedUsd": 0.08362956,
+  "estimatedYenAt155": 12.9625818,
   "failure": null
 }

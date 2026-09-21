@@ -1,0 +1,64 @@
+{
+  "version": "weekly-v1-c0cb345f448c",
+  "target": "sp500",
+  "cutoff": "2026-08-21",
+  "asOf": "2026-08-21",
+  "requestHash": "e590c0d0991eb051be6fa328b345e744120fdd8bb036dc0f4c8314b2574b36a3",
+  "createdAt": "2026-09-21T14:45:38.528Z",
+  "response": {
+    "provider": "jev",
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 19811,
+      "output_tokens": 157
+    },
+    "horizons": [
+      {
+        "period": "short",
+        "label": "短期",
+        "days": 5,
+        "score": 37.5,
+        "status": "ok",
+        "confidence": 0.53,
+        "probabilities": {
+          "0": 0.03,
+          "1": 0.6,
+          "2": 0.21,
+          "3": 0.16,
+          "4": 0
+        }
+      },
+      {
+        "period": "medium",
+        "label": "中期",
+        "days": 20,
+        "score": 71,
+        "status": "ok",
+        "confidence": 0.77,
+        "probabilities": {
+          "0": 0,
+          "1": 0.05,
+          "2": 0.11,
+          "3": 0.79,
+          "4": 0.05
+        }
+      },
+      {
+        "period": "long",
+        "label": "長期",
+        "days": 100,
+        "score": 75.8,
+        "status": "ok",
+        "confidence": 0.78,
+        "probabilities": {
+          "0": 0,
+          "1": 0.02,
+          "2": 0.06,
+          "3": 0.77,
+          "4": 0.15
+        }
+      }
+    ],
+    "text": "JevによるAI分析\nS&P500　基準日：2026-08-21\n使用データ：2015-01-02 ～ 2026-08-21（2926観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　37.5%\n中期（20営業日以内）　71%\n長期（100営業日以内）　75.8%"
+  }
+}
