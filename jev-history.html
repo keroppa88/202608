@@ -7,7 +7,10 @@
 <p class="note">このページの週次判定と実績は同じ固定条件です。AI分析画面で比較銘柄を自由に選ぶ通常のJev分析とは、判定条件が異なります。</p>
 <label>対象 <select id="target"><option value="nikkei">日経平均</option><option value="topix">TOPIX</option><option value="dow">NYダウ</option><option value="sox">SOX</option><option value="sp500">S&amp;P500</option><option value="nasdaq">ナスダック総合</option></select></label>
 <label>評価期間 <select id="period"><option value="5">5営業日</option><option value="20">20営業日</option><option value="100">100営業日</option></select></label>
-<p id="status">読み込み中…</p><div id="current"></div><h2>買い度別の実績</h2>
+<p id="status">読み込み中…</p><div id="current"></div><h2>今回に近い買い度の過去実績</h2>
+<p class="note">各期間の今回の買い度±5ポイント（両端を含む）。期間が終了した過去の判定だけで集計します。</p>
+<div class="scroll"><table><thead><tr><th>期間</th><th>今回の買い度</th><th>比較範囲</th><th>完了件数</th><th>最大上昇率・中央値</th><th>最大下落率・中央値</th><th>期間末騰落率・中央値</th><th>勝率</th></tr></thead><tbody id="matched"></tbody></table></div>
+<h2>買い度別の詳細実績</h2>
 <div class="scroll"><table><thead><tr><th>判定条件</th><th>完了件数</th><th>評価待ち</th><th>価格欠損</th><th>勝率</th><th>最大上昇率<br>中央値 / 平均</th><th>最大下落率<br>中央値 / 平均</th><th>期間末騰落率<br>中央値 / 平均</th><th>終値MDD<br>中央値 / 平均</th></tr></thead><tbody id="results"></tbody></table></div>
 <p class="note">翌週最初の取引日の始値を購入価格とし、期間中の高値・安値と期間末の終値を比較。最大下落率は購入価格からの下落、MDDは終値系列の高値からの下落です。手数料は含みません。基準は株価指数そのものの値動きです。</p>
 <p class="note">80%以上には90%以上も含まれます。「全判定」は同じ週次タイミングの比較基準です。20件未満は実績不足。週ごとの評価期間は重複するため、件数は独立した試行数ではありません。異なるモデル・評価設定の実績は混ぜません。</p>
@@ -19,9 +22,12 @@ function render(){
  const id=$('target').value,days=$('period').value,t=summary.targets[id],record=summary.latest[id];
  $('status').textContent=`${summary.from} ～ ${summary.through}　全体 ${summary.completed}/${summary.expected}判定　${t.name} ${t.judgments}判定`;
  $('current').textContent=record?`最新の保存済み週次判定（${record.cutoff}週末）\n${record.response.text}`:'この銘柄の判定を準備中です。';
+ $('matched').replaceChildren();
+ for(const n of [5,20,100]){const s=t.periods[n].near;if(!s)continue;const row=document.createElement('tr');for(const text of [n+'営業日',pct(s.center),s.center==null?'—':s.lower+'～'+s.upper+'%',s.n+(s.insufficient?'（実績不足）':''),pct(s.maxRise.median),pct(s.maxLoss.median),pct(s.endReturn.median),pct(s.winRate)]){const td=document.createElement('td');td.textContent=text;row.appendChild(td);}$('matched').appendChild(row);}
  $('results').replaceChildren();
- for(const [key,label] of [['all','全判定'],['gte90','90%以上'],['gte80','80%以上'],['80to90','80～90%未満']]){
-  const s=t.periods[days][key],row=document.createElement('tr');
+ const near=t.periods[days].near;
+ for(const [key,label] of [['near',near?.center==null?'今回に近い買い度（判定保留）':`今回${near.center}%：${near.lower}～${near.upper}%`],['all','全判定'],['gte90','90%以上'],['gte80','80%以上'],['80to90','80～90%未満']]){
+  const s=t.periods[days][key];if(!s)continue;const row=document.createElement('tr');
   for(const text of [label+(s.insufficient?'（実績不足）':''),s.n,s.pending,s.missing,pct(s.winRate),pair(s.maxRise),pair(s.maxLoss),pair(s.endReturn),pair(s.closeDrawdown)]){const td=document.createElement('td');td.textContent=text;row.appendChild(td);}
   $('results').appendChild(row);
  }

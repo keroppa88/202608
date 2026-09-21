@@ -42,7 +42,9 @@ const workerSource = fs.readFileSync(path.join(ROOT, 'worker/index.js'), 'utf8')
 export const workerApi = await import('data:text/javascript;base64,' + Buffer.from(workerSource).toString('base64'));
 // 実績は実装・モデル・質問文ごとに分離する。古い実績は上書きしない。
 export const VERSION = 'weekly-v1-c0cb345f448c';
-export const IMPLEMENTATION_HASH = hash((engineSource + fs.readFileSync(fileURLToPath(import.meta.url), 'utf8') + workerSource.slice(workerSource.indexOf('const JEV_HORIZONS'), workerSource.indexOf('async function callJev')) + fs.readFileSync(path.join(ROOT, 'correlation.js'), 'utf8')).replace(/\r\n/g, '\n'));
+const moduleSource = fs.readFileSync(fileURLToPath(import.meta.url), 'utf8');
+// 実績の集計区分や表示だけの変更ではAPI判定をやり直さない。
+export const IMPLEMENTATION_HASH = hash((engineSource + JSON.stringify(ASSETS) + MODEL + moduleSource.slice(moduleSource.indexOf('const round ='), moduleSource.indexOf('export function outcome')) + workerSource.slice(workerSource.indexOf('const JEV_HORIZONS'), workerSource.indexOf('async function callJev')) + fs.readFileSync(path.join(ROOT, 'correlation.js'), 'utf8')).replace(/\r\n/g, '\n'));
 export function splitCsv(line) {
   const out = []; let value = '', quoted = false;
   for (let i = 0; i < line.length; i++) {
@@ -143,10 +145,15 @@ export function aggregate(records, market) {
     output[t.id]={name:t.name,key:t.key,judgments:list.length,periods:{}};
     for (const days of DAYS) {
       const all=list.map(r=>({cutoff:r.cutoff,score:r.response.horizons.find(h=>h.days===days)?.score,...outcome(market[t.key],r.cutoff,days)}));
-      const groups=[['all',()=>true],['gte90',r=>r.score!==null&&r.score>=90],['gte80',r=>r.score!==null&&r.score>=80],['80to90',r=>r.score!==null&&r.score>=80&&r.score<90]];
+      const latest=list.slice().sort((a,b)=>b.cutoff.localeCompare(a.cutoff))[0];
+      const center=latest?.response.horizons.find(h=>h.days===days)?.score;
+      // 各期間の最新買い度±5ポイント。小数の判定値も丸めずに含める。
+      const groups=[['all',()=>true],['gte90',r=>r.score!==null&&r.score>=90],['gte80',r=>r.score!==null&&r.score>=80],['80to90',r=>r.score!==null&&r.score>=80&&r.score<90],
+        ['near',r=>typeof center==='number'&&typeof r.score==='number'&&r.score>=Math.max(0,center-5)&&r.score<=Math.min(100,center+5)]];
       output[t.id].periods[days]=Object.fromEntries(groups.map(([key,select])=>{
         const selected=all.filter(select), complete=selected.filter(r=>r.status==='complete');
-        const stats={n:complete.length,pending:selected.filter(r=>r.status==='pending').length,missing:selected.filter(r=>r.status==='missing_ohlc').length,
+        const stats={center:key==='near'?center??null:null,lower:key==='near'&&typeof center==='number'?round(Math.max(0,center-5)):null,upper:key==='near'&&typeof center==='number'?round(Math.min(100,center+5)):null,
+          n:complete.length,pending:selected.filter(r=>r.status==='pending').length,missing:selected.filter(r=>r.status==='missing_ohlc').length,
           winRate:complete.length?round(100*complete.filter(r=>r.endReturn>0).length/complete.length):null,insufficient:complete.length<20};
         for(const field of ['maxRise','maxLoss','endReturn','closeDrawdown']) {
           const values=complete.map(r=>r[field]).sort((a,b)=>a-b);

@@ -1,0 +1,350 @@
+[
+  {
+    "target": "nikkei",
+    "cutoff": "2021-09-24",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-01",
+        "entry": 30277.82,
+        "maxRise": 0.4518,
+        "maxLoss": -5.2748,
+        "endReturn": -4.9764,
+        "closeDrawdown": -4.9764
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-22",
+        "entry": 30277.82,
+        "maxRise": 0.4518,
+        "maxLoss": -9.8561,
+        "endReturn": -4.8648,
+        "closeDrawdown": -9.0791
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2022-02-21",
+        "entry": 30277.82,
+        "maxRise": 0.4518,
+        "maxLoss": -13.9815,
+        "endReturn": -11.1202,
+        "closeDrawdown": -13.5661
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2026-09-11",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-09-14",
+        "endDate": "2026-09-18",
+        "entry": 63659.53125,
+        "maxRise": 2.7915,
+        "maxLoss": -1.4662,
+        "endReturn": 2.1355,
+        "closeDrawdown": -0.2756
+      },
+      "20": {
+        "status": "pending",
+        "observations": 5
+      },
+      "100": {
+        "status": "pending",
+        "observations": 5
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2026-09-18",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2021-09-24",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-01",
+        "entry": 2097.34,
+        "maxRise": 0.3829,
+        "maxLoss": -5.4898,
+        "endReturn": -5.2938,
+        "closeDrawdown": -5.2938
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-22",
+        "entry": 2097.34,
+        "maxRise": 0.3829,
+        "maxLoss": -8.0902,
+        "endReturn": -4.5348,
+        "closeDrawdown": -7.52
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2022-02-21",
+        "entry": 2097.34,
+        "maxRise": 0.3829,
+        "maxLoss": -12.4958,
+        "endReturn": -8.8998,
+        "closeDrawdown": -12.1535
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2026-09-18",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2021-09-24",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-01",
+        "entry": 34739.26953125,
+        "maxRise": 0.9265,
+        "maxLoss": -2.7454,
+        "endReturn": -1.1883,
+        "closeDrawdown": -2.9408
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-22",
+        "entry": 34739.26953125,
+        "maxRise": 2.9527,
+        "maxLoss": -2.7454,
+        "endReturn": 2.6994,
+        "closeDrawdown": -2.9408
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2022-02-16",
+        "entry": 34739.26953125,
+        "maxRise": 6.3714,
+        "maxLoss": -4.5739,
+        "endReturn": 0.5613,
+        "closeDrawdown": -7.1709
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2026-09-18",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2021-09-24",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-01",
+        "entry": 3418.1201171875,
+        "maxRise": 1.1734,
+        "maxLoss": -6.1311,
+        "endReturn": -4.5914,
+        "closeDrawdown": -5.4376
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-22",
+        "entry": 3418.1201171875,
+        "maxRise": 1.1734,
+        "maxLoss": -7.395,
+        "endReturn": -1.3996,
+        "closeDrawdown": -7.7578
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2022-02-16",
+        "entry": 3418.1201171875,
+        "maxRise": 19.0172,
+        "maxLoss": -7.9178,
+        "endReturn": 4.0247,
+        "closeDrawdown": -19.6932
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2026-09-18",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2021-09-24",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-01",
+        "entry": 4442.1201171875,
+        "maxRise": 0.3417,
+        "maxLoss": -3.4578,
+        "endReturn": -1.9153,
+        "closeDrawdown": -3.0512
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-22",
+        "entry": 4442.1201171875,
+        "maxRise": 2.6463,
+        "maxLoss": -3.6735,
+        "endReturn": 2.3138,
+        "closeDrawdown": -3.2106
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2022-02-16",
+        "entry": 4442.1201171875,
+        "maxRise": 8.4757,
+        "maxLoss": -4.9413,
+        "endReturn": 0.7404,
+        "closeDrawdown": -9.7997
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2026-09-18",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2021-09-24",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-01",
+        "entry": 14954.1796875,
+        "maxRise": 0.3275,
+        "maxLoss": -4.214,
+        "endReturn": -2.5911,
+        "closeDrawdown": -3.4829
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2021-10-22",
+        "entry": 14954.1796875,
+        "maxRise": 1.7926,
+        "maxLoss": -5.1657,
+        "endReturn": 0.9096,
+        "closeDrawdown": -4.7728
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2021-09-27",
+        "endDate": "2022-02-16",
+        "entry": 14954.1796875,
+        "maxRise": 8.4127,
+        "maxLoss": -12.4348,
+        "endReturn": -5.5509,
+        "closeDrawdown": -16.8437
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2026-09-18",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  }
+]

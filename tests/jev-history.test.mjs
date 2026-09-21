@@ -39,3 +39,12 @@ test('future prices cannot change the payload, comparisons are fixed and yields 
   assert.equal(yieldData.unit,'percentage_points');
   assert.ok(Math.abs(yieldData.change[5]-(series.at(-1).c-series.at(-6).c)/100)<.0001);
 });
+
+test('each horizon matches its own latest score ±5 inclusively, not the score of another horizon',()=>{
+  const records=[0,1,2,3].map(i=>({version:VERSION,target:'nikkei',cutoff:'2026-01-02',response:{model:MODEL,horizons:[
+    {days:5,score:[35,45,34.9,45.1][i]},{days:20,score:[25,35,24.9,35.1][i]},{days:100,score:[25,35,24.9,35.1][i]}]}}));
+  records.push({version:VERSION,target:'nikkei',cutoff:'2026-09-18',response:{model:MODEL,horizons:[{days:5,score:40},{days:20,score:30},{days:100,score:30}]}});
+  const rows=Array.from({length:100},(_,i)=>({d:new Date(Date.UTC(2026,0,5+i)).toISOString().slice(0,10),o:100,h:110,l:90,c:105}));
+  const result=aggregate(records,Object.fromEntries(TARGETS.map(t=>[t.key,rows]))).nikkei;
+  for(const days of [5,20,100]){const s=result.periods[days].near;assert.equal(s.n,2);assert.equal(s.pending,1);assert.equal(s.lower,days===5?35:25);assert.equal(s.upper,days===5?45:35);}
+});
