@@ -12,6 +12,7 @@ on:
     branches: [main]
   workflow_run:
     workflows:
+      - Jev週次実績
       - 相場データ取得（海外）
       - 相場データ取得（日本株）
       - 相場データ取得（暗号資産）

@@ -1,0 +1,70 @@
+name: Jev週次実績
+on:
+  schedule:
+    - cron: '0 1 * * 6' # 土曜10時JST。日米と為替の週末データ確定後
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [update, pilot, backfill, aggregate]
+        default: update
+      limit:
+        description: '新規API呼び出しの上限（再実行は保存済みをスキップ）'
+        default: '2000'
+        type: string
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: jev-history
+  cancel-in-progress: false
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: |
+            /*
+            !/data/raw/
+            !/data/stocks/
+            !/data/financedata/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: 集計ロジックの検証
+        run: node --test tests/jev-history.test.mjs
+      - name: 判定と実績更新
+        env:
+          MODE: ${{ inputs.mode || 'update' }}
+          LIMIT: ${{ github.event_name == 'schedule' && '6' || inputs.limit || '2000' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$MODE" != backfill ]; then
+            node src/run-jev-history.mjs --mode "$MODE" --limit "$LIMIT"
+          else
+            # 長い初回処理も100判定ごとに保存。時間切れ時の再開単位を小さくする。
+            [[ "$LIMIT" =~ ^[0-9]+$ ]] && [ "$LIMIT" -le 2000 ] && [ "$LIMIT" -ge 1 ]
+            remaining="$LIMIT"
+            batches=0
+            finished=0
+            while [ "$remaining" -gt 0 ] && [ "$batches" -lt 4 ]; do
+              batch=$((remaining < 100 ? remaining : 100))
+              node src/run-jev-history.mjs --mode backfill --limit "$batch"
+              bash .github/scripts/commit.sh "Jev過去実績の追加 $(date -u +%Y-%m-%d)"
+              calls=$(node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('data/jev/manifest.json')); const p=m.summary.replace('summary.json','last-run.json'); console.log(JSON.parse(fs.readFileSync(p)).calls)")
+              remaining=$((remaining-calls))
+              batches=$((batches+1))
+              if [ "$calls" -lt "$batch" ]; then finished=1; break; fi
+            done
+            # 400判定ごとに実行を分け、ジョブの時間上限を越えずに最後まで継続する。
+            if [ "$remaining" -gt 0 ] && [ "$finished" -eq 0 ]; then
+              gh workflow run jev-history.yml --ref main -f mode=backfill -f limit="$remaining"
+            fi
+          fi
+      - name: 途中結果も保存
+        if: always()
+        run: bash .github/scripts/commit.sh "Jev週次実績 $(date -u +%Y-%m-%d)"

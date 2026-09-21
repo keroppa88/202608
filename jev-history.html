@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jev週次判定・過去実績</title>
+<style>body{background:#080d0a;color:#d1e8d8;font:16px system-ui;margin:0;padding:24px;line-height:1.6}main{max-width:1100px;margin:auto}a{color:#77e5a1}select,button{font:inherit;background:#122219;color:inherit;border:1px solid #4c765b;padding:8px;margin:4px}h1{font-size:24px}h2{font-size:20px}table{border-collapse:collapse;width:100%;white-space:nowrap}th,td{padding:10px;text-align:right;border-bottom:1px solid #35503e}th:first-child,td:first-child{text-align:left}.scroll{overflow:auto}.note{color:#a8b7ac;font-size:14px}#current{white-space:pre-wrap;padding:16px;border:1px solid #35503e}</style>
+<main><a href="./">相場データへ戻る</a><h1>Jev週次判定・過去実績</h1>
+<p>6指数を毎週末に評価。対象以外の5指数とドル円・米国10年債利回り・日本10年債利回りを固定で比較します。</p>
+<p class="note">このページの週次判定と実績は同じ固定条件です。AI分析画面で比較銘柄を自由に選ぶ通常のJev分析とは、判定条件が異なります。</p>
+<label>対象 <select id="target"><option value="nikkei">日経平均</option><option value="topix">TOPIX</option><option value="dow">NYダウ</option><option value="sox">SOX</option><option value="sp500">S&amp;P500</option><option value="nasdaq">ナスダック総合</option></select></label>
+<label>評価期間 <select id="period"><option value="5">5営業日</option><option value="20">20営業日</option><option value="100">100営業日</option></select></label>
+<p id="status">読み込み中…</p><div id="current"></div><h2>買い度別の実績</h2>
+<div class="scroll"><table><thead><tr><th>判定条件</th><th>完了件数</th><th>評価待ち</th><th>価格欠損</th><th>勝率</th><th>最大上昇率<br>中央値 / 平均</th><th>最大下落率<br>中央値 / 平均</th><th>期間末騰落率<br>中央値 / 平均</th><th>終値MDD<br>中央値 / 平均</th></tr></thead><tbody id="results"></tbody></table></div>
+<p class="note">翌週最初の取引日の始値を購入価格とし、期間中の高値・安値と期間末の終値を比較。最大下落率は購入価格からの下落、MDDは終値系列の高値からの下落です。手数料は含みません。基準は株価指数そのものの値動きです。</p>
+<p class="note">80%以上には90%以上も含まれます。「全判定」は同じ週次タイミングの比較基準です。20件未満は実績不足。週ごとの評価期間は重複するため、件数は独立した試行数ではありません。異なるモデル・評価設定の実績は混ぜません。</p>
+<p class="note">現在の保存済み過去データによる再評価です。データ改訂やモデルが学習した過去情報の影響まで除いた、当時のリアルタイム運用実績ではありません。</p>
+</main><script>
+let summary;
+const $=id=>document.getElementById(id),pct=v=>v===null||v===undefined?'—':v.toFixed(2)+'%',pair=s=>pct(s.median)+' / '+pct(s.mean);
+function render(){
+ const id=$('target').value,days=$('period').value,t=summary.targets[id],record=summary.latest[id];
+ $('status').textContent=`${summary.from} ～ ${summary.through}　全体 ${summary.completed}/${summary.expected}判定　${t.name} ${t.judgments}判定`;
+ $('current').textContent=record?`最新の保存済み週次判定（${record.cutoff}週末）\n${record.response.text}`:'この銘柄の判定を準備中です。';
+ $('results').replaceChildren();
+ for(const [key,label] of [['all','全判定'],['gte90','90%以上'],['gte80','80%以上'],['80to90','80～90%未満']]){
+  const s=t.periods[days][key],row=document.createElement('tr');
+  for(const text of [label+(s.insufficient?'（実績不足）':''),s.n,s.pending,s.missing,pct(s.winRate),pair(s.maxRise),pair(s.maxLoss),pair(s.endReturn),pair(s.closeDrawdown)]){const td=document.createElement('td');td.textContent=text;row.appendChild(td);}
+  $('results').appendChild(row);
+ }
+}
+async function load(){try{const m=await fetch('data/jev/manifest.json',{cache:'no-store'});if(!m.ok)throw Error('実績の初回集計を準備中です');const manifest=await m.json();const r=await fetch(manifest.summary,{cache:'no-store'});if(!r.ok)throw Error('実績を取得できませんでした');summary=await r.json();const selected=new URLSearchParams(location.search).get('target');if(selected&&summary.targets[selected])$('target').value=selected;render();}catch(e){$('status').textContent=e.message;}}
+$('target').addEventListener('change',render);$('period').addEventListener('change',render);load();
+</script></html>

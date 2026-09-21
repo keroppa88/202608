@@ -105,6 +105,7 @@
       <button id="aitheme" title="押すたびに配色が変わる">Color</button>
       <button id="ai-run" class="ai-top-action" title="Gemini APIでAI分析する">GeminiAPIによるAI分析</button>
       <button id="ai-jev" class="ai-top-action" title="既存の分析素材で短期5日・中期20日・長期100日の買い度を評価する">JevによるAI分析</button>
+      <a href="jev-history.html" class="ai-top-action" style="color:var(--fg);padding:6px" title="6指数・固定8比較の週末判定と、同じ条件による過去5年の実績">Jev週次判定・過去実績</a>
       <button id="ai-prompt" class="ai-top-action" title="他のAIへ貼り付ける分析用プロンプトを出力する">AI分析用プロンプト出力</button>
       <div class="spacer"></div>
       <div class="note" id="aistatus"></div>
