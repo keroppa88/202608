@@ -1,0 +1,64 @@
+{
+  "version": "weekly-v1-c0cb345f448c",
+  "target": "nasdaq",
+  "cutoff": "2026-03-06",
+  "asOf": "2026-03-06",
+  "requestHash": "5498bb46dcd7304d467c5d4f1683816013b44892622e481dc882753041d37994",
+  "createdAt": "2026-09-21T15:23:32.294Z",
+  "response": {
+    "provider": "jev",
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 19962,
+      "output_tokens": 157
+    },
+    "horizons": [
+      {
+        "period": "short",
+        "label": "短期",
+        "days": 5,
+        "score": 22.5,
+        "status": "ok",
+        "confidence": 0.76,
+        "probabilities": {
+          "0": 0.19,
+          "1": 0.74,
+          "2": 0.05,
+          "3": 0.02,
+          "4": 0
+        }
+      },
+      {
+        "period": "medium",
+        "label": "中期",
+        "days": 20,
+        "score": 26,
+        "status": "ok",
+        "confidence": 0.71,
+        "probabilities": {
+          "0": 0.16,
+          "1": 0.71,
+          "2": 0.07,
+          "3": 0.06,
+          "4": 0
+        }
+      },
+      {
+        "period": "long",
+        "label": "長期",
+        "days": 100,
+        "score": 46.3,
+        "status": "ok",
+        "confidence": 0.21,
+        "probabilities": {
+          "0": 0.05,
+          "1": 0.44,
+          "2": 0.14,
+          "3": 0.34,
+          "4": 0.03
+        }
+      }
+    ],
+    "text": "JevによるAI分析\nナスダック総合　基準日：2026-03-06\n使用データ：2015-01-02 ～ 2026-03-06（2810観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　22.5%\n中期（20営業日以内）　26%\n長期（100営業日以内）　46.3%"
+  }
+}

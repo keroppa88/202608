@@ -1,0 +1,64 @@
+{
+  "version": "weekly-v1-c0cb345f448c",
+  "target": "topix",
+  "cutoff": "2026-03-13",
+  "asOf": "2026-03-13",
+  "requestHash": "15a3ff832939b67fe964a76cdeaebc7bbeaa3ec6725d0020bc30293aaa46826e",
+  "createdAt": "2026-09-21T15:20:55.742Z",
+  "response": {
+    "provider": "jev",
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 19897,
+      "output_tokens": 157
+    },
+    "horizons": [
+      {
+        "period": "short",
+        "label": "短期",
+        "days": 5,
+        "score": 22.3,
+        "status": "ok",
+        "confidence": 0.82,
+        "probabilities": {
+          "0": 0.16,
+          "1": 0.8,
+          "2": 0.03,
+          "3": 0.01,
+          "4": 0
+        }
+      },
+      {
+        "period": "medium",
+        "label": "中期",
+        "days": 20,
+        "score": 34.5,
+        "status": "ok",
+        "confidence": 0.54,
+        "probabilities": {
+          "0": 0.09,
+          "1": 0.62,
+          "2": 0.12,
+          "3": 0.17,
+          "4": 0
+        }
+      },
+      {
+        "period": "long",
+        "label": "長期",
+        "days": 100,
+        "score": 62.8,
+        "status": "ok",
+        "confidence": 0.51,
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.19,
+          "2": 0.13,
+          "3": 0.63,
+          "4": 0.04
+        }
+      }
+    ],
+    "text": "JevによるAI分析\nTOPIX　基準日：2026-03-13\n使用データ：2015-01-05 ～ 2026-03-13（2735観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　22.3%\n中期（20営業日以内）　34.5%\n長期（100営業日以内）　62.8%"
+  }
+}
