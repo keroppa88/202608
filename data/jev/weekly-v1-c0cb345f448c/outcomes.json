@@ -1,37 +1,253 @@
 [
   {
     "target": "nikkei",
-    "cutoff": "2021-09-24",
+    "cutoff": "2025-12-05",
     "periods": {
       "5": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-01",
-        "entry": 30277.82,
-        "maxRise": 0.4518,
-        "maxLoss": -5.2748,
-        "endReturn": -4.9764,
-        "closeDrawdown": -4.9764
+        "entryDate": "2025-12-08",
+        "endDate": "2025-12-12",
+        "entry": 50643.09,
+        "maxRise": 0.9569,
+        "maxLoss": -1.4154,
+        "endReturn": 0.382,
+        "closeDrawdown": -0.9995
       },
       "20": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-22",
-        "entry": 30277.82,
-        "maxRise": 0.4518,
-        "maxLoss": -9.8561,
-        "endReturn": -4.8648,
-        "closeDrawdown": -9.0791
+        "entryDate": "2025-12-08",
+        "endDate": "2026-01-07",
+        "entry": 50643.09,
+        "maxRise": 3.7136,
+        "maxLoss": -3.9478,
+        "endReturn": 2.6043,
+        "closeDrawdown": -3.6097
       },
       "100": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2022-02-21",
-        "entry": 30277.82,
-        "maxRise": 0.4518,
-        "maxLoss": -13.9815,
-        "endReturn": -11.1202,
-        "closeDrawdown": -13.5661
+        "entryDate": "2025-12-08",
+        "endDate": "2026-05-11",
+        "entry": 50643.09,
+        "maxRise": 25.1603,
+        "maxLoss": -3.9478,
+        "endReturn": 23.2505,
+        "closeDrawdown": -13.2311
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2025-12-12",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-15",
+        "endDate": "2025-12-19",
+        "entry": 50352.09,
+        "maxRise": 0.1589,
+        "maxLoss": -3.3927,
+        "endReturn": -1.6779,
+        "closeDrawdown": -2.6823
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-15",
+        "endDate": "2026-01-15",
+        "entry": 50352.09,
+        "maxRise": 8.2126,
+        "maxLoss": -3.3927,
+        "endReturn": 7.4643,
+        "closeDrawdown": -2.6823
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-15",
+        "endDate": "2026-05-18",
+        "entry": 50352.09,
+        "maxRise": 26.7064,
+        "maxLoss": -3.3927,
+        "endReturn": 20.7814,
+        "closeDrawdown": -13.2311
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2025-12-19",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2025-12-26",
+        "entry": 50084.55,
+        "maxRise": 1.7118,
+        "maxLoss": -0.2044,
+        "endReturn": 1.3294,
+        "closeDrawdown": -0.1364
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-01-22",
+        "entry": 50084.55,
+        "maxRise": 8.7907,
+        "maxLoss": -0.2044,
+        "endReturn": 7.1965,
+        "closeDrawdown": -2.8829
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-05-25",
+        "entry": 50084.55,
+        "maxRise": 30.5969,
+        "maxLoss": -0.2044,
+        "endReturn": 30.0964,
+        "closeDrawdown": -13.2311
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2025-12-26",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-07",
+        "entry": 50691.22,
+        "maxRise": 3.6151,
+        "maxLoss": -0.9711,
+        "endReturn": 2.5069,
+        "closeDrawdown": -1.0589
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-29",
+        "entry": 50691.22,
+        "maxRise": 7.4887,
+        "maxLoss": -0.9711,
+        "endReturn": 5.2956,
+        "closeDrawdown": -2.8829
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-06-01",
+        "entry": 50691.22,
+        "maxRise": 32.629,
+        "maxLoss": -0.9711,
+        "endReturn": 32.0432,
+        "closeDrawdown": -13.2311
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2026-01-02",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-01-09",
+        "entry": 51010.28,
+        "maxRise": 2.967,
+        "maxLoss": -0.0286,
+        "endReturn": 1.8224,
+        "closeDrawdown": -2.6673
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-02-02",
+        "entry": 51010.28,
+        "maxRise": 6.8164,
+        "maxLoss": -0.0286,
+        "endReturn": 3.2246,
+        "closeDrawdown": -3.1027
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-06-03",
+        "entry": 51010.28,
+        "maxRise": 34.8483,
+        "maxLoss": -0.8849,
+        "endReturn": 34.0948,
+        "closeDrawdown": -13.2311
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2026-01-09",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-13",
+        "endDate": "2026-01-19",
+        "entry": 52808.29,
+        "maxRise": 3.1795,
+        "maxLoss": -0.1262,
+        "endReturn": 1.4681,
+        "closeDrawdown": -1.3943
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-13",
+        "endDate": "2026-02-09",
+        "entry": 52808.29,
+        "maxRise": 8.5759,
+        "maxLoss": -1.1617,
+        "endReturn": 6.7331,
+        "closeDrawdown": -3.1027
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-13",
+        "endDate": "2026-06-10",
+        "entry": 52808.29,
+        "maxRise": 30.257,
+        "maxLoss": -4.2595,
+        "endReturn": 21.5326,
+        "closeDrawdown": -13.2311
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2026-01-16",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-19",
+        "endDate": "2026-01-23",
+        "entry": 53390.05,
+        "maxRise": 1.2377,
+        "maxLoss": -2.2387,
+        "endReturn": 0.8556,
+        "closeDrawdown": -1.5097
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-19",
+        "endDate": "2026-02-16",
+        "entry": 53390.05,
+        "maxRise": 8.6627,
+        "maxLoss": -2.2387,
+        "endReturn": 6.3989,
+        "closeDrawdown": -2.2131
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-19",
+        "endDate": "2026-06-16",
+        "entry": 53390.05,
+        "maxRise": 31.1493,
+        "maxLoss": -5.3027,
+        "endReturn": 29.9952,
+        "closeDrawdown": -13.2311
       }
     }
   },
@@ -528,8 +744,14 @@
         "closeDrawdown": -5.4806
       },
       "100": {
-        "status": "pending",
-        "observations": 99
+        "status": "complete",
+        "entryDate": "2026-04-27",
+        "endDate": "2026-09-24",
+        "entry": 59880.71,
+        "maxRise": 21.628,
+        "maxLoss": -1.5907,
+        "endReturn": 9.4075,
+        "closeDrawdown": -15.1067
       }
     }
   },
@@ -559,7 +781,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 95
+        "observations": 97
       }
     }
   },
@@ -589,7 +811,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 93
+        "observations": 95
       }
     }
   },
@@ -619,7 +841,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 88
+        "observations": 90
       }
     }
   },
@@ -649,7 +871,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 83
+        "observations": 85
       }
     }
   },
@@ -679,7 +901,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 78
+        "observations": 80
       }
     }
   },
@@ -709,7 +931,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 73
+        "observations": 75
       }
     }
   },
@@ -739,7 +961,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 68
+        "observations": 70
       }
     }
   },
@@ -769,7 +991,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 63
+        "observations": 65
       }
     }
   },
@@ -799,7 +1021,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 58
+        "observations": 60
       }
     }
   },
@@ -829,7 +1051,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 53
+        "observations": 55
       }
     }
   },
@@ -859,7 +1081,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 48
+        "observations": 50
       }
     }
   },
@@ -889,7 +1111,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 43
+        "observations": 45
       }
     }
   },
@@ -919,7 +1141,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 39
+        "observations": 41
       }
     }
   },
@@ -949,7 +1171,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 34
+        "observations": 36
       }
     }
   },
@@ -979,7 +1201,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 29
+        "observations": 31
       }
     }
   },
@@ -1009,7 +1231,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 25
+        "observations": 27
       }
     }
   },
@@ -1039,7 +1261,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 20
+        "observations": 22
       }
     }
   },
@@ -1059,11 +1281,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 15
+        "observations": 17
       },
       "100": {
         "status": "pending",
-        "observations": 15
+        "observations": 17
       }
     }
   },
@@ -1083,11 +1305,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 12
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 12
       }
     }
   },
@@ -1107,11 +1329,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 7
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 7
       }
     }
   },
@@ -1121,51 +1343,267 @@
     "periods": {
       "5": {
         "status": "pending",
-        "observations": 0
+        "observations": 2
       },
       "20": {
         "status": "pending",
-        "observations": 0
+        "observations": 2
       },
       "100": {
         "status": "pending",
-        "observations": 0
+        "observations": 2
       }
     }
   },
   {
     "target": "topix",
-    "cutoff": "2021-09-24",
+    "cutoff": "2025-12-05",
     "periods": {
       "5": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-01",
-        "entry": 2097.34,
-        "maxRise": 0.3829,
-        "maxLoss": -5.4898,
-        "endReturn": -5.2938,
-        "closeDrawdown": -5.2938
+        "entryDate": "2025-12-08",
+        "endDate": "2025-12-12",
+        "entry": 3369.21,
+        "maxRise": 1.755,
+        "maxLoss": -0.5069,
+        "endReturn": 1.6212,
+        "closeDrawdown": -0.9377
       },
       "20": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-22",
-        "entry": 2097.34,
-        "maxRise": 0.3829,
-        "maxLoss": -8.0902,
-        "endReturn": -4.5348,
-        "closeDrawdown": -7.52
+        "entryDate": "2025-12-08",
+        "endDate": "2026-01-07",
+        "entry": 3369.21,
+        "maxRise": 5.0685,
+        "maxLoss": -0.8135,
+        "endReturn": 4.2185,
+        "closeDrawdown": -2.1734
       },
       "100": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2022-02-21",
-        "entry": 2097.34,
-        "maxRise": 0.3829,
-        "maxLoss": -12.4958,
-        "endReturn": -8.8998,
-        "closeDrawdown": -12.1535
+        "entryDate": "2025-12-08",
+        "endDate": "2026-05-11",
+        "entry": 3369.21,
+        "maxRise": 16.9022,
+        "maxLoss": -0.8135,
+        "endReturn": 14.0009,
+        "closeDrawdown": -11.482
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2025-12-12",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-15",
+        "endDate": "2025-12-19",
+        "entry": 3413.11,
+        "maxRise": 0.6296,
+        "maxLoss": -2.0893,
+        "endReturn": -0.8628,
+        "closeDrawdown": -2.1734
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-15",
+        "endDate": "2026-01-15",
+        "entry": 3413.11,
+        "maxRise": 7.6646,
+        "maxLoss": -2.0893,
+        "endReturn": 7.4967,
+        "closeDrawdown": -2.1734
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-15",
+        "endDate": "2026-05-18",
+        "entry": 3413.11,
+        "maxRise": 15.3986,
+        "maxLoss": -2.0893,
+        "endReturn": 12.1121,
+        "closeDrawdown": -11.482
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2025-12-19",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2025-12-26",
+        "entry": 3415.79,
+        "maxRise": 0.6136,
+        "maxLoss": -0.3856,
+        "endReturn": 0.2128,
+        "closeDrawdown": -0.4639
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-01-22",
+        "entry": 3415.79,
+        "maxRise": 7.5801,
+        "maxLoss": -0.3856,
+        "endReturn": 5.8724,
+        "closeDrawdown": -2.1608
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-05-25",
+        "entry": 3415.79,
+        "maxRise": 15.7533,
+        "maxLoss": -0.3856,
+        "endReturn": 15.4219,
+        "closeDrawdown": -11.482
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2025-12-26",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-07",
+        "entry": 3422,
+        "maxRise": 3.4477,
+        "maxLoss": -0.3808,
+        "endReturn": 2.6108,
+        "closeDrawdown": -0.7659
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-29",
+        "entry": 3422,
+        "maxRise": 7.3849,
+        "maxLoss": -0.3808,
+        "endReturn": 3.6032,
+        "closeDrawdown": -3.6383
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-06-02",
+        "entry": 3422,
+        "maxRise": 16.4401,
+        "maxLoss": -0.3808,
+        "endReturn": 14.6768,
+        "closeDrawdown": -11.482
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2026-01-02",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-01-09",
+        "entry": 3448.77,
+        "maxRise": 2.6447,
+        "maxLoss": 0,
+        "endReturn": 1.8946,
+        "closeDrawdown": -1.5289
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-02-02",
+        "entry": 3448.77,
+        "maxRise": 6.5513,
+        "maxLoss": 0,
+        "endReturn": 2.5331,
+        "closeDrawdown": -3.6383
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-06-04",
+        "entry": 3448.77,
+        "maxRise": 16.4392,
+        "maxLoss": -0.0415,
+        "endReturn": 14.5872,
+        "closeDrawdown": -11.482
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2026-01-09",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-13",
+        "endDate": "2026-01-19",
+        "entry": 3566.42,
+        "maxRise": 3.0364,
+        "maxLoss": -0.1065,
+        "endReturn": 2.523,
+        "closeDrawdown": -0.3429
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-13",
+        "endDate": "2026-02-09",
+        "entry": 3566.42,
+        "maxRise": 7.2692,
+        "maxLoss": -1.6459,
+        "endReturn": 6.0887,
+        "closeDrawdown": -3.6383
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-13",
+        "endDate": "2026-06-11",
+        "entry": 3566.42,
+        "maxRise": 12.5981,
+        "maxLoss": -3.3389,
+        "endReturn": 7.4004,
+        "closeDrawdown": -11.482
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2026-01-16",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-19",
+        "endDate": "2026-01-23",
+        "entry": 3634.9,
+        "maxRise": 0.635,
+        "maxLoss": -1.8157,
+        "endReturn": -0.1431,
+        "closeDrawdown": -1.8242
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-19",
+        "endDate": "2026-02-16",
+        "entry": 3634.9,
+        "maxRise": 6.9889,
+        "maxLoss": -3.4989,
+        "endReturn": 4.1949,
+        "closeDrawdown": -3.3068
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-19",
+        "endDate": "2026-06-17",
+        "entry": 3634.9,
+        "maxRise": 11.016,
+        "maxLoss": -5.16,
+        "endReturn": 10.4083,
+        "closeDrawdown": -11.482
       }
     }
   },
@@ -1663,7 +2101,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 96
+        "observations": 98
       }
     }
   },
@@ -1693,7 +2131,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 92
+        "observations": 94
       }
     }
   },
@@ -1723,7 +2161,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 90
+        "observations": 92
       }
     }
   },
@@ -1753,7 +2191,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 85
+        "observations": 87
       }
     }
   },
@@ -1783,7 +2221,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 80
+        "observations": 82
       }
     }
   },
@@ -1813,7 +2251,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 76
+        "observations": 78
       }
     }
   },
@@ -1843,7 +2281,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 71
+        "observations": 73
       }
     }
   },
@@ -1873,7 +2311,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 66
+        "observations": 68
       }
     }
   },
@@ -1903,7 +2341,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 61
+        "observations": 63
       }
     }
   },
@@ -1933,7 +2371,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 56
+        "observations": 58
       }
     }
   },
@@ -1963,7 +2401,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 51
+        "observations": 53
       }
     }
   },
@@ -1993,7 +2431,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 46
+        "observations": 48
       }
     }
   },
@@ -2023,7 +2461,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 41
+        "observations": 43
       }
     }
   },
@@ -2053,7 +2491,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 37
+        "observations": 39
       }
     }
   },
@@ -2083,7 +2521,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 32
+        "observations": 34
       }
     }
   },
@@ -2113,7 +2551,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 27
+        "observations": 29
       }
     }
   },
@@ -2143,7 +2581,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 23
+        "observations": 25
       }
     }
   },
@@ -2162,12 +2600,18 @@
         "closeDrawdown": -0.0378
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-08-24",
+        "endDate": "2026-09-24",
+        "entry": 4074.83,
+        "maxRise": 2.995,
+        "maxLoss": -2.6418,
+        "endReturn": 0.0115,
+        "closeDrawdown": -3.6721
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 21
       }
     }
   },
@@ -2187,11 +2631,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 16
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 16
       }
     }
   },
@@ -2211,11 +2655,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 9
+        "observations": 11
       },
       "100": {
         "status": "pending",
-        "observations": 9
+        "observations": 11
       }
     }
   },
@@ -2224,16 +2668,22 @@
     "cutoff": "2026-09-11",
     "periods": {
       "5": {
-        "status": "pending",
-        "observations": 4
+        "status": "complete",
+        "entryDate": "2026-09-15",
+        "endDate": "2026-09-24",
+        "entry": 4055.11,
+        "maxRise": 1.434,
+        "maxLoss": -0.7761,
+        "endReturn": 0.4979,
+        "closeDrawdown": -0.4614
       },
       "20": {
         "status": "pending",
-        "observations": 4
+        "observations": 6
       },
       "100": {
         "status": "pending",
-        "observations": 4
+        "observations": 6
       }
     }
   },
@@ -2243,51 +2693,231 @@
     "periods": {
       "5": {
         "status": "pending",
-        "observations": 0
+        "observations": 2
       },
       "20": {
         "status": "pending",
-        "observations": 0
+        "observations": 2
       },
       "100": {
         "status": "pending",
-        "observations": 0
+        "observations": 2
       }
     }
   },
   {
     "target": "dow",
-    "cutoff": "2021-09-24",
+    "cutoff": "2025-12-12",
     "periods": {
       "5": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-01",
-        "entry": 34739.26953125,
-        "maxRise": 0.9265,
-        "maxLoss": -2.7454,
-        "endReturn": -1.1883,
-        "closeDrawdown": -2.9408
+        "entryDate": "2025-12-15",
+        "endDate": "2025-12-19",
+        "entry": 48594.359375,
+        "maxRise": 0.1745,
+        "maxLoss": -1.5329,
+        "endReturn": -0.9455,
+        "closeDrawdown": -1.4578
       },
       "20": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-22",
-        "entry": 34739.26953125,
-        "maxRise": 2.9527,
-        "maxLoss": -2.7454,
-        "endReturn": 2.6994,
-        "closeDrawdown": -2.9408
+        "entryDate": "2025-12-15",
+        "endDate": "2026-01-13",
+        "entry": 48594.359375,
+        "maxRise": 2.1381,
+        "maxLoss": -1.5329,
+        "endReturn": 1.2298,
+        "closeDrawdown": -1.4578
       },
       "100": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2022-02-16",
-        "entry": 34739.26953125,
-        "maxRise": 6.3714,
-        "maxLoss": -4.5739,
-        "endReturn": 0.5613,
-        "closeDrawdown": -7.1709
+        "entryDate": "2025-12-15",
+        "endDate": "2026-05-08",
+        "entry": 48594.359375,
+        "maxRise": 3.9478,
+        "maxLoss": -7.2788,
+        "endReturn": 2.0883,
+        "closeDrawdown": -10.0054
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2025-12-19",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2025-12-29",
+        "entry": 48211.87890625,
+        "maxRise": 1.1825,
+        "maxLoss": -0.0264,
+        "endReturn": 0.5186,
+        "closeDrawdown": -0.5525
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-01-21",
+        "entry": 48211.87890625,
+        "maxRise": 2.9484,
+        "maxLoss": -0.7443,
+        "endReturn": 1.7949,
+        "closeDrawdown": -2.2214
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-05-15",
+        "entry": 48211.87890625,
+        "maxRise": 4.7725,
+        "maxLoss": -6.5432,
+        "endReturn": 2.7261,
+        "closeDrawdown": -10.0054
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2025-12-26",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-05",
+        "entry": 48636.62890625,
+        "maxRise": 1.1788,
+        "maxLoss": -1.6111,
+        "endReturn": 0.7002,
+        "closeDrawdown": -1.1788
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-27",
+        "entry": 48636.62890625,
+        "maxRise": 2.0493,
+        "maxLoss": -1.6111,
+        "endReturn": 0.7541,
+        "closeDrawdown": -2.2214
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-05-21",
+        "entry": 48636.62890625,
+        "maxRise": 3.8575,
+        "maxLoss": -7.3594,
+        "endReturn": 3.3905,
+        "closeDrawdown": -10.0054
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2026-01-02",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-01-09",
+        "entry": 48475.80859375,
+        "maxRise": 2.3633,
+        "maxLoss": -0.054,
+        "endReturn": 2.1212,
+        "closeDrawdown": -0.9421
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-02-02",
+        "entry": 48475.80859375,
+        "maxRise": 2.3879,
+        "maxLoss": -0.0984,
+        "endReturn": 1.9223,
+        "closeDrawdown": -2.2214
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-05-28",
+        "entry": 48475.80859375,
+        "maxRise": 4.8573,
+        "maxLoss": -7.052,
+        "endReturn": 4.5242,
+        "closeDrawdown": -10.0054
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2026-01-09",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-01-16",
+        "entry": 49499.671875,
+        "maxRise": 0.2701,
+        "maxLoss": -1.3085,
+        "endReturn": -0.2835,
+        "closeDrawdown": -0.8884
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-02-09",
+        "entry": 49499.671875,
+        "maxRise": 1.454,
+        "maxLoss": -2.1647,
+        "endReturn": 1.2853,
+        "closeDrawdown": -2.2214
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-06-04",
+        "entry": 49499.671875,
+        "maxRise": 4.3601,
+        "maxLoss": -8.9746,
+        "endReturn": 4.1662,
+        "closeDrawdown": -10.0054
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2026-01-16",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-01-26",
+        "entry": 49005.01171875,
+        "maxRise": 1.229,
+        "maxLoss": -1.1772,
+        "endReturn": 0.8313,
+        "closeDrawdown": -1.0538
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-02-17",
+        "entry": 49005.01171875,
+        "maxRise": 3.0768,
+        "maxLoss": -1.1772,
+        "endReturn": 1.0778,
+        "closeDrawdown": -1.4668
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-06-11",
+        "entry": 49005.01171875,
+        "maxRise": 5.4186,
+        "maxLoss": -8.0558,
+        "endReturn": 3.7623,
+        "closeDrawdown": -10.0054
       }
     }
   },
@@ -2820,8 +3450,14 @@
         "closeDrawdown": -1.3974
       },
       "100": {
-        "status": "pending",
-        "observations": 96
+        "status": "complete",
+        "entryDate": "2026-05-04",
+        "endDate": "2026-09-24",
+        "entry": 49416.66015625,
+        "maxRise": 10.7811,
+        "maxLoss": -1.0191,
+        "endReturn": 3.9123,
+        "closeDrawdown": -5.5183
       }
     }
   },
@@ -2851,7 +3487,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 91
+        "observations": 96
       }
     }
   },
@@ -2881,7 +3517,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 86
+        "observations": 91
       }
     }
   },
@@ -2911,7 +3547,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 81
+        "observations": 86
       }
     }
   },
@@ -2941,7 +3577,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 77
+        "observations": 82
       }
     }
   },
@@ -2971,7 +3607,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 72
+        "observations": 77
       }
     }
   },
@@ -3001,7 +3637,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 67
+        "observations": 72
       }
     }
   },
@@ -3031,7 +3667,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 63
+        "observations": 68
       }
     }
   },
@@ -3061,7 +3697,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 58
+        "observations": 63
       }
     }
   },
@@ -3091,7 +3727,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 59
       }
     }
   },
@@ -3121,7 +3757,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 49
+        "observations": 54
       }
     }
   },
@@ -3151,7 +3787,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 44
+        "observations": 49
       }
     }
   },
@@ -3181,7 +3817,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 39
+        "observations": 44
       }
     }
   },
@@ -3211,7 +3847,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 34
+        "observations": 39
       }
     }
   },
@@ -3241,7 +3877,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 29
+        "observations": 34
       }
     }
   },
@@ -3271,7 +3907,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 24
+        "observations": 29
       }
     }
   },
@@ -3290,12 +3926,18 @@
         "closeDrawdown": -0.2119
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-08-24",
+        "endDate": "2026-09-21",
+        "entry": 53261.94921875,
+        "maxRise": 1.0471,
+        "maxLoss": -3.8964,
+        "endReturn": -2.2777,
+        "closeDrawdown": -4.143
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 24
       }
     }
   },
@@ -3315,11 +3957,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       }
     }
   },
@@ -3339,11 +3981,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       }
     }
   },
@@ -3363,11 +4005,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       }
     }
   },
@@ -3376,52 +4018,274 @@
     "cutoff": "2026-09-18",
     "periods": {
       "5": {
-        "status": "pending",
-        "observations": 0
+        "status": "complete",
+        "entryDate": "2026-09-21",
+        "endDate": "2026-09-25",
+        "entry": 51936.76171875,
+        "maxRise": 0.736,
+        "maxLoss": -1.5649,
+        "endReturn": -0.2082,
+        "closeDrawdown": -1.3427
       },
       "20": {
         "status": "pending",
-        "observations": 0
+        "observations": 5
       },
       "100": {
         "status": "pending",
-        "observations": 0
+        "observations": 5
       }
     }
   },
   {
     "target": "sox",
-    "cutoff": "2021-09-24",
+    "cutoff": "2025-12-12",
     "periods": {
       "5": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-01",
-        "entry": 3418.1201171875,
-        "maxRise": 1.1734,
-        "maxLoss": -6.1311,
-        "endReturn": -4.5914,
-        "closeDrawdown": -5.4376
+        "entryDate": "2025-12-15",
+        "endDate": "2025-12-19",
+        "entry": 7096.27001953125,
+        "maxRise": 0.4184,
+        "maxLoss": -5.8565,
+        "endReturn": -0.4002,
+        "closeDrawdown": -5.6503
       },
       "20": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-22",
-        "entry": 3418.1201171875,
-        "maxRise": 1.1734,
-        "maxLoss": -7.395,
-        "endReturn": -1.3996,
-        "closeDrawdown": -7.7578
+        "entryDate": "2025-12-15",
+        "endDate": "2026-01-13",
+        "entry": 7096.27001953125,
+        "maxRise": 10.2816,
+        "maxLoss": -5.8565,
+        "endReturn": 9.184,
+        "closeDrawdown": -5.6503
       },
       "100": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2022-02-16",
-        "entry": 3418.1201171875,
-        "maxRise": 19.0172,
-        "maxLoss": -7.9178,
-        "endReturn": 4.0247,
-        "closeDrawdown": -19.6932
+        "entryDate": "2025-12-15",
+        "endDate": "2026-05-08",
+        "entry": 7096.27001953125,
+        "maxRise": 65.9568,
+        "maxLoss": -5.8565,
+        "endReturn": 65.9393,
+        "closeDrawdown": -15.6494
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2025-12-19",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2025-12-29",
+        "entry": 7204.02001953125,
+        "maxRise": 0.4031,
+        "maxLoss": -1.5625,
+        "endReturn": -0.3574,
+        "closeDrawdown": -0.8114
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-01-21",
+        "entry": 7204.02001953125,
+        "maxRise": 12.6268,
+        "maxLoss": -1.6848,
+        "endReturn": 11.6331,
+        "closeDrawdown": -2.8079
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-05-15",
+        "entry": 7204.02001953125,
+        "maxRise": 68.5384,
+        "maxLoss": -1.6848,
+        "endReturn": 60.861,
+        "closeDrawdown": -15.6494
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2025-12-26",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-05",
+        "entry": 7116.14990234375,
+        "maxRise": 6.48,
+        "maxLoss": -0.4708,
+        "endReturn": 4.6416,
+        "closeDrawdown": -1.3254
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-27",
+        "entry": 7116.14990234375,
+        "maxRise": 15.0645,
+        "maxLoss": -0.4708,
+        "endReturn": 14.067,
+        "closeDrawdown": -2.8079
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-05-21",
+        "entry": 7116.14990234375,
+        "maxRise": 70.6195,
+        "maxLoss": -0.4708,
+        "endReturn": 68.1257,
+        "closeDrawdown": -15.6494
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2026-01-02",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-01-09",
+        "entry": 7570.43994140625,
+        "maxRise": 1.4325,
+        "maxLoss": -2.6108,
+        "endReturn": 0.9027,
+        "closeDrawdown": -2.8079
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-02-02",
+        "entry": 7570.43994140625,
+        "maxRise": 10.7859,
+        "maxLoss": -2.6108,
+        "endReturn": 7.4507,
+        "closeDrawdown": -3.869
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-05-28",
+        "entry": 7570.43994140625,
+        "maxRise": 72.2213,
+        "maxLoss": -6.4238,
+        "endReturn": 69.4636,
+        "closeDrawdown": -15.6494
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2026-01-09",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-01-16",
+        "entry": 7574.240234375,
+        "maxRise": 5.7328,
+        "maxLoss": -0.0815,
+        "endReturn": 4.6628,
+        "closeDrawdown": -0.6004
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-02-09",
+        "entry": 7574.240234375,
+        "maxRise": 10.7303,
+        "maxLoss": -1.4853,
+        "endReturn": 7.7676,
+        "closeDrawdown": -8.4822
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-06-04",
+        "entry": 7574.240234375,
+        "maxRise": 84.8125,
+        "maxLoss": -6.4708,
+        "endReturn": 79.787,
+        "closeDrawdown": -15.6494
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2026-01-16",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-01-26",
+        "entry": 7807.89013671875,
+        "maxRise": 4.8703,
+        "maxLoss": -0.5176,
+        "endReturn": 1.526,
+        "closeDrawdown": -1.5907
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-02-17",
+        "entry": 7807.89013671875,
+        "maxRise": 7.5837,
+        "maxLoss": -4.4333,
+        "endReturn": 4.2029,
+        "closeDrawdown": -8.4822
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-06-11",
+        "entry": 7807.89013671875,
+        "maxRise": 79.282,
+        "maxLoss": -9.2696,
+        "endReturn": 68.694,
+        "closeDrawdown": -15.6494
+      }
+    }
+  },
+  {
+    "target": "sox",
+    "cutoff": "2026-01-23",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-01-30",
+        "entry": 7917.22998046875,
+        "maxRise": 5.9333,
+        "maxLoss": -0.4521,
+        "endReturn": 1.0261,
+        "closeDrawdown": -3.869
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-02-23",
+        "entry": 7917.22998046875,
+        "maxRise": 6.098,
+        "maxLoss": -5.7531,
+        "endReturn": 3.7416,
+        "closeDrawdown": -8.4822
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-06-17",
+        "entry": 7917.22998046875,
+        "maxRise": 78.5296,
+        "maxLoss": -10.5226,
+        "endReturn": 70.2246,
+        "closeDrawdown": -15.6494
       }
     }
   },
@@ -3918,8 +4782,14 @@
         "closeDrawdown": -6.4442
       },
       "100": {
-        "status": "pending",
-        "observations": 96
+        "status": "complete",
+        "entryDate": "2026-05-04",
+        "endDate": "2026-09-24",
+        "entry": 10656.0703125,
+        "maxRise": 37.53,
+        "maxLoss": -2.1195,
+        "endReturn": 17.234,
+        "closeDrawdown": -28.6116
       }
     }
   },
@@ -3949,7 +4819,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 91
+        "observations": 96
       }
     }
   },
@@ -3979,7 +4849,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 86
+        "observations": 91
       }
     }
   },
@@ -4009,7 +4879,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 81
+        "observations": 86
       }
     }
   },
@@ -4039,7 +4909,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 77
+        "observations": 82
       }
     }
   },
@@ -4069,7 +4939,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 72
+        "observations": 77
       }
     }
   },
@@ -4099,7 +4969,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 67
+        "observations": 72
       }
     }
   },
@@ -4129,7 +4999,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 63
+        "observations": 68
       }
     }
   },
@@ -4159,7 +5029,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 58
+        "observations": 63
       }
     }
   },
@@ -4189,7 +5059,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 59
       }
     }
   },
@@ -4219,7 +5089,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 49
+        "observations": 54
       }
     }
   },
@@ -4249,7 +5119,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 44
+        "observations": 49
       }
     }
   },
@@ -4279,7 +5149,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 39
+        "observations": 44
       }
     }
   },
@@ -4309,7 +5179,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 34
+        "observations": 39
       }
     }
   },
@@ -4339,7 +5209,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 29
+        "observations": 34
       }
     }
   },
@@ -4369,7 +5239,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 24
+        "observations": 29
       }
     }
   },
@@ -4388,12 +5258,18 @@
         "closeDrawdown": -3.4717
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-08-24",
+        "endDate": "2026-09-21",
+        "entry": 11513.8798828125,
+        "maxRise": 8.4918,
+        "maxLoss": -3.9735,
+        "endReturn": 7.9842,
+        "closeDrawdown": -6.7054
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 24
       }
     }
   },
@@ -4413,11 +5289,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       }
     }
   },
@@ -4437,11 +5313,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       }
     }
   },
@@ -4454,18 +5330,18 @@
         "entryDate": "2026-09-14",
         "endDate": "2026-09-18",
         "entry": 11191.8203125,
-        "maxRise": 6.5328,
+        "maxRise": 6.5327,
         "maxLoss": -0.7301,
-        "endReturn": 6.5214,
+        "endReturn": 6.5215,
         "closeDrawdown": -0.5409
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       }
     }
   },
@@ -4474,52 +5350,274 @@
     "cutoff": "2026-09-18",
     "periods": {
       "5": {
-        "status": "pending",
-        "observations": 0
+        "status": "complete",
+        "entryDate": "2026-09-21",
+        "endDate": "2026-09-25",
+        "entry": 12145.919921875,
+        "maxRise": 4.8317,
+        "maxLoss": -0.7132,
+        "endReturn": 4.306,
+        "closeDrawdown": -1.5546
       },
       "20": {
         "status": "pending",
-        "observations": 0
+        "observations": 5
       },
       "100": {
         "status": "pending",
-        "observations": 0
+        "observations": 5
       }
     }
   },
   {
     "target": "sp500",
-    "cutoff": "2021-09-24",
+    "cutoff": "2025-12-12",
     "periods": {
       "5": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-01",
-        "entry": 4442.1201171875,
-        "maxRise": 0.3417,
-        "maxLoss": -3.4578,
-        "endReturn": -1.9153,
-        "closeDrawdown": -3.0512
+        "entryDate": "2025-12-15",
+        "endDate": "2025-12-19",
+        "entry": 6860.18994140625,
+        "maxRise": 0.0204,
+        "maxLoss": -2.0373,
+        "endReturn": -0.3745,
+        "closeDrawdown": -2.0227
       },
       "20": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-22",
-        "entry": 4442.1201171875,
-        "maxRise": 2.6463,
-        "maxLoss": -3.6735,
-        "endReturn": 2.3138,
-        "closeDrawdown": -3.2106
+        "entryDate": "2025-12-15",
+        "endDate": "2026-01-13",
+        "entry": 6860.18994140625,
+        "maxRise": 1.8387,
+        "maxLoss": -2.0373,
+        "endReturn": 1.5094,
+        "closeDrawdown": -2.0227
       },
       "100": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2022-02-16",
-        "entry": 4442.1201171875,
-        "maxRise": 8.4757,
-        "maxLoss": -4.9413,
-        "endReturn": 0.7404,
-        "closeDrawdown": -9.7997
+        "entryDate": "2025-12-15",
+        "endDate": "2026-05-08",
+        "entry": 6860.18994140625,
+        "maxRise": 7.8906,
+        "maxLoss": -7.9193,
+        "endReturn": 7.8531,
+        "closeDrawdown": -9.0975
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2025-12-19",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2025-12-29",
+        "entry": 6865.2099609375,
+        "maxRise": 1.1735,
+        "maxLoss": -0.1379,
+        "endReturn": 0.5904,
+        "closeDrawdown": -0.3795
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-01-21",
+        "entry": 6865.2099609375,
+        "maxRise": 1.7643,
+        "maxLoss": -1.1094,
+        "endReturn": 0.1516,
+        "closeDrawdown": -2.5857
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-05-15",
+        "entry": 6865.2099609375,
+        "maxRise": 9.4959,
+        "maxLoss": -7.9866,
+        "endReturn": 7.9137,
+        "closeDrawdown": -9.0975
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2025-12-26",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-05",
+        "entry": 6903.60009765625,
+        "maxRise": 0.2431,
+        "maxLoss": -1.1485,
+        "endReturn": -0.0225,
+        "closeDrawdown": -0.8723
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-27",
+        "entry": 6903.60009765625,
+        "maxRise": 1.2344,
+        "maxLoss": -1.6593,
+        "endReturn": 1.0864,
+        "closeDrawdown": -2.5857
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-05-21",
+        "entry": 6903.60009765625,
+        "maxRise": 8.887,
+        "maxLoss": -8.4983,
+        "endReturn": 7.8527,
+        "closeDrawdown": -9.0975
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2026-01-02",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-01-09",
+        "entry": 6892.18994140625,
+        "maxRise": 1.2503,
+        "maxLoss": -0.0091,
+        "endReturn": 1.075,
+        "closeDrawdown": -0.344
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-02-02",
+        "entry": 6892.18994140625,
+        "maxRise": 1.5973,
+        "maxLoss": -1.4965,
+        "endReturn": 1.2224,
+        "closeDrawdown": -2.5857
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-05-28",
+        "entry": 6892.18994140625,
+        "maxRise": 9.8159,
+        "maxLoss": -8.3468,
+        "endReturn": 9.742,
+        "closeDrawdown": -9.0975
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2026-01-09",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-01-16",
+        "entry": 6944.1201171875,
+        "maxRise": 0.6079,
+        "maxLoss": -0.8407,
+        "endReturn": -0.0592,
+        "closeDrawdown": -0.7262
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-02-09",
+        "entry": 6944.1201171875,
+        "maxRise": 0.8375,
+        "maxLoss": -2.3616,
+        "endReturn": 0.2981,
+        "closeDrawdown": -2.5857
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-06-04",
+        "entry": 6944.1201171875,
+        "maxRise": 9.7461,
+        "maxLoss": -9.0322,
+        "endReturn": 9.2192,
+        "closeDrawdown": -9.0975
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2026-01-16",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-01-26",
+        "entry": 6865.240234375,
+        "maxRise": 1.4482,
+        "maxLoss": -1.1098,
+        "endReturn": 1.238,
+        "closeDrawdown": -0.996
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-02-17",
+        "entry": 6865.240234375,
+        "maxRise": 1.9961,
+        "maxLoss": -1.3072,
+        "endReturn": -0.3207,
+        "closeDrawdown": -2.5822
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-06-11",
+        "entry": 6865.240234375,
+        "maxRise": 11.007,
+        "maxLoss": -7.987,
+        "endReturn": 7.7064,
+        "closeDrawdown": -9.0975
+      }
+    }
+  },
+  {
+    "target": "sp500",
+    "cutoff": "2026-01-23",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-01-30",
+        "entry": 6923.22998046875,
+        "maxRise": 1.1418,
+        "maxLoss": -0.7573,
+        "endReturn": 0.2282,
+        "closeDrawdown": -0.567
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-02-23",
+        "entry": 6923.22998046875,
+        "maxRise": 1.1418,
+        "maxLoss": -2.1338,
+        "endReturn": -1.2347,
+        "closeDrawdown": -2.5822
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-06-17",
+        "entry": 6923.22998046875,
+        "maxRise": 10.0772,
+        "maxLoss": -8.7578,
+        "endReturn": 7.1769,
+        "closeDrawdown": -9.0975
       }
     }
   },
@@ -5016,8 +6114,14 @@
         "closeDrawdown": -1.9681
       },
       "100": {
-        "status": "pending",
-        "observations": 96
+        "status": "complete",
+        "entryDate": "2026-05-04",
+        "endDate": "2026-09-24",
+        "entry": 7228.3798828125,
+        "maxRise": 8.139,
+        "maxLoss": -0.7506,
+        "endReturn": 6.5817,
+        "closeDrawdown": -4.5046
       }
     }
   },
@@ -5047,7 +6151,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 91
+        "observations": 96
       }
     }
   },
@@ -5077,7 +6181,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 86
+        "observations": 91
       }
     }
   },
@@ -5107,7 +6211,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 81
+        "observations": 86
       }
     }
   },
@@ -5137,7 +6241,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 77
+        "observations": 82
       }
     }
   },
@@ -5167,7 +6271,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 72
+        "observations": 77
       }
     }
   },
@@ -5197,7 +6301,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 67
+        "observations": 72
       }
     }
   },
@@ -5227,7 +6331,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 63
+        "observations": 68
       }
     }
   },
@@ -5257,7 +6361,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 58
+        "observations": 63
       }
     }
   },
@@ -5287,7 +6391,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 59
       }
     }
   },
@@ -5317,7 +6421,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 49
+        "observations": 54
       }
     }
   },
@@ -5347,7 +6451,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 44
+        "observations": 49
       }
     }
   },
@@ -5377,7 +6481,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 39
+        "observations": 44
       }
     }
   },
@@ -5407,7 +6511,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 34
+        "observations": 39
       }
     }
   },
@@ -5437,7 +6541,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 29
+        "observations": 34
       }
     }
   },
@@ -5467,7 +6571,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 24
+        "observations": 29
       }
     }
   },
@@ -5486,12 +6590,18 @@
         "closeDrawdown": -0.2487
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-08-24",
+        "endDate": "2026-09-21",
+        "entry": 7663.3798828125,
+        "maxRise": 1.5116,
+        "maxLoss": -2.0306,
+        "endReturn": 1.3221,
+        "closeDrawdown": -2.5285
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 24
       }
     }
   },
@@ -5511,11 +6621,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       }
     }
   },
@@ -5535,11 +6645,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       }
     }
   },
@@ -5559,11 +6669,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       }
     }
   },
@@ -5572,52 +6682,274 @@
     "cutoff": "2026-09-18",
     "periods": {
       "5": {
-        "status": "pending",
-        "observations": 0
+        "status": "complete",
+        "entryDate": "2026-09-21",
+        "endDate": "2026-09-25",
+        "entry": 7692.830078125,
+        "maxRise": 1.1616,
+        "maxLoss": -0.3934,
+        "endReturn": 0.6575,
+        "closeDrawdown": -0.7801
       },
       "20": {
         "status": "pending",
-        "observations": 0
+        "observations": 5
       },
       "100": {
         "status": "pending",
-        "observations": 0
+        "observations": 5
       }
     }
   },
   {
     "target": "nasdaq",
-    "cutoff": "2021-09-24",
+    "cutoff": "2025-12-12",
     "periods": {
       "5": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-01",
-        "entry": 14954.1796875,
-        "maxRise": 0.3275,
-        "maxLoss": -4.214,
-        "endReturn": -2.5911,
-        "closeDrawdown": -3.4829
+        "entryDate": "2025-12-15",
+        "endDate": "2025-12-19",
+        "entry": 23330.0390625,
+        "maxRise": 0.0665,
+        "maxLoss": -2.7348,
+        "endReturn": -0.0961,
+        "closeDrawdown": -2.7292
       },
       "20": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2021-10-22",
-        "entry": 14954.1796875,
-        "maxRise": 1.7926,
-        "maxLoss": -5.1657,
-        "endReturn": 0.9096,
-        "closeDrawdown": -4.7728
+        "entryDate": "2025-12-15",
+        "endDate": "2026-01-13",
+        "entry": 23330.0390625,
+        "maxRise": 2.0714,
+        "maxLoss": -2.7348,
+        "endReturn": 1.6281,
+        "closeDrawdown": -2.7292
       },
       "100": {
         "status": "complete",
-        "entryDate": "2021-09-27",
-        "endDate": "2022-02-16",
-        "entry": 14954.1796875,
-        "maxRise": 8.4127,
-        "maxLoss": -12.4348,
-        "endReturn": -5.5509,
-        "closeDrawdown": -16.8437
+        "entryDate": "2025-12-15",
+        "endDate": "2026-05-08",
+        "entry": 23330.0390625,
+        "maxRise": 12.51,
+        "maxLoss": -11.315,
+        "endReturn": 12.5034,
+        "closeDrawdown": -12.838
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2025-12-19",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2025-12-29",
+        "entry": 23450.529296875,
+        "maxRise": 0.9152,
+        "maxLoss": -0.3736,
+        "endReturn": 0.1016,
+        "closeDrawdown": -0.5885
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-01-21",
+        "entry": 23450.529296875,
+        "maxRise": 1.547,
+        "maxLoss": -2.2759,
+        "endReturn": -0.9625,
+        "closeDrawdown": -3.2847
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-22",
+        "endDate": "2026-05-15",
+        "entry": 23450.529296875,
+        "maxRise": 13.8872,
+        "maxLoss": -11.7706,
+        "endReturn": 11.8318,
+        "closeDrawdown": -12.838
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2025-12-26",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-05",
+        "entry": 23414.6796875,
+        "maxRise": 0.7315,
+        "maxLoss": -1.2607,
+        "endReturn": -0.0805,
+        "closeDrawdown": -1.0169
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-01-27",
+        "entry": 23414.6796875,
+        "maxRise": 1.9243,
+        "maxLoss": -2.1262,
+        "endReturn": 1.7187,
+        "closeDrawdown": -3.2847
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2025-12-29",
+        "endDate": "2026-05-21",
+        "entry": 23414.6796875,
+        "maxRise": 14.0615,
+        "maxLoss": -11.6356,
+        "endReturn": 12.2932,
+        "closeDrawdown": -12.838
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2026-01-02",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-01-09",
+        "entry": 23449.669921875,
+        "maxRise": 1.1672,
+        "maxLoss": -0.5008,
+        "endReturn": 0.9453,
+        "closeDrawdown": -0.4421
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-02-02",
+        "entry": 23449.669921875,
+        "maxRise": 2.2968,
+        "maxLoss": -2.2723,
+        "endReturn": 0.6074,
+        "closeDrawdown": -3.2847
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-05",
+        "endDate": "2026-05-28",
+        "entry": 23449.669921875,
+        "maxRise": 14.8623,
+        "maxLoss": -11.7674,
+        "endReturn": 14.7883,
+        "closeDrawdown": -12.838
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2026-01-09",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-01-16",
+        "entry": 23576.880859375,
+        "maxRise": 1.0028,
+        "maxLoss": -1.1461,
+        "endReturn": -0.2608,
+        "closeDrawdown": -1.1045
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-02-09",
+        "entry": 23576.880859375,
+        "maxRise": 1.7449,
+        "maxLoss": -4.7323,
+        "endReturn": -1.4345,
+        "closeDrawdown": -5.5197
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-12",
+        "endDate": "2026-06-04",
+        "entry": 23576.880859375,
+        "maxRise": 15.3257,
+        "maxLoss": -12.2435,
+        "endReturn": 13.802,
+        "closeDrawdown": -12.838
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2026-01-16",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-01-26",
+        "entry": 23142.689453125,
+        "maxRise": 2.3604,
+        "maxLoss": -0.9759,
+        "endReturn": 1.9819,
+        "closeDrawdown": -0.8139
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-02-17",
+        "entry": 23142.689453125,
+        "maxRise": 3.6538,
+        "maxLoss": -3.8281,
+        "endReturn": -2.4384,
+        "closeDrawdown": -5.5197
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-20",
+        "endDate": "2026-06-11",
+        "entry": 23142.689453125,
+        "maxRise": 17.4894,
+        "maxLoss": -10.597,
+        "endReturn": 11.524,
+        "closeDrawdown": -12.838
+      }
+    }
+  },
+  {
+    "target": "nasdaq",
+    "cutoff": "2026-01-23",
+    "periods": {
+      "5": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-01-30",
+        "entry": 23529.279296875,
+        "maxRise": 1.9507,
+        "maxLoss": -1.2601,
+        "endReturn": -0.2867,
+        "closeDrawdown": -1.6583
+      },
+      "20": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-02-23",
+        "entry": 23529.279296875,
+        "maxRise": 1.9507,
+        "maxLoss": -5.4082,
+        "endReturn": -3.8336,
+        "closeDrawdown": -5.5197
+      },
+      "100": {
+        "status": "complete",
+        "entryDate": "2026-01-26",
+        "endDate": "2026-06-17",
+        "entry": 23529.279296875,
+        "maxRise": 15.559,
+        "maxLoss": -12.0659,
+        "endReturn": 10.5927,
+        "closeDrawdown": -12.838
       }
     }
   },
@@ -6114,8 +7446,14 @@
         "closeDrawdown": -2.8703
       },
       "100": {
-        "status": "pending",
-        "observations": 96
+        "status": "complete",
+        "entryDate": "2026-05-04",
+        "endDate": "2026-09-24",
+        "entry": 25112.1796875,
+        "maxRise": 8.6675,
+        "maxLoss": -2.7351,
+        "endReturn": 7.2761,
+        "closeDrawdown": -9.7843
       }
     }
   },
@@ -6145,7 +7483,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 91
+        "observations": 96
       }
     }
   },
@@ -6175,7 +7513,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 86
+        "observations": 91
       }
     }
   },
@@ -6205,7 +7543,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 81
+        "observations": 86
       }
     }
   },
@@ -6235,7 +7573,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 77
+        "observations": 82
       }
     }
   },
@@ -6265,7 +7603,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 72
+        "observations": 77
       }
     }
   },
@@ -6295,7 +7633,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 67
+        "observations": 72
       }
     }
   },
@@ -6325,7 +7663,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 63
+        "observations": 68
       }
     }
   },
@@ -6355,7 +7693,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 58
+        "observations": 63
       }
     }
   },
@@ -6385,7 +7723,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 59
       }
     }
   },
@@ -6415,7 +7753,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 49
+        "observations": 54
       }
     }
   },
@@ -6445,7 +7783,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 44
+        "observations": 49
       }
     }
   },
@@ -6475,7 +7813,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 39
+        "observations": 44
       }
     }
   },
@@ -6505,7 +7843,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 34
+        "observations": 39
       }
     }
   },
@@ -6535,7 +7873,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 29
+        "observations": 34
       }
     }
   },
@@ -6565,7 +7903,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 24
+        "observations": 29
       }
     }
   },
@@ -6584,12 +7922,18 @@
         "closeDrawdown": -0.5234
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-08-24",
+        "endDate": "2026-09-21",
+        "entry": 26065.3203125,
+        "maxRise": 4.2916,
+        "maxLoss": -1.0065,
+        "endReturn": 4.0543,
+        "closeDrawdown": -2.2782
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 24
       }
     }
   },
@@ -6609,11 +7953,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 19
       }
     }
   },
@@ -6633,11 +7977,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 9
+        "observations": 14
       }
     }
   },
@@ -6652,16 +7996,16 @@
         "entry": 26018.5,
         "maxRise": 2.0233,
         "maxLoss": -0.8284,
-        "endReturn": 1.9373,
+        "endReturn": 1.9372,
         "closeDrawdown": -0.7942
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 10
       }
     }
   },
@@ -6670,6 +8014,66 @@
     "cutoff": "2026-09-18",
     "periods": {
       "5": {
+        "status": "complete",
+        "entryDate": "2026-09-21",
+        "endDate": "2026-09-25",
+        "entry": 26723.189453125,
+        "maxRise": 2.1165,
+        "maxLoss": -0.0638,
+        "endReturn": 1.293,
+        "closeDrawdown": -1.1314
+      },
+      "20": {
+        "status": "pending",
+        "observations": 5
+      },
+      "100": {
+        "status": "pending",
+        "observations": 5
+      }
+    }
+  },
+  {
+    "target": "nikkei",
+    "cutoff": "2026-09-25",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "topix",
+    "cutoff": "2026-09-25",
+    "periods": {
+      "5": {
+        "status": "pending",
+        "observations": 0
+      },
+      "20": {
+        "status": "pending",
+        "observations": 0
+      },
+      "100": {
+        "status": "pending",
+        "observations": 0
+      }
+    }
+  },
+  {
+    "target": "dow",
+    "cutoff": "2026-09-25",
+    "periods": {
+      "5": {
         "status": "pending",
         "observations": 0
       },
@@ -6685,1477 +8089,55 @@
   },
   {
     "target": "sox",
-    "cutoff": "2026-01-23",
+    "cutoff": "2026-09-25",
     "periods": {
       "5": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-01-30",
-        "entry": 7917.22998046875,
-        "maxRise": 5.9333,
-        "maxLoss": -0.4521,
-        "endReturn": 1.0261,
-        "closeDrawdown": -3.869
+        "status": "pending",
+        "observations": 0
       },
       "20": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-02-23",
-        "entry": 7917.22998046875,
-        "maxRise": 6.098,
-        "maxLoss": -5.7531,
-        "endReturn": 3.7416,
-        "closeDrawdown": -8.4822
+        "status": "pending",
+        "observations": 0
       },
       "100": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-06-17",
-        "entry": 7917.22998046875,
-        "maxRise": 78.5296,
-        "maxLoss": -10.5226,
-        "endReturn": 70.2246,
-        "closeDrawdown": -15.6494
+        "status": "pending",
+        "observations": 0
       }
     }
   },
   {
     "target": "sp500",
-    "cutoff": "2026-01-23",
+    "cutoff": "2026-09-25",
     "periods": {
       "5": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-01-30",
-        "entry": 6923.22998046875,
-        "maxRise": 1.1418,
-        "maxLoss": -0.7573,
-        "endReturn": 0.2282,
-        "closeDrawdown": -0.567
+        "status": "pending",
+        "observations": 0
       },
       "20": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-02-23",
-        "entry": 6923.22998046875,
-        "maxRise": 1.1418,
-        "maxLoss": -2.1338,
-        "endReturn": -1.2347,
-        "closeDrawdown": -2.5822
+        "status": "pending",
+        "observations": 0
       },
       "100": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-06-17",
-        "entry": 6923.22998046875,
-        "maxRise": 10.0772,
-        "maxLoss": -8.7578,
-        "endReturn": 7.1769,
-        "closeDrawdown": -9.0975
+        "status": "pending",
+        "observations": 0
       }
     }
   },
   {
     "target": "nasdaq",
-    "cutoff": "2026-01-23",
+    "cutoff": "2026-09-25",
     "periods": {
       "5": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-01-30",
-        "entry": 23529.279296875,
-        "maxRise": 1.9507,
-        "maxLoss": -1.2601,
-        "endReturn": -0.2867,
-        "closeDrawdown": -1.6583
+        "status": "pending",
+        "observations": 0
       },
       "20": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-02-23",
-        "entry": 23529.279296875,
-        "maxRise": 1.9507,
-        "maxLoss": -5.4082,
-        "endReturn": -3.8336,
-        "closeDrawdown": -5.5197
+        "status": "pending",
+        "observations": 0
       },
       "100": {
-        "status": "complete",
-        "entryDate": "2026-01-26",
-        "endDate": "2026-06-17",
-        "entry": 23529.279296875,
-        "maxRise": 15.559,
-        "maxLoss": -12.0659,
-        "endReturn": 10.5927,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2026-01-16",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-19",
-        "endDate": "2026-01-23",
-        "entry": 53390.05,
-        "maxRise": 1.2377,
-        "maxLoss": -2.2387,
-        "endReturn": 0.8556,
-        "closeDrawdown": -1.5097
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-19",
-        "endDate": "2026-02-16",
-        "entry": 53390.05,
-        "maxRise": 8.6627,
-        "maxLoss": -2.2387,
-        "endReturn": 6.3989,
-        "closeDrawdown": -2.2131
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-19",
-        "endDate": "2026-06-16",
-        "entry": 53390.05,
-        "maxRise": 31.1493,
-        "maxLoss": -5.3027,
-        "endReturn": 29.9952,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2026-01-16",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-19",
-        "endDate": "2026-01-23",
-        "entry": 3634.9,
-        "maxRise": 0.635,
-        "maxLoss": -1.8157,
-        "endReturn": -0.1431,
-        "closeDrawdown": -1.8242
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-19",
-        "endDate": "2026-02-16",
-        "entry": 3634.9,
-        "maxRise": 6.9889,
-        "maxLoss": -3.4989,
-        "endReturn": 4.1949,
-        "closeDrawdown": -3.3068
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-19",
-        "endDate": "2026-06-17",
-        "entry": 3634.9,
-        "maxRise": 11.016,
-        "maxLoss": -5.16,
-        "endReturn": 10.4083,
-        "closeDrawdown": -11.482
-      }
-    }
-  },
-  {
-    "target": "dow",
-    "cutoff": "2026-01-16",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-01-26",
-        "entry": 49005.01171875,
-        "maxRise": 1.229,
-        "maxLoss": -1.1772,
-        "endReturn": 0.8313,
-        "closeDrawdown": -1.0538
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-02-17",
-        "entry": 49005.01171875,
-        "maxRise": 3.0768,
-        "maxLoss": -1.1772,
-        "endReturn": 1.0778,
-        "closeDrawdown": -1.4668
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-06-11",
-        "entry": 49005.01171875,
-        "maxRise": 5.4186,
-        "maxLoss": -8.0558,
-        "endReturn": 3.7623,
-        "closeDrawdown": -10.0054
-      }
-    }
-  },
-  {
-    "target": "sox",
-    "cutoff": "2026-01-16",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-01-26",
-        "entry": 7807.89013671875,
-        "maxRise": 4.8703,
-        "maxLoss": -0.5176,
-        "endReturn": 1.526,
-        "closeDrawdown": -1.5907
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-02-17",
-        "entry": 7807.89013671875,
-        "maxRise": 7.5837,
-        "maxLoss": -4.4333,
-        "endReturn": 4.2029,
-        "closeDrawdown": -8.4822
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-06-11",
-        "entry": 7807.89013671875,
-        "maxRise": 79.282,
-        "maxLoss": -9.2696,
-        "endReturn": 68.694,
-        "closeDrawdown": -15.6494
-      }
-    }
-  },
-  {
-    "target": "sp500",
-    "cutoff": "2026-01-16",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-01-26",
-        "entry": 6865.240234375,
-        "maxRise": 1.4482,
-        "maxLoss": -1.1098,
-        "endReturn": 1.238,
-        "closeDrawdown": -0.996
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-02-17",
-        "entry": 6865.240234375,
-        "maxRise": 1.9961,
-        "maxLoss": -1.3072,
-        "endReturn": -0.3207,
-        "closeDrawdown": -2.5822
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-06-11",
-        "entry": 6865.240234375,
-        "maxRise": 11.007,
-        "maxLoss": -7.987,
-        "endReturn": 7.7064,
-        "closeDrawdown": -9.0975
-      }
-    }
-  },
-  {
-    "target": "nasdaq",
-    "cutoff": "2026-01-16",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-01-26",
-        "entry": 23142.689453125,
-        "maxRise": 2.3604,
-        "maxLoss": -0.9759,
-        "endReturn": 1.9819,
-        "closeDrawdown": -0.8139
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-02-17",
-        "entry": 23142.689453125,
-        "maxRise": 3.6538,
-        "maxLoss": -3.8281,
-        "endReturn": -2.4384,
-        "closeDrawdown": -5.5197
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-20",
-        "endDate": "2026-06-11",
-        "entry": 23142.689453125,
-        "maxRise": 17.4894,
-        "maxLoss": -10.597,
-        "endReturn": 11.524,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2026-01-09",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-13",
-        "endDate": "2026-01-19",
-        "entry": 52808.29,
-        "maxRise": 3.1795,
-        "maxLoss": -0.1262,
-        "endReturn": 1.4681,
-        "closeDrawdown": -1.3943
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-13",
-        "endDate": "2026-02-09",
-        "entry": 52808.29,
-        "maxRise": 8.5759,
-        "maxLoss": -1.1617,
-        "endReturn": 6.7331,
-        "closeDrawdown": -3.1027
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-13",
-        "endDate": "2026-06-10",
-        "entry": 52808.29,
-        "maxRise": 30.257,
-        "maxLoss": -4.2595,
-        "endReturn": 21.5326,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2026-01-09",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-13",
-        "endDate": "2026-01-19",
-        "entry": 3566.42,
-        "maxRise": 3.0364,
-        "maxLoss": -0.1065,
-        "endReturn": 2.523,
-        "closeDrawdown": -0.3429
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-13",
-        "endDate": "2026-02-09",
-        "entry": 3566.42,
-        "maxRise": 7.2692,
-        "maxLoss": -1.6459,
-        "endReturn": 6.0887,
-        "closeDrawdown": -3.6383
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-13",
-        "endDate": "2026-06-11",
-        "entry": 3566.42,
-        "maxRise": 12.5981,
-        "maxLoss": -3.3389,
-        "endReturn": 7.4004,
-        "closeDrawdown": -11.482
-      }
-    }
-  },
-  {
-    "target": "dow",
-    "cutoff": "2026-01-09",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-01-16",
-        "entry": 49499.671875,
-        "maxRise": 0.2701,
-        "maxLoss": -1.3085,
-        "endReturn": -0.2835,
-        "closeDrawdown": -0.8884
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-02-09",
-        "entry": 49499.671875,
-        "maxRise": 1.454,
-        "maxLoss": -2.1647,
-        "endReturn": 1.2853,
-        "closeDrawdown": -2.2214
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-06-04",
-        "entry": 49499.671875,
-        "maxRise": 4.3601,
-        "maxLoss": -8.9746,
-        "endReturn": 4.1662,
-        "closeDrawdown": -10.0054
-      }
-    }
-  },
-  {
-    "target": "sox",
-    "cutoff": "2026-01-09",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-01-16",
-        "entry": 7574.240234375,
-        "maxRise": 5.7328,
-        "maxLoss": -0.0815,
-        "endReturn": 4.6628,
-        "closeDrawdown": -0.6004
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-02-09",
-        "entry": 7574.240234375,
-        "maxRise": 10.7303,
-        "maxLoss": -1.4853,
-        "endReturn": 7.7676,
-        "closeDrawdown": -8.4822
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-06-04",
-        "entry": 7574.240234375,
-        "maxRise": 84.8125,
-        "maxLoss": -6.4708,
-        "endReturn": 79.787,
-        "closeDrawdown": -15.6494
-      }
-    }
-  },
-  {
-    "target": "sp500",
-    "cutoff": "2026-01-09",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-01-16",
-        "entry": 6944.1201171875,
-        "maxRise": 0.6079,
-        "maxLoss": -0.8407,
-        "endReturn": -0.0592,
-        "closeDrawdown": -0.7262
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-02-09",
-        "entry": 6944.1201171875,
-        "maxRise": 0.8375,
-        "maxLoss": -2.3616,
-        "endReturn": 0.2981,
-        "closeDrawdown": -2.5857
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-06-04",
-        "entry": 6944.1201171875,
-        "maxRise": 9.7461,
-        "maxLoss": -9.0322,
-        "endReturn": 9.2192,
-        "closeDrawdown": -9.0975
-      }
-    }
-  },
-  {
-    "target": "nasdaq",
-    "cutoff": "2026-01-09",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-01-16",
-        "entry": 23576.880859375,
-        "maxRise": 1.0028,
-        "maxLoss": -1.1461,
-        "endReturn": -0.2608,
-        "closeDrawdown": -1.1045
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-02-09",
-        "entry": 23576.880859375,
-        "maxRise": 1.7449,
-        "maxLoss": -4.7323,
-        "endReturn": -1.4345,
-        "closeDrawdown": -5.5197
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-12",
-        "endDate": "2026-06-04",
-        "entry": 23576.880859375,
-        "maxRise": 15.3257,
-        "maxLoss": -12.2435,
-        "endReturn": 13.802,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2026-01-02",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-01-09",
-        "entry": 51010.28,
-        "maxRise": 2.967,
-        "maxLoss": -0.0286,
-        "endReturn": 1.8224,
-        "closeDrawdown": -2.6673
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-02-02",
-        "entry": 51010.28,
-        "maxRise": 6.8164,
-        "maxLoss": -0.0286,
-        "endReturn": 3.2246,
-        "closeDrawdown": -3.1027
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-06-03",
-        "entry": 51010.28,
-        "maxRise": 34.8483,
-        "maxLoss": -0.8849,
-        "endReturn": 34.0948,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2026-01-02",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-01-09",
-        "entry": 3448.77,
-        "maxRise": 2.6447,
-        "maxLoss": 0,
-        "endReturn": 1.8946,
-        "closeDrawdown": -1.5289
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-02-02",
-        "entry": 3448.77,
-        "maxRise": 6.5513,
-        "maxLoss": 0,
-        "endReturn": 2.5331,
-        "closeDrawdown": -3.6383
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-06-04",
-        "entry": 3448.77,
-        "maxRise": 16.4392,
-        "maxLoss": -0.0415,
-        "endReturn": 14.5872,
-        "closeDrawdown": -11.482
-      }
-    }
-  },
-  {
-    "target": "dow",
-    "cutoff": "2026-01-02",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-01-09",
-        "entry": 48475.80859375,
-        "maxRise": 2.3633,
-        "maxLoss": -0.054,
-        "endReturn": 2.1212,
-        "closeDrawdown": -0.9421
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-02-02",
-        "entry": 48475.80859375,
-        "maxRise": 2.3879,
-        "maxLoss": -0.0984,
-        "endReturn": 1.9223,
-        "closeDrawdown": -2.2214
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-05-28",
-        "entry": 48475.80859375,
-        "maxRise": 4.8573,
-        "maxLoss": -7.052,
-        "endReturn": 4.5242,
-        "closeDrawdown": -10.0054
-      }
-    }
-  },
-  {
-    "target": "sox",
-    "cutoff": "2026-01-02",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-01-09",
-        "entry": 7570.43994140625,
-        "maxRise": 1.4325,
-        "maxLoss": -2.6108,
-        "endReturn": 0.9027,
-        "closeDrawdown": -2.8079
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-02-02",
-        "entry": 7570.43994140625,
-        "maxRise": 10.7859,
-        "maxLoss": -2.6108,
-        "endReturn": 7.4507,
-        "closeDrawdown": -3.869
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-05-28",
-        "entry": 7570.43994140625,
-        "maxRise": 72.2213,
-        "maxLoss": -6.4238,
-        "endReturn": 69.4636,
-        "closeDrawdown": -15.6494
-      }
-    }
-  },
-  {
-    "target": "sp500",
-    "cutoff": "2026-01-02",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-01-09",
-        "entry": 6892.18994140625,
-        "maxRise": 1.2503,
-        "maxLoss": -0.0091,
-        "endReturn": 1.075,
-        "closeDrawdown": -0.344
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-02-02",
-        "entry": 6892.18994140625,
-        "maxRise": 1.5973,
-        "maxLoss": -1.4965,
-        "endReturn": 1.2224,
-        "closeDrawdown": -2.5857
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-05-28",
-        "entry": 6892.18994140625,
-        "maxRise": 9.8159,
-        "maxLoss": -8.3468,
-        "endReturn": 9.742,
-        "closeDrawdown": -9.0975
-      }
-    }
-  },
-  {
-    "target": "nasdaq",
-    "cutoff": "2026-01-02",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-01-09",
-        "entry": 23449.669921875,
-        "maxRise": 1.1672,
-        "maxLoss": -0.5008,
-        "endReturn": 0.9453,
-        "closeDrawdown": -0.4421
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-02-02",
-        "entry": 23449.669921875,
-        "maxRise": 2.2968,
-        "maxLoss": -2.2723,
-        "endReturn": 0.6074,
-        "closeDrawdown": -3.2847
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2026-01-05",
-        "endDate": "2026-05-28",
-        "entry": 23449.669921875,
-        "maxRise": 14.8623,
-        "maxLoss": -11.7674,
-        "endReturn": 14.7883,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2025-12-26",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-07",
-        "entry": 50691.22,
-        "maxRise": 3.6151,
-        "maxLoss": -0.9711,
-        "endReturn": 2.5069,
-        "closeDrawdown": -1.0589
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-29",
-        "entry": 50691.22,
-        "maxRise": 7.4887,
-        "maxLoss": -0.9711,
-        "endReturn": 5.2956,
-        "closeDrawdown": -2.8829
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-06-01",
-        "entry": 50691.22,
-        "maxRise": 32.629,
-        "maxLoss": -0.9711,
-        "endReturn": 32.0432,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2025-12-26",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-07",
-        "entry": 3422,
-        "maxRise": 3.4477,
-        "maxLoss": -0.3808,
-        "endReturn": 2.6108,
-        "closeDrawdown": -0.7659
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-29",
-        "entry": 3422,
-        "maxRise": 7.3849,
-        "maxLoss": -0.3808,
-        "endReturn": 3.6032,
-        "closeDrawdown": -3.6383
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-06-02",
-        "entry": 3422,
-        "maxRise": 16.4401,
-        "maxLoss": -0.3808,
-        "endReturn": 14.6768,
-        "closeDrawdown": -11.482
-      }
-    }
-  },
-  {
-    "target": "dow",
-    "cutoff": "2025-12-26",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-05",
-        "entry": 48636.62890625,
-        "maxRise": 1.1788,
-        "maxLoss": -1.6111,
-        "endReturn": 0.7002,
-        "closeDrawdown": -1.1788
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-27",
-        "entry": 48636.62890625,
-        "maxRise": 2.0493,
-        "maxLoss": -1.6111,
-        "endReturn": 0.7541,
-        "closeDrawdown": -2.2214
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-05-21",
-        "entry": 48636.62890625,
-        "maxRise": 3.8575,
-        "maxLoss": -7.3594,
-        "endReturn": 3.3905,
-        "closeDrawdown": -10.0054
-      }
-    }
-  },
-  {
-    "target": "sox",
-    "cutoff": "2025-12-26",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-05",
-        "entry": 7116.14990234375,
-        "maxRise": 6.48,
-        "maxLoss": -0.4708,
-        "endReturn": 4.6416,
-        "closeDrawdown": -1.3254
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-27",
-        "entry": 7116.14990234375,
-        "maxRise": 15.0645,
-        "maxLoss": -0.4708,
-        "endReturn": 14.067,
-        "closeDrawdown": -2.8079
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-05-21",
-        "entry": 7116.14990234375,
-        "maxRise": 70.6195,
-        "maxLoss": -0.4708,
-        "endReturn": 68.1257,
-        "closeDrawdown": -15.6494
-      }
-    }
-  },
-  {
-    "target": "sp500",
-    "cutoff": "2025-12-26",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-05",
-        "entry": 6903.60009765625,
-        "maxRise": 0.2431,
-        "maxLoss": -1.1485,
-        "endReturn": -0.0225,
-        "closeDrawdown": -0.8723
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-27",
-        "entry": 6903.60009765625,
-        "maxRise": 1.2344,
-        "maxLoss": -1.6593,
-        "endReturn": 1.0864,
-        "closeDrawdown": -2.5857
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-05-21",
-        "entry": 6903.60009765625,
-        "maxRise": 8.887,
-        "maxLoss": -8.4983,
-        "endReturn": 7.8527,
-        "closeDrawdown": -9.0975
-      }
-    }
-  },
-  {
-    "target": "nasdaq",
-    "cutoff": "2025-12-26",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-05",
-        "entry": 23414.6796875,
-        "maxRise": 0.7315,
-        "maxLoss": -1.2607,
-        "endReturn": -0.0805,
-        "closeDrawdown": -1.0169
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-01-27",
-        "entry": 23414.6796875,
-        "maxRise": 1.9243,
-        "maxLoss": -2.1262,
-        "endReturn": 1.7187,
-        "closeDrawdown": -3.2847
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-29",
-        "endDate": "2026-05-21",
-        "entry": 23414.6796875,
-        "maxRise": 14.0615,
-        "maxLoss": -11.6356,
-        "endReturn": 12.2932,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2025-12-19",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2025-12-26",
-        "entry": 50084.55,
-        "maxRise": 1.7118,
-        "maxLoss": -0.2044,
-        "endReturn": 1.3294,
-        "closeDrawdown": -0.1364
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-01-22",
-        "entry": 50084.55,
-        "maxRise": 8.7907,
-        "maxLoss": -0.2044,
-        "endReturn": 7.1965,
-        "closeDrawdown": -2.8829
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-05-25",
-        "entry": 50084.55,
-        "maxRise": 30.5969,
-        "maxLoss": -0.2044,
-        "endReturn": 30.0964,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2025-12-19",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2025-12-26",
-        "entry": 3415.79,
-        "maxRise": 0.6136,
-        "maxLoss": -0.3856,
-        "endReturn": 0.2128,
-        "closeDrawdown": -0.4639
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-01-22",
-        "entry": 3415.79,
-        "maxRise": 7.5801,
-        "maxLoss": -0.3856,
-        "endReturn": 5.8724,
-        "closeDrawdown": -2.1608
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-05-25",
-        "entry": 3415.79,
-        "maxRise": 15.7533,
-        "maxLoss": -0.3856,
-        "endReturn": 15.4219,
-        "closeDrawdown": -11.482
-      }
-    }
-  },
-  {
-    "target": "dow",
-    "cutoff": "2025-12-19",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2025-12-29",
-        "entry": 48211.87890625,
-        "maxRise": 1.1825,
-        "maxLoss": -0.0264,
-        "endReturn": 0.5186,
-        "closeDrawdown": -0.5525
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-01-21",
-        "entry": 48211.87890625,
-        "maxRise": 2.9484,
-        "maxLoss": -0.7443,
-        "endReturn": 1.7949,
-        "closeDrawdown": -2.2214
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-05-15",
-        "entry": 48211.87890625,
-        "maxRise": 4.7725,
-        "maxLoss": -6.5432,
-        "endReturn": 2.7261,
-        "closeDrawdown": -10.0054
-      }
-    }
-  },
-  {
-    "target": "sox",
-    "cutoff": "2025-12-19",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2025-12-29",
-        "entry": 7204.02001953125,
-        "maxRise": 0.4031,
-        "maxLoss": -1.5625,
-        "endReturn": -0.3574,
-        "closeDrawdown": -0.8114
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-01-21",
-        "entry": 7204.02001953125,
-        "maxRise": 12.6268,
-        "maxLoss": -1.6848,
-        "endReturn": 11.6331,
-        "closeDrawdown": -2.8079
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-05-15",
-        "entry": 7204.02001953125,
-        "maxRise": 68.5384,
-        "maxLoss": -1.6848,
-        "endReturn": 60.861,
-        "closeDrawdown": -15.6494
-      }
-    }
-  },
-  {
-    "target": "sp500",
-    "cutoff": "2025-12-19",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2025-12-29",
-        "entry": 6865.2099609375,
-        "maxRise": 1.1735,
-        "maxLoss": -0.1379,
-        "endReturn": 0.5904,
-        "closeDrawdown": -0.3795
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-01-21",
-        "entry": 6865.2099609375,
-        "maxRise": 1.7643,
-        "maxLoss": -1.1094,
-        "endReturn": 0.1516,
-        "closeDrawdown": -2.5857
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-05-15",
-        "entry": 6865.2099609375,
-        "maxRise": 9.4959,
-        "maxLoss": -7.9866,
-        "endReturn": 7.9137,
-        "closeDrawdown": -9.0975
-      }
-    }
-  },
-  {
-    "target": "nasdaq",
-    "cutoff": "2025-12-19",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2025-12-29",
-        "entry": 23450.529296875,
-        "maxRise": 0.9152,
-        "maxLoss": -0.3736,
-        "endReturn": 0.1016,
-        "closeDrawdown": -0.5885
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-01-21",
-        "entry": 23450.529296875,
-        "maxRise": 1.547,
-        "maxLoss": -2.2759,
-        "endReturn": -0.9625,
-        "closeDrawdown": -3.2847
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-22",
-        "endDate": "2026-05-15",
-        "entry": 23450.529296875,
-        "maxRise": 13.8872,
-        "maxLoss": -11.7706,
-        "endReturn": 11.8318,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2025-12-12",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2025-12-19",
-        "entry": 50352.09,
-        "maxRise": 0.1589,
-        "maxLoss": -3.3927,
-        "endReturn": -1.6779,
-        "closeDrawdown": -2.6823
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-01-15",
-        "entry": 50352.09,
-        "maxRise": 8.2126,
-        "maxLoss": -3.3927,
-        "endReturn": 7.4643,
-        "closeDrawdown": -2.6823
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-05-18",
-        "entry": 50352.09,
-        "maxRise": 26.7064,
-        "maxLoss": -3.3927,
-        "endReturn": 20.7814,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2025-12-12",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2025-12-19",
-        "entry": 3413.11,
-        "maxRise": 0.6296,
-        "maxLoss": -2.0893,
-        "endReturn": -0.8628,
-        "closeDrawdown": -2.1734
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-01-15",
-        "entry": 3413.11,
-        "maxRise": 7.6646,
-        "maxLoss": -2.0893,
-        "endReturn": 7.4967,
-        "closeDrawdown": -2.1734
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-05-18",
-        "entry": 3413.11,
-        "maxRise": 15.3986,
-        "maxLoss": -2.0893,
-        "endReturn": 12.1121,
-        "closeDrawdown": -11.482
-      }
-    }
-  },
-  {
-    "target": "dow",
-    "cutoff": "2025-12-12",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2025-12-19",
-        "entry": 48594.359375,
-        "maxRise": 0.1745,
-        "maxLoss": -1.5329,
-        "endReturn": -0.9455,
-        "closeDrawdown": -1.4578
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-01-13",
-        "entry": 48594.359375,
-        "maxRise": 2.1381,
-        "maxLoss": -1.5329,
-        "endReturn": 1.2298,
-        "closeDrawdown": -1.4578
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-05-08",
-        "entry": 48594.359375,
-        "maxRise": 3.9478,
-        "maxLoss": -7.2788,
-        "endReturn": 2.0883,
-        "closeDrawdown": -10.0054
-      }
-    }
-  },
-  {
-    "target": "sox",
-    "cutoff": "2025-12-12",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2025-12-19",
-        "entry": 7096.27001953125,
-        "maxRise": 0.4184,
-        "maxLoss": -5.8565,
-        "endReturn": -0.4002,
-        "closeDrawdown": -5.6503
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-01-13",
-        "entry": 7096.27001953125,
-        "maxRise": 10.2816,
-        "maxLoss": -5.8565,
-        "endReturn": 9.184,
-        "closeDrawdown": -5.6503
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-05-08",
-        "entry": 7096.27001953125,
-        "maxRise": 65.9568,
-        "maxLoss": -5.8565,
-        "endReturn": 65.9393,
-        "closeDrawdown": -15.6494
-      }
-    }
-  },
-  {
-    "target": "sp500",
-    "cutoff": "2025-12-12",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2025-12-19",
-        "entry": 6860.18994140625,
-        "maxRise": 0.0204,
-        "maxLoss": -2.0373,
-        "endReturn": -0.3745,
-        "closeDrawdown": -2.0227
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-01-13",
-        "entry": 6860.18994140625,
-        "maxRise": 1.8387,
-        "maxLoss": -2.0373,
-        "endReturn": 1.5094,
-        "closeDrawdown": -2.0227
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-05-08",
-        "entry": 6860.18994140625,
-        "maxRise": 7.8906,
-        "maxLoss": -7.9193,
-        "endReturn": 7.8531,
-        "closeDrawdown": -9.0975
-      }
-    }
-  },
-  {
-    "target": "nasdaq",
-    "cutoff": "2025-12-12",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2025-12-19",
-        "entry": 23330.0390625,
-        "maxRise": 0.0665,
-        "maxLoss": -2.7348,
-        "endReturn": -0.0961,
-        "closeDrawdown": -2.7292
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-01-13",
-        "entry": 23330.0390625,
-        "maxRise": 2.0714,
-        "maxLoss": -2.7348,
-        "endReturn": 1.6281,
-        "closeDrawdown": -2.7292
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-15",
-        "endDate": "2026-05-08",
-        "entry": 23330.0390625,
-        "maxRise": 12.51,
-        "maxLoss": -11.315,
-        "endReturn": 12.5034,
-        "closeDrawdown": -12.838
-      }
-    }
-  },
-  {
-    "target": "nikkei",
-    "cutoff": "2025-12-05",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-08",
-        "endDate": "2025-12-12",
-        "entry": 50643.09,
-        "maxRise": 0.9569,
-        "maxLoss": -1.4154,
-        "endReturn": 0.382,
-        "closeDrawdown": -0.9995
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-08",
-        "endDate": "2026-01-07",
-        "entry": 50643.09,
-        "maxRise": 3.7136,
-        "maxLoss": -3.9478,
-        "endReturn": 2.6043,
-        "closeDrawdown": -3.6097
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-08",
-        "endDate": "2026-05-11",
-        "entry": 50643.09,
-        "maxRise": 25.1603,
-        "maxLoss": -3.9478,
-        "endReturn": 23.2505,
-        "closeDrawdown": -13.2311
-      }
-    }
-  },
-  {
-    "target": "topix",
-    "cutoff": "2025-12-05",
-    "periods": {
-      "5": {
-        "status": "complete",
-        "entryDate": "2025-12-08",
-        "endDate": "2025-12-12",
-        "entry": 3369.21,
-        "maxRise": 1.755,
-        "maxLoss": -0.5069,
-        "endReturn": 1.6212,
-        "closeDrawdown": -0.9377
-      },
-      "20": {
-        "status": "complete",
-        "entryDate": "2025-12-08",
-        "endDate": "2026-01-07",
-        "entry": 3369.21,
-        "maxRise": 5.0685,
-        "maxLoss": -0.8135,
-        "endReturn": 4.2185,
-        "closeDrawdown": -2.1734
-      },
-      "100": {
-        "status": "complete",
-        "entryDate": "2025-12-08",
-        "endDate": "2026-05-11",
-        "entry": 3369.21,
-        "maxRise": 16.9022,
-        "maxLoss": -0.8135,
-        "endReturn": 14.0009,
-        "closeDrawdown": -11.482
+        "status": "pending",
+        "observations": 0
       }
     }
   }
