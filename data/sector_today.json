@@ -31,7 +31,7 @@
   "historyFile": "data/sector_history.csv",
   "originalLongHistoryFile": "data/original_index.csv",
   "originalHistoryFile": "data/original_index_history.json",
-  "generatedAt": "2026-10-09T18:31:18+09:00",
+  "generatedAt": "2026-10-12T18:31:14+09:00",
   "original": [
     {
       "id": 1,
@@ -3495,7 +3495,7 @@
         }
       ],
       "marketCapCount": 192,
-      "marketCapTrillion": 448.6707,
+      "marketCapTrillion": 448.6714,
       "avgMarketCapTrillion": 2.3368
     },
     {
@@ -4942,7 +4942,7 @@
         }
       ],
       "marketCapCount": 238,
-      "marketCapTrillion": 782.4981,
+      "marketCapTrillion": 782.4989,
       "avgMarketCapTrillion": 3.2878
     }
   ],
@@ -4970,7 +4970,7 @@
         "外需": 94
       },
       "marketCapCount": 203,
-      "marketCapTrillion": 667.5136,
+      "marketCapTrillion": 667.5143,
       "avgMarketCapTrillion": 3.2882
     }
   ],
@@ -4980,7 +4980,7 @@
       "change": 0.5299,
       "count": 158,
       "marketCapCount": 158,
-      "marketCapTrillion": 490.0618,
+      "marketCapTrillion": 490.0625,
       "avgMarketCapTrillion": 3.1017
     },
     {
@@ -5058,7 +5058,7 @@
       "change": 0.6135,
       "count": 24,
       "marketCapCount": 24,
-      "marketCapTrillion": 62.975,
+      "marketCapTrillion": 62.9757,
       "avgMarketCapTrillion": 2.624,
       "major": "外需・グローバル景気"
     },
@@ -5278,7 +5278,7 @@
       "change": 1.0026,
       "count": 10,
       "marketCapCount": 10,
-      "marketCapTrillion": 38.0288,
+      "marketCapTrillion": 38.0292,
       "avgMarketCapTrillion": 3.8029,
       "major": "外需・グローバル景気",
       "sector": "機械"
@@ -5538,8 +5538,8 @@
       "change": 0.6484,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 2.3696,
-      "avgMarketCapTrillion": 0.5924,
+      "marketCapTrillion": 2.37,
+      "avgMarketCapTrillion": 0.5925,
       "major": "外需・グローバル景気",
       "sector": "機械"
     },
