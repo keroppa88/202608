@@ -1,8 +1,8 @@
 {
   "mode": "update",
   "calls": 6,
-  "inputTokens": 119408,
-  "estimatedUsd": 0.005015136000000001,
-  "estimatedYenAt155": 0.7773460800000002,
+  "inputTokens": 119790,
+  "estimatedUsd": 0.0050311800000000005,
+  "estimatedYenAt155": 0.7798329,
   "failure": null
 }
