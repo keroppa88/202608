@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-27",
+  "date": "2026-10-28",
   "method": "equal_weight",
   "demandMethod": "strong_1_normal_0.5",
   "originalMethod": "large_1_medium_0.7_small_0.5",
@@ -15,7 +15,7 @@
     "7240",
     "9508"
   ],
-  "marketCapAsOf": "2026-10-27",
+  "marketCapAsOf": "2026-10-28",
   "marketCapSourceCount": 492,
   "marketCapMatched": 492,
   "missingMarketCapCodes": [],
@@ -31,14 +31,14 @@
   "historyFile": "data/sector_history.csv",
   "originalLongHistoryFile": "data/original_index.csv",
   "originalHistoryFile": "data/original_index_history.json",
-  "generatedAt": "2026-10-27T18:31:16+09:00",
+  "generatedAt": "2026-10-28T18:31:37+09:00",
   "original": [
     {
       "id": 1,
       "name": "ブルジョワ地主指数",
       "concept": "富からカネを生む",
       "definition": "土地・金融資産・運用資産などの既存資本を基盤に、賃料、利ざや、手数料、運用益を継続的に得る企業群。不動産賃貸、銀行、証券、保険、リースなどを対象とする。",
-      "change": 0.7557,
+      "change": -0.4367,
       "count": 64,
       "weightSum": 59.6,
       "breakdown": {
@@ -433,15 +433,15 @@
         }
       ],
       "marketCapCount": 64,
-      "marketCapTrillion": 271.3195,
-      "avgMarketCapTrillion": 4.2394
+      "marketCapTrillion": 270.6301,
+      "avgMarketCapTrillion": 4.2286
     },
     {
       "id": 2,
       "name": "政治寄生指数",
       "concept": "政府のカネとルールに寄生する",
       "definition": "政府予算、公共調達、補助制度、法令・規制対応によって生まれる需要から収益を得る企業群。公共工事、行政システム、規制対応ソフトウェア、公共向けサービスなどを対象とする。",
-      "change": 0.1195,
+      "change": -0.6455,
       "count": 51,
       "weightSum": 34.1,
       "breakdown": {
@@ -758,15 +758,15 @@
         }
       ],
       "marketCapCount": 51,
-      "marketCapTrillion": 74.2686,
-      "avgMarketCapTrillion": 1.4562
+      "marketCapTrillion": 73.8135,
+      "avgMarketCapTrillion": 1.4473
     },
     {
       "id": 3,
       "name": "中抜きピンハネ指数",
       "concept": "中抜きとピンハネで利益を取る",
       "definition": "人材、業務、商品、取引、情報の商流を仲介し、派遣マージン、仲介料、卸売差益、プラットフォーム手数料などを得る企業群。",
-      "change": -0.0751,
+      "change": -1.0635,
       "count": 41,
       "weightSum": 28.6,
       "breakdown": {
@@ -1023,15 +1023,15 @@
         }
       ],
       "marketCapCount": 41,
-      "marketCapTrillion": 122.2674,
-      "avgMarketCapTrillion": 2.9821
+      "marketCapTrillion": 120.9414,
+      "avgMarketCapTrillion": 2.9498
     },
     {
       "id": 4,
       "name": "ライフライン占有指数",
       "concept": "生活インフラから利益を取る",
       "definition": "通信、電力・ガス、鉄道、警備など、生活に不可欠で継続利用される基盤から収益を得る企業群。参入障壁が高く、利用料や固定料金による収益の継続性が高い事業を対象とする。",
-      "change": -1.0223,
+      "change": -1.5302,
       "count": 52,
       "weightSum": 45.3,
       "breakdown": {
@@ -1354,15 +1354,15 @@
         }
       ],
       "marketCapCount": 52,
-      "marketCapTrillion": 87.6779,
-      "avgMarketCapTrillion": 1.6861
+      "marketCapTrillion": 86.3635,
+      "avgMarketCapTrillion": 1.6608
     },
     {
       "id": 5,
       "name": "日銭商い指数",
       "concept": "日常消費から利益を取る",
       "definition": "食品、日用品、ディスカウントストア、スーパー、ドラッグストア、外食など、少額・高頻度の日常支出から収益を得る企業群。価格、品揃え、店舗網、販売効率を競争力とする事業を対象とする。",
-      "change": -1.2505,
+      "change": -2.4599,
       "count": 64,
       "weightSum": 58.0,
       "breakdown": {
@@ -1757,15 +1757,15 @@
         }
       ],
       "marketCapCount": 64,
-      "marketCapTrillion": 95.733,
-      "avgMarketCapTrillion": 1.4958
+      "marketCapTrillion": 93.9861,
+      "avgMarketCapTrillion": 1.4685
     },
     {
       "id": 6,
       "name": "ハードグッズ指数",
       "concept": "庶民の耐久消費・大型支出から利益を取る",
       "definition": "住宅、住宅設備、自動車、家電、家具など、高額・低頻度の耐久消費や大型支出から収益を得る企業群。購入時にローンや分割払いを伴うことが多い商品・サービスを対象とする。",
-      "change": -0.823,
+      "change": -1.1807,
       "count": 37,
       "weightSum": 28.8,
       "breakdown": {
@@ -1998,15 +1998,15 @@
         }
       ],
       "marketCapCount": 37,
-      "marketCapTrillion": 122.383,
-      "avgMarketCapTrillion": 3.3076
+      "marketCapTrillion": 120.6575,
+      "avgMarketCapTrillion": 3.261
     },
     {
       "id": 7,
       "name": "自己顕示欲指数",
       "concept": "高級品・贅沢品から利益を取る",
       "definition": "百貨店、高級化粧品、ブランド商品、プレミアムな娯楽・宿泊など、非必需の高単価消費から収益を得る企業群。実用性に加え、ブランド、体験、希少性、自己表現に対する需要を収益化する。",
-      "change": -1.2773,
+      "change": -1.5912,
       "count": 19,
       "weightSum": 14.5,
       "breakdown": {
@@ -2131,15 +2131,15 @@
         }
       ],
       "marketCapCount": 19,
-      "marketCapTrillion": 42.2231,
-      "avgMarketCapTrillion": 2.2223
+      "marketCapTrillion": 41.2874,
+      "avgMarketCapTrillion": 2.173
     },
     {
       "id": 8,
       "name": "脳Hack指数",
       "concept": "時間と集中力から利益を取る",
       "definition": "SNS、デジタルコンテンツ、ゲーム、動画、メディア、ネット広告など、利用者の可処分時間と視線を集めて収益化する企業群。広告、課金、手数料を主な収益源とする。",
-      "change": -0.9466,
+      "change": -2.3041,
       "count": 29,
       "weightSum": 24.2,
       "breakdown": {
@@ -2324,15 +2324,15 @@
         }
       ],
       "marketCapCount": 29,
-      "marketCapTrillion": 69.4659,
-      "avgMarketCapTrillion": 2.3954
+      "marketCapTrillion": 67.6168,
+      "avgMarketCapTrillion": 2.3316
     },
     {
       "id": 9,
       "name": "テクノロジー指数",
       "concept": "技術を売る",
       "definition": "電子部品、FA・センサー、半導体製造装置、精密機器、特殊化学素材など、製品や製造工程に不可欠な技術を供給する企業群。特許、品質、供給能力、代替の難しさを価格決定力につなげる。",
-      "change": 1.5323,
+      "change": 1.4535,
       "count": 192,
       "weightSum": 151.2,
       "breakdown": {
@@ -3495,15 +3495,15 @@
         }
       ],
       "marketCapCount": 192,
-      "marketCapTrillion": 416.3626,
-      "avgMarketCapTrillion": 2.1686
+      "marketCapTrillion": 421.1492,
+      "avgMarketCapTrillion": 2.1935
     },
     {
       "id": 10,
       "name": "ライジングサン指数",
       "concept": "海外で稼ぐ",
       "definition": "輸出、海外生産・販売、資源取引、国際商流などを通じ、海外市場から利益を得る企業群。自動車、製造装置、電子部品、総合商社など、海外収益の寄与が大きい事業を対象とする。",
-      "change": 1.1884,
+      "change": 0.775,
       "count": 238,
       "weightSum": 192.3,
       "breakdown": {
@@ -4942,14 +4942,14 @@
         }
       ],
       "marketCapCount": 238,
-      "marketCapTrillion": 750.9252,
-      "avgMarketCapTrillion": 3.1551
+      "marketCapTrillion": 753.1193,
+      "avgMarketCapTrillion": 3.1644
     }
   ],
   "demand": [
     {
       "name": "内需",
-      "change": -0.6043,
+      "change": -1.3091,
       "count": 252,
       "weightSum": 219.0,
       "breakdown": {
@@ -4957,12 +4957,12 @@
         "強内需": 186
       },
       "marketCapCount": 252,
-      "marketCapTrillion": 342.4888,
-      "avgMarketCapTrillion": 1.3591
+      "marketCapTrillion": 338.4674,
+      "avgMarketCapTrillion": 1.3431
     },
     {
       "name": "外需",
-      "change": 1.3133,
+      "change": 1.0697,
       "count": 203,
       "weightSum": 156.0,
       "breakdown": {
@@ -4970,856 +4970,856 @@
         "外需": 94
       },
       "marketCapCount": 203,
-      "marketCapTrillion": 637.3859,
-      "avgMarketCapTrillion": 3.1398
+      "marketCapTrillion": 640.0433,
+      "avgMarketCapTrillion": 3.1529
     }
   ],
   "major": [
     {
       "name": "外需・グローバル景気",
-      "change": 1.4985,
+      "change": 1.2958,
       "count": 158,
       "marketCapCount": 158,
-      "marketCapTrillion": 455.9501,
-      "avgMarketCapTrillion": 2.8858
+      "marketCapTrillion": 461.0478,
+      "avgMarketCapTrillion": 2.918
     },
     {
       "name": "資源・市況",
-      "change": 1.3074,
+      "change": 0.0738,
       "count": 40,
       "marketCapCount": 40,
-      "marketCapTrillion": 128.652,
-      "avgMarketCapTrillion": 3.2163
+      "marketCapTrillion": 127.5943,
+      "avgMarketCapTrillion": 3.1899
     },
     {
       "name": "内需・国内景気",
-      "change": -0.9436,
+      "change": -1.4299,
       "count": 185,
       "marketCapCount": 185,
-      "marketCapTrillion": 250.4077,
-      "avgMarketCapTrillion": 1.3536
+      "marketCapTrillion": 246.8009,
+      "avgMarketCapTrillion": 1.3341
     },
     {
       "name": "金融・金利敏感",
-      "change": 1.264,
+      "change": -0.2222,
       "count": 47,
       "marketCapCount": 47,
-      "marketCapTrillion": 154.6265,
-      "avgMarketCapTrillion": 3.2899
+      "marketCapTrillion": 154.2145,
+      "avgMarketCapTrillion": 3.2812
     },
     {
       "name": "ディフェンシブ・公共",
-      "change": -1.0099,
+      "change": -2.0354,
       "count": 60,
       "marketCapCount": 60,
-      "marketCapTrillion": 103.7776,
-      "avgMarketCapTrillion": 1.7296
+      "marketCapTrillion": 101.9293,
+      "avgMarketCapTrillion": 1.6988
     }
   ],
   "sector": [
     {
       "name": "IT・通信",
-      "change": 1.4279,
+      "change": 0.8122,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 40.7666,
-      "avgMarketCapTrillion": 13.5889,
+      "marketCapTrillion": 41.8076,
+      "avgMarketCapTrillion": 13.9359,
       "major": "外需・グローバル景気"
     },
     {
       "name": "グローバル消費",
-      "change": -0.9529,
+      "change": -0.8474,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 52.6425,
-      "avgMarketCapTrillion": 7.5204,
+      "marketCapTrillion": 51.9588,
+      "avgMarketCapTrillion": 7.4227,
       "major": "外需・グローバル景気"
     },
     {
       "name": "半導体",
-      "change": 3.5635,
+      "change": 4.5472,
       "count": 24,
       "marketCapCount": 24,
-      "marketCapTrillion": 79.9083,
-      "avgMarketCapTrillion": 3.3295,
+      "marketCapTrillion": 83.5552,
+      "avgMarketCapTrillion": 3.4815,
       "major": "外需・グローバル景気"
     },
     {
       "name": "専門商社",
-      "change": 1.382,
+      "change": 0.3694,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 1.9907,
-      "avgMarketCapTrillion": 0.4977,
+      "marketCapTrillion": 1.9966,
+      "avgMarketCapTrillion": 0.4991,
       "major": "外需・グローバル景気"
     },
     {
       "name": "機械",
-      "change": 1.6971,
+      "change": 1.4179,
       "count": 24,
       "marketCapCount": 24,
-      "marketCapTrillion": 59.9105,
-      "avgMarketCapTrillion": 2.4963,
+      "marketCapTrillion": 60.4511,
+      "avgMarketCapTrillion": 2.5188,
       "major": "外需・グローバル景気"
     },
     {
       "name": "精密",
-      "change": 1.7095,
+      "change": 0.977,
       "count": 13,
       "marketCapCount": 13,
-      "marketCapTrillion": 24.446,
-      "avgMarketCapTrillion": 1.8805,
+      "marketCapTrillion": 24.449,
+      "avgMarketCapTrillion": 1.8807,
       "major": "外需・グローバル景気"
     },
     {
       "name": "素材",
-      "change": 1.2067,
+      "change": 0.4587,
       "count": 23,
       "marketCapCount": 23,
-      "marketCapTrillion": 19.9957,
-      "avgMarketCapTrillion": 0.8694,
+      "marketCapTrillion": 20.0313,
+      "avgMarketCapTrillion": 0.8709,
       "major": "外需・グローバル景気"
     },
     {
       "name": "自動車",
-      "change": -0.01,
+      "change": -0.433,
       "count": 30,
       "marketCapCount": 30,
-      "marketCapTrillion": 76.7352,
-      "avgMarketCapTrillion": 2.5578,
+      "marketCapTrillion": 75.7688,
+      "avgMarketCapTrillion": 2.5256,
       "major": "外需・グローバル景気"
     },
     {
       "name": "重工・防衛",
-      "change": 1.5758,
+      "change": 0.3855,
       "count": 5,
       "marketCapCount": 5,
-      "marketCapTrillion": 17.0187,
-      "avgMarketCapTrillion": 3.4037,
+      "marketCapTrillion": 17.0833,
+      "avgMarketCapTrillion": 3.4167,
       "major": "外需・グローバル景気"
     },
     {
       "name": "電機・電子",
-      "change": 1.992,
+      "change": 2.0562,
       "count": 25,
       "marketCapCount": 25,
-      "marketCapTrillion": 82.5359,
-      "avgMarketCapTrillion": 3.3014,
+      "marketCapTrillion": 83.9461,
+      "avgMarketCapTrillion": 3.3578,
       "major": "外需・グローバル景気"
     },
     {
       "name": "エネルギー・資源",
-      "change": -0.1679,
+      "change": -1.2557,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 12.1335,
-      "avgMarketCapTrillion": 2.0223,
+      "marketCapTrillion": 11.9767,
+      "avgMarketCapTrillion": 1.9961,
       "major": "資源・市況"
     },
     {
       "name": "海運",
-      "change": 1.0736,
+      "change": -1.2946,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 7.6844,
-      "avgMarketCapTrillion": 2.5615,
+      "marketCapTrillion": 7.5862,
+      "avgMarketCapTrillion": 2.5287,
       "major": "資源・市況"
     },
     {
       "name": "素材・化学",
-      "change": 1.7398,
+      "change": 0.8145,
       "count": 10,
       "marketCapCount": 10,
-      "marketCapTrillion": 6.4682,
-      "avgMarketCapTrillion": 0.6468,
+      "marketCapTrillion": 6.5162,
+      "avgMarketCapTrillion": 0.6516,
       "major": "資源・市況"
     },
     {
       "name": "総合商社",
-      "change": 0.8726,
+      "change": -1.4404,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 74.7624,
-      "avgMarketCapTrillion": 10.6803,
+      "marketCapTrillion": 73.5782,
+      "avgMarketCapTrillion": 10.5112,
       "major": "資源・市況"
     },
     {
       "name": "鉄鋼",
-      "change": 1.381,
+      "change": -0.4627,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 6.9954,
-      "avgMarketCapTrillion": 1.1659,
+      "marketCapTrillion": 6.9416,
+      "avgMarketCapTrillion": 1.1569,
       "major": "資源・市況"
     },
     {
       "name": "非鉄・電線",
-      "change": 2.2862,
+      "change": 2.3854,
       "count": 8,
       "marketCapCount": 8,
-      "marketCapTrillion": 20.608,
-      "avgMarketCapTrillion": 2.576,
+      "marketCapTrillion": 20.9953,
+      "avgMarketCapTrillion": 2.6244,
       "major": "資源・市況"
     },
     {
       "name": "ヘルスケア",
-      "change": -0.6679,
+      "change": -1.8594,
       "count": 9,
       "marketCapCount": 9,
-      "marketCapTrillion": 4.5253,
-      "avgMarketCapTrillion": 0.5028,
+      "marketCapTrillion": 4.4314,
+      "avgMarketCapTrillion": 0.4924,
       "major": "内需・国内景気"
     },
     {
       "name": "国内サービス",
-      "change": -0.5457,
+      "change": -1.5631,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 36.1724,
-      "avgMarketCapTrillion": 2.4115,
+      "marketCapTrillion": 36.085,
+      "avgMarketCapTrillion": 2.4057,
       "major": "内需・国内景気"
     },
     {
       "name": "国内建設・不動産",
-      "change": -0.5689,
+      "change": -1.2071,
       "count": 39,
       "marketCapCount": 39,
-      "marketCapTrillion": 41.4253,
-      "avgMarketCapTrillion": 1.0622,
+      "marketCapTrillion": 40.8118,
+      "avgMarketCapTrillion": 1.0465,
       "major": "内需・国内景気"
     },
     {
       "name": "国内情報通信",
-      "change": -1.1161,
+      "change": -0.1916,
       "count": 28,
       "marketCapCount": 28,
-      "marketCapTrillion": 61.9375,
-      "avgMarketCapTrillion": 2.2121,
+      "marketCapTrillion": 61.403,
+      "avgMarketCapTrillion": 2.193,
       "major": "内需・国内景気"
     },
     {
       "name": "国内消費",
-      "change": -1.0947,
+      "change": -1.9495,
       "count": 61,
       "marketCapCount": 61,
-      "marketCapTrillion": 72.1378,
-      "avgMarketCapTrillion": 1.1826,
+      "marketCapTrillion": 70.4469,
+      "avgMarketCapTrillion": 1.1549,
       "major": "内需・国内景気"
     },
     {
       "name": "運輸・物流",
-      "change": -1.2165,
+      "change": -1.6059,
       "count": 33,
       "marketCapCount": 33,
-      "marketCapTrillion": 34.2095,
-      "avgMarketCapTrillion": 1.0367,
+      "marketCapTrillion": 33.6228,
+      "avgMarketCapTrillion": 1.0189,
       "major": "内需・国内景気"
     },
     {
       "name": "金融",
-      "change": 1.264,
+      "change": -0.2222,
       "count": 47,
       "marketCapCount": 47,
-      "marketCapTrillion": 154.6265,
-      "avgMarketCapTrillion": 3.2899,
+      "marketCapTrillion": 154.2145,
+      "avgMarketCapTrillion": 3.2812,
       "major": "金融・金利敏感"
     },
     {
       "name": "公益",
-      "change": -0.3145,
+      "change": -1.4868,
       "count": 13,
       "marketCapCount": 13,
-      "marketCapTrillion": 13.4519,
-      "avgMarketCapTrillion": 1.0348,
+      "marketCapTrillion": 13.2484,
+      "avgMarketCapTrillion": 1.0191,
       "major": "ディフェンシブ・公共"
     },
     {
       "name": "医薬品",
-      "change": -1.1139,
+      "change": -0.6846,
       "count": 16,
       "marketCapCount": 16,
-      "marketCapTrillion": 46.3188,
-      "avgMarketCapTrillion": 2.8949,
+      "marketCapTrillion": 45.8389,
+      "avgMarketCapTrillion": 2.8649,
       "major": "ディフェンシブ・公共"
     },
     {
       "name": "生活必需品",
-      "change": -1.2478,
+      "change": -2.9626,
       "count": 31,
       "marketCapCount": 31,
-      "marketCapTrillion": 44.0069,
-      "avgMarketCapTrillion": 1.4196,
+      "marketCapTrillion": 42.8421,
+      "avgMarketCapTrillion": 1.382,
       "major": "ディフェンシブ・公共"
     }
   ],
   "industry": [
     {
       "name": "B2B",
-      "change": -1.3173,
+      "change": -0.4837,
       "count": 16,
       "marketCapCount": 16,
-      "marketCapTrillion": 15.6348,
-      "avgMarketCapTrillion": 0.9772,
+      "marketCapTrillion": 15.5879,
+      "avgMarketCapTrillion": 0.9742,
       "major": "内需・国内景気",
       "sector": "国内情報通信"
     },
     {
       "name": "B2C",
-      "change": -0.5777,
+      "change": 0.4851,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 7.391,
-      "avgMarketCapTrillion": 1.2318,
+      "marketCapTrillion": 7.4076,
+      "avgMarketCapTrillion": 1.2346,
       "major": "内需・国内景気",
       "sector": "国内情報通信"
     },
     {
       "name": "FA・制御",
-      "change": 2.2302,
+      "change": 2.1212,
       "count": 10,
       "marketCapCount": 10,
-      "marketCapTrillion": 36.0625,
-      "avgMarketCapTrillion": 3.6063,
+      "marketCapTrillion": 36.5235,
+      "avgMarketCapTrillion": 3.6523,
       "major": "外需・グローバル景気",
       "sector": "機械"
     },
     {
       "name": "IT・通信",
-      "change": 1.4279,
+      "change": 0.8122,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 40.7666,
-      "avgMarketCapTrillion": 13.5889,
+      "marketCapTrillion": 41.8076,
+      "avgMarketCapTrillion": 13.9359,
       "major": "外需・グローバル景気",
       "sector": "IT・通信"
     },
     {
       "name": "インフラ系",
-      "change": 0.5809,
+      "change": -0.7529,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 11.9289,
-      "avgMarketCapTrillion": 0.7953,
+      "marketCapTrillion": 11.804,
+      "avgMarketCapTrillion": 0.7869,
       "major": "内需・国内景気",
       "sector": "国内建設・不動産"
     },
     {
       "name": "ガス",
-      "change": -0.1643,
+      "change": -1.8137,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 4.9362,
-      "avgMarketCapTrillion": 1.2341,
+      "marketCapTrillion": 4.8503,
+      "avgMarketCapTrillion": 1.2126,
       "major": "ディフェンシブ・公共",
       "sector": "公益"
     },
     {
       "name": "クレジット・リース",
-      "change": -0.1534,
+      "change": -0.7625,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 5.5905,
-      "avgMarketCapTrillion": 0.7986,
+      "marketCapTrillion": 5.5538,
+      "avgMarketCapTrillion": 0.7934,
       "major": "金融・金利敏感",
       "sector": "金融"
     },
     {
       "name": "グローバル消費",
-      "change": -0.9529,
+      "change": -0.8474,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 52.6425,
-      "avgMarketCapTrillion": 7.5204,
+      "marketCapTrillion": 51.9588,
+      "avgMarketCapTrillion": 7.4227,
       "major": "外需・グローバル景気",
       "sector": "グローバル消費"
     },
     {
       "name": "サービス",
-      "change": -0.5457,
+      "change": -1.5631,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 36.1724,
-      "avgMarketCapTrillion": 2.4115,
+      "marketCapTrillion": 36.085,
+      "avgMarketCapTrillion": 2.4057,
       "major": "内需・国内景気",
       "sector": "国内サービス"
     },
     {
       "name": "タイヤ・ゴム",
-      "change": 0.7943,
+      "change": -1.5878,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 7.2297,
-      "avgMarketCapTrillion": 1.8074,
+      "marketCapTrillion": 7.0839,
+      "avgMarketCapTrillion": 1.771,
       "major": "外需・グローバル景気",
       "sector": "自動車"
     },
     {
       "name": "メガバンク",
-      "change": 2.1786,
+      "change": -0.0173,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 68.6496,
-      "avgMarketCapTrillion": 22.8832,
+      "marketCapTrillion": 68.7364,
+      "avgMarketCapTrillion": 22.9121,
       "major": "金融・金利敏感",
       "sector": "金融"
     },
     {
       "name": "メディアコンテンツ",
-      "change": -0.6331,
+      "change": -2.8397,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 29.526,
-      "avgMarketCapTrillion": 1.9684,
+      "marketCapTrillion": 28.5436,
+      "avgMarketCapTrillion": 1.9029,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
     {
       "name": "レジャー娯楽",
-      "change": -0.617,
+      "change": -2.3753,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 6.2493,
-      "avgMarketCapTrillion": 1.5623,
+      "marketCapTrillion": 6.1195,
+      "avgMarketCapTrillion": 1.5299,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
     {
       "name": "不動産",
-      "change": -2.7812,
+      "change": -2.1201,
       "count": 11,
       "marketCapCount": 11,
-      "marketCapTrillion": 18.2971,
-      "avgMarketCapTrillion": 1.6634,
+      "marketCapTrillion": 17.936,
+      "avgMarketCapTrillion": 1.6305,
       "major": "内需・国内景気",
       "sector": "国内建設・不動産"
     },
     {
       "name": "他金融",
-      "change": -0.1806,
+      "change": -0.8727,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 6.897,
-      "avgMarketCapTrillion": 2.299,
+      "marketCapTrillion": 6.8537,
+      "avgMarketCapTrillion": 2.2846,
       "major": "金融・金利敏感",
       "sector": "金融"
     },
     {
       "name": "他銀行",
-      "change": 2.474,
+      "change": 0.5101,
       "count": 23,
       "marketCapCount": 23,
-      "marketCapTrillion": 36.096,
-      "avgMarketCapTrillion": 1.5694,
+      "marketCapTrillion": 36.2213,
+      "avgMarketCapTrillion": 1.5748,
       "major": "金融・金利敏感",
       "sector": "金融"
     },
     {
       "name": "住宅系",
-      "change": -1.5001,
+      "change": -1.5749,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 6.3545,
-      "avgMarketCapTrillion": 1.0591,
+      "marketCapTrillion": 6.2413,
+      "avgMarketCapTrillion": 1.0402,
       "major": "内需・国内景気",
       "sector": "国内建設・不動産"
     },
     {
       "name": "余剰消費",
-      "change": -1.525,
+      "change": -1.5628,
       "count": 15,
       "marketCapCount": 15,
-      "marketCapTrillion": 11.0677,
-      "avgMarketCapTrillion": 0.7378,
+      "marketCapTrillion": 10.8794,
+      "avgMarketCapTrillion": 0.7253,
       "major": "内需・国内景気",
       "sector": "国内消費"
     },
     {
       "name": "化学・機能材料",
-      "change": 1.1743,
+      "change": 0.5256,
       "count": 18,
       "marketCapCount": 18,
-      "marketCapTrillion": 15.6426,
-      "avgMarketCapTrillion": 0.869,
-      "major": "外需・グローバル景気",
-      "sector": "素材"
-    },
-    {
-      "name": "医療サービス・機器",
-      "change": -0.8786,
-      "count": 5,
-      "marketCapCount": 5,
-      "marketCapTrillion": 2.9216,
-      "avgMarketCapTrillion": 0.5843,
-      "major": "内需・国内景気",
-      "sector": "ヘルスケア"
-    },
-    {
-      "name": "医薬品",
-      "change": -1.1139,
-      "count": 16,
-      "marketCapCount": 16,
-      "marketCapTrillion": 46.3188,
-      "avgMarketCapTrillion": 2.8949,
-      "major": "ディフェンシブ・公共",
-      "sector": "医薬品"
-    },
-    {
-      "name": "医薬品卸",
-      "change": -0.4045,
-      "count": 4,
-      "marketCapCount": 4,
-      "marketCapTrillion": 1.6037,
-      "avgMarketCapTrillion": 0.4009,
-      "major": "内需・国内景気",
-      "sector": "ヘルスケア"
-    },
-    {
-      "name": "半導体デバイス・メモリ",
-      "change": 2.8943,
-      "count": 5,
-      "marketCapCount": 5,
-      "marketCapTrillion": 14.0234,
-      "avgMarketCapTrillion": 2.8047,
-      "major": "外需・グローバル景気",
-      "sector": "半導体"
-    },
-    {
-      "name": "半導体材料",
-      "change": 3.0993,
-      "count": 10,
-      "marketCapCount": 10,
-      "marketCapTrillion": 22.755,
-      "avgMarketCapTrillion": 2.2755,
-      "major": "外需・グローバル景気",
-      "sector": "半導体"
-    },
-    {
-      "name": "半導体製造装置",
-      "change": 4.4512,
-      "count": 9,
-      "marketCapCount": 9,
-      "marketCapTrillion": 43.1299,
-      "avgMarketCapTrillion": 4.7922,
-      "major": "外需・グローバル景気",
-      "sector": "半導体"
-    },
-    {
-      "name": "基礎化学",
-      "change": 1.8837,
-      "count": 7,
-      "marketCapCount": 7,
-      "marketCapTrillion": 4.954,
-      "avgMarketCapTrillion": 0.7077,
-      "major": "資源・市況",
-      "sector": "素材・化学"
-    },
-    {
-      "name": "完成車",
-      "change": -0.8681,
-      "count": 9,
-      "marketCapCount": 9,
-      "marketCapTrillion": 56.029,
-      "avgMarketCapTrillion": 6.2254,
-      "major": "外需・グローバル景気",
-      "sector": "自動車"
-    },
-    {
-      "name": "専門商社",
-      "change": 1.382,
-      "count": 4,
-      "marketCapCount": 4,
-      "marketCapTrillion": 1.9907,
-      "avgMarketCapTrillion": 0.4977,
-      "major": "外需・グローバル景気",
-      "sector": "専門商社"
-    },
-    {
-      "name": "工作機械",
-      "change": 1.9729,
-      "count": 4,
-      "marketCapCount": 4,
-      "marketCapTrillion": 2.0696,
-      "avgMarketCapTrillion": 0.5174,
-      "major": "外需・グローバル景気",
-      "sector": "機械"
-    },
-    {
-      "name": "建設設備",
-      "change": 1.2417,
-      "count": 7,
-      "marketCapCount": 7,
-      "marketCapTrillion": 4.8448,
-      "avgMarketCapTrillion": 0.6921,
-      "major": "内需・国内景気",
-      "sector": "国内建設・不動産"
-    },
-    {
-      "name": "日用品",
-      "change": -0.9099,
-      "count": 5,
-      "marketCapCount": 5,
-      "marketCapTrillion": 6.4422,
-      "avgMarketCapTrillion": 1.2884,
-      "major": "ディフェンシブ・公共",
-      "sector": "生活必需品"
-    },
-    {
-      "name": "民生・事務機器",
-      "change": 1.0397,
-      "count": 7,
-      "marketCapCount": 7,
-      "marketCapTrillion": 8.8587,
-      "avgMarketCapTrillion": 1.2655,
-      "major": "外需・グローバル景気",
-      "sector": "電機・電子"
-    },
-    {
-      "name": "海運",
-      "change": 1.0736,
-      "count": 3,
-      "marketCapCount": 3,
-      "marketCapTrillion": 7.6844,
-      "avgMarketCapTrillion": 2.5615,
-      "major": "資源・市況",
-      "sector": "海運"
-    },
-    {
-      "name": "生損保",
-      "change": 0.0541,
-      "count": 7,
-      "marketCapCount": 7,
-      "marketCapTrillion": 26.8424,
-      "avgMarketCapTrillion": 3.8346,
-      "major": "金融・金利敏感",
-      "sector": "金融"
-    },
-    {
-      "name": "生活小売",
-      "change": -1.1829,
-      "count": 27,
-      "marketCapCount": 27,
-      "marketCapTrillion": 25.2948,
-      "avgMarketCapTrillion": 0.9368,
-      "major": "内需・国内景気",
-      "sector": "国内消費"
-    },
-    {
-      "name": "産業・建設機械",
-      "change": 1.0536,
-      "count": 10,
-      "marketCapCount": 10,
-      "marketCapTrillion": 21.7784,
-      "avgMarketCapTrillion": 2.1778,
-      "major": "外需・グローバル景気",
-      "sector": "機械"
-    },
-    {
-      "name": "石油・ガス・資源",
-      "change": -0.1679,
-      "count": 6,
-      "marketCapCount": 6,
-      "marketCapTrillion": 12.1335,
-      "avgMarketCapTrillion": 2.0223,
-      "major": "資源・市況",
-      "sector": "エネルギー・資源"
-    },
-    {
-      "name": "精密医療",
-      "change": 0.1371,
-      "count": 8,
-      "marketCapCount": 8,
-      "marketCapTrillion": 20.9503,
-      "avgMarketCapTrillion": 2.6188,
-      "major": "外需・グローバル景気",
-      "sector": "精密"
-    },
-    {
-      "name": "精密機械",
-      "change": 4.2254,
-      "count": 5,
-      "marketCapCount": 5,
-      "marketCapTrillion": 3.4957,
-      "avgMarketCapTrillion": 0.6991,
-      "major": "外需・グローバル景気",
-      "sector": "精密"
-    },
-    {
-      "name": "紙・炭素",
-      "change": 1.4041,
-      "count": 3,
-      "marketCapCount": 3,
-      "marketCapTrillion": 1.5141,
-      "avgMarketCapTrillion": 0.5047,
-      "major": "資源・市況",
-      "sector": "素材・化学"
-    },
-    {
-      "name": "素材・建材",
-      "change": 1.3236,
-      "count": 5,
-      "marketCapCount": 5,
-      "marketCapTrillion": 4.3531,
+      "marketCapTrillion": 15.6711,
       "avgMarketCapTrillion": 0.8706,
       "major": "外需・グローバル景気",
       "sector": "素材"
     },
     {
-      "name": "総合商社",
-      "change": 0.8726,
+      "name": "医療サービス・機器",
+      "change": -1.6824,
+      "count": 5,
+      "marketCapCount": 5,
+      "marketCapTrillion": 2.8618,
+      "avgMarketCapTrillion": 0.5724,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "医薬品",
+      "change": -0.6846,
+      "count": 16,
+      "marketCapCount": 16,
+      "marketCapTrillion": 45.8389,
+      "avgMarketCapTrillion": 2.8649,
+      "major": "ディフェンシブ・公共",
+      "sector": "医薬品"
+    },
+    {
+      "name": "医薬品卸",
+      "change": -2.0807,
+      "count": 4,
+      "marketCapCount": 4,
+      "marketCapTrillion": 1.5696,
+      "avgMarketCapTrillion": 0.3924,
+      "major": "内需・国内景気",
+      "sector": "ヘルスケア"
+    },
+    {
+      "name": "半導体デバイス・メモリ",
+      "change": 6.891,
+      "count": 5,
+      "marketCapCount": 5,
+      "marketCapTrillion": 15.4349,
+      "avgMarketCapTrillion": 3.087,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体材料",
+      "change": 2.9106,
+      "count": 10,
+      "marketCapCount": 10,
+      "marketCapTrillion": 23.2614,
+      "avgMarketCapTrillion": 2.3261,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "半導体製造装置",
+      "change": 5.0634,
+      "count": 9,
+      "marketCapCount": 9,
+      "marketCapTrillion": 44.8589,
+      "avgMarketCapTrillion": 4.9843,
+      "major": "外需・グローバル景気",
+      "sector": "半導体"
+    },
+    {
+      "name": "基礎化学",
+      "change": 1.4719,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 74.7624,
-      "avgMarketCapTrillion": 10.6803,
+      "marketCapTrillion": 5.0176,
+      "avgMarketCapTrillion": 0.7168,
+      "major": "資源・市況",
+      "sector": "素材・化学"
+    },
+    {
+      "name": "完成車",
+      "change": -1.1446,
+      "count": 9,
+      "marketCapCount": 9,
+      "marketCapTrillion": 55.2283,
+      "avgMarketCapTrillion": 6.1365,
+      "major": "外需・グローバル景気",
+      "sector": "自動車"
+    },
+    {
+      "name": "専門商社",
+      "change": 0.3694,
+      "count": 4,
+      "marketCapCount": 4,
+      "marketCapTrillion": 1.9966,
+      "avgMarketCapTrillion": 0.4991,
+      "major": "外需・グローバル景気",
+      "sector": "専門商社"
+    },
+    {
+      "name": "工作機械",
+      "change": 2.9092,
+      "count": 4,
+      "marketCapCount": 4,
+      "marketCapTrillion": 2.1332,
+      "avgMarketCapTrillion": 0.5333,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "建設設備",
+      "change": -0.4303,
+      "count": 7,
+      "marketCapCount": 7,
+      "marketCapTrillion": 4.8305,
+      "avgMarketCapTrillion": 0.6901,
+      "major": "内需・国内景気",
+      "sector": "国内建設・不動産"
+    },
+    {
+      "name": "日用品",
+      "change": -2.0674,
+      "count": 5,
+      "marketCapCount": 5,
+      "marketCapTrillion": 6.2905,
+      "avgMarketCapTrillion": 1.2581,
+      "major": "ディフェンシブ・公共",
+      "sector": "生活必需品"
+    },
+    {
+      "name": "民生・事務機器",
+      "change": -1.4871,
+      "count": 7,
+      "marketCapCount": 7,
+      "marketCapTrillion": 8.5257,
+      "avgMarketCapTrillion": 1.218,
+      "major": "外需・グローバル景気",
+      "sector": "電機・電子"
+    },
+    {
+      "name": "海運",
+      "change": -1.2946,
+      "count": 3,
+      "marketCapCount": 3,
+      "marketCapTrillion": 7.5862,
+      "avgMarketCapTrillion": 2.5287,
+      "major": "資源・市況",
+      "sector": "海運"
+    },
+    {
+      "name": "生損保",
+      "change": -2.0926,
+      "count": 7,
+      "marketCapCount": 7,
+      "marketCapTrillion": 26.308,
+      "avgMarketCapTrillion": 3.7583,
+      "major": "金融・金利敏感",
+      "sector": "金融"
+    },
+    {
+      "name": "生活小売",
+      "change": -1.6066,
+      "count": 27,
+      "marketCapCount": 27,
+      "marketCapTrillion": 24.9044,
+      "avgMarketCapTrillion": 0.9224,
+      "major": "内需・国内景気",
+      "sector": "国内消費"
+    },
+    {
+      "name": "産業・建設機械",
+      "change": 0.1182,
+      "count": 10,
+      "marketCapCount": 10,
+      "marketCapTrillion": 21.7945,
+      "avgMarketCapTrillion": 2.1794,
+      "major": "外需・グローバル景気",
+      "sector": "機械"
+    },
+    {
+      "name": "石油・ガス・資源",
+      "change": -1.2557,
+      "count": 6,
+      "marketCapCount": 6,
+      "marketCapTrillion": 11.9767,
+      "avgMarketCapTrillion": 1.9961,
+      "major": "資源・市況",
+      "sector": "エネルギー・資源"
+    },
+    {
+      "name": "精密医療",
+      "change": -0.2198,
+      "count": 8,
+      "marketCapCount": 8,
+      "marketCapTrillion": 20.8716,
+      "avgMarketCapTrillion": 2.609,
+      "major": "外需・グローバル景気",
+      "sector": "精密"
+    },
+    {
+      "name": "精密機械",
+      "change": 2.892,
+      "count": 5,
+      "marketCapCount": 5,
+      "marketCapTrillion": 3.5774,
+      "avgMarketCapTrillion": 0.7155,
+      "major": "外需・グローバル景気",
+      "sector": "精密"
+    },
+    {
+      "name": "紙・炭素",
+      "change": -0.7193,
+      "count": 3,
+      "marketCapCount": 3,
+      "marketCapTrillion": 1.4986,
+      "avgMarketCapTrillion": 0.4995,
+      "major": "資源・市況",
+      "sector": "素材・化学"
+    },
+    {
+      "name": "素材・建材",
+      "change": 0.2177,
+      "count": 5,
+      "marketCapCount": 5,
+      "marketCapTrillion": 4.3602,
+      "avgMarketCapTrillion": 0.872,
+      "major": "外需・グローバル景気",
+      "sector": "素材"
+    },
+    {
+      "name": "総合商社",
+      "change": -1.4404,
+      "count": 7,
+      "marketCapCount": 7,
+      "marketCapTrillion": 73.5782,
+      "avgMarketCapTrillion": 10.5112,
       "major": "資源・市況",
       "sector": "総合商社"
     },
     {
       "name": "自動車部品",
-      "change": 0.2551,
+      "change": 0.2154,
       "count": 17,
       "marketCapCount": 17,
-      "marketCapTrillion": 13.4765,
-      "avgMarketCapTrillion": 0.7927,
+      "marketCapTrillion": 13.4567,
+      "avgMarketCapTrillion": 0.7916,
       "major": "外需・グローバル景気",
       "sector": "自動車"
     },
     {
       "name": "航空・空港",
-      "change": 0.2988,
+      "change": -0.9541,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 3.6662,
-      "avgMarketCapTrillion": 1.2221,
+      "marketCapTrillion": 3.6401,
+      "avgMarketCapTrillion": 1.2134,
       "major": "内需・国内景気",
       "sector": "運輸・物流"
     },
     {
       "name": "証券",
-      "change": -0.6987,
+      "change": 0.1201,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 10.5511,
-      "avgMarketCapTrillion": 2.6378,
+      "marketCapTrillion": 10.5413,
+      "avgMarketCapTrillion": 2.6353,
       "major": "金融・金利敏感",
       "sector": "金融"
     },
     {
       "name": "通信インフラ",
-      "change": -1.1182,
+      "change": -0.0895,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 38.9116,
-      "avgMarketCapTrillion": 6.4853,
+      "marketCapTrillion": 38.4074,
+      "avgMarketCapTrillion": 6.4012,
       "major": "内需・国内景気",
       "sector": "国内情報通信"
     },
     {
       "name": "重工・防衛",
-      "change": 1.5758,
+      "change": 0.3855,
       "count": 5,
       "marketCapCount": 5,
-      "marketCapTrillion": 17.0187,
-      "avgMarketCapTrillion": 3.4037,
+      "marketCapTrillion": 17.0833,
+      "avgMarketCapTrillion": 3.4167,
       "major": "外需・グローバル景気",
       "sector": "重工・防衛"
     },
     {
       "name": "重電・電池",
-      "change": 2.3013,
+      "change": 1.4841,
       "count": 5,
       "marketCapCount": 5,
-      "marketCapTrillion": 45.9279,
-      "avgMarketCapTrillion": 9.1856,
+      "marketCapTrillion": 46.3767,
+      "avgMarketCapTrillion": 9.2753,
       "major": "外需・グローバル景気",
       "sector": "電機・電子"
     },
     {
       "name": "鉄道",
-      "change": -1.8601,
+      "change": -1.967,
       "count": 19,
       "marketCapCount": 19,
-      "marketCapTrillion": 18.2822,
-      "avgMarketCapTrillion": 0.9622,
+      "marketCapTrillion": 17.8641,
+      "avgMarketCapTrillion": 0.9402,
       "major": "内需・国内景気",
       "sector": "運輸・物流"
     },
     {
       "name": "鉄鋼",
-      "change": 1.381,
+      "change": -0.4627,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 6.9954,
-      "avgMarketCapTrillion": 1.1659,
+      "marketCapTrillion": 6.9416,
+      "avgMarketCapTrillion": 1.1569,
       "major": "資源・市況",
       "sector": "鉄鋼"
     },
     {
       "name": "陸運・物流",
-      "change": -0.5181,
+      "change": -1.1598,
       "count": 11,
       "marketCapCount": 11,
-      "marketCapTrillion": 12.2612,
-      "avgMarketCapTrillion": 1.1147,
+      "marketCapTrillion": 12.1186,
+      "avgMarketCapTrillion": 1.1017,
       "major": "内需・国内景気",
       "sector": "運輸・物流"
     },
     {
       "name": "電力",
-      "change": -0.3813,
+      "change": -1.3415,
       "count": 9,
       "marketCapCount": 9,
-      "marketCapTrillion": 8.5157,
-      "avgMarketCapTrillion": 0.9462,
+      "marketCapTrillion": 8.3981,
+      "avgMarketCapTrillion": 0.9331,
       "major": "ディフェンシブ・公共",
       "sector": "公益"
     },
     {
       "name": "電子部品・電子機器",
-      "change": 2.3858,
+      "change": 4.1843,
       "count": 13,
       "marketCapCount": 13,
-      "marketCapTrillion": 27.7493,
-      "avgMarketCapTrillion": 2.1346,
+      "marketCapTrillion": 29.0436,
+      "avgMarketCapTrillion": 2.2341,
       "major": "外需・グローバル景気",
       "sector": "電機・電子"
     },
     {
       "name": "電線",
-      "change": 2.2533,
+      "change": 1.6054,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 14.4893,
-      "avgMarketCapTrillion": 4.8298,
+      "marketCapTrillion": 14.6718,
+      "avgMarketCapTrillion": 4.8906,
       "major": "資源・市況",
       "sector": "非鉄・電線"
     },
     {
       "name": "非鉄金属",
-      "change": 2.306,
+      "change": 2.8533,
       "count": 5,
       "marketCapCount": 5,
-      "marketCapTrillion": 6.1187,
-      "avgMarketCapTrillion": 1.2237,
+      "marketCapTrillion": 6.3235,
+      "avgMarketCapTrillion": 1.2647,
       "major": "資源・市況",
       "sector": "非鉄・電線"
     },
     {
       "name": "食品",
-      "change": -1.2014,
+      "change": -2.9233,
       "count": 20,
       "marketCapCount": 20,
-      "marketCapTrillion": 29.361,
-      "avgMarketCapTrillion": 1.4681,
+      "marketCapTrillion": 28.6852,
+      "avgMarketCapTrillion": 1.4343,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     },
     {
       "name": "飲料",
-      "change": -1.684,
+      "change": -3.8394,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 8.2037,
-      "avgMarketCapTrillion": 1.3673,
+      "marketCapTrillion": 7.8663,
+      "avgMarketCapTrillion": 1.3111,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     }
