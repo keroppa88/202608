@@ -31,7 +31,7 @@
   "historyFile": "data/sector_history.csv",
   "originalLongHistoryFile": "data/original_index.csv",
   "originalHistoryFile": "data/original_index_history.json",
-  "generatedAt": "2026-11-02T18:31:14+09:00",
+  "generatedAt": "2026-11-03T18:31:41+09:00",
   "original": [
     {
       "id": 1,
@@ -433,8 +433,8 @@
         }
       ],
       "marketCapCount": 64,
-      "marketCapTrillion": 266.5488,
-      "avgMarketCapTrillion": 4.1648
+      "marketCapTrillion": 266.5234,
+      "avgMarketCapTrillion": 4.1644
     },
     {
       "id": 2,
@@ -1023,8 +1023,8 @@
         }
       ],
       "marketCapCount": 41,
-      "marketCapTrillion": 116.8982,
-      "avgMarketCapTrillion": 2.8512
+      "marketCapTrillion": 116.8729,
+      "avgMarketCapTrillion": 2.8506
     },
     {
       "id": 4,
@@ -1354,8 +1354,8 @@
         }
       ],
       "marketCapCount": 52,
-      "marketCapTrillion": 87.9067,
-      "avgMarketCapTrillion": 1.6905
+      "marketCapTrillion": 87.6034,
+      "avgMarketCapTrillion": 1.6847
     },
     {
       "id": 5,
@@ -1757,8 +1757,8 @@
         }
       ],
       "marketCapCount": 64,
-      "marketCapTrillion": 96.8243,
-      "avgMarketCapTrillion": 1.5129
+      "marketCapTrillion": 97.2101,
+      "avgMarketCapTrillion": 1.5189
     },
     {
       "id": 6,
@@ -3495,8 +3495,8 @@
         }
       ],
       "marketCapCount": 192,
-      "marketCapTrillion": 441.1037,
-      "avgMarketCapTrillion": 2.2974
+      "marketCapTrillion": 441.0464,
+      "avgMarketCapTrillion": 2.2971
     },
     {
       "id": 10,
@@ -4942,8 +4942,8 @@
         }
       ],
       "marketCapCount": 238,
-      "marketCapTrillion": 770.842,
-      "avgMarketCapTrillion": 3.2388
+      "marketCapTrillion": 770.7593,
+      "avgMarketCapTrillion": 3.2385
     }
   ],
   "demand": [
@@ -4957,8 +4957,8 @@
         "強内需": 186
       },
       "marketCapCount": 252,
-      "marketCapTrillion": 339.1147,
-      "avgMarketCapTrillion": 1.3457
+      "marketCapTrillion": 339.1972,
+      "avgMarketCapTrillion": 1.346
     },
     {
       "name": "外需",
@@ -4970,8 +4970,8 @@
         "外需": 94
       },
       "marketCapCount": 203,
-      "marketCapTrillion": 657.4258,
-      "avgMarketCapTrillion": 3.2386
+      "marketCapTrillion": 657.3432,
+      "avgMarketCapTrillion": 3.2381
     }
   ],
   "major": [
@@ -4980,24 +4980,24 @@
       "change": -0.5749,
       "count": 158,
       "marketCapCount": 158,
-      "marketCapTrillion": 478.6753,
-      "avgMarketCapTrillion": 3.0296
+      "marketCapTrillion": 478.6161,
+      "avgMarketCapTrillion": 3.0292
     },
     {
       "name": "資源・市況",
       "change": -1.3155,
       "count": 40,
       "marketCapCount": 40,
-      "marketCapTrillion": 123.1611,
-      "avgMarketCapTrillion": 3.079
+      "marketCapTrillion": 123.1376,
+      "avgMarketCapTrillion": 3.0784
     },
     {
       "name": "内需・国内景気",
       "change": -0.1924,
       "count": 185,
       "marketCapCount": 185,
-      "marketCapTrillion": 249.1624,
-      "avgMarketCapTrillion": 1.3468
+      "marketCapTrillion": 248.8591,
+      "avgMarketCapTrillion": 1.3452
     },
     {
       "name": "金融・金利敏感",
@@ -5012,8 +5012,8 @@
       "change": 1.1026,
       "count": 60,
       "marketCapCount": 60,
-      "marketCapTrillion": 104.684,
-      "avgMarketCapTrillion": 1.7447
+      "marketCapTrillion": 105.0698,
+      "avgMarketCapTrillion": 1.7512
     }
   ],
   "sector": [
@@ -5049,7 +5049,7 @@
       "change": -1.9693,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 1.8743,
+      "marketCapTrillion": 1.8744,
       "avgMarketCapTrillion": 0.4686,
       "major": "外需・グローバル景気"
     },
@@ -5085,8 +5085,8 @@
       "change": -0.6606,
       "count": 30,
       "marketCapCount": 30,
-      "marketCapTrillion": 76.2139,
-      "avgMarketCapTrillion": 2.5405,
+      "marketCapTrillion": 76.2095,
+      "avgMarketCapTrillion": 2.5403,
       "major": "外需・グローバル景気"
     },
     {
@@ -5103,8 +5103,8 @@
       "change": -0.7943,
       "count": 25,
       "marketCapCount": 25,
-      "marketCapTrillion": 78.9646,
-      "avgMarketCapTrillion": 3.1586,
+      "marketCapTrillion": 78.9097,
+      "avgMarketCapTrillion": 3.1564,
       "major": "外需・グローバル景気"
     },
     {
@@ -5130,8 +5130,8 @@
       "change": -1.373,
       "count": 10,
       "marketCapCount": 10,
-      "marketCapTrillion": 6.2921,
-      "avgMarketCapTrillion": 0.6292,
+      "marketCapTrillion": 6.294,
+      "avgMarketCapTrillion": 0.6294,
       "major": "資源・市況"
     },
     {
@@ -5139,8 +5139,8 @@
       "change": -1.4683,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 70.6833,
-      "avgMarketCapTrillion": 10.0976,
+      "marketCapTrillion": 70.6578,
+      "avgMarketCapTrillion": 10.094,
       "major": "資源・市況"
     },
     {
@@ -5148,7 +5148,7 @@
       "change": -1.1728,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 6.8559,
+      "marketCapTrillion": 6.856,
       "avgMarketCapTrillion": 1.1427,
       "major": "資源・市況"
     },
@@ -5211,8 +5211,8 @@
       "change": 0.0256,
       "count": 33,
       "marketCapCount": 33,
-      "marketCapTrillion": 34.3809,
-      "avgMarketCapTrillion": 1.0418,
+      "marketCapTrillion": 34.0776,
+      "avgMarketCapTrillion": 1.0327,
       "major": "内需・国内景気"
     },
     {
@@ -5247,8 +5247,8 @@
       "change": 1.5862,
       "count": 31,
       "marketCapCount": 31,
-      "marketCapTrillion": 44.0841,
-      "avgMarketCapTrillion": 1.4221,
+      "marketCapTrillion": 44.4699,
+      "avgMarketCapTrillion": 1.4345,
       "major": "ディフェンシブ・公共"
     }
   ],
@@ -5408,7 +5408,7 @@
       "change": -1.7478,
       "count": 23,
       "marketCapCount": 23,
-      "marketCapTrillion": 35.9496,
+      "marketCapTrillion": 35.9495,
       "avgMarketCapTrillion": 1.563,
       "major": "金融・金利敏感",
       "sector": "金融"
@@ -5508,8 +5508,8 @@
       "change": -1.4247,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 4.8132,
-      "avgMarketCapTrillion": 0.6876,
+      "marketCapTrillion": 4.8151,
+      "avgMarketCapTrillion": 0.6879,
       "major": "資源・市況",
       "sector": "素材・化学"
     },
@@ -5528,7 +5528,7 @@
       "change": -1.9693,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 1.8743,
+      "marketCapTrillion": 1.8744,
       "avgMarketCapTrillion": 0.4686,
       "major": "外需・グローバル景気",
       "sector": "専門商社"
@@ -5668,8 +5668,8 @@
       "change": -1.4683,
       "count": 7,
       "marketCapCount": 7,
-      "marketCapTrillion": 70.6833,
-      "avgMarketCapTrillion": 10.0976,
+      "marketCapTrillion": 70.6578,
+      "avgMarketCapTrillion": 10.094,
       "major": "資源・市況",
       "sector": "総合商社"
     },
@@ -5678,8 +5678,8 @@
       "change": -0.9473,
       "count": 17,
       "marketCapCount": 17,
-      "marketCapTrillion": 13.6019,
-      "avgMarketCapTrillion": 0.8001,
+      "marketCapTrillion": 13.5976,
+      "avgMarketCapTrillion": 0.7999,
       "major": "外需・グローバル景気",
       "sector": "自動車"
     },
@@ -5688,8 +5688,8 @@
       "change": -0.0331,
       "count": 3,
       "marketCapCount": 3,
-      "marketCapTrillion": 3.7387,
-      "avgMarketCapTrillion": 1.2462,
+      "marketCapTrillion": 3.4353,
+      "avgMarketCapTrillion": 1.1451,
       "major": "内需・国内景気",
       "sector": "運輸・物流"
     },
@@ -5698,7 +5698,7 @@
       "change": -0.5196,
       "count": 4,
       "marketCapCount": 4,
-      "marketCapTrillion": 10.7134,
+      "marketCapTrillion": 10.7135,
       "avgMarketCapTrillion": 2.6784,
       "major": "金融・金利敏感",
       "sector": "金融"
@@ -5738,7 +5738,7 @@
       "change": 0.9661,
       "count": 19,
       "marketCapCount": 19,
-      "marketCapTrillion": 18.6426,
+      "marketCapTrillion": 18.6427,
       "avgMarketCapTrillion": 0.9812,
       "major": "内需・国内景気",
       "sector": "運輸・物流"
@@ -5748,7 +5748,7 @@
       "change": -1.1728,
       "count": 6,
       "marketCapCount": 6,
-      "marketCapTrillion": 6.8559,
+      "marketCapTrillion": 6.856,
       "avgMarketCapTrillion": 1.1427,
       "major": "資源・市況",
       "sector": "鉄鋼"
@@ -5778,8 +5778,8 @@
       "change": -0.8956,
       "count": 13,
       "marketCapCount": 13,
-      "marketCapTrillion": 27.7528,
-      "avgMarketCapTrillion": 2.1348,
+      "marketCapTrillion": 27.6979,
+      "avgMarketCapTrillion": 2.1306,
       "major": "外需・グローバル景気",
       "sector": "電機・電子"
     },
@@ -5808,8 +5808,8 @@
       "change": 1.1035,
       "count": 20,
       "marketCapCount": 20,
-      "marketCapTrillion": 29.2894,
-      "avgMarketCapTrillion": 1.4645,
+      "marketCapTrillion": 29.6753,
+      "avgMarketCapTrillion": 1.4838,
       "major": "ディフェンシブ・公共",
       "sector": "生活必需品"
     },
