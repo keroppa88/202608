@@ -188,6 +188,15 @@
      残りの3列は同じ高さの空きを置いて、下辺の位置をそろえる */
   .colhead .ops.blank { visibility: hidden; }
   .colhead .field { font-size: 12px; line-height: 1.25; text-align: center; }
+  /* 列を掴んで左右へ動かす取っ手 */
+  .colhead .ops .coldrag {
+    font-size: 11px; padding: 0 2px; cursor: grab;
+    user-select: none; touch-action: none; position: relative; z-index: 3;
+  }
+  .colhead .ops .coldrag:active { cursor: grabbing; }
+  thead th.dragging { opacity: .45; }
+  thead th.drop-before { box-shadow: inset 3px 0 0 var(--fg2); }
+  thead th.drop-after { box-shadow: inset -3px 0 0 var(--fg2); }
   .colhead .ops button {
     background: none; border: 0; color: var(--fg);
     font: inherit; font-size: 11px; cursor: pointer; padding: 0 2px;
@@ -715,10 +724,13 @@
     <button id="mode" title="押すと終値と四本値が入れ替わる">終値</button>
     <select id="year" title="表示する年"></select>
     <button id="sheet-chart" title="現在位置の銘柄を簡易チャートで表示">チャート</button>
+    <button id="sheet-fill" type="button" aria-pressed="false" title="休日などで値が無い日は、前日の価格で埋める">休日埋め</button>
+    <button id="sheet-noweekend" type="button" aria-pressed="false" title="表から土日の行を省く">土日削除</button>
     <button id="theme" title="押すたびに配色が変わる">Color</button>
     <div class="spacer"></div>
     <div class="note" id="status"></div>
   </div>
+  <div class="chart-pages" id="spagebar" aria-label="表のタブ"></div>
   <div class="grid" id="grid"><div id="loading">読み込み中…</div></div>
 </section>
 
@@ -853,6 +865,7 @@ const DEFAULT_COLUMNS = [
 const MAX_SERIES = 10;
 // チャートの銘柄セットを保存するページ。最大10ページ
 const MAX_CHART_PAGES = 10;
+const MAX_SHEET_PAGES = 20;
 // 相関に並べるのは10銘柄まで。ペアの数は銘柄数の2乗で増えるので、
 // 際限なく足せると計算が重くなる
 const MAX_CORR_COLUMNS = 10;
@@ -911,6 +924,27 @@ function fixKeys(list, fallback) {
   return list.map((k) => RENAMED[k] || k);
 }
 
+// 表のタブ。タブごとに終値・四本値の銘柄の並びを持つ
+function fixSheetPages(list, fallbackColumns, fallbackOhlc) {
+  const source = Array.isArray(list) && list.length ? list.slice(0, MAX_SHEET_PAGES) : [null];
+  const usedIds = new Set();
+  return source.map((page, i) => {
+    let id = page && typeof page.id === "string" && page.id ? page.id : `sheet-page-${i + 1}`;
+    while (usedIds.has(id)) id += "-copy";
+    usedIds.add(id);
+    const name = page && typeof page.name === "string" && page.name.trim()
+      ? page.name.trim().slice(0, 40)
+      : String(i + 1);
+    const columns = page && Array.isArray(page.columns)
+      ? page.columns.map((key) => RENAMED[key] || key)
+      : fallbackColumns.slice();
+    const ohlcColumns = page && Array.isArray(page.ohlcColumns)
+      ? page.ohlcColumns.map((key) => RENAMED[key] || key)
+      : fallbackOhlc.slice();
+    return { id, name, columns, ohlcColumns };
+  });
+}
+
 function fixChartPages(list, fallbackColumns) {
   const source = Array.isArray(list) && list.length ? list.slice(0, MAX_CHART_PAGES) : [null];
   const usedIds = new Set();
@@ -936,6 +970,11 @@ function loadSettings() {
     const chartPageId = chartPages.some((page) => page.id === s.chartPageId)
       ? s.chartPageId : chartPages[0].id;
     const activeChartPage = chartPages.find((page) => page.id === chartPageId) || chartPages[0];
+    // 前に覚えた表の並びは、最初のタブに引き継ぐ
+    const sheetPages = fixSheetPages(s.sheetPages,
+      fixKeys(s.columns, DEFAULT_COLUMNS), fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS));
+    const sheetPageId = sheetPages.some((page) => page.id === s.sheetPageId)
+      ? s.sheetPageId : sheetPages[0].id;
     return {
       theme: s.theme || "retro",
       year: s.year || 2026,
@@ -962,6 +1001,10 @@ function loadSettings() {
       corrAiText: typeof s.corrAiText === "string" ? s.corrAiText : "",
       corrAiAt: typeof s.corrAiAt === "string" ? s.corrAiAt : "",
       sheetMode: s.sheetMode === "ohlc" ? "ohlc" : "close",
+      sheetFill: s.sheetFill === true,
+      sheetPages,
+      sheetPageId,
+      sheetNoWeekend: s.sheetNoWeekend === true,
       ohlcColumns: fixKeys(s.ohlcColumns, DEFAULT_OHLC_COLUMNS),
       techKey: RENAMED[s.techKey] || s.techKey || "yahoo:^N225",
       techYear: s.techYear || 2026,
@@ -973,6 +1016,8 @@ function loadSettings() {
     };
   } catch (e) {
     const chartPages = [{ id: "chart-page-1", name: "1", columns: DEFAULT_CHART_COLUMNS.slice() }];
+    const sheetPages = [{ id: "sheet-page-1", name: "1",
+      columns: DEFAULT_COLUMNS.slice(), ohlcColumns: DEFAULT_OHLC_COLUMNS.slice() }];
     return {
       theme: "retro", year: 2026, columns: DEFAULT_COLUMNS.slice(), widths: {},
       ma: { 20: false, 80: false, 200: false },
@@ -986,7 +1031,8 @@ function loadSettings() {
       corrChartHidden: [],
       technicalSplit: 50,
       corrAiMain: "", corrAiSubs: [], corrAiText: "", corrAiAt: "",
-      sheetMode: "close", ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
+      sheetMode: "close", sheetFill: false, sheetNoWeekend: false,
+      sheetPages, sheetPageId: sheetPages[0].id, ohlcColumns: DEFAULT_OHLC_COLUMNS.slice(),
       techKey: "yahoo:^N225", techYear: 2026,
       techParams: JSON.parse(JSON.stringify(DEFAULT_TECH_PARAMS)), techZoom: 1, techComp: [], techAi: null,
       saverIndex: 0
@@ -2740,6 +2786,25 @@ document.getElementById("sheet-chart").addEventListener("click", () => {
   if (curColumns().length) openChartAt(chartState ? chartState.index : 0);
 });
 
+// 休日埋め・土日削除。押すたびに入/切
+const fillEl = document.getElementById("sheet-fill");
+const noWeekendEl = document.getElementById("sheet-noweekend");
+fillEl.addEventListener("click", () => {
+  settings.sheetFill = !settings.sheetFill;
+  saveSettings();
+  render();
+});
+noWeekendEl.addEventListener("click", () => {
+  settings.sheetNoWeekend = !settings.sheetNoWeekend;
+  saveSettings();
+  render();
+});
+// 土曜・日曜か。日付は YYYY-MM-DD
+function isWeekend(d) {
+  const w = new Date(d.slice(0, 10) + "T00:00:00Z").getUTCDay();
+  return w === 0 || w === 6;
+}
+
 // 終値 ⇄ 四本値。銘柄の並びはそれぞれ別に覚えているので、戻せば元に戻る
 modeEl.addEventListener("click", () => {
   settings.sheetMode = settings.sheetMode === "ohlc" ? "close" : "ohlc";
@@ -2754,9 +2819,207 @@ function openSheet() {
 }
 
 let rendering = 0;
-// いま表に並べている銘柄。終値と四本値で別々に覚える
+// いま表に並べている銘柄。選んでいるタブの、終値と四本値で別々に覚える
 function curColumns() {
-  return settings.sheetMode === "ohlc" ? settings.ohlcColumns : settings.columns;
+  const page = syncSheetPage();
+  return settings.sheetMode === "ohlc" ? page.ohlcColumns : page.columns;
+}
+
+/* ---- 表のタブ ---------------------------------------------------
+   作りはチャートのページと同じ。＋で今のタブを複製して増やす */
+const sheetPageBarEl = document.getElementById("spagebar");
+let sheetPageSerial = 0;
+
+function syncSheetPage() {
+  let page = settings.sheetPages.find((p) => p.id === settings.sheetPageId)
+    || settings.sheetPages[0];
+  if (!page) {
+    page = { id: "sheet-page-1", name: "1",
+      columns: DEFAULT_COLUMNS.slice(), ohlcColumns: DEFAULT_OHLC_COLUMNS.slice() };
+    settings.sheetPages = [page];
+  }
+  settings.sheetPageId = page.id;
+  settings.columns = page.columns;
+  settings.ohlcColumns = page.ohlcColumns;
+  return page;
+}
+
+function selectSheetPage(id) {
+  if (id === settings.sheetPageId || !settings.sheetPages.some((p) => p.id === id)) return;
+  settings.sheetPageId = id;
+  syncSheetPage();
+  saveSettings();
+  render();
+}
+
+function addSheetPage() {
+  if (settings.sheetPages.length >= MAX_SHEET_PAGES) return;
+  const source = syncSheetPage();
+  sheetPageSerial += 1;
+  const page = {
+    id: `sheet-page-${Date.now().toString(36)}-${sheetPageSerial.toString(36)}`,
+    name: String(settings.sheetPages.length + 1),
+    columns: source.columns.slice(),
+    ohlcColumns: source.ohlcColumns.slice(),
+  };
+  settings.sheetPages.push(page);
+  settings.sheetPageId = page.id;
+  syncSheetPage();
+  saveSettings();
+  render();
+}
+
+function deleteSheetPage(id) {
+  if (settings.sheetPages.length <= 1) return;
+  const index = settings.sheetPages.findIndex((p) => p.id === id);
+  if (index < 0) return;
+  settings.sheetPages.splice(index, 1);
+  if (settings.sheetPageId === id) {
+    settings.sheetPageId = settings.sheetPages[Math.min(index, settings.sheetPages.length - 1)].id;
+  }
+  syncSheetPage();
+  saveSettings();
+  render();
+}
+
+function renameSheetPage(page, nameButton) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = page.name;
+  input.maxLength = 40;
+  input.setAttribute("aria-label", "タブ名");
+  nameButton.replaceWith(input);
+  let done = false;
+  const finish = (cancel) => {
+    if (done) return;
+    done = true;
+    const name = input.value.trim();
+    if (!cancel && name) page.name = name.slice(0, 40);
+    saveSettings();
+    drawSheetPages();
+  };
+  input.addEventListener("keydown", (event) => {
+    event.stopPropagation();
+    if (event.key === "Enter") { event.preventDefault(); finish(false); }
+    if (event.key === "Escape") { event.preventDefault(); finish(true); }
+  });
+  input.addEventListener("blur", () => finish(false), { once: true });
+  input.focus();
+  input.select();
+}
+
+/* 掴んで左右へ並べ替える。表のタブにも表の列にも使う。
+   group(id) はその id に属する要素の並び（四本値は4列でひとかたまり）。
+   onDrop(fromId, toId, before) で並びを入れ替える */
+function bindSideDrag({ handle, root, selector, idOf, id, group, onDrop }) {
+  let drag = null;
+  const clearMarks = () => root.querySelectorAll(".drop-before, .drop-after")
+    .forEach((el) => el.classList.remove("drop-before", "drop-after"));
+  handle.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    drag = { pointerId: event.pointerId, targetId: "", before: true };
+    handle.setPointerCapture(event.pointerId);
+    group(id).forEach((el) => el.classList.add("dragging"));
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  handle.addEventListener("pointermove", (event) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    clearMarks();
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(selector);
+    if (!target || !root.contains(target) || idOf(target) === id) { drag.targetId = ""; return; }
+    const els = group(idOf(target));
+    const left = els[0].getBoundingClientRect().left;
+    const right = els[els.length - 1].getBoundingClientRect().right;
+    drag.before = event.clientX < (left + right) / 2;
+    drag.targetId = idOf(target);
+    (drag.before ? els[0] : els[els.length - 1])
+      .classList.add(drag.before ? "drop-before" : "drop-after");
+  });
+  const finish = (event, cancel) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const drop = drag;
+    drag = null;
+    clearMarks();
+    root.querySelectorAll(".dragging").forEach((el) => el.classList.remove("dragging"));
+    if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+    if (cancel || !drop.targetId) return;
+    onDrop(id, drop.targetId, drop.before);
+  };
+  handle.addEventListener("pointerup", (event) => finish(event, false));
+  handle.addEventListener("pointercancel", (event) => finish(event, true));
+}
+
+// list の from 番目を、to 番目の前（before）か後ろへ移す
+function moveItem(list, from, to, before) {
+  if (from < 0 || to < 0 || from === to) return false;
+  const [moved] = list.splice(from, 1);
+  if (from < to) to -= 1;
+  list.splice(Math.max(0, Math.min(list.length, to + (before ? 0 : 1))), 0, moved);
+  return true;
+}
+
+function drawSheetPages() {
+  const active = syncSheetPage();
+  sheetPageBarEl.innerHTML = "";
+  settings.sheetPages.forEach((page) => {
+    const item = document.createElement("div");
+    item.className = "chart-page";
+    item.dataset.pageId = page.id;
+    if (page.id === active.id) item.setAttribute("aria-current", "page");
+
+    const drag = document.createElement("span");
+    drag.className = "chart-page-drag";
+    drag.textContent = "≡";
+    drag.title = "掴んでタブを並べ替える";
+    bindSideDrag({
+      handle: drag, root: sheetPageBarEl, selector: ".chart-page",
+      idOf: (el) => el.dataset.pageId, id: page.id,
+      group: (pid) => [...sheetPageBarEl.querySelectorAll(".chart-page")]
+        .filter((el) => el.dataset.pageId === pid),
+      onDrop: (fromId, toId, before) => {
+        const pages = settings.sheetPages;
+        if (moveItem(pages, pages.findIndex((p) => p.id === fromId),
+          pages.findIndex((p) => p.id === toId), before)) {
+          saveSettings();
+          drawSheetPages();
+        }
+      },
+    });
+
+    const name = document.createElement("button");
+    name.className = "chart-page-name";
+    name.textContent = page.name;
+    name.title = "このタブを表示";
+    name.addEventListener("click", () => selectSheetPage(page.id));
+
+    const rename = document.createElement("button");
+    rename.textContent = "✎";
+    rename.title = "タブ名を変える";
+    rename.addEventListener("click", () => renameSheetPage(page, name));
+
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = settings.sheetPages.length > 1 ? "このタブを消す" : "最後の1タブは消せない";
+    del.disabled = settings.sheetPages.length <= 1;
+    del.addEventListener("click", () => deleteSheetPage(page.id));
+
+    item.append(drag, name, rename, del);
+    sheetPageBarEl.appendChild(item);
+  });
+
+  if (settings.sheetPages.length < MAX_SHEET_PAGES) {
+    const add = document.createElement("button");
+    add.className = "chart-page-add";
+    add.textContent = "＋";
+    add.title = "今のタブを複製して新しいタブを作る";
+    add.addEventListener("click", addSheetPage);
+    sheetPageBarEl.appendChild(add);
+  }
+  const count = document.createElement("span");
+  count.className = "chart-page-count";
+  count.textContent = `${settings.sheetPages.length}/${MAX_SHEET_PAGES}`;
+  sheetPageBarEl.appendChild(count);
 }
 
 async function render() {
@@ -2764,6 +3027,9 @@ async function render() {
   const year = String(settings.year);
   const ohlc = settings.sheetMode === "ohlc";
   modeEl.textContent = ohlc ? "四本値" : "終値";
+  fillEl.setAttribute("aria-pressed", String(settings.sheetFill));
+  drawSheetPages();
+  noWeekendEl.setAttribute("aria-pressed", String(settings.sheetNoWeekend));
   gridEl.innerHTML = '<div id="loading">読み込み中…</div>';
   statusEl.textContent = "";
 
@@ -2787,7 +3053,8 @@ async function render() {
 
   const dates = new Set();
   series.forEach((m) => m.forEach((_, d) => dates.add(d)));
-  const rows = [...dates].sort();                 // 上が過去、下が現在
+  let rows = [...dates].sort();                   // 上が過去、下が現在
+  if (settings.sheetNoWeekend) rows = rows.filter((d) => !isWeekend(d));
 
   const table = document.createElement("table");
 
@@ -2822,6 +3089,7 @@ async function render() {
     const fields = ohlc ? OHLC_FIELDS : [null];
     fields.forEach((fld, j) => {
       const th = document.createElement("th");
+      th.dataset.col = String(i);
       const wrap = document.createElement("div");
       wrap.className = "colhead";
 
@@ -2863,7 +3131,24 @@ async function render() {
 
       const ops = document.createElement("div");
       ops.className = "ops" + (j ? " blank" : "");   // 出すのは左端の1列だけ
-      ops.append(del, pick);        // 名前の下に横並びで置く
+      // 掴んで左右へ動かす。四本値は4列まとめて動く
+      const grab = document.createElement("span");
+      grab.className = "coldrag";
+      grab.textContent = "≡";
+      grab.title = "掴んで左右へ動かす";
+      bindSideDrag({
+        handle: grab, root: htr, selector: "th[data-col]",
+        idOf: (el) => el.dataset.col, id: String(i),
+        group: (c) => [...htr.querySelectorAll(`th[data-col="${c}"]`)],
+        onDrop: (fromId, toId, before) => {
+          if (moveItem(curColumns(), Number(fromId), Number(toId), before)) {
+            saveSettings();
+            render();
+          }
+        },
+      });
+
+      ops.append(grab, del, pick);  // 名前の下に横並びで置く
 
       const nameEl = document.createElement("div");
       nameEl.className = "name";
@@ -2911,16 +3196,23 @@ async function render() {
   thead.appendChild(htr);
 
   const tbody = document.createElement("tbody");
+  // 休日埋め用。銘柄ごとに直前の値を覚える（連休でも同じ値が続く）
+  const last = keys.map(() => undefined);
   for (const d of rows) {
     const tr = document.createElement("tr");
     const th = document.createElement("th");
     th.textContent = d;
     tr.appendChild(th);
     keys.forEach((key, i) => {
-      const b = ohlc ? bars[i].get(d) : null;
+      let b = ohlc ? bars[i].get(d) : null;
+      let c = ohlc ? undefined : series[i].get(d);
+      if (settings.sheetFill) {
+        if (ohlc) { if (b) last[i] = b; else b = last[i]; }
+        else { if (c !== undefined) last[i] = c; else c = last[i]; }
+      }
       (ohlc ? OHLC_FIELDS : [null]).forEach((fld) => {
         const td = document.createElement("td");
-        const v = ohlc ? (b ? b[fld.f] : undefined) : series[i].get(d);
+        const v = ohlc ? (b ? b[fld.f] : undefined) : c;
         if (v === undefined) { td.textContent = "#N/A"; td.className = "na"; }
         else td.textContent = fmt(v);
         tr.appendChild(td);
