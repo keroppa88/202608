@@ -1,0 +1,64 @@
+{
+  "version": "weekly-v1-c0cb345f448c",
+  "target": "nikkei",
+  "cutoff": "2026-11-13",
+  "asOf": "2026-11-13",
+  "requestHash": "84271d0c78138afb60c6576b467e43da26fe5f274ec349a5733d33ab96da49c6",
+  "createdAt": "2026-11-14T07:20:07.346Z",
+  "response": {
+    "provider": "jev",
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 20084,
+      "output_tokens": 157
+    },
+    "horizons": [
+      {
+        "period": "short",
+        "label": "短期",
+        "days": 5,
+        "score": 41.5,
+        "status": "ok",
+        "confidence": 0.42,
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.54,
+          "2": 0.21,
+          "3": 0.23,
+          "4": 0
+        }
+      },
+      {
+        "period": "medium",
+        "label": "中期",
+        "days": 20,
+        "score": 31.3,
+        "status": "ok",
+        "confidence": 0.68,
+        "probabilities": {
+          "0": 0.07,
+          "1": 0.73,
+          "2": 0.09,
+          "3": 0.11,
+          "4": 0
+        }
+      },
+      {
+        "period": "long",
+        "label": "長期",
+        "days": 100,
+        "score": 44,
+        "status": "ok",
+        "confidence": 0.32,
+        "probabilities": {
+          "0": 0.04,
+          "1": 0.5,
+          "2": 0.15,
+          "3": 0.3,
+          "4": 0.01
+        }
+      }
+    ],
+    "text": "JevによるAI分析\n日経平均　基準日：2026-11-13\n使用データ：2015-01-05 ～ 2026-11-13（2899観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　41.5%\n中期（20営業日以内）　31.3%\n長期（100営業日以内）　44%"
+  }
+}

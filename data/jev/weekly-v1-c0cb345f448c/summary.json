@@ -2,11 +2,11 @@
   "version": "weekly-v1-c0cb345f448c",
   "implementationHash": "b1dd104f0823351157a6a72f84b2f1488af4a295b787261bcccb4994dd42a297",
   "model": "jev-1.13.0",
-  "generatedAt": "2026-11-07T06:50:48.534Z",
-  "from": "2021-11-12",
-  "through": "2026-11-06",
+  "generatedAt": "2026-11-14T07:21:31.635Z",
+  "from": "2021-11-19",
+  "through": "2026-11-13",
   "expected": 1566,
-  "completed": 290,
+  "completed": 296,
   "methodology": {
     "entry": "翌週最初の取引日の始値",
     "maxRise": "期間内高値と購入価格の比率。最低0%",
@@ -17,37 +17,37 @@
     "comparison": "対象以外の5指数＋ドル円＋日米10年債利回り。固定8比較",
     "data": "現在保存されている過去価格を使用。データ改訂・モデルの学習内容による影響を分離した検証ではない"
   },
-  "totalInputTokens": 5768301,
+  "totalInputTokens": 5888334,
   "targets": {
     "nikkei": {
       "name": "日経平均",
       "key": "yahoo:^N225",
-      "judgments": 49,
+      "judgments": 50,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 47,
-            "pending": 2,
+            "n": 49,
+            "pending": 1,
             "missing": 0,
-            "winRate": 65.9574,
+            "winRate": 65.3061,
             "insufficient": false,
             "maxRise": {
-              "mean": 2.8119,
+              "mean": 2.8568,
               "median": 2.483
             },
             "maxLoss": {
-              "mean": -2.4853,
+              "mean": -2.5921,
               "median": -1.7725
             },
             "endReturn": {
-              "mean": 0.6516,
+              "mean": 0.601,
               "median": 0.8556
             },
             "closeDrawdown": {
-              "mean": -2.3968,
+              "mean": -2.496,
               "median": -2.0689
             }
           },
@@ -130,29 +130,29 @@
             }
           },
           "near": {
-            "center": 11,
-            "lower": 6,
-            "upper": 16,
-            "n": 0,
+            "center": 41.5,
+            "lower": 36.5,
+            "upper": 46.5,
+            "n": 8,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 75,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 3.1432,
+              "median": 1.9749
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.967,
+              "median": -2.2957
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 0.9433,
+              "median": 0.3789
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -2.4141,
+              "median": -2.0945
             }
           }
         },
@@ -161,26 +161,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 44,
+            "n": 45,
             "pending": 5,
             "missing": 0,
-            "winRate": 68.1818,
+            "winRate": 66.6667,
             "insufficient": false,
             "maxRise": {
-              "mean": 7.5435,
-              "median": 8.0262
+              "mean": 7.3806,
+              "median": 7.924
             },
             "maxLoss": {
-              "mean": -4.8419,
-              "median": -3.9353
+              "mean": -5.1173,
+              "median": -3.9478
             },
             "endReturn": {
-              "mean": 2.5683,
-              "median": 4.1985
+              "mean": 2.2486,
+              "median": 3.8803
             },
             "closeDrawdown": {
-              "mean": -6.4906,
-              "median": -5.6752
+              "mean": -6.7071,
+              "median": -5.7251
             }
           },
           "gte90": {
@@ -262,29 +262,29 @@
             }
           },
           "near": {
-            "center": 15.8,
-            "lower": 10.8,
-            "upper": 20.8,
-            "n": 0,
+            "center": 31.3,
+            "lower": 26.3,
+            "upper": 36.3,
+            "n": 5,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 10.9858,
+              "median": 11.2145
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -4.3123,
+              "median": -3.6399
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 6.4895,
+              "median": 4.5189
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -5.8922,
+              "median": -5.7251
             }
           }
         },
@@ -293,25 +293,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 27,
+            "n": 28,
             "pending": 22,
             "missing": 0,
-            "winRate": 92.5926,
+            "winRate": 89.2857,
             "insufficient": false,
             "maxRise": {
-              "mean": 27.661,
-              "median": 29.0852
+              "mean": 26.9966,
+              "median": 28.6956
             },
             "maxLoss": {
-              "mean": -4.7492,
-              "median": -4.2595
+              "mean": -5.1164,
+              "median": -4.4536
             },
             "endReturn": {
-              "mean": 18.7463,
-              "median": 20.7814
+              "mean": 17.7386,
+              "median": 19.2334
             },
             "closeDrawdown": {
-              "mean": -14.1597,
+              "mean": -14.3909,
               "median": -15.1067
             }
           },
@@ -394,11 +394,11 @@
             }
           },
           "near": {
-            "center": 31.3,
-            "lower": 26.3,
-            "upper": 36.3,
+            "center": 44,
+            "lower": 39,
+            "upper": 49,
             "n": 0,
-            "pending": 1,
+            "pending": 3,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -425,32 +425,32 @@
     "topix": {
       "name": "TOPIX",
       "key": "jpx:TOPIX",
-      "judgments": 49,
+      "judgments": 50,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 47,
-            "pending": 2,
+            "n": 49,
+            "pending": 1,
             "missing": 0,
-            "winRate": 57.4468,
+            "winRate": 57.1429,
             "insufficient": false,
             "maxRise": {
-              "mean": 1.9864,
+              "mean": 2.0505,
               "median": 1.8917
             },
             "maxLoss": {
-              "mean": -1.8122,
+              "mean": -1.8755,
               "median": -1.7698
             },
             "endReturn": {
-              "mean": 0.4397,
+              "mean": 0.4601,
               "median": 0.2829
             },
             "closeDrawdown": {
-              "mean": -1.7794,
+              "mean": -1.8282,
               "median": -1.6362
             }
           },
@@ -533,29 +533,29 @@
             }
           },
           "near": {
-            "center": 8.3,
-            "lower": 3.3,
-            "upper": 13.3,
-            "n": 0,
+            "center": 55.5,
+            "lower": 50.5,
+            "upper": 60.5,
+            "n": 5,
             "pending": 1,
             "missing": 0,
-            "winRate": null,
+            "winRate": 40,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 1.5056,
+              "median": 0.9323
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -2.5842,
+              "median": -3.184
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": -0.5979,
+              "median": -0.9953
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -2.2342,
+              "median": -2.3632
             }
           }
         },
@@ -564,26 +564,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 44,
+            "n": 45,
             "pending": 5,
             "missing": 0,
-            "winRate": 70.4545,
+            "winRate": 68.8889,
             "insufficient": false,
             "maxRise": {
-              "mean": 4.6914,
-              "median": 4.6117
+              "mean": 4.5918,
+              "median": 4.5679
             },
             "maxLoss": {
-              "mean": -3.2381,
-              "median": -2.8539
+              "mean": -3.395,
+              "median": -2.9167
             },
             "endReturn": {
-              "mean": 1.5555,
-              "median": 2.3887
+              "mean": 1.4049,
+              "median": 2.2443
             },
             "closeDrawdown": {
-              "mean": -4.3064,
-              "median": -3.6552
+              "mean": -4.4284,
+              "median": -3.6721
             }
           },
           "gte90": {
@@ -665,29 +665,29 @@
             }
           },
           "near": {
-            "center": 11.5,
-            "lower": 6.5,
-            "upper": 16.5,
-            "n": 0,
-            "pending": 1,
+            "center": 32.8,
+            "lower": 27.8,
+            "upper": 37.8,
+            "n": 2,
+            "pending": 2,
             "missing": 0,
-            "winRate": null,
+            "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 4.1372,
+              "median": 4.1372
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -3.3172,
+              "median": -3.3172
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 1.5828,
+              "median": 1.5828
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -5.3083,
+              "median": -5.3083
             }
           }
         },
@@ -696,26 +696,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 27,
+            "n": 28,
             "pending": 22,
             "missing": 0,
             "winRate": 100,
             "insufficient": false,
             "maxRise": {
-              "mean": 12.6264,
-              "median": 13.3756
+              "mean": 12.4411,
+              "median": 12.9869
             },
             "maxLoss": {
-              "mean": -3.5257,
-              "median": -2.9274
+              "mean": -3.6205,
+              "median": -3.1331
             },
             "endReturn": {
-              "mean": 9.2707,
-              "median": 8.8995
+              "mean": 8.9481,
+              "median": 8.8425
             },
             "closeDrawdown": {
-              "mean": -8.0961,
-              "median": -7.191
+              "mean": -8.2233,
+              "median": -8.8794
             }
           },
           "gte90": {
@@ -797,11 +797,11 @@
             }
           },
           "near": {
-            "center": 28,
-            "lower": 23,
-            "upper": 33,
+            "center": 47.5,
+            "lower": 42.5,
+            "upper": 52.5,
             "n": 0,
-            "pending": 1,
+            "pending": 2,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -828,33 +828,33 @@
     "dow": {
       "name": "NYダウ",
       "key": "yahoo:^DJI",
-      "judgments": 48,
+      "judgments": 49,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 47,
+            "n": 48,
             "pending": 1,
             "missing": 0,
-            "winRate": 46.8085,
+            "winRate": 47.9167,
             "insufficient": false,
             "maxRise": {
-              "mean": 1.382,
-              "median": 1.1052
+              "mean": 1.3979,
+              "median": 1.142
             },
             "maxLoss": {
-              "mean": -1.1774,
-              "median": -1.1772
+              "mean": -1.1529,
+              "median": -1.1758
             },
             "endReturn": {
-              "mean": 0.1133,
-              "median": -0.0904
+              "mean": 0.1394,
+              "median": -0.0683
             },
             "closeDrawdown": {
-              "mean": -1.2504,
-              "median": -1.0732
+              "mean": -1.2319,
+              "median": -1.0635
             }
           },
           "gte90": {
@@ -936,29 +936,29 @@
             }
           },
           "near": {
-            "center": 16,
-            "lower": 11,
-            "upper": 21,
-            "n": 4,
+            "center": 66.3,
+            "lower": 61.3,
+            "upper": 71.3,
+            "n": 6,
             "pending": 1,
             "missing": 0,
-            "winRate": 25,
+            "winRate": 66.6667,
             "insufficient": true,
             "maxRise": {
-              "mean": 2.1725,
-              "median": 1.8948
+              "mean": 2.1069,
+              "median": 1.7023
             },
             "maxLoss": {
-              "mean": -1.7076,
-              "median": -1.7336
+              "mean": -0.5946,
+              "median": -0.5205
             },
             "endReturn": {
-              "mean": -0.6159,
-              "median": -1.5534
+              "mean": 0.9086,
+              "median": 0.4566
             },
             "closeDrawdown": {
-              "mean": -2.0893,
-              "median": -2.5982
+              "mean": -0.9367,
+              "median": -0.9635
             }
           }
         },
@@ -967,26 +967,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 44,
+            "n": 45,
             "pending": 4,
             "missing": 0,
-            "winRate": 68.1818,
+            "winRate": 68.8889,
             "insufficient": false,
             "maxRise": {
-              "mean": 2.9358,
-              "median": 2.9349
+              "mean": 2.9446,
+              "median": 2.9484
             },
             "maxLoss": {
-              "mean": -2.251,
-              "median": -1.533
+              "mean": -2.2432,
+              "median": -1.5331
             },
             "endReturn": {
-              "mean": 0.6928,
-              "median": 1.1063
+              "mean": 0.6932,
+              "median": 1.0972
             },
             "closeDrawdown": {
-              "mean": -2.9017,
-              "median": -2.4813
+              "mean": -2.9234,
+              "median": -2.5337
             }
           },
           "gte90": {
@@ -1068,29 +1068,29 @@
             }
           },
           "near": {
-            "center": 25.8,
-            "lower": 20.8,
-            "upper": 30.8,
-            "n": 5,
-            "pending": 1,
+            "center": 67.8,
+            "lower": 62.8,
+            "upper": 72.8,
+            "n": 13,
+            "pending": 2,
             "missing": 0,
-            "winRate": 80,
+            "winRate": 53.8462,
             "insufficient": true,
             "maxRise": {
-              "mean": 2.47,
-              "median": 2.4771
+              "mean": 2.6855,
+              "median": 3.3322
             },
             "maxLoss": {
-              "mean": -2.777,
-              "median": -2.6768
+              "mean": -2.5593,
+              "median": -1.8969
             },
             "endReturn": {
-              "mean": 0.8186,
-              "median": 1.0972
+              "mean": -0.4071,
+              "median": 0.2604
             },
             "closeDrawdown": {
-              "mean": -2.9977,
-              "median": -2.1956
+              "mean": -3.5496,
+              "median": -3.0213
             }
           }
         },
@@ -1099,25 +1099,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 27,
+            "n": 28,
             "pending": 21,
             "missing": 0,
             "winRate": 100,
             "insufficient": false,
             "maxRise": {
-              "mean": 9.5322,
-              "median": 7.9501
+              "mean": 9.4127,
+              "median": 7.7751
             },
             "maxLoss": {
-              "mean": -4.465,
-              "median": -3.5329
+              "mean": -4.3754,
+              "median": -2.99
             },
             "endReturn": {
-              "mean": 6.5131,
-              "median": 4.7925
+              "mean": 6.3274,
+              "median": 4.6584
             },
             "closeDrawdown": {
-              "mean": -7.0607,
+              "mean": -7.0348,
               "median": -6.3351
             }
           },
@@ -1151,25 +1151,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 9,
-            "pending": 2,
+            "n": 10,
+            "pending": 1,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": 5.5062,
-              "median": 5.4186
+              "mean": 5.5742,
+              "median": 5.5627
             },
             "maxLoss": {
-              "mean": -6.7752,
-              "median": -7.3594
+              "mean": -6.2933,
+              "median": -7.3191
             },
             "endReturn": {
-              "mean": 3.8532,
-              "median": 3.7623
+              "mean": 3.5991,
+              "median": 3.5764
             },
             "closeDrawdown": {
-              "mean": -9.1898,
+              "mean": -8.9043,
               "median": -10.0054
             }
           },
@@ -1177,52 +1177,52 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 9,
-            "pending": 2,
-            "missing": 0,
-            "winRate": 100,
-            "insufficient": true,
-            "maxRise": {
-              "mean": 5.5062,
-              "median": 5.4186
-            },
-            "maxLoss": {
-              "mean": -6.7752,
-              "median": -7.3594
-            },
-            "endReturn": {
-              "mean": 3.8532,
-              "median": 3.7623
-            },
-            "closeDrawdown": {
-              "mean": -9.1898,
-              "median": -10.0054
-            }
-          },
-          "near": {
-            "center": 44.5,
-            "lower": 39.5,
-            "upper": 49.5,
-            "n": 2,
+            "n": 10,
             "pending": 1,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": 17.5036,
-              "median": 17.5036
+              "mean": 5.5742,
+              "median": 5.5627
             },
             "maxLoss": {
-              "mean": -2.0434,
-              "median": -2.0434
+              "mean": -6.2933,
+              "median": -7.3191
             },
             "endReturn": {
-              "mean": 15.2062,
-              "median": 15.2062
+              "mean": 3.5991,
+              "median": 3.5764
             },
             "closeDrawdown": {
-              "mean": -3.5368,
-              "median": -3.5368
+              "mean": -8.9043,
+              "median": -10.0054
+            }
+          },
+          "near": {
+            "center": 72.8,
+            "lower": 67.8,
+            "upper": 77.8,
+            "n": 9,
+            "pending": 10,
+            "missing": 0,
+            "winRate": 100,
+            "insufficient": true,
+            "maxRise": {
+              "mean": 9.8664,
+              "median": 10.4851
+            },
+            "maxLoss": {
+              "mean": -2.6963,
+              "median": -1.4443
+            },
+            "endReturn": {
+              "mean": 5.237,
+              "median": 5.3452
+            },
+            "closeDrawdown": {
+              "mean": -6.0566,
+              "median": -6.3351
             }
           }
         }
@@ -1231,33 +1231,33 @@
     "sox": {
       "name": "SOX",
       "key": "yahoo:^SOX",
-      "judgments": 48,
+      "judgments": 49,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 47,
+            "n": 48,
             "pending": 1,
             "missing": 0,
-            "winRate": 53.1915,
+            "winRate": 54.1667,
             "insufficient": false,
             "maxRise": {
-              "mean": 4.3314,
-              "median": 3.5766
+              "mean": 4.5242,
+              "median": 3.7645
             },
             "maxLoss": {
-              "mean": -4.4048,
-              "median": -3.7953
+              "mean": -4.3195,
+              "median": -3.7622
             },
             "endReturn": {
-              "mean": 0.3605,
-              "median": 0.5888
+              "mean": 0.4955,
+              "median": 0.7457
             },
             "closeDrawdown": {
-              "mean": -4.6967,
-              "median": -4.3586
+              "mean": -4.6812,
+              "median": -4.2179
             }
           },
           "gte90": {
@@ -1339,29 +1339,29 @@
             }
           },
           "near": {
-            "center": 16.8,
-            "lower": 11.8,
-            "upper": 21.8,
+            "center": 38.8,
+            "lower": 33.8,
+            "upper": 43.8,
             "n": 5,
             "pending": 1,
             "missing": 0,
-            "winRate": 60,
+            "winRate": 40,
             "insufficient": true,
             "maxRise": {
-              "mean": 4.539,
-              "median": 4.794
+              "mean": 2.566,
+              "median": 2.5532
             },
             "maxLoss": {
-              "mean": -4.4965,
-              "median": -5.7644
+              "mean": -6.3243,
+              "median": -6.202
             },
             "endReturn": {
-              "mean": 0.4198,
-              "median": 0.408
+              "mean": -1.5567,
+              "median": -0.3574
             },
             "closeDrawdown": {
-              "mean": -4.933,
-              "median": -4.7684
+              "mean": -5.1665,
+              "median": -6.3907
             }
           }
         },
@@ -1370,25 +1370,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 44,
+            "n": 45,
             "pending": 4,
             "missing": 0,
-            "winRate": 61.3636,
+            "winRate": 60,
             "insufficient": false,
             "maxRise": {
-              "mean": 11.8252,
-              "median": 10.0973
+              "mean": 11.6138,
+              "median": 9.9131
             },
             "maxLoss": {
-              "mean": -8.3397,
-              "median": -7.2493
+              "mean": -8.6328,
+              "median": -7.3176
             },
             "endReturn": {
-              "mean": 4.449,
-              "median": 5.5329
+              "mean": 4.0943,
+              "median": 4.2029
             },
             "closeDrawdown": {
-              "mean": -10.7885,
+              "mean": -11.0571,
               "median": -10.3595
             }
           },
@@ -1471,29 +1471,29 @@
             }
           },
           "near": {
-            "center": 14.5,
-            "lower": 9.5,
-            "upper": 19.5,
-            "n": 0,
-            "pending": 1,
+            "center": 27,
+            "lower": 22,
+            "upper": 32,
+            "n": 5,
+            "pending": 3,
             "missing": 0,
-            "winRate": null,
+            "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": null,
-              "median": null
+              "mean": 16.2987,
+              "median": 10.4398
             },
             "maxLoss": {
-              "mean": null,
-              "median": null
+              "mean": -5.5426,
+              "median": -4.1173
             },
             "endReturn": {
-              "mean": null,
-              "median": null
+              "mean": 12.2867,
+              "median": 7.1434
             },
             "closeDrawdown": {
-              "mean": null,
-              "median": null
+              "mean": -9.4729,
+              "median": -9.4908
             }
           }
         },
@@ -1502,25 +1502,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 27,
+            "n": 28,
             "pending": 21,
             "missing": 0,
-            "winRate": 85.1852,
+            "winRate": 82.1429,
             "insufficient": false,
             "maxRise": {
-              "mean": 62.157,
-              "median": 72.2213
+              "mean": 59.9489,
+              "median": 71.4204
             },
             "maxLoss": {
-              "mean": -9.0866,
-              "median": -9.4777
+              "mean": -10.1337,
+              "median": -9.5956
             },
             "endReturn": {
-              "mean": 40.1889,
-              "median": 53.5591
+              "mean": 37.6268,
+              "median": 53.2718
             },
             "closeDrawdown": {
-              "mean": -23.1974,
+              "mean": -23.7413,
               "median": -28.6116
             }
           },
@@ -1554,60 +1554,60 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 14,
-            "pending": 1,
+            "n": 15,
+            "pending": 0,
             "missing": 0,
-            "winRate": 85.7143,
+            "winRate": 80,
             "insufficient": true,
             "maxRise": {
-              "mean": 57.1429,
-              "median": 67.8905
+              "mean": 53.3554,
+              "median": 65.1615
             },
             "maxLoss": {
-              "mean": -8.3696,
-              "median": -7.8702
+              "mean": -10.3719,
+              "median": -9.2696
             },
             "endReturn": {
-              "mean": 36.8593,
-              "median": 35.8331
+              "mean": 32.2986,
+              "median": 27.7905
             },
             "closeDrawdown": {
-              "mean": -22.3848,
-              "median": -23.7601
+              "mean": -23.4542,
+              "median": -28.6116
             }
           },
           "80to90": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 14,
-            "pending": 1,
+            "n": 15,
+            "pending": 0,
             "missing": 0,
-            "winRate": 85.7143,
+            "winRate": 80,
             "insufficient": true,
             "maxRise": {
-              "mean": 57.1429,
-              "median": 67.8905
+              "mean": 53.3554,
+              "median": 65.1615
             },
             "maxLoss": {
-              "mean": -8.3696,
-              "median": -7.8702
+              "mean": -10.3719,
+              "median": -9.2696
             },
             "endReturn": {
-              "mean": 36.8593,
-              "median": 35.8331
+              "mean": 32.2986,
+              "median": 27.7905
             },
             "closeDrawdown": {
-              "mean": -22.3848,
-              "median": -23.7601
+              "mean": -23.4542,
+              "median": -28.6116
             }
           },
           "near": {
-            "center": 20.8,
-            "lower": 15.8,
-            "upper": 25.8,
+            "center": 35.8,
+            "lower": 30.8,
+            "upper": 40.8,
             "n": 0,
-            "pending": 1,
+            "pending": 3,
             "missing": 0,
             "winRate": null,
             "insufficient": true,
@@ -1634,33 +1634,33 @@
     "sp500": {
       "name": "S&P500",
       "key": "yahoo:^GSPC",
-      "judgments": 48,
+      "judgments": 49,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 47,
+            "n": 48,
             "pending": 1,
             "missing": 0,
-            "winRate": 55.3191,
+            "winRate": 56.25,
             "insufficient": false,
             "maxRise": {
-              "mean": 1.2524,
-              "median": 1.1232
+              "mean": 1.291,
+              "median": 1.1325
             },
             "maxLoss": {
-              "mean": -1.3031,
-              "median": -1.1485
+              "mean": -1.2759,
+              "median": -1.1413
             },
             "endReturn": {
-              "mean": 0.099,
-              "median": 0.2282
+              "mean": 0.136,
+              "median": 0.2452
             },
             "closeDrawdown": {
-              "mean": -1.3121,
-              "median": -0.9682
+              "mean": -1.3006,
+              "median": -0.9498
             }
           },
           "gte90": {
@@ -1742,29 +1742,29 @@
             }
           },
           "near": {
-            "center": 16.8,
-            "lower": 11.8,
-            "upper": 21.8,
-            "n": 5,
+            "center": 37.5,
+            "lower": 32.5,
+            "upper": 42.5,
+            "n": 6,
             "pending": 1,
             "missing": 0,
-            "winRate": 40,
+            "winRate": 50,
             "insufficient": true,
             "maxRise": {
-              "mean": 2.0085,
-              "median": 2.1568
+              "mean": 1.0353,
+              "median": 1.1126
             },
             "maxLoss": {
-              "mean": -1.8806,
-              "median": -1.3502
+              "mean": -1.1744,
+              "median": -1.4402
             },
             "endReturn": {
-              "mean": -0.2869,
-              "median": -1.0091
+              "mean": -0.1985,
+              "median": -0.0358
             },
             "closeDrawdown": {
-              "mean": -2.0123,
-              "median": -2.4102
+              "mean": -1.2756,
+              "median": -1.3354
             }
           }
         },
@@ -1773,25 +1773,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 44,
+            "n": 45,
             "pending": 4,
             "missing": 0,
-            "winRate": 56.8182,
+            "winRate": 55.5556,
             "insufficient": false,
             "maxRise": {
-              "mean": 2.7786,
-              "median": 1.8015
+              "mean": 2.7363,
+              "median": 1.7643
             },
             "maxLoss": {
-              "mean": -2.4609,
-              "median": -2.237
+              "mean": -2.5078,
+              "median": -2.3402
             },
             "endReturn": {
-              "mean": 1.0065,
-              "median": 0.2932
+              "mean": 0.9435,
+              "median": 0.2882
             },
             "closeDrawdown": {
-              "mean": -2.9915,
+              "mean": -3.0406,
               "median": -2.5822
             }
           },
@@ -1874,29 +1874,29 @@
             }
           },
           "near": {
-            "center": 18.5,
-            "lower": 13.5,
-            "upper": 23.5,
-            "n": 3,
-            "pending": 1,
+            "center": 36.8,
+            "lower": 31.8,
+            "upper": 41.8,
+            "n": 1,
+            "pending": 2,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": 8.0009,
-              "median": 8.7082
+              "mean": 2.5652,
+              "median": 2.5652
             },
             "maxLoss": {
-              "mean": -3.5435,
-              "median": -3.9247
+              "mean": -0.5817,
+              "median": -0.5817
             },
             "endReturn": {
-              "mean": 7.7774,
-              "median": 8.1245
+              "mean": 0.2882,
+              "median": 0.2882
             },
             "closeDrawdown": {
-              "mean": -3.4136,
-              "median": -3.7649
+              "mean": -2.2057,
+              "median": -2.2057
             }
           }
         },
@@ -1905,26 +1905,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 27,
+            "n": 28,
             "pending": 21,
             "missing": 0,
             "winRate": 100,
             "insufficient": false,
             "maxRise": {
-              "mean": 10.4688,
-              "median": 9.8306
+              "mean": 10.2587,
+              "median": 9.8233
             },
             "maxLoss": {
-              "mean": -5.0807,
-              "median": -5.3557
+              "mean": -4.9975,
+              "median": -4.9492
             },
             "endReturn": {
-              "mean": 8.6954,
-              "median": 7.8531
+              "mean": 8.3946,
+              "median": 7.8529
             },
             "closeDrawdown": {
-              "mean": -6.502,
-              "median": -5.5444
+              "mean": -6.4822,
+              "median": -5.747
             }
           },
           "gte90": {
@@ -2006,29 +2006,29 @@
             }
           },
           "near": {
-            "center": 41,
-            "lower": 36,
-            "upper": 46,
-            "n": 2,
-            "pending": 1,
+            "center": 62.3,
+            "lower": 57.3,
+            "upper": 67.3,
+            "n": 1,
+            "pending": 3,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": 17.7135,
-              "median": 17.7135
+              "mean": 13.7482,
+              "median": 13.7482
             },
             "maxLoss": {
-              "mean": -3.0809,
-              "median": -3.0809
+              "mean": -5.7149,
+              "median": -5.7149
             },
             "endReturn": {
-              "mean": 16.0161,
-              "median": 16.0161
+              "mean": 11.0127,
+              "median": 11.0127
             },
             "closeDrawdown": {
-              "mean": -5.0245,
-              "median": -5.0245
+              "mean": -6.655,
+              "median": -6.655
             }
           }
         }
@@ -2037,33 +2037,33 @@
     "nasdaq": {
       "name": "ナスダック総合",
       "key": "yahoo:^IXIC",
-      "judgments": 48,
+      "judgments": 49,
       "periods": {
         "5": {
           "all": {
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 47,
+            "n": 48,
             "pending": 1,
             "missing": 0,
-            "winRate": 53.1915,
+            "winRate": 54.1667,
             "insufficient": false,
             "maxRise": {
-              "mean": 1.8069,
-              "median": 1.4533
+              "mean": 1.8426,
+              "median": 1.5024
             },
             "maxLoss": {
-              "mean": -1.9485,
-              "median": -1.3773
+              "mean": -1.9091,
+              "median": -1.3732
             },
             "endReturn": {
-              "mean": 0.0204,
-              "median": 0.1826
+              "mean": 0.0502,
+              "median": 0.1949
             },
             "closeDrawdown": {
-              "mean": -2.0109,
-              "median": -1.5396
+              "mean": -1.996,
+              "median": -1.5061
             }
           },
           "gte90": {
@@ -2145,29 +2145,29 @@
             }
           },
           "near": {
-            "center": 17.8,
-            "lower": 12.8,
-            "upper": 22.8,
-            "n": 11,
+            "center": 33.5,
+            "lower": 28.5,
+            "upper": 38.5,
+            "n": 7,
             "pending": 1,
             "missing": 0,
-            "winRate": 36.3636,
+            "winRate": 57.1429,
             "insufficient": true,
             "maxRise": {
-              "mean": 2.0131,
-              "median": 1.7526
+              "mean": 1.591,
+              "median": 1.605
             },
             "maxLoss": {
-              "mean": -2.7627,
-              "median": -3.213
+              "mean": -1.5852,
+              "median": -1.8198
             },
             "endReturn": {
-              "mean": -0.776,
-              "median": -0.6761
+              "mean": 0.2407,
+              "median": 0.2937
             },
             "closeDrawdown": {
-              "mean": -3.1144,
-              "median": -3.1433
+              "mean": -1.7864,
+              "median": -1.8406
             }
           }
         },
@@ -2176,26 +2176,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 44,
+            "n": 45,
             "pending": 4,
             "missing": 0,
-            "winRate": 45.4545,
+            "winRate": 44.4444,
             "insufficient": false,
             "maxRise": {
-              "mean": 4.1687,
-              "median": 3.0582
+              "mean": 4.1084,
+              "median": 2.9217
             },
             "maxLoss": {
-              "mean": -3.8518,
-              "median": -3.5452
+              "mean": -3.9458,
+              "median": -3.8281
             },
             "endReturn": {
-              "mean": 1.0852,
-              "median": -0.7191
+              "mean": 0.9551,
+              "median": -0.7881
             },
             "closeDrawdown": {
-              "mean": -4.6559,
-              "median": -4.8155
+              "mean": -4.7512,
+              "median": -5.1099
             }
           },
           "gte90": {
@@ -2277,29 +2277,29 @@
             }
           },
           "near": {
-            "center": 15.3,
-            "lower": 10.3,
-            "upper": 20.3,
-            "n": 2,
-            "pending": 1,
+            "center": 26.5,
+            "lower": 21.5,
+            "upper": 31.5,
+            "n": 7,
+            "pending": 3,
             "missing": 0,
-            "winRate": 100,
+            "winRate": 42.8571,
             "insufficient": true,
             "maxRise": {
-              "mean": 14.7506,
-              "median": 14.7506
+              "mean": 5.3981,
+              "median": 3.4603
             },
             "maxLoss": {
-              "mean": -3.9299,
-              "median": -3.9299
+              "mean": -4.2137,
+              "median": -3.213
             },
             "endReturn": {
-              "mean": 14.4599,
-              "median": 14.4599
+              "mean": 1.8084,
+              "median": -0.0919
             },
             "closeDrawdown": {
-              "mean": -3.4452,
-              "median": -3.4452
+              "mean": -5.4003,
+              "median": -5.1349
             }
           }
         },
@@ -2308,25 +2308,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 27,
+            "n": 28,
             "pending": 21,
             "missing": 0,
-            "winRate": 92.5926,
+            "winRate": 89.2857,
             "insufficient": false,
             "maxRise": {
-              "mean": 14.7518,
-              "median": 15.3257
+              "mean": 14.3921,
+              "median": 15.094
             },
             "maxLoss": {
-              "mean": -7.4444,
-              "median": -7.6112
+              "mean": -7.4781,
+              "median": -7.6281
             },
             "endReturn": {
-              "mean": 10.6556,
-              "median": 12.2932
+              "mean": 10.0839,
+              "median": 12.0625
             },
             "closeDrawdown": {
-              "mean": -10.587,
+              "mean": -10.634,
               "median": -9.7843
             }
           },
@@ -2360,25 +2360,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 8,
-            "pending": 6,
+            "n": 9,
+            "pending": 5,
             "missing": 0,
-            "winRate": 87.5,
+            "winRate": 77.7778,
             "insufficient": true,
             "maxRise": {
-              "mean": 8.9714,
-              "median": 9.1535
+              "mean": 8.4946,
+              "median": 8.6675
             },
             "maxLoss": {
-              "mean": -6.5037,
-              "median": -6.8174
+              "mean": -6.713,
+              "median": -7.0909
             },
             "endReturn": {
-              "mean": 6.5052,
-              "median": 6.6713
+              "mean": 5.1877,
+              "median": 6.527
             },
             "closeDrawdown": {
-              "mean": -10.5477,
+              "mean": -10.6981,
               "median": -9.7843
             }
           },
@@ -2386,48 +2386,48 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 8,
-            "pending": 6,
+            "n": 9,
+            "pending": 5,
             "missing": 0,
-            "winRate": 87.5,
+            "winRate": 77.7778,
             "insufficient": true,
             "maxRise": {
-              "mean": 8.9714,
-              "median": 9.1535
+              "mean": 8.4946,
+              "median": 8.6675
             },
             "maxLoss": {
-              "mean": -6.5037,
-              "median": -6.8174
+              "mean": -6.713,
+              "median": -7.0909
             },
             "endReturn": {
-              "mean": 6.5052,
-              "median": 6.6713
+              "mean": 5.1877,
+              "median": 6.527
             },
             "closeDrawdown": {
-              "mean": -10.5477,
+              "mean": -10.6981,
               "median": -9.7843
             }
           },
           "near": {
-            "center": 27.5,
-            "lower": 22.5,
-            "upper": 32.5,
-            "n": 1,
-            "pending": 1,
+            "center": 41,
+            "lower": 36,
+            "upper": 46,
+            "n": 3,
+            "pending": 2,
             "missing": 0,
             "winRate": 100,
             "insufficient": true,
             "maxRise": {
-              "mean": 28.8865,
-              "median": 28.8865
+              "mean": 23.0851,
+              "median": 23.6156
             },
             "maxLoss": {
-              "mean": -1.9245,
-              "median": -1.9245
+              "mean": -4.9401,
+              "median": -5.9354
             },
             "endReturn": {
-              "mean": 23.5631,
-              "median": 23.5631
+              "mean": 19.6317,
+              "median": 19.0995
             },
             "closeDrawdown": {
               "mean": -9.7843,
@@ -2442,15 +2442,15 @@
     "nikkei": {
       "version": "weekly-v1-c0cb345f448c",
       "target": "nikkei",
-      "cutoff": "2026-11-06",
-      "asOf": "2026-11-06",
-      "requestHash": "7b2e2384d618c20830c94af2e817561d8bffe4c64383c5cc10cd6ddf95509773",
-      "createdAt": "2026-11-07T06:49:24.163Z",
+      "cutoff": "2026-11-13",
+      "asOf": "2026-11-13",
+      "requestHash": "84271d0c78138afb60c6576b467e43da26fe5f274ec349a5733d33ab96da49c6",
+      "createdAt": "2026-11-14T07:20:07.346Z",
       "response": {
         "provider": "jev",
         "model": "jev-1.13.0",
         "usage": {
-          "input_tokens": 20094,
+          "input_tokens": 20084,
           "output_tokens": 157
         },
         "horizons": [
@@ -2458,14 +2458,14 @@
             "period": "short",
             "label": "短期",
             "days": 5,
-            "score": 11,
+            "score": 41.5,
             "status": "ok",
-            "confidence": 0.65,
+            "confidence": 0.42,
             "probabilities": {
-              "0": 0.58,
-              "1": 0.42,
-              "2": 0,
-              "3": 0,
+              "0": 0.02,
+              "1": 0.54,
+              "2": 0.21,
+              "3": 0.23,
               "4": 0
             }
           },
@@ -2473,14 +2473,14 @@
             "period": "medium",
             "label": "中期",
             "days": 20,
-            "score": 15.8,
+            "score": 31.3,
             "status": "ok",
-            "confidence": 0.6,
+            "confidence": 0.68,
             "probabilities": {
-              "0": 0.43,
-              "1": 0.54,
-              "2": 0.01,
-              "3": 0.02,
+              "0": 0.07,
+              "1": 0.73,
+              "2": 0.09,
+              "3": 0.11,
               "4": 0
             }
           },
@@ -2488,33 +2488,33 @@
             "period": "long",
             "label": "長期",
             "days": 100,
-            "score": 31.3,
+            "score": 44,
             "status": "ok",
-            "confidence": 0.52,
+            "confidence": 0.32,
             "probabilities": {
-              "0": 0.17,
-              "1": 0.59,
-              "2": 0.08,
-              "3": 0.15,
+              "0": 0.04,
+              "1": 0.5,
+              "2": 0.15,
+              "3": 0.3,
               "4": 0.01
             }
           }
         ],
-        "text": "JevによるAI分析\n日経平均　基準日：2026-11-06\n使用データ：2015-01-05 ～ 2026-11-06（2894観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　11%\n中期（20営業日以内）　15.8%\n長期（100営業日以内）　31.3%"
+        "text": "JevによるAI分析\n日経平均　基準日：2026-11-13\n使用データ：2015-01-05 ～ 2026-11-13（2899観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　41.5%\n中期（20営業日以内）　31.3%\n長期（100営業日以内）　44%"
       }
     },
     "topix": {
       "version": "weekly-v1-c0cb345f448c",
       "target": "topix",
-      "cutoff": "2026-11-06",
-      "asOf": "2026-11-06",
-      "requestHash": "1db00db71f35bb2a5581b378614862252c7c7ce31968f944b6e4988bf12fcb65",
-      "createdAt": "2026-11-07T06:49:38.749Z",
+      "cutoff": "2026-11-13",
+      "asOf": "2026-11-13",
+      "requestHash": "8eeb115b40569031199f369e54e0658fd2830cda8848cd2ec9871774b593c887",
+      "createdAt": "2026-11-14T07:20:21.936Z",
       "response": {
         "provider": "jev",
         "model": "jev-1.13.0",
         "usage": {
-          "input_tokens": 19897,
+          "input_tokens": 19887,
           "output_tokens": 157
         },
         "horizons": [
@@ -2522,29 +2522,29 @@
             "period": "short",
             "label": "短期",
             "days": 5,
-            "score": 8.3,
+            "score": 55.5,
             "status": "ok",
-            "confidence": 0.73,
+            "confidence": 0.32,
             "probabilities": {
-              "0": 0.68,
-              "1": 0.32,
-              "2": 0,
-              "3": 0,
-              "4": 0
+              "0": 0.01,
+              "1": 0.28,
+              "2": 0.22,
+              "3": 0.48,
+              "4": 0.01
             }
           },
           {
             "period": "medium",
             "label": "中期",
             "days": 20,
-            "score": 11.5,
+            "score": 32.8,
             "status": "ok",
-            "confidence": 0.62,
+            "confidence": 0.68,
             "probabilities": {
-              "0": 0.56,
-              "1": 0.43,
-              "2": 0.01,
-              "3": 0,
+              "0": 0.04,
+              "1": 0.72,
+              "2": 0.14,
+              "3": 0.1,
               "4": 0
             }
           },
@@ -2552,33 +2552,33 @@
             "period": "long",
             "label": "長期",
             "days": 100,
-            "score": 28,
+            "score": 47.5,
             "status": "ok",
-            "confidence": 0.53,
+            "confidence": 0.22,
             "probabilities": {
-              "0": 0.22,
-              "1": 0.57,
-              "2": 0.09,
-              "3": 0.11,
+              "0": 0.02,
+              "1": 0.43,
+              "2": 0.2,
+              "3": 0.34,
               "4": 0.01
             }
           }
         ],
-        "text": "JevによるAI分析\nTOPIX　基準日：2026-11-06\n使用データ：2015-01-05 ～ 2026-11-06（2890観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　8.3%\n中期（20営業日以内）　11.5%\n長期（100営業日以内）　28%"
+        "text": "JevによるAI分析\nTOPIX　基準日：2026-11-13\n使用データ：2015-01-05 ～ 2026-11-13（2895観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　55.5%\n中期（20営業日以内）　32.8%\n長期（100営業日以内）　47.5%"
       }
     },
     "dow": {
       "version": "weekly-v1-c0cb345f448c",
       "target": "dow",
-      "cutoff": "2026-11-06",
-      "asOf": "2026-11-06",
-      "requestHash": "6e187d1a9fdcf1a69ad3dad29581ccf37bfd81e7e4b6a3983c8364536d201acf",
-      "createdAt": "2026-11-07T06:49:53.397Z",
+      "cutoff": "2026-11-13",
+      "asOf": "2026-11-13",
+      "requestHash": "d4352f1597beb4b2ee03f099e658e59f3a5fa8fa6b25bd5fecf963264bcb8309",
+      "createdAt": "2026-11-14T07:20:36.654Z",
       "response": {
         "provider": "jev",
         "model": "jev-1.13.0",
         "usage": {
-          "input_tokens": 19965,
+          "input_tokens": 19939,
           "output_tokens": 157
         },
         "horizons": [
@@ -2586,14 +2586,78 @@
             "period": "short",
             "label": "短期",
             "days": 5,
-            "score": 16,
+            "score": 66.3,
             "status": "ok",
-            "confidence": 0.68,
+            "confidence": 0.67,
             "probabilities": {
-              "0": 0.37,
-              "1": 0.62,
-              "2": 0.01,
-              "3": 0,
+              "0": 0,
+              "1": 0.06,
+              "2": 0.25,
+              "3": 0.66,
+              "4": 0.03
+            }
+          },
+          {
+            "period": "medium",
+            "label": "中期",
+            "days": 20,
+            "score": 67.8,
+            "status": "ok",
+            "confidence": 0.7,
+            "probabilities": {
+              "0": 0,
+              "1": 0.07,
+              "2": 0.18,
+              "3": 0.71,
+              "4": 0.04
+            }
+          },
+          {
+            "period": "long",
+            "label": "長期",
+            "days": 100,
+            "score": 72.8,
+            "status": "ok",
+            "confidence": 0.74,
+            "probabilities": {
+              "0": 0,
+              "1": 0.05,
+              "2": 0.1,
+              "3": 0.74,
+              "4": 0.11
+            }
+          }
+        ],
+        "text": "JevによるAI分析\nNYダウ　基準日：2026-11-13\n使用データ：2015-01-02 ～ 2026-11-13（2985観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　66.3%\n中期（20営業日以内）　67.8%\n長期（100営業日以内）　72.8%"
+      }
+    },
+    "sox": {
+      "version": "weekly-v1-c0cb345f448c",
+      "target": "sox",
+      "cutoff": "2026-11-13",
+      "asOf": "2026-11-13",
+      "requestHash": "f9f7047cde247a986685e3bab27f82a68662ea62c33eac20bbc3729bce8e94d7",
+      "createdAt": "2026-11-14T07:20:51.330Z",
+      "response": {
+        "provider": "jev",
+        "model": "jev-1.13.0",
+        "usage": {
+          "input_tokens": 20084,
+          "output_tokens": 157
+        },
+        "horizons": [
+          {
+            "period": "short",
+            "label": "短期",
+            "days": 5,
+            "score": 38.8,
+            "status": "ok",
+            "confidence": 0.51,
+            "probabilities": {
+              "0": 0.03,
+              "1": 0.58,
+              "2": 0.22,
+              "3": 0.17,
               "4": 0
             }
           },
@@ -2601,12 +2665,12 @@
             "period": "medium",
             "label": "中期",
             "days": 20,
-            "score": 25.8,
+            "score": 27,
             "status": "ok",
-            "confidence": 0.7,
+            "confidence": 0.76,
             "probabilities": {
-              "0": 0.17,
-              "1": 0.7,
+              "0": 0.1,
+              "1": 0.77,
               "2": 0.07,
               "3": 0.06,
               "4": 0
@@ -2616,33 +2680,33 @@
             "period": "long",
             "label": "長期",
             "days": 100,
-            "score": 44.5,
+            "score": 35.8,
             "status": "ok",
-            "confidence": 0.22,
+            "confidence": 0.52,
             "probabilities": {
-              "0": 0.06,
-              "1": 0.43,
-              "2": 0.18,
-              "3": 0.3,
-              "4": 0.03
+              "0": 0.07,
+              "1": 0.62,
+              "2": 0.12,
+              "3": 0.18,
+              "4": 0.01
             }
           }
         ],
-        "text": "JevによるAI分析\nNYダウ　基準日：2026-11-06\n使用データ：2015-01-02 ～ 2026-11-06（2980観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　16%\n中期（20営業日以内）　25.8%\n長期（100営業日以内）　44.5%"
+        "text": "JevによるAI分析\nSOX　基準日：2026-11-13\n使用データ：2015-01-02 ～ 2026-11-13（2985観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　38.8%\n中期（20営業日以内）　27%\n長期（100営業日以内）　35.8%"
       }
     },
-    "sox": {
+    "sp500": {
       "version": "weekly-v1-c0cb345f448c",
-      "target": "sox",
-      "cutoff": "2026-11-06",
-      "asOf": "2026-11-06",
-      "requestHash": "1601a1acff25ef26f426cb44883af435e76a9885518c4bfd63a1758e15726164",
-      "createdAt": "2026-11-07T06:50:08.178Z",
+      "target": "sp500",
+      "cutoff": "2026-11-13",
+      "asOf": "2026-11-13",
+      "requestHash": "a97ce5ccfbd4690bb8e95c15b4028bfb00dbb8bc6cf2fa4ed66db5296743f5a1",
+      "createdAt": "2026-11-14T07:21:05.987Z",
       "response": {
         "provider": "jev",
         "model": "jev-1.13.0",
         "usage": {
-          "input_tokens": 20092,
+          "input_tokens": 19932,
           "output_tokens": 157
         },
         "horizons": [
@@ -2650,14 +2714,14 @@
             "period": "short",
             "label": "短期",
             "days": 5,
-            "score": 16.8,
+            "score": 37.5,
             "status": "ok",
-            "confidence": 0.67,
+            "confidence": 0.53,
             "probabilities": {
-              "0": 0.37,
-              "1": 0.61,
-              "2": 0.01,
-              "3": 0.01,
+              "0": 0.03,
+              "1": 0.55,
+              "2": 0.31,
+              "3": 0.11,
               "4": 0
             }
           },
@@ -2665,14 +2729,14 @@
             "period": "medium",
             "label": "中期",
             "days": 20,
-            "score": 14.5,
+            "score": 36.8,
             "status": "ok",
-            "confidence": 0.58,
+            "confidence": 0.55,
             "probabilities": {
-              "0": 0.47,
-              "1": 0.51,
-              "2": 0.01,
-              "3": 0.01,
+              "0": 0.04,
+              "1": 0.61,
+              "2": 0.2,
+              "3": 0.15,
               "4": 0
             }
           },
@@ -2680,33 +2744,33 @@
             "period": "long",
             "label": "長期",
             "days": 100,
-            "score": 20.8,
+            "score": 62.3,
             "status": "ok",
-            "confidence": 0.55,
+            "confidence": 0.5,
             "probabilities": {
-              "0": 0.35,
-              "1": 0.54,
-              "2": 0.04,
-              "3": 0.06,
-              "4": 0.01
+              "0": 0.01,
+              "1": 0.18,
+              "2": 0.17,
+              "3": 0.6,
+              "4": 0.04
             }
           }
         ],
-        "text": "JevによるAI分析\nSOX　基準日：2026-11-06\n使用データ：2015-01-02 ～ 2026-11-06（2980観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　16.8%\n中期（20営業日以内）　14.5%\n長期（100営業日以内）　20.8%"
+        "text": "JevによるAI分析\nS&P500　基準日：2026-11-13\n使用データ：2015-01-02 ～ 2026-11-13（2985観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　37.5%\n中期（20営業日以内）　36.8%\n長期（100営業日以内）　62.3%"
       }
     },
-    "sp500": {
+    "nasdaq": {
       "version": "weekly-v1-c0cb345f448c",
-      "target": "sp500",
-      "cutoff": "2026-11-06",
-      "asOf": "2026-11-06",
-      "requestHash": "3d89c0619dfe589c72e8197713f2ad4259dc6e5eb1cfb1e0e00926f62357aa12",
-      "createdAt": "2026-11-07T06:50:22.840Z",
+      "target": "nasdaq",
+      "cutoff": "2026-11-13",
+      "asOf": "2026-11-13",
+      "requestHash": "ad7841ed22eb4b5fde94805226015b7062f907460aa730dad086ee3ae190cb40",
+      "createdAt": "2026-11-14T07:21:20.629Z",
       "response": {
         "provider": "jev",
         "model": "jev-1.13.0",
         "usage": {
-          "input_tokens": 19850,
+          "input_tokens": 20107,
           "output_tokens": 157
         },
         "horizons": [
@@ -2714,14 +2778,14 @@
             "period": "short",
             "label": "短期",
             "days": 5,
-            "score": 16.8,
+            "score": 33.5,
             "status": "ok",
-            "confidence": 0.7,
+            "confidence": 0.62,
             "probabilities": {
-              "0": 0.35,
+              "0": 0.05,
               "1": 0.64,
-              "2": 0.01,
-              "3": 0,
+              "2": 0.22,
+              "3": 0.09,
               "4": 0
             }
           },
@@ -2729,14 +2793,14 @@
             "period": "medium",
             "label": "中期",
             "days": 20,
-            "score": 18.5,
+            "score": 26.5,
             "status": "ok",
-            "confidence": 0.72,
+            "confidence": 0.75,
             "probabilities": {
-              "0": 0.3,
-              "1": 0.67,
-              "2": 0.02,
-              "3": 0.01,
+              "0": 0.13,
+              "1": 0.75,
+              "2": 0.07,
+              "3": 0.05,
               "4": 0
             }
           },
@@ -2746,81 +2810,17 @@
             "days": 100,
             "score": 41,
             "status": "ok",
-            "confidence": 0.32,
+            "confidence": 0.39,
             "probabilities": {
-              "0": 0.08,
-              "1": 0.5,
-              "2": 0.13,
-              "3": 0.27,
-              "4": 0.02
-            }
-          }
-        ],
-        "text": "JevによるAI分析\nS&P500　基準日：2026-11-06\n使用データ：2015-01-02 ～ 2026-11-06（2980観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　16.8%\n中期（20営業日以内）　18.5%\n長期（100営業日以内）　41%"
-      }
-    },
-    "nasdaq": {
-      "version": "weekly-v1-c0cb345f448c",
-      "target": "nasdaq",
-      "cutoff": "2026-11-06",
-      "asOf": "2026-11-06",
-      "requestHash": "bbf035c60ef0824322819683a8ae96398614cb983f6bbef1e46b22857d4e68df",
-      "createdAt": "2026-11-07T06:50:37.527Z",
-      "response": {
-        "provider": "jev",
-        "model": "jev-1.13.0",
-        "usage": {
-          "input_tokens": 20130,
-          "output_tokens": 157
-        },
-        "horizons": [
-          {
-            "period": "short",
-            "label": "短期",
-            "days": 5,
-            "score": 17.8,
-            "status": "ok",
-            "confidence": 0.69,
-            "probabilities": {
-              "0": 0.34,
-              "1": 0.64,
-              "2": 0.01,
-              "3": 0.01,
-              "4": 0
-            }
-          },
-          {
-            "period": "medium",
-            "label": "中期",
-            "days": 20,
-            "score": 15.3,
-            "status": "ok",
-            "confidence": 0.61,
-            "probabilities": {
-              "0": 0.44,
+              "0": 0.05,
               "1": 0.54,
-              "2": 0.01,
-              "3": 0.01,
-              "4": 0
-            }
-          },
-          {
-            "period": "long",
-            "label": "長期",
-            "days": 100,
-            "score": 27.5,
-            "status": "ok",
-            "confidence": 0.57,
-            "probabilities": {
-              "0": 0.2,
-              "1": 0.61,
-              "2": 0.07,
-              "3": 0.11,
+              "2": 0.15,
+              "3": 0.25,
               "4": 0.01
             }
           }
         ],
-        "text": "JevによるAI分析\nナスダック総合　基準日：2026-11-06\n使用データ：2015-01-02 ～ 2026-11-06（2980観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　17.8%\n中期（20営業日以内）　15.3%\n長期（100営業日以内）　27.5%"
+        "text": "JevによるAI分析\nナスダック総合　基準日：2026-11-13\n使用データ：2015-01-02 ～ 2026-11-13（2985観測）\n\n買い度：100%＝買い ／ 50%＝イーブン ／ 0%＝売り\n売買評価の尺度です。上昇する確率ではありません。\n\n短期（5営業日以内）　33.5%\n中期（20営業日以内）　26.5%\n長期（100営業日以内）　41%"
       }
     }
   }
