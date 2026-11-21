@@ -1,8 +1,8 @@
 {
   "mode": "update",
-  "calls": 6,
-  "inputTokens": 120033,
-  "estimatedUsd": 0.005041386,
-  "estimatedYenAt155": 0.78141483,
-  "failure": null
+  "calls": 0,
+  "inputTokens": 0,
+  "estimatedUsd": 0,
+  "estimatedYenAt155": 0,
+  "failure": "米国10年国債利回り: insufficient/stale comparison history at 2026-11-20"
 }
