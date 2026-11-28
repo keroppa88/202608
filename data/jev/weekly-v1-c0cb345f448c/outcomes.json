@@ -1068,8 +1068,14 @@
         "closeDrawdown": -8.9874
       },
       "100": {
-        "status": "pending",
-        "observations": 98
+        "status": "complete",
+        "entryDate": "2026-06-29",
+        "endDate": "2026-11-25",
+        "entry": 69609.88,
+        "maxRise": 3.3795,
+        "maxLoss": -18.9244,
+        "endReturn": -18.0984,
+        "closeDrawdown": -20.1564
       }
     }
   },
@@ -1099,7 +1105,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 93
+        "observations": 97
       }
     }
   },
@@ -1129,7 +1135,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 88
+        "observations": 92
       }
     }
   },
@@ -1159,7 +1165,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 83
+        "observations": 87
       }
     }
   },
@@ -1189,7 +1195,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 79
+        "observations": 83
       }
     }
   },
@@ -1219,7 +1225,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 74
+        "observations": 78
       }
     }
   },
@@ -1249,7 +1255,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 69
+        "observations": 73
       }
     }
   },
@@ -1279,7 +1285,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 65
+        "observations": 69
       }
     }
   },
@@ -1309,7 +1315,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 60
+        "observations": 64
       }
     }
   },
@@ -1339,7 +1345,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 55
+        "observations": 59
       }
     }
   },
@@ -1369,7 +1375,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 50
+        "observations": 54
       }
     }
   },
@@ -1399,7 +1405,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 45
+        "observations": 49
       }
     }
   },
@@ -1429,7 +1435,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 40
+        "observations": 44
       }
     }
   },
@@ -1459,7 +1465,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 38
+        "observations": 42
       }
     }
   },
@@ -1489,7 +1495,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 33
+        "observations": 37
       }
     }
   },
@@ -1519,7 +1525,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 28
+        "observations": 32
       }
     }
   },
@@ -1549,7 +1555,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 24
+        "observations": 28
       }
     }
   },
@@ -1568,12 +1574,18 @@
         "closeDrawdown": -2.1178
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-10-26",
+        "endDate": "2026-11-24",
+        "entry": 62449.9609375,
+        "maxRise": 3.8132,
+        "maxLoss": -9.629,
+        "endReturn": -6.0934,
+        "closeDrawdown": -12.7171
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 23
       }
     }
   },
@@ -1593,11 +1605,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 18
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 18
       }
     }
   },
@@ -1617,11 +1629,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       }
     }
   },
@@ -1641,11 +1653,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       }
     }
   },
@@ -2718,8 +2730,14 @@
         "closeDrawdown": -4.4552
       },
       "100": {
-        "status": "pending",
-        "observations": 96
+        "status": "complete",
+        "entryDate": "2026-06-29",
+        "endDate": "2026-11-27",
+        "entry": 3976.82,
+        "maxRise": 6.1227,
+        "maxLoss": -7.6586,
+        "endReturn": -4.0641,
+        "closeDrawdown": -12.4602
       }
     }
   },
@@ -2749,7 +2767,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 91
+        "observations": 95
       }
     }
   },
@@ -2779,7 +2797,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 86
+        "observations": 90
       }
     }
   },
@@ -2809,7 +2827,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 81
+        "observations": 85
       }
     }
   },
@@ -2839,7 +2857,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 77
+        "observations": 81
       }
     }
   },
@@ -2869,7 +2887,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 72
+        "observations": 76
       }
     }
   },
@@ -2899,7 +2917,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 67
+        "observations": 71
       }
     }
   },
@@ -2929,7 +2947,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 63
+        "observations": 67
       }
     }
   },
@@ -2959,7 +2977,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 59
+        "observations": 63
       }
     }
   },
@@ -2989,7 +3007,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 58
       }
     }
   },
@@ -3019,7 +3037,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 49
+        "observations": 53
       }
     }
   },
@@ -3049,7 +3067,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 44
+        "observations": 48
       }
     }
   },
@@ -3079,7 +3097,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 40
+        "observations": 44
       }
     }
   },
@@ -3109,7 +3127,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 38
+        "observations": 42
       }
     }
   },
@@ -3139,7 +3157,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 33
+        "observations": 37
       }
     }
   },
@@ -3169,7 +3187,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 28
+        "observations": 32
       }
     }
   },
@@ -3199,7 +3217,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 24
+        "observations": 28
       }
     }
   },
@@ -3218,12 +3236,18 @@
         "closeDrawdown": -0.9545
       },
       "20": {
-        "status": "pending",
-        "observations": 19
+        "status": "complete",
+        "entryDate": "2026-10-26",
+        "endDate": "2026-11-24",
+        "entry": 3963.1,
+        "maxRise": 1.6131,
+        "maxLoss": -7.339,
+        "endReturn": -5.0016,
+        "closeDrawdown": -8.2198
       },
       "100": {
         "status": "pending",
-        "observations": 19
+        "observations": 23
       }
     }
   },
@@ -3243,11 +3267,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 14
+        "observations": 18
       },
       "100": {
         "status": "pending",
-        "observations": 14
+        "observations": 18
       }
     }
   },
@@ -3267,11 +3291,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       }
     }
   },
@@ -3291,11 +3315,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       }
     }
   },
@@ -4368,8 +4392,14 @@
         "closeDrawdown": -2.7551
       },
       "100": {
-        "status": "pending",
-        "observations": 99
+        "status": "complete",
+        "entryDate": "2026-07-06",
+        "endDate": "2026-11-23",
+        "entry": 52828.44921875,
+        "maxRise": 3.6266,
+        "maxLoss": -9.142,
+        "endReturn": -6.1201,
+        "closeDrawdown": -11.411
       }
     }
   },
@@ -4399,7 +4429,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 94
+        "observations": 98
       }
     }
   },
@@ -4429,7 +4459,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 89
+        "observations": 93
       }
     }
   },
@@ -4459,7 +4489,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 84
+        "observations": 88
       }
     }
   },
@@ -4489,7 +4519,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 79
+        "observations": 83
       }
     }
   },
@@ -4519,7 +4549,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 74
+        "observations": 78
       }
     }
   },
@@ -4549,7 +4579,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 69
+        "observations": 73
       }
     }
   },
@@ -4579,7 +4609,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 64
+        "observations": 68
       }
     }
   },
@@ -4609,7 +4639,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 59
+        "observations": 63
       }
     }
   },
@@ -4639,7 +4669,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 58
       }
     }
   },
@@ -4669,7 +4699,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 50
+        "observations": 54
       }
     }
   },
@@ -4699,7 +4729,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 45
+        "observations": 49
       }
     }
   },
@@ -4729,7 +4759,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 40
+        "observations": 44
       }
     }
   },
@@ -4759,7 +4789,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 35
+        "observations": 39
       }
     }
   },
@@ -4789,7 +4819,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 30
+        "observations": 34
       }
     }
   },
@@ -4819,7 +4849,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 25
+        "observations": 29
       }
     }
   },
@@ -4849,7 +4879,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 20
+        "observations": 24
       }
     }
   },
@@ -4869,11 +4899,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       }
     }
   },
@@ -4893,11 +4923,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       }
     }
   },
@@ -4917,11 +4947,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       }
     }
   },
@@ -5994,8 +6024,14 @@
         "closeDrawdown": -19.4312
       },
       "100": {
-        "status": "pending",
-        "observations": 99
+        "status": "complete",
+        "entryDate": "2026-07-06",
+        "endDate": "2026-11-23",
+        "entry": 12914.4697265625,
+        "maxRise": 3.3721,
+        "maxLoss": -35.4042,
+        "endReturn": -25.7573,
+        "closeDrawdown": -36.3844
       }
     }
   },
@@ -6025,7 +6061,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 94
+        "observations": 98
       }
     }
   },
@@ -6055,7 +6091,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 89
+        "observations": 93
       }
     }
   },
@@ -6085,7 +6121,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 84
+        "observations": 88
       }
     }
   },
@@ -6115,7 +6151,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 79
+        "observations": 83
       }
     }
   },
@@ -6145,7 +6181,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 74
+        "observations": 78
       }
     }
   },
@@ -6175,7 +6211,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 69
+        "observations": 73
       }
     }
   },
@@ -6205,7 +6241,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 64
+        "observations": 68
       }
     }
   },
@@ -6235,7 +6271,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 59
+        "observations": 63
       }
     }
   },
@@ -6265,7 +6301,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 58
       }
     }
   },
@@ -6295,7 +6331,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 50
+        "observations": 54
       }
     }
   },
@@ -6325,7 +6361,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 45
+        "observations": 49
       }
     }
   },
@@ -6355,7 +6391,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 40
+        "observations": 44
       }
     }
   },
@@ -6385,7 +6421,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 35
+        "observations": 39
       }
     }
   },
@@ -6415,7 +6451,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 30
+        "observations": 34
       }
     }
   },
@@ -6445,7 +6481,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 25
+        "observations": 29
       }
     }
   },
@@ -6469,13 +6505,13 @@
         "endDate": "2026-11-20",
         "entry": 10843.3701171875,
         "maxRise": 8.1887,
-        "maxLoss": -23.0662,
+        "maxLoss": -23.0663,
         "endReturn": -22.4541,
         "closeDrawdown": -28.0333
       },
       "100": {
         "status": "pending",
-        "observations": 20
+        "observations": 24
       }
     }
   },
@@ -6495,11 +6531,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       }
     }
   },
@@ -6519,11 +6555,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       }
     }
   },
@@ -6543,11 +6579,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       }
     }
   },
@@ -7620,8 +7656,14 @@
         "closeDrawdown": -3.4221
       },
       "100": {
-        "status": "pending",
-        "observations": 99
+        "status": "complete",
+        "entryDate": "2026-07-06",
+        "endDate": "2026-11-23",
+        "entry": 7506.9599609375,
+        "maxRise": 4.4966,
+        "maxLoss": -8.3163,
+        "endReturn": -3.5939,
+        "closeDrawdown": -11.6197
       }
     }
   },
@@ -7651,7 +7693,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 94
+        "observations": 98
       }
     }
   },
@@ -7681,7 +7723,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 89
+        "observations": 93
       }
     }
   },
@@ -7711,7 +7753,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 84
+        "observations": 88
       }
     }
   },
@@ -7741,7 +7783,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 79
+        "observations": 83
       }
     }
   },
@@ -7771,7 +7813,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 74
+        "observations": 78
       }
     }
   },
@@ -7801,7 +7843,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 69
+        "observations": 73
       }
     }
   },
@@ -7831,7 +7873,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 64
+        "observations": 68
       }
     }
   },
@@ -7861,7 +7903,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 59
+        "observations": 63
       }
     }
   },
@@ -7891,7 +7933,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 58
       }
     }
   },
@@ -7921,7 +7963,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 50
+        "observations": 54
       }
     }
   },
@@ -7951,7 +7993,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 45
+        "observations": 49
       }
     }
   },
@@ -7981,7 +8023,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 40
+        "observations": 44
       }
     }
   },
@@ -8011,7 +8053,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 35
+        "observations": 39
       }
     }
   },
@@ -8041,7 +8083,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 30
+        "observations": 34
       }
     }
   },
@@ -8071,7 +8113,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 25
+        "observations": 29
       }
     }
   },
@@ -8101,7 +8143,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 20
+        "observations": 24
       }
     }
   },
@@ -8121,11 +8163,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       }
     }
   },
@@ -8145,11 +8187,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       }
     }
   },
@@ -8169,11 +8211,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       }
     }
   },
@@ -9246,8 +9288,14 @@
         "closeDrawdown": -6.996
       },
       "100": {
-        "status": "pending",
-        "observations": 99
+        "status": "complete",
+        "entryDate": "2026-07-06",
+        "endDate": "2026-11-23",
+        "entry": 25999.609375,
+        "maxRise": 6.6276,
+        "maxLoss": -13.4102,
+        "endReturn": -7.3465,
+        "closeDrawdown": -18.0511
       }
     }
   },
@@ -9277,7 +9325,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 94
+        "observations": 98
       }
     }
   },
@@ -9307,7 +9355,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 89
+        "observations": 93
       }
     }
   },
@@ -9337,7 +9385,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 84
+        "observations": 88
       }
     }
   },
@@ -9367,7 +9415,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 79
+        "observations": 83
       }
     }
   },
@@ -9397,7 +9445,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 74
+        "observations": 78
       }
     }
   },
@@ -9427,7 +9475,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 69
+        "observations": 73
       }
     }
   },
@@ -9457,7 +9505,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 64
+        "observations": 68
       }
     }
   },
@@ -9487,7 +9535,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 59
+        "observations": 63
       }
     }
   },
@@ -9517,7 +9565,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 54
+        "observations": 58
       }
     }
   },
@@ -9547,7 +9595,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 50
+        "observations": 54
       }
     }
   },
@@ -9577,7 +9625,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 45
+        "observations": 49
       }
     }
   },
@@ -9607,7 +9655,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 40
+        "observations": 44
       }
     }
   },
@@ -9637,7 +9685,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 35
+        "observations": 39
       }
     }
   },
@@ -9667,7 +9715,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 30
+        "observations": 34
       }
     }
   },
@@ -9697,7 +9745,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 25
+        "observations": 29
       }
     }
   },
@@ -9727,7 +9775,7 @@
       },
       "100": {
         "status": "pending",
-        "observations": 20
+        "observations": 24
       }
     }
   },
@@ -9747,11 +9795,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       },
       "100": {
         "status": "pending",
-        "observations": 15
+        "observations": 19
       }
     }
   },
@@ -9771,11 +9819,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       },
       "100": {
         "status": "pending",
-        "observations": 10
+        "observations": 14
       }
     }
   },
@@ -9795,11 +9843,11 @@
       },
       "20": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       },
       "100": {
         "status": "pending",
-        "observations": 5
+        "observations": 9
       }
     }
   }

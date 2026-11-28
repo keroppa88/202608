@@ -2,9 +2,9 @@
   "version": "weekly-v1-c0cb345f448c",
   "implementationHash": "b1dd104f0823351157a6a72f84b2f1488af4a295b787261bcccb4994dd42a297",
   "model": "jev-1.13.0",
-  "generatedAt": "2026-11-21T07:58:09.795Z",
-  "from": "2021-11-26",
-  "through": "2026-11-20",
+  "generatedAt": "2026-11-28T08:40:20.926Z",
+  "from": "2021-12-03",
+  "through": "2026-11-27",
   "expected": 1566,
   "completed": 296,
   "methodology": {
@@ -161,26 +161,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 46,
-            "pending": 4,
+            "n": 47,
+            "pending": 3,
             "missing": 0,
-            "winRate": 65.2174,
+            "winRate": 63.8298,
             "insufficient": false,
             "maxRise": {
-              "mean": 7.2398,
-              "median": 7.8851
+              "mean": 7.1669,
+              "median": 7.8461
             },
             "maxLoss": {
-              "mean": -5.2769,
-              "median": -4.1646
+              "mean": -5.3695,
+              "median": -4.3814
             },
             "endReturn": {
-              "mean": 2.0267,
-              "median": 3.5525
+              "mean": 1.854,
+              "median": 3.2246
             },
             "closeDrawdown": {
-              "mean": -6.8118,
-              "median": -6.0624
+              "mean": -6.9375,
+              "median": -6.3997
             }
           },
           "gte90": {
@@ -293,25 +293,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 29,
-            "pending": 21,
+            "n": 30,
+            "pending": 20,
             "missing": 0,
-            "winRate": 86.2069,
+            "winRate": 83.3333,
             "insufficient": false,
             "maxRise": {
-              "mean": 26.1513,
-              "median": 28.3059
+              "mean": 25.3922,
+              "median": 27.8026
             },
             "maxLoss": {
-              "mean": -5.6349,
-              "median": -4.6477
+              "mean": -6.0778,
+              "median": -4.8451
             },
             "endReturn": {
-              "mean": 16.5347,
-              "median": 17.6854
+              "mean": 15.3802,
+              "median": 17.608
             },
             "closeDrawdown": {
-              "mean": -14.6062,
+              "mean": -14.7912,
               "median": -15.1067
             }
           },
@@ -564,25 +564,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 46,
-            "pending": 4,
+            "n": 47,
+            "pending": 3,
             "missing": 0,
-            "winRate": 67.3913,
+            "winRate": 65.9574,
             "insufficient": false,
             "maxRise": {
-              "mean": 4.5077,
-              "median": 4.519
+              "mean": 4.4461,
+              "median": 4.4701
             },
             "maxLoss": {
-              "mean": -3.514,
-              "median": -2.922
+              "mean": -3.5954,
+              "median": -2.9274
             },
             "endReturn": {
-              "mean": 1.2977,
-              "median": 1.9847
+              "mean": 1.1636,
+              "median": 1.725
             },
             "closeDrawdown": {
-              "mean": -4.5243,
+              "mean": -4.6029,
               "median": -3.6721
             }
           },
@@ -696,26 +696,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 29,
-            "pending": 21,
+            "n": 30,
+            "pending": 20,
             "missing": 0,
-            "winRate": 96.5517,
+            "winRate": 93.3333,
             "insufficient": false,
             "maxRise": {
-              "mean": 12.175,
-              "median": 12.5981
+              "mean": 11.9732,
+              "median": 12.3975
             },
             "maxLoss": {
-              "mean": -3.7906,
-              "median": -3.3389
+              "mean": -3.9195,
+              "median": -3.4312
             },
             "endReturn": {
-              "mean": 8.4619,
-              "median": 8.7856
+              "mean": 8.0444,
+              "median": 8.6715
             },
             "closeDrawdown": {
-              "mean": -8.3416,
-              "median": -10.5679
+              "mean": -8.4789,
+              "median": -11.0249
             }
           },
           "gte90": {
@@ -1099,25 +1099,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 29,
-            "pending": 20,
+            "n": 30,
+            "pending": 19,
             "missing": 0,
-            "winRate": 96.5517,
+            "winRate": 93.3333,
             "insufficient": false,
             "maxRise": {
-              "mean": 9.2705,
-              "median": 7.6
+              "mean": 9.0823,
+              "median": 7.5879
             },
             "maxLoss": {
-              "mean": -4.3206,
-              "median": -2.786
+              "mean": -4.4813,
+              "median": -3.1594
             },
             "endReturn": {
-              "mean": 6.0272,
-              "median": 4.5242
+              "mean": 5.6223,
+              "median": 4.3452
             },
             "closeDrawdown": {
-              "mean": -7.0199,
+              "mean": -7.1663,
               "median": -6.3351
             }
           },
@@ -1502,25 +1502,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 29,
-            "pending": 20,
+            "n": 30,
+            "pending": 19,
             "missing": 0,
-            "winRate": 79.3103,
+            "winRate": 76.6667,
             "insufficient": false,
             "maxRise": {
-              "mean": 58.1658,
-              "median": 70.6195
+              "mean": 56.3393,
+              "median": 69.5789
             },
             "maxLoss": {
-              "mean": -10.8896,
-              "median": -9.7136
+              "mean": -11.7067,
+              "median": -10.1181
             },
             "endReturn": {
-              "mean": 35.3921,
-              "median": 52.9844
+              "mean": 33.3538,
+              "median": 49.8153
             },
             "closeDrawdown": {
-              "mean": -24.1899,
+              "mean": -24.5964,
               "median": -28.6116
             }
           },
@@ -1905,26 +1905,26 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 29,
-            "pending": 20,
+            "n": 30,
+            "pending": 19,
             "missing": 0,
-            "winRate": 96.5517,
+            "winRate": 93.3333,
             "insufficient": false,
             "maxRise": {
-              "mean": 10.1161,
-              "median": 9.8159
+              "mean": 9.9288,
+              "median": 9.781
             },
             "maxLoss": {
-              "mean": -4.8734,
-              "median": -4.5427
+              "mean": -4.9882,
+              "median": -4.9492
             },
             "endReturn": {
-              "mean": 8.0811,
-              "median": 7.8527
+              "mean": 7.692,
+              "median": 7.7796
             },
             "closeDrawdown": {
-              "mean": -6.4697,
-              "median": -5.9497
+              "mean": -6.6414,
+              "median": -6.0341
             }
           },
           "gte90": {
@@ -2308,25 +2308,25 @@
             "center": null,
             "lower": null,
             "upper": null,
-            "n": 29,
-            "pending": 20,
+            "n": 30,
+            "pending": 19,
             "missing": 0,
-            "winRate": 86.2069,
+            "winRate": 83.3333,
             "insufficient": false,
             "maxRise": {
-              "mean": 14.1961,
-              "median": 14.8623
+              "mean": 13.9438,
+              "median": 14.4619
             },
             "maxLoss": {
-              "mean": -7.4248,
-              "median": -7.6112
+              "mean": -7.6243,
+              "median": -7.6281
             },
             "endReturn": {
-              "mean": 9.5774,
-              "median": 11.8318
+              "mean": 9.0133,
+              "median": 11.6779
             },
             "closeDrawdown": {
-              "mean": -10.6777,
+              "mean": -10.9234,
               "median": -9.7843
             }
           },
